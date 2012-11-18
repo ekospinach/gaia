@@ -512,7 +512,7 @@ const GridManager = (function() {
     return iconsForApp && iconsForApp[descriptor.entry_point || ""];
   }
 
-  function getIconsForApp(app) {
+  function getIconsForApp(descriptor) {
     return appIcons[descriptor.manifestURL];
   }
 
