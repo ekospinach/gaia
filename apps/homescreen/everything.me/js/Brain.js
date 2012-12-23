@@ -92,11 +92,12 @@ Evme.Brain = new function Evme_Brain() {
      */
     function catchCallback(_class, _event, _data) {
         logger.debug(_class + "." + _event + "(", (_data || ""), ")");
+        Evme.Utils.log('CB: ' + _class + "." + _event + " (" + _data + ")");
         
         try {
             self[_class] && self[_class][_event] && self[_class][_event](_data || {});
         } catch(ex){
-            Evme.Utils.log('Evme CB Error: ' + ex.message);
+            Evme.Utils.log('CB Error: ' + ex.message);
             logger.error(ex);
         }
     }

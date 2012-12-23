@@ -118,7 +118,9 @@ Evme.SmartFolder = function Evme_SartFolder(_options) {
                 }
             });
         
-        Evme.EventHandler.trigger(NAME, "load");
+        Evme.EventHandler.trigger(NAME, "load", {
+            "apps": apps
+        });
         
         return iconsResult;
     };

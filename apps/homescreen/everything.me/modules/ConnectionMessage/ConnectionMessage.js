@@ -13,12 +13,17 @@ Evme.ConnectionMessage = new function Evme_ConnectionMessage() {
     };
     
     this.show = function show(message, elParent) {
-        if (Evme.$('.connection-message', elParent).length > 0) {
-            return
+        !message && (message = DEFAULT_MESSAGE);
+        
+        var el = Evme.$('.connection-message', elParent);
+        if (el.length > 0) {
+            el = el[0];
+            el.innerHTML = message;
+        } else {
+            el = Evme.$create('div', {'class': "connection-message"}, message);
+            elParent.appendChild(el);
         }
         
-        var el = Evme.$create('div', {'class': "connection-message"}, (message || DEFAULT_MESSAGE));
-        elParent.appendChild(el);
         el.style.cssText = "margin-top: " + (-el.offsetHeight/2) + "px";
         elParent.classList.add(CLASS_NO_CONNECTION);
         

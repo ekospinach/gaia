@@ -615,21 +615,31 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     };
     
     this.cancelQueue = function cancelQueue() {
-        for (var i=0; i<requestsToPerformOnOnline.length; i++) {
+        var length = requestsToPerformOnOnline.length;
+        for (var i=0; i<length; i++) {
+            requestsToPerformOnOnline[i] &&
             requestsToPerformOnOnline[i].abort();
         }
         
         requestsToPerformOnOnline = [];
+        
+        Evme.EventHandler.trigger(NAME, "offlineQueueAborted", {
+            "numberOfItemsAborted": length
+        });
     };
     
     this.backOnline = function backOnline() {
-        if (requestsToPerformOnOnline.length == 0) return;
-        
-        for (var i=0; i<requestsToPerformOnOnline.length; i++) {
+        var length = requestsToPerformOnOnline.length;
+        for (var i=0; i<length; i++) {
+            requestsToPerformOnOnline[i] &&
             requestsToPerformOnOnline[i].request();
         }
         
         requestsToPerformOnOnline = [];
+        
+        Evme.EventHandler.trigger(NAME, "offlineQueueProcessed", {
+            "numberOfItemsProcessed": length
+        });
     };
     
     // set locale and timezone cookies
@@ -659,8 +669,15 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         
         var shouldInit = Evme.DoATAPI.Session.shouldInit();
         if (requestsToPerformOnOnline.length != 0 && shouldInit.should && !doesntNeedSession[methodNamespace+"." + methodName] && !manualCredentials && !dontRetryIfNoSession) {
-            requestsQueue[JSON.stringify(options)] = options;
-            reInitSession(shouldInit.cause);
+            Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+                requestsQueue[JSON.stringify(options)] = options;
+                
+                if (isOnline) {
+                    reInitSession(shouldInit.cause);
+                } else {
+                    fireOfflineEvent();
+                }
+            });
             return false;
         }
         
@@ -735,16 +752,18 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                     _request.request();
                 } else {
                     requestsToPerformOnOnline.push(_request);
-                    
-                    Evme.EventHandler.trigger(NAME, "cantSendRequest", {
-                        "request": request,
-                        "queue": requestsToPerformOnOnline
-                    });
+                    fireOfflineEvent();
                 }
             });
         }
         
         return _request;
+    }
+    
+    function fireOfflineEvent() {
+        Evme.EventHandler.trigger(NAME, "cantSendRequest", {
+            "queue": requestsToPerformOnOnline
+        });
     }
     
     function getTestsReporting() {
