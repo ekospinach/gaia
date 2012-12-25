@@ -422,7 +422,7 @@ Evme.Brain = new function Evme_Brain() {
                 type = data.type;
             
             cleared = false;
-            
+
             Evme.Helper.getList().classList.remove("default");
 
             if (type !== "refine") {

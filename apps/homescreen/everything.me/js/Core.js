@@ -133,6 +133,10 @@ window.Evme = new function Evme_Core() {
             "el": Evme.$("#evmeBanner")
         });
 
+        Evme.Banner.init({
+            "el": Evme.$("#evmeBanner")
+        });
+
         Evme.SearchHistory.init({
             "maxEntries": data.maxHistoryEntries
         });
