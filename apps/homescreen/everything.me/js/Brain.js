@@ -578,17 +578,15 @@ Evme.Brain = new function Evme_Brain() {
             );
 
             if (isAppInstalled) {
-                var msg = _('app-exists-in-home-screen', {name: data.data.name});
-                window.alert(msg);
+                window.alert(Evme.Utils.l10n('alert', 'app-install-exists', {'name': data.data.name}));
                 return;
             }
-
-            var msg = _('add-to-home-screen-question', {name: data.data.name})
-            var response = window.confirm(msg);
-            if (!response) {
+            
+            var msg = Evme.Utils.l10n('alert', 'app-install-confirm', {'name': data.data.name});
+            if (!window.confirm(msg)) {
                 return;
             }
-
+            
             // get icon data
             var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
             // make it round
@@ -600,7 +598,9 @@ Evme.Brain = new function Evme_Brain() {
                     "icon": roundedAppIcon
                 });
                 // display system banner
-                Evme.Banner.show(_('app-added-to-home-screen', {name: data.data.name}));
+                Evme.Banner.show('app-install-success', {
+                    "name": data.data.name
+                });
             });
         };
 
