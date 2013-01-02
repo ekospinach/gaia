@@ -641,7 +641,6 @@ Evme.Brain = new function Evme_Brain() {
         this.animateAppLoading = function animateAppLoading(data) {
             Searcher.cancelRequests();
 
-
             loadingApp = data.app;
             loadingAppId = data.data.id;
             bNeedsLocation = data.data.requiresLocation && !Evme.DoATAPI.hasLocation();
@@ -653,8 +652,6 @@ Evme.Brain = new function Evme_Brain() {
                 "favUrl": data.app.getFavLink(),
                 "name": data.data.name,
                 "id": data.appId,
-                "query": Searcher.getDisplayedQuery(),
-                "source": Searcher.getDisplayedSource(),
                 "icon": data.data.icon,
                 "installed": data.data.installed || false
             };
@@ -672,13 +669,31 @@ Evme.Brain = new function Evme_Brain() {
                 newPos = {
                     "top": (appsListBounds.height - appBounds.height)/2 - ((data.isFolder? elAppsList.dataset.scrollOffset*1 : Evme.Apps.getScrollPosition()) || 0),
                     "left": (appsListBounds.width - appBounds.width)/2
-                };
+                },
+                
+                elPseudo = Evme.$create('li', {'class': "inplace", 'id': "loading-app"}, loadingApp.getHtml()),
+                useClass = !data.isFolder,
+                
+                appGridPosition = data.app.getPositionOnGrid(),
+                currentFolder = Evme.Brain.SmartFolder.get();
 
+            // update analytics data
+            loadingAppAnalyticsData.rowIndex = appGridPosition.row;
+            loadingAppAnalyticsData.colIndex = appGridPosition.col;
+            loadingAppAnalyticsData.totalRows = appGridPosition.rows;
+            loadingAppAnalyticsData.totalCols = appGridPosition.cols;
+            
+            if (currentFolder) {
+                loadingAppAnalyticsData.query = currentFolder.getName();
+                loadingAppAnalyticsData.experience = currentFolder.getName();
+                loadingAppAnalyticsData.source = SEARCH_SOURCES.SHORTCUT;
+            } else {
+                loadingAppAnalyticsData.query = Searcher.getDisplayedQuery();
+                loadingAppAnalyticsData.source = Searcher.getDisplayedSource();
+            }
+            
             Evme.$remove("#loading-app");
-
-            var elPseudo = Evme.$create('li', {'class': "inplace", 'id': "loading-app"}, loadingApp.getHtml()),
-                useClass = !data.isFolder;
-
+            
             if (data.data.installed) {
                 elPseudo.classList.add("installed");
             }
@@ -707,7 +722,7 @@ Evme.Brain = new function Evme_Brain() {
 
                 if (bNeedsLocation) {
                     Evme.Location.requestUserLocation(function onSuccess(data) {
-                        if (Brain.SmartFolder.get()) {
+                        if (currentFolder) {
                             Brain.SmartFolder.loadAppsIntoFolder(function onAppsReloaded(apps) {
                                 updateLoadingAppData(apps);
                                 goToApp(loadingAppAnalyticsData);

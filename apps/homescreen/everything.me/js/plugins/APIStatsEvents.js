@@ -85,6 +85,7 @@ Evme.APIStatsEvents = function Evme_APIStatsEvents(Sandbox){
                 "appName": "{appName}",
                 "appId": "{appId}",
                 "query": "{query}",
+                "experience": "{experience}",
                 "feature": "{source}"
             },
             

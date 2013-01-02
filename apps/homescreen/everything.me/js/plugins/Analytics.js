@@ -2,7 +2,7 @@
  * Analytics class
  */
 Evme.Analytics = new function Evme_Analytics() {
-    var self = this, logger, ga, idle, providers = [], immediateProviders = [], queueArr = [], maxQueueCount, getCurrentAppsRowsCols, STORAGE_QUERY = "analyticsLastSearchQuery",
+    var self = this, logger, ga, idle, providers = [], immediateProviders = [], queueArr = [], maxQueueCount, STORAGE_QUERY = "analyticsLastSearchQuery",
         // Google Analytics load props
         GAScriptLoadStatus, GAScriptLoadSubscribers = [];
     
@@ -40,7 +40,6 @@ Evme.Analytics = new function Evme_Analytics() {
             // bind to event handler (js/EventHandler.js)
             Evme.EventHandler && Evme.EventHandler.bind(catchCallback);
         
-            getCurrentAppsRowsCols = options.getCurrentAppsRowsCols;
             getCurrentSearchQuery = options.getCurrentSearchQuery;
             getCurrentSearchSource = options.getCurrentSearchSource;
             options.Brain.App.appRedirectBridge = function appRedirectBridge(appUrl, data){
@@ -392,26 +391,23 @@ Evme.Analytics = new function Evme_Analytics() {
     };
    
     this.Core = new function Core(){
-        var ROWS = 1, COLS = 0, redirectData;
-           
+        var redirectData;
+        
         this.redirectedToApp = function redirectedToApp(data) {
-            var total = getCurrentAppsRowsCols(),
-                colIndex = data.index%(total[COLS]),
-                rowIndex = Math.floor(data.index/(total[COLS]));
-            
             var queueData = {
                 "url": data.appUrl,
-                "rowIndex": rowIndex+1,
-                "colIndex": colIndex+1,
-                "totalRows": total[ROWS],
-                "totalCols": total[COLS],
                 "more": data.isMore ? 1 : 0,
                 "appName": data.name,
                 "appId": data.id,
                 "appIdName": data.id+":"+data.name,
                 "keyboardVisible": data.keyboardVisible,
                 "query": data.query,
-                "source": data.source
+                "source": data.source,
+                "experience": data.experience,
+                "rowIndex": data.rowIndex,
+                "colIndex": data.colIndex,
+                "totalRows": data.totalRows,
+                "totalCols": data.totalCols
             };
 
             queue({

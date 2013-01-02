@@ -624,7 +624,7 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
 
         self.remove();
         
-        el = Evme.$create('li', {'class': "new", 'id': "app_" + cfg.id});
+        el = Evme.$create('li', {'class': "app new", 'id': "app_" + cfg.id});
         self.update();
         
         if (cfg.installed) {
@@ -716,6 +716,36 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
     
     this.getCfg = function getCfg() {
         return cfg;
+    };
+    
+    this.getPositionOnGrid = function getPositionOnGrid() {
+        var pos = {
+                'row': -1,
+                'col': -1,
+                'rows': -1,
+                'cols': -1
+            },
+            elParent = el.parentNode;
+            
+        if (elParent) {
+            var bounds = el.getBoundingClientRect(),
+                parentBounds = elParent.getBoundingClientRect(),
+                width = bounds.width,
+                height = bounds.height,
+                left = bounds.left - parentBounds.left,
+                top = bounds.top - parentBounds.top,
+                
+                elParentWidth = elParent.offsetWidth,
+                numberOfApps = Evme.$('.app', elParent).length;
+            
+            
+            pos.col = Math.floor(left / width);
+            pos.row = Math.floor(top / height);
+            pos.cols = Math.round(elParentWidth / width)
+            pos.rows = totalRows = Math.ceil(numberOfApps / pos.cols);
+        }
+        
+        return pos;
     };
     
     this.setIcon = function setIcon(icon, bRedraw) {
