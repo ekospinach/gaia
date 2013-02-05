@@ -21,6 +21,7 @@ const GridManager = (function() {
   var numberOfSpecialPages = 0, landingPage, prevLandingPage, nextLandingPage;
   var pages = [];
   var currentPage = 1;
+  var excludedEvtPropagationPages = [0];
 
   var saveStateTimeout = null;
 
@@ -48,6 +49,9 @@ const GridManager = (function() {
   function handleEvent(evt) {
     switch (evt.type) {
       case touchstart:
+        if (excludedEvtPropagationPages.indexOf(currentPage)) {
+          evt.stopPropagation();
+        }
         touchStartTimestamp = evt.timeStamp;
         startEvent = isTouch ? evt.touches[0] : evt;
         deltaX = 0;
