@@ -1,4 +1,4 @@
-#evmeContainer #shortcuts-select {
+.evmeContainer #shortcuts-select {
     position: absolute;
     top: 0;
     left: 0;
@@ -8,7 +8,7 @@
     pointer-events: none;
 }
 
-#evmeContainer.shortcuts-customizing #search {
+.evmeContainer.shortcuts-customizing #search {
     pointer-events: none;
     -moz-animation: fadeout .2s linear;
     -moz-animation-fill-mode: forwards;
@@ -23,6 +23,6 @@
     }
 }
 
-#evmeContainer #shortcuts-customize-loading {
+.evmeContainer #shortcuts-customize-loading {
     z-index: 800;
 }

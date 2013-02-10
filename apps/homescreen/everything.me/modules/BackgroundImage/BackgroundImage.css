@@ -11,9 +11,9 @@
 .evme-displayed #search-overlay {
     opacity: 1;
 }
-#evmeContainer #search-header.animate,
-#evmeContainer #header.animate,
-#evmeContainer #evmeApps.animate {
+.evmeContainer #search-header.animate,
+.evmeContainer #header.animate,
+.evmeContainer #evmeApps.animate {
     transition: opacity .3s linear;
 }
     #search-overlay .img {
@@ -125,9 +125,9 @@
     display: none;
 }
 
-#evmeContainer #search-overlay .default-image.visible {
+.evmeContainer #search-overlay .default-image.visible {
     opacity: 0;
 }
-#evmeContainer #search-overlay.default .default-image.visible {
+.evmeContainer #search-overlay.default .default-image.visible {
     opacity: 1;
 }

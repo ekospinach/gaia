@@ -1,4 +1,4 @@
-#evmeContainer {
+.evmeContainer {
     position: fixed;
     overflow: hidden;
     margin: 0;
@@ -13,28 +13,28 @@
     text-align: left;
 }
 
-#evmeContainer div, #evmeContainer p, #evmeContainer span,
-#evmeContainer h1, #evmeContainer h2, #evmeContainer h3, #evmeContainer h4,
-#evmeContainer a, #evmeContainer em, #evmeContainer img, #evmeContainer b,
-#evmeContainer ol, #evmeContainer ul, #evmeContainer li,
-#evmeContainer fieldset, #evmeContainer form, #evmeContainer label, #evmeContainer legend,
-#evmeContainer input, #evmeContainer textarea,
-#evmeContainer table, #evmeContainer tr, #evmeContainer th, #evmeContainer td,
-#evmeContainer canvas {
+.evmeContainer div, .evmeContainer p, .evmeContainer span,
+.evmeContainer h1, .evmeContainer h2, .evmeContainer h3, .evmeContainer h4,
+.evmeContainer a, .evmeContainer em, .evmeContainer img, .evmeContainer b,
+.evmeContainer ol, .evmeContainer ul, .evmeContainer li,
+.evmeContainer fieldset, .evmeContainer form, .evmeContainer label, .evmeContainer legend,
+.evmeContainer input, .evmeContainer textarea,
+.evmeContainer table, .evmeContainer tr, .evmeContainer th, .evmeContainer td,
+.evmeContainer canvas {
     margin: 0;
     padding: 0;
     border: 0;
 }
 
-#evmeContainer a {
+.evmeContainer a {
     text-decoration: none;
     color: inherit;
 }
-#evmeContainer ul {
+.evmeContainer ul {
     list-style-type: none;
 }
 
-#evmeContainer .textinput {
+.evmeContainer .textinput {
     border: none;
     background: #fff;
     width: 100%;
@@ -46,7 +46,7 @@
     border-radius: 6px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .4), 0 2px 0 0 rgba(255, 255, 255, .2), 0 1px 2px 0 rgba(0, 0, 0, .4) inset;
 }
-#evmeContainer .screen {
+.evmeContainer .screen {
     position: absolute;
     top: 0;
     left: 0;
@@ -56,7 +56,7 @@
     z-index: 500;
 }
 
-#evmeContainer .arrow-next {
+.evmeContainer .arrow-next {
     font-weight: 600;
     font-size: 15px;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .7);
@@ -69,7 +69,7 @@
     background: -moz-linear-gradient(center top, #d1e8f0 0, #89c4d8 100%);
     box-shadow: 0 1px 0 0 rgba(255, 255, 255, .4) inset;
 }
-    #evmeContainer .arrow-next:before {
+    .evmeContainer .arrow-next:before {
         content: "";
         position: absolute;
         top: 50%;
@@ -85,7 +85,7 @@
         box-shadow: 1px 0 0 0 #ffffff, 0 1px 0 0 #ffffff inset;
     }
 
-#evmeContainer .bbutton {
+.evmeContainer .bbutton {
     display: inline-block;
     color: #617075;
     text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
@@ -103,14 +103,14 @@
     cursor: pointer;
     -moz-user-select: none;
 }
-#evmeContainer .bbutton.active {
+.evmeContainer .bbutton.active {
     color: #fff;
     border-color: #6fadc2;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, .5);
     background: -moz-linear-gradient(center top, #07a7db 0, #038cb8 50%, #0384ad 50%, #017297 100%);
 }
 
-#evmeContainer .pbutton {
+.evmeContainer .pbutton {
     display: inline-block;
     cursor: pointer;
     padding: 6px 12px;

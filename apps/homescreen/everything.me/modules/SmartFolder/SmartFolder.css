@@ -1,4 +1,4 @@
-#evmeContainer .smart-folder {
+.evmeContainer .smart-folder {
     position: absolute;
     top: 0;
     left: 0;
@@ -13,11 +13,11 @@
     -moz-transition: all .3s linear;
     transition: all .3s linear;
 }
-#evmeContainer .smart-folder.maxheight {
+.evmeContainer .smart-folder.maxheight {
     bottom: auto;
     top: 50%;
 }
-#evmeContainer .smart-folder-screen {
+.evmeContainer .smart-folder-screen {
     -moz-transform: translateZ(0);
     transform: translateZ(0);
     background: #000;
@@ -26,21 +26,21 @@
     opacity: 0;
 }
 
-#evmeContainer .smart-folder.visible {
+.evmeContainer .smart-folder.visible {
     opacity: 1;
 }
-#evmeContainer .smart-folder-screen.visible {
+.evmeContainer .smart-folder-screen.visible {
     opacity: .8;
 }
 
-    #evmeContainer .smart-folder.animate .title,
-    #evmeContainer .smart-folder.animate > .close,
-    #evmeContainer .smart-folder.animate .evme-apps
+    .evmeContainer .smart-folder.animate .title,
+    .evmeContainer .smart-folder.animate > .close,
+    .evmeContainer .smart-folder.animate .evme-apps
     {
         -moz-transition: opacity .4s ease;
         transition: opacity .4s ease;
     }
-    #evmeContainer .smart-folder .title {
+    .evmeContainer .smart-folder .title {
         position: relative;
         z-index: 50;
         height: 55px;
@@ -55,11 +55,11 @@
         border-bottom: 1px solid rgba(255, 255, 255, .8);
         -moz-box-sizing: border-box;
     }
-        #evmeContainer .smart-folder .title span {
+        .evmeContainer .smart-folder .title span {
             color: #b4dae7;
             text-transform: capitalize;
         }
-        #evmeContainer .smart-folder .title em {
+        .evmeContainer .smart-folder .title em {
             position: absolute;
             left: 40px;
             bottom: -5px;
@@ -70,7 +70,7 @@
             transform: rotate(45deg);
         }
     
-    #evmeContainer .smart-folder .image {
+    .evmeContainer .smart-folder .image {
         position: absolute;
         top: 55px;
         left: 0;
@@ -80,7 +80,7 @@
         background-position: 50% 0;
         background-size: cover;
     }
-        #evmeContainer .smart-folder .image .image-overlay {
+        .evmeContainer .smart-folder .image .image-overlay {
             position: absolute;
             top: 0;
             left: 0;
@@ -89,7 +89,7 @@
             z-index: 20;
             background: rgba(0, 0, 0, .55);
         }
-    #evmeContainer .smart-folder > .close {
+    .evmeContainer .smart-folder > .close {
         background: rgba(0, 0, 0, .1) url('/everything.me/images/imageclose.png') 50% 50% no-repeat;
         position: absolute;
         top: 0;
@@ -99,7 +99,7 @@
         cursor: pointer;
         z-index: 100;
     }
-        #evmeContainer .smart-folder > .close:after {
+        .evmeContainer .smart-folder > .close:after {
             content: "";
             position: absolute;
             top: 4px;
@@ -109,7 +109,7 @@
             background: rgba(0, 0, 0, .3);
             border-right: 1px solid rgba(255, 255, 255, .3);
         }
-    #evmeContainer .smart-folder .evme-apps {
+    .evmeContainer .smart-folder .evme-apps {
         position: absolute;
         top: 55px;
         left: 5px;
@@ -119,30 +119,30 @@
         width: auto;
         height: auto;
     }
-        #evmeContainer .smart-folder .evme-apps ul.has-more:not(.connection-error) {
+        .evmeContainer .smart-folder .evme-apps ul.has-more:not(.connection-error) {
             padding-bottom: 45px;
         }
-        #evmeContainer .smart-folder .evme-apps li {
+        .evmeContainer .smart-folder .evme-apps li {
             width: 25%;
         }
-        #evmeContainer .smart-folder .evme-apps li.installed-separator {
+        .evmeContainer .smart-folder .evme-apps li.installed-separator {
             width: 100%;
         }
     
-    #evmeContainer .smart-folder .connection-message {
+    .evmeContainer .smart-folder .connection-message {
         width: 100%;
     }
-    #evmeContainer .smart-folder .has-installed .connection-message,
-    #evmeContainer .smart-folder .connection-message:first-child:last-child {
+    .evmeContainer .smart-folder .has-installed .connection-message,
+    .evmeContainer .smart-folder .connection-message:first-child:last-child {
         position: absolute;
         top: 50%;
         left: 0;
         right: 0;
     }
-    #evmeContainer .smart-folder .has-installed .connection-message {
+    .evmeContainer .smart-folder .has-installed .connection-message {
         transform: translateY(35px);
     }   
-    #evmeContainer .smart-folder .loading-more .connection-message {
+    .evmeContainer .smart-folder .loading-more .connection-message {
         position: static;
         top: auto;
         left: auto;
@@ -154,7 +154,7 @@
         transform: translateY(0);
     }
     
-    #evmeContainer .smart-folder #bgimage-overlay {
+    .evmeContainer .smart-folder #bgimage-overlay {
         top: 0;
         bottom: 0;
         z-index: 120;
@@ -162,7 +162,7 @@
         overflow: hidden;
     }
 
-#evmeContainer .smart-folder .evme-apps .loadmore {
+.evmeContainer .smart-folder .evme-apps .loadmore {
     position: absolute;
     bottom: 5px;
     left: 0;
@@ -182,50 +182,50 @@
     transition: none;
     display: none;
 }
-#evmeContainer .smart-folder .loading-more:not(.connection-error) .loadmore {
+.evmeContainer .smart-folder .loading-more:not(.connection-error) .loadmore {
     display: block;
 }
-#evmeContainer .smart-folder .loading-more .loadmore progress {
+.evmeContainer .smart-folder .loading-more .loadmore progress {
     transform: translate(0, -5px);
 }
-#evmeContainer .smart-folder .loading-more .loadmore b.label {
+.evmeContainer .smart-folder .loading-more .loadmore b.label {
     display: inline-block;
     transform: translate(4px, 0);
 }
     
-#evmeContainer .smart-folder.full-image {
+.evmeContainer .smart-folder.full-image {
     
 }
-    #evmeContainer .smart-folder.full-image .evme-apps,
-    #evmeContainer .smart-folder.full-image > .close,
-    #evmeContainer .smart-folder.full-image .image-overlay {
+    .evmeContainer .smart-folder.full-image .evme-apps,
+    .evmeContainer .smart-folder.full-image > .close,
+    .evmeContainer .smart-folder.full-image .image-overlay {
         pointer-events: none;
     }
-    #evmeContainer .smart-folder.full-image #bgimage-overlay {
+    .evmeContainer .smart-folder.full-image #bgimage-overlay {
         opacity: 1;
         pointer-events: inherit;
     }
 
-#evmeContainer.loading-app .smart-folder .title,
-#evmeContainer.loading-app .smart-folder > .close,
-#evmeContainer.loading-app .smart-folder .evme-apps li,
-#evmeContainer.loading-app.empty-query:not(.keyboard-visible) #shortcuts
+.evmeContainer.loading-app .smart-folder .title,
+.evmeContainer.loading-app .smart-folder > .close,
+.evmeContainer.loading-app .smart-folder .evme-apps li,
+.evmeContainer.loading-app.empty-query:not(.keyboard-visible) #shortcuts
 {
     opacity: 0;
     pointer-events: none;
 }
-#evmeContainer.loading-app .smart-folder .evme-apps {
+.evmeContainer.loading-app .smart-folder .evme-apps {
     pointer-events: none;
 }
-#evmeContainer.loading-app .smart-folder .evme-apps li#loading-app {
+.evmeContainer.loading-app .smart-folder .evme-apps li#loading-app {
     opacity: 1;
 }
 
-#evmeContainer.loading-app .smart-folder .connection-error .connection-message {
+.evmeContainer.loading-app .smart-folder .connection-error .connection-message {
     opacity: 0;
 }
 
 
-#evmeContainer.smart-folder-visible #search-header {
+.evmeContainer.smart-folder-visible #search-header {
     display: none;
 }

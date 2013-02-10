@@ -1,4 +1,4 @@
-#evmeContainer {
+.evmeContainer {
   opacity: 0;
   -moz-transition: opacity .3s ease;
 }

@@ -31,7 +31,7 @@ var EverythingME = {
         var loadingOverlay = document.querySelector('#loading-overlay');
         loadingOverlay.style.opacity = 0;
         setTimeout(function starting() {
-          document.querySelector('#evmeContainer').style.opacity = 1;
+          document.querySelector('.evmeContainer').style.opacity = 1;
           loadingOverlay.parentNode.removeChild(loadingOverlay);
         }, 0);
       });
