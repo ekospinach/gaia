@@ -173,6 +173,11 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.getRoundIcon = function getRoundIcon(imageSrc, callback) {
+        if (!imageSrc) {
+            callback(imageSrc);
+            return;
+        }
+        
         var size = self.sendToOS(self.OSMessages.GET_ICON_SIZE) - 2,
             radius = size/2,
             img = new Image();

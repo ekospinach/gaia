@@ -764,10 +764,11 @@ Evme.Brain = new function Evme_Brain() {
 
         // actual redirection
         this.appRedirectExecute = function appRedirectExecute(data){
-            var appIcon = Evme.Utils.formatImageData(data.icon);
             if (data.installed) {
                 GridManager.getAppByOrigin(data.appUrl).launch();
             } else {
+                var appIcon = Evme.Utils.formatImageData(data.icon);
+
                 Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
                     Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
                         "url": data.appUrl,
