@@ -471,8 +471,8 @@ Evme.IconManager = new function Evme_IconManager() {
     };
     
     this.parse = function parse(id, icon, iconsFormat) {
-        if (icon == null) {
-            // If icon from API is empty- it means it's in the user's cache
+        if (icon === null) {
+            // If icon from API is empty- it means it's probably in the user's cache
             return self.get(id);
         } else {
             // Else add the icon to the user's cache and return it
@@ -602,19 +602,12 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
         
     this.init = function init(_cfg) {
         cfg = normalize(_cfg);
-
+        
         // generate id if there was none
         if (!cfg.id) {
             hadID = false;
             cfg.id = 'app-' + Evme.Utils.uuid();
         }
-        
-        // fill in default icon
-        // if there's no icon and it's a bing result / official website app
-        if (!cfg.icon && (!hadID || cfg.preferences.defaultIcon)){
-            cfg.icon = Evme.Apps.getDefaultIcon();
-        }
-        
     };
     
     this.isExternal = function isExternal() {
@@ -651,7 +644,7 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
         var icon = Evme.Utils.formatImageData(cfg.icon) || Evme.Apps.getDefaultIcon();
 
         return  '<div class="c" href="' + cfg.appUrl + '">' +
-                    '<span class="thumb" style="background-image: url(\'' + icon + '\');"></span>' + 
+                    '<span class="thumb" style="background-image: url(' + icon + ');"></span>' + 
                     '<b>' + cfg.name + '</b>' +
                 '</div>';
     };
@@ -714,6 +707,12 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
     };
 
     this.remove = function remove() {
+        if (el) {
+            el.removeEventListener("touchstart", touchstart);
+            el.removeEventListener("touchmove", touchmove);
+            el.removeEventListener("touchend", touchend);
+        }
+        
         Evme.$remove(el);
     };
 
@@ -764,7 +763,7 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
     };
     
     this.setIcon = function setIcon(icon, bRedraw) {
-        cfg.icon = icon;
+        cfg.icon = icon || Evme.Apps.getDefaultIcon();
         
         if (bRedraw && el) {
             var iconUrl = Evme.Utils.formatImageData(cfg.icon) || Evme.Apps.getDefaultIcon();
