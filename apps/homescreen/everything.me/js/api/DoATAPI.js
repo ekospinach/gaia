@@ -8,8 +8,8 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         NUMBER_OF_RETRIES = 3,                          // number of retries before returning error
         RETRY_TIMEOUT = {"from": 1000, "to": 3000},     // timeout before retrying a failed request
         MAX_REQUEST_TIME = 10000,                       // timeout before declaring a request as failed (if server isn't responding)
-        MAX_ITEMS_IN_CACHE = 20,                        // maximum number of calls to save in the user's cache
-        CACHE_EXPIRATION_IN_MINUTES = 30,
+        MAX_ITEMS_IN_CACHE = 40,                        // maximum number of calls to save in the user's cache
+        CACHE_EXPIRATION_IN_MINUTES = 24*60,
         STORAGE_KEY_CREDS = "credentials",
         authCookieName = '',
         userLat,
