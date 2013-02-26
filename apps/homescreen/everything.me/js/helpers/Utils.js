@@ -298,7 +298,14 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.getIconGroup = function getIconGroup() {
-        return self.cloneObject(Evme.__config.iconsGroupSettings);
+        var settings = self.cloneObject(Evme.__config.iconsGroupSettings);
+        // normalize icon size by devicePixelRatio
+        for (var i=0,len=settings.length;i<len;i++) {
+          if ('size' in settings[i]) {
+            settings[i].size *= self.devicePixelRatio;
+          }
+        }
+        return settings;
     };
 
     this.getIconsFormat = function getIconsFormat() {

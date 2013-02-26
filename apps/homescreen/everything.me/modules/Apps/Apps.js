@@ -15,7 +15,7 @@ Evme.Apps = new function Evme_Apps() {
         MAX_SCROLL_FADE = 200,
         FULLSCREEN_THRESHOLD = 0.8,
         MAX_APPS_CLASSES = 150,
-        APPS_PER_ROW = 4,
+        APPS_PER_ROW = "FROM CONFIG",
         ICONS_STYLE_ID = "apps-icons",
         MIN_HEIGHT_FOR_MORE_BUTTON = "FROM CONFIG",
         DEFAULT_ICON_URL = "FROM CONFIG",
@@ -36,6 +36,7 @@ Evme.Apps = new function Evme_Apps() {
         APP_HEIGHT = options.appHeight;
         MIN_HEIGHT_FOR_MORE_BUTTON = options.minHeightForMoreButton;
         DEFAULT_SCREEN_WIDTH = options.defaultScreenWidth;
+        APPS_PER_ROW = options.appsPerRow;
         
         el = options.el;
         elList = Evme.$('ul', el)[0];
@@ -602,7 +603,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
           fixedImage = new Image();
 
       elImageCanvas.width = elImageCanvas.height = icon.size;
-
+      
       imageContext.beginPath();
       imageContext.arc(icon.size/2, icon.size/2, icon.size/2, 0, Math.PI*2, false);
       imageContext.closePath();
