@@ -118,22 +118,22 @@ Evme.api = new function Evme_api() {
         !options && (options = {});
         
         var url = BASE_URL + method,
-            params = "",
+            params = '',
             httpRequest = new XMLHttpRequest();
         
         for (var k in options) {
-            if (typeof options[k] !== "undefined") {
-                params += k + "=" + encodeURIComponent(options[k]) + "&";
+            if (typeof options[k] !== 'undefined') {
+                params += k + '=' + encodeURIComponent(options[k]) + '&';
             }
         }
         
-        httpRequest.open("POST", url, true);
-        httpRequest.responseType = "json";
-        httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        httpRequest.open('POST', url, true);
+        httpRequest.responseType = 'json';
+        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         httpRequest.onreadystatechange = function onReadyStateChange(e) {
             if (httpRequest.readyState == 4) {
-                if ('response' in httpRequest) {
-                    callback(httpRequest.response, url + "?" + params);
+                if (httpRequest.response) {
+                    callback(httpRequest.response, url + '?' + params);
                 }
             }
         };
