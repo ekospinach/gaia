@@ -128,17 +128,12 @@ Evme.api = new function Evme_api() {
         }
         
         httpRequest.open("POST", url, true);
+        httpRequest.responseType = "json";
         httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         httpRequest.onreadystatechange = function onReadyStateChange(e) {
             if (httpRequest.readyState == 4) {
-                var response = null;
-                
-                try {
-                    response = JSON.parse(httpRequest.responseText);
-                } catch(ex){}
-                
-                if (response) {
-                    callback(response, url + "?" + params);
+                if ('response' in httpRequest) {
+                    callback(httpRequest.response, url + "?" + params);
                 }
             }
         };
