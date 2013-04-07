@@ -98,6 +98,18 @@ Evme.__config = {
             }
         }
     },
+    "connectionTypes": {
+      "low": {
+        "typingSuggest": false, // show suggestion as you type
+        "typingApps": false,    // search for apps as you type (includes Idle search)
+        "typingImage": false,   // search for image as you type (includes Idle search)
+        "bgimage": false,       // show image (false means NO image EVER)
+        "icon_quality": 10      // override icon resolution
+      },
+      "high": {
+        // nothing here so we'll use the default settings and features we know best
+      }
+    },
     // time before refreshing user location (milliseconds)
     "locationInterval": 10 * 60 * 1000,
     // timeout for get location request (milliseconds)

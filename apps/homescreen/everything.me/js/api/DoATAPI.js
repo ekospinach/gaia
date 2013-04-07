@@ -564,7 +564,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "stats": {
                 "userAgent": navigator.userAgent,
                 "referrer": document.referrer,
-                "connectionType": Evme.Utils.connection().type || "",
+                "connectionType": Evme.Utils.Connection.getType() || "",
                 "locale": navigator.language || "",
                 "GMT": (new Date().getTimezoneOffset()/-60).toString(),
                 "sessionInitCause": options.cause,

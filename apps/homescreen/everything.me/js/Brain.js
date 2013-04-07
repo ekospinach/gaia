@@ -26,6 +26,7 @@ Evme.Brain = new function Evme_Brain() {
         CLASS_WHEN_OFFLINE = 'evme-offline',
         CLASS_WHEN_BGIMAGE_FULLSCREEN = 'evme-fullscreen-bgimage',
         CLASS_WHEN_GOING_TO_APP = 'evme-loading-app',
+        CLASS_CONNECTION_TYPE = 'evme-connection-',
 
         TIMEOUT_BEFORE_REQUESTING_APPS_AGAIN = 500,
         TIMEOUT_BEFORE_SHOWING_DEFAULT_IMAGE = 3000,
@@ -57,6 +58,9 @@ Evme.Brain = new function Evme_Brain() {
           "video": ["Video", "Camera"],
           "local": ["Geoloc", "Maps"]
         },
+        
+        CONNECTION_TYPES = "FROM CONFIG",
+        currentFeatures = {},
 
         timeoutSetUrlAsActive = null,
         timeoutHashChange = null,
@@ -77,6 +81,7 @@ Evme.Brain = new function Evme_Brain() {
 
         SEARCH_SOURCES = _config.searchSources;
         PAGEVIEW_SOURCES = _config.pageViewSources;
+        CONNECTION_TYPES = _config.connectionTypes;
 
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
 
@@ -571,7 +576,9 @@ Evme.Brain = new function Evme_Brain() {
 
         // app list has scrolled to top
         this.scrollTop = function scrollTop() {
-            Evme.BackgroundImage.showFullScreen();
+            if (!Evme.BackgroundImage.showFullScreen()) {
+              Evme.BackgroundImage.cancelFullScreenFade();
+            }
         };
 
         // app list has scrolled to bottom
@@ -1360,24 +1367,39 @@ Evme.Brain = new function Evme_Brain() {
 
     // helpers/Utils.Connection
     this.Connection = new function Connection() {
-        // upon becoming online
-        this.online = function online() {
-            document.body.classList.remove(CLASS_WHEN_OFFLINE);
-            Evme.ConnectionMessage.hide();
-            Evme.DoATAPI.backOnline();
-        };
-        
-        // upon going offline
-        this.offline = function offline() {
-            document.body.classList.add(CLASS_WHEN_OFFLINE);
-        };
+      // upon becoming online
+      this.online = function online() {
+        document.body.classList.remove(CLASS_WHEN_OFFLINE);
+        Evme.ConnectionMessage.hide();
+        Evme.DoATAPI.backOnline();
+      };
+      
+      // upon going offline
+      this.offline = function offline() {
+        document.body.classList.add(CLASS_WHEN_OFFLINE);
+      };
+      
+      // when mobile connection speed changes - switching to data from wifi, for example
+      this.changeSpeed = function changeSpeed(data) {
+        var speed = data.newValue,
+            connectionFeatures = CONNECTION_TYPES[speed];
+
+        if (connectionFeatures) {
+          if (data.oldValue) {
+            document.body.classList.remove(CLASS_CONNECTION_TYPE + data.oldValue);
+          }
+          
+          document.body.classList.add(CLASS_CONNECTION_TYPE + speed);
+          currentFeatures = connectionFeatures;
+        }
+      };
     };
 
     // api/DoATAPI.js
     this.DoATAPI = new function DoATAPI() {
         // a request was made to the API
         this.request = function request(data) {
-            Evme.Utils.log(getRequestUrl(data));
+          Evme.Utils.log(getRequestUrl(data));
         };
         
         this.cantSendRequest = function cantSendRequest(data) {
@@ -1501,6 +1523,10 @@ Evme.Brain = new function Evme_Brain() {
             }
 
             iconsFormat = Evme.Utils.getIconsFormat();
+            if ('icon_quality' in currentFeatures) {
+              iconsFormat = currentFeatures.icon_quality;
+            }
+            
             options.iconsFormat = iconsFormat;
 
             var _NOCACHE = false;
@@ -1730,6 +1756,10 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         this.getBackgroundImage = function getBackgroundImage(options) {
+            if (currentFeatures.bgimage === false) {
+              return false;
+            }
+            
             var query = options.query,
                 type = options.type,
                 source = options.source,
@@ -1759,6 +1789,8 @@ Evme.Brain = new function Evme_Brain() {
                 "width": Evme.__config.bgImageSize[0] || screen.width,
                 "height": Evme.__config.bgImageSize[1] || screen.height
             }, getBackgroundImageComplete);
+            
+            return true;
         };
 
         function getBackgroundImageComplete(data) {
@@ -1967,6 +1999,10 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.searchExactAsYouType = function searchExactAsYouType(query, queryTyped) {
+            if (currentFeatures.typingApps === false) {
+              return false;
+            }
+            
             resetLastSearch(true);
             cancelSearch();
             appsCurrentOffset = 0;
@@ -1981,14 +2017,26 @@ Evme.Brain = new function Evme_Brain() {
             };
 
             Searcher.getApps(options);
+            
+            if (currentFeatures.typingImage === false) {
+              return false;
+            }
             Searcher.getBackgroundImage(options);
         };
 
         this.searchAsYouType = function searchAsYouType(query, source){
             appsCurrentOffset = 0;
+            
+            if (currentFeatures.typingSuggest === false) {
+              return false;
+            }
 
             Searcher.getAutocomplete(query);
 
+            if (currentFeatures.typingApps === false) {
+              return false;
+            }
+            
             var searchOptions = {
                 "query": query,
                 "source": source
@@ -2000,6 +2048,11 @@ Evme.Brain = new function Evme_Brain() {
                 Searcher.getApps(searchOptions);
             }, TIMEOUT_BEFORE_RUNNING_APPS_SEARCH);
 
+
+            if (currentFeatures.typingImage === false) {
+              return false;
+            }
+            
             requestImage && requestImage.abort && requestImage.abort();
             window.clearTimeout(timeoutSearchImageWhileTyping);
             timeoutSearchImageWhileTyping = window.setTimeout(function onTimeout(){

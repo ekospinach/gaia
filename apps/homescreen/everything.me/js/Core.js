@@ -30,13 +30,14 @@ window.Evme = new function Evme_Core() {
     Evme.$('#evme-search .header')[0].addEventListener('contextmenu', function longPress(e) {
       e.stopPropagation();
     });
-
+    
     Evme.Brain.init({
       "numberOfAppsToLoad": data.numberOfAppsToLoad,
       "minimumLettersForSearch": data.minimumLettersForSearch,
       "searchSources": data.searchSources,
       "pageViewSources": data.pageViewSources,
-      "displayInstalledApps": data.apps.displayInstalledApps
+      "displayInstalledApps": data.apps.displayInstalledApps,
+      "connectionTypes": data.connectionTypes
     });
 
     Evme.DoATAPI.init({
@@ -178,6 +179,9 @@ window.Evme = new function Evme_Core() {
   };
 
   function initObjects(data) {
+    Evme.Utils.Connection.init({
+    });
+    
     Evme.ConnectionMessage.init({
     });
 
@@ -245,7 +249,7 @@ window.Evme = new function Evme_Core() {
       "DoATAPI": Evme.DoATAPI,
       "getCurrentAppsRowsCols": Evme.Apps.getCurrentRowsCols,
       "Brain": Evme.Brain,
-      "connectionLow": Evme.Utils.connection().speed != Evme.Utils.connection().SPEED_HIGH,
+      "connectionLow": Evme.Utils.Connection.getSpeed() === Evme.Utils.Connection.SPEED_LOW,
       "sessionObj": Evme.DoATAPI.Session.get(),
       "pageRenderStartTs": head_ts,
       "SEARCH_SOURCES": data.searchSources,

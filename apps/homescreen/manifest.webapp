@@ -9,6 +9,7 @@
   },
   "permissions": {
     "webapps-manage":{},
+    "mobileconnection":{},
     "systemXHR":{},
     "settings":{ "access": "readwrite" },
     "device-storage:pictures":{ "access": "readonly" },

@@ -1,6 +1,6 @@
 Evme.Utils = new function Evme_Utils() {
   var self = this,
-      userAgent = "", connection = null, cssPrefix = "", iconsFormat = null,
+      userAgent = "", cssPrefix = "", iconsFormat = null,
       newUser = false,
       parsedQuery = parseQuery(),
       elContainer = null,
@@ -41,7 +41,6 @@ Evme.Utils = new function Evme_Utils() {
   this.init = function init() {
     userAgent = navigator.userAgent;
     cssPrefix = getCSSPrefix();
-    connection = Connection.get();
 
     elContainer = document.getElementById(CONTAINER_ID);
   };
@@ -363,10 +362,6 @@ Evme.Utils = new function Evme_Utils() {
     }
   };
 
-  this.connection = function _connection(){
-      return connection;
-  };
-
   this.isOnline = function isOnline(callback) {
      Connection.online(callback);
   };
@@ -562,42 +557,39 @@ Evme.Utils = new function Evme_Utils() {
   };
   
   var Connection = new function Connection(){
+      this.SPEED_LOW = 'low';
+      this.SPEED_HIGH = 'high';
+      
       var self = this,
-          currentIndex,
-          consts = {
-              SPEED_UNKNOWN: 100,
-              SPEED_HIGH: 30,
-              SPEED_MED: 20,
-              SPEED_LOW: 10
+          conn = window.navigator.mozMobileConnection,
+          currentType,
+          currentSpeed,
+          connectionTypeSpeeds = {
+              'lte':   self.SPEED_HIGH, // 4G LTE
+              'ehrpd': self.SPEED_HIGH, // 4G CDMA
+              'hspa+': self.SPEED_LOW, // 3.5G HSPA+
+              'hsdpa': self.SPEED_LOW,
+              'hsupa': self.SPEED_LOW,
+              'hspa':  self.SPEED_LOW, // 3.5G HSDPA
+              'evdo0': self.SPEED_LOW,
+              'evdoa': self.SPEED_LOW,
+              'evdob': self.SPEED_LOW,
+              '1xrtt': self.SPEED_LOW, // 3G CDMA
+              'umts':  self.SPEED_LOW, // 3G
+              'edge':  self.SPEED_LOW, // EDGE
+              'is95a': self.SPEED_LOW,
+              'is95b': self.SPEED_LOW, // 2G CDMA
+              'gprs':  self.SPEED_LOW
           },
-          types = [
-              {
-                  "name": undefined,
-                  "speed": consts.SPEED_UNKNOWN
-              },
-              {
-                  "name": "etherenet",
-                  "speed": consts.SPEED_HIGH
-              },
-              {
-                  "name": "wifi",
-                  "speed": consts.SPEED_HIGH
-              },
-              {
-                  "name": "2g",
-                  "speed": consts.SPEED_LOW
-              },
-              {
-                  "name": "3g",
-                  "speed": consts.SPEED_MED
-              }
-          ];
+          DEFAULT_SPEED = self.SPEED_HIGH;
+      
 
       this.init = function init() {
           window.addEventListener("online", self.setOnline);
           window.addEventListener("offline", self.setOffline);
           
-          self.set();
+          conn.addEventListener('datachange', onConnectionSpeedChange);
+          onConnectionSpeedChange();
       };
       
       this.setOnline = function setOnline() {
@@ -611,14 +603,45 @@ Evme.Utils = new function Evme_Utils() {
           callback(window.location.href.match(/_offline=true/)? false : navigator.onLine);
       };
       
-      this.get = function get(){
-          return getCurrent();
+      this.getType = function getType(){
+          return currentType;
       };
       
-      this.set = function set(index){
-           currentIndex = index || (navigator.connection && navigator.connection.type) || 0;
-           return getCurrent();
+      this.getSpeed = function getSpeed(){
+          return currentSpeed;
       };
+      
+      function onConnectionSpeedChange() {
+        var speed = DEFAULT_SPEED,
+            label = {
+              'lte': '4G', // 4G LTE
+              'ehrpd': '4G', // 4G CDMA
+              'hspa+': 'H+', // 3.5G HSPA+
+              'hsdpa': 'H', 'hsupa': 'H', 'hspa': 'H', // 3.5G HSDPA
+              'evdo0': '3G', 'evdoa': '3G', 'evdob': '3G', '1xrtt': '3G', // 3G CDMA
+              'umts': '3G', // 3G
+              'edge': 'E', // EDGE
+              'is95a': '2G', 'is95b': '2G', // 2G CDMA
+              'gprs': '2G'
+            };
+        
+        currentType = (conn.data && conn.data.type) || '';
+        
+        if (currentType) {
+          speed = connectionTypeSpeeds[currentType] || DEFAULT_SPEED;
+        }
+        
+        if (speed === currentSpeed) {
+          return;
+        }
+        
+        Evme.EventHandler.trigger("Connection", "changeSpeed", {
+          "oldValue": currentSpeed,
+          "newValue": speed
+        });
+        
+        currentSpeed = speed;
+      }
 
       function getCurrent(){
           return aug({}, consts, types[currentIndex]);
@@ -631,9 +654,6 @@ Evme.Utils = new function Evme_Utils() {
           };
           return main;
       }
-
-      // init
-      self.init();
   };
   this.Connection = Connection;
 
