@@ -951,9 +951,13 @@ Evme.Brain = new function Evme_Brain() {
                 "offset": 0,
                 "installed": true
             }, function onDone() {
-                timeoutShowAppsLoading = window.setTimeout(currentFolder.showLoading,
-                                            TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
-
+                Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+                  if (isOnline && currentFolder) {
+                    timeoutShowAppsLoading = window.setTimeout(currentFolder.showLoading,
+                                                TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
+                  }
+                });
+                  
                 requestSmartFolderApps = Evme.DoATAPI.search({
                     "query": experienceId? '' : query,
                     "experienceId": experienceId,
@@ -1537,8 +1541,12 @@ Evme.Brain = new function Evme_Brain() {
                     
                     
                     if (appsCurrentOffset === 0) {
-                      timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
-                                                  TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
+                      Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+                        if (isOnline && currentFolder) {
+                          timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
+                                                      TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
+                        }
+                      });
                     }
                     
                     requestSearch = Evme.DoATAPI.search({
