@@ -1542,7 +1542,7 @@ Evme.Brain = new function Evme_Brain() {
                     
                     if (appsCurrentOffset === 0) {
                       Evme.Utils.isOnline(function isOnlineCallback(isOnline){
-                        if (isOnline && currentFolder) {
+                        if (isOnline) {
                           timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
                                                       TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
                         }
