@@ -2,7 +2,7 @@
     position: absolute;
     top: 81px;
     left: 0;
-    right: -20px;
+    right: -2rem;
     bottom: 0;
     z-index: 50;
     overflow: hidden;
@@ -18,7 +18,7 @@
 #evmeContainer .evme-apps ul {
     position: absolute;
     left: 0;
-    right: 20px;
+    right: 2rem;
     min-height: 100%;
     padding-bottom: 10px;
 }
@@ -29,11 +29,11 @@
     position: absolute;
     top: 50%;
     left: 0;
-    right: 0;
+    right: 2rem;
     text-align: center;
-    height: 100px;
-    line-height: 100px;
-    margin-top: -50px;
+    height: 10rem;
+    line-height: 10rem;
+    margin-top: -5.1rem;
 }
 
 #evmeContainer .evme-apps ul li {
