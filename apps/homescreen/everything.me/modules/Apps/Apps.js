@@ -1,6 +1,6 @@
 Evme.Apps = new function Evme_Apps() {
     var NAME = "Apps", self = this,
-        el = null, elList = null,
+        el = null, elList = null, elLoading = null,
         appsArray = {}, appsDataArray = [], numberOfApps = 0,
         scroll = null, defaultIconToUse = 0,
         reportedScrollMove = false, shouldFadeBG = false,
@@ -91,6 +91,8 @@ Evme.Apps = new function Evme_Apps() {
             self.clear();
         }
         
+        self.hideLoading();
+        
         var missingIcons = drawApps(apps, isMore, iconsFormat, function onAppsDrawn(){
             if (options.installed && apps.length > 0) {
                 self.addInstalledSeparator();
@@ -160,6 +162,14 @@ Evme.Apps = new function Evme_Apps() {
         elList.appendChild(Evme.$create('li', {'class': 'installed-separator'}));
     };
     
+    this.getInstalledHeight = function getInstalledHeight() {
+      var elSeparator = (Evme.$('.installed-separator', elList) || [])[0],
+          top = elSeparator? elSeparator.getBoundingClientRect().top : 0,
+          parentTop = elSeparator? elSeparator.parentNode.getBoundingClientRect().top : 0;
+      
+      return (top - parentTop);
+    };
+    
     this.disableScroll = function disableScroll() {
         scroll.disable();
     };    
@@ -217,6 +227,33 @@ Evme.Apps = new function Evme_Apps() {
         }
         
         return defaultIcon;
+    };
+    
+    this.showLoading = function showLoading() {
+      if (elLoading) {
+        return false;
+      }
+      
+      elLoading = Evme.$create('div',
+                  { 'class': 'loading-apps' },
+                  '<progress class="small skin-dark"></progress>');
+
+      elLoading.style.transform = 'translateY(' + self.getInstalledHeight()/2 + 'px)';
+      
+      el.appendChild(elLoading);
+      
+      return true;
+    };
+    
+    this.hideLoading = function hideLoading() {
+      if (!elLoading) {
+        return false;
+      }
+      
+      elLoading.parentNode.removeChild(elLoading);
+      elLoading = null;
+      
+      return true;
     };
     
     this.removeApp = function removeApp(id) {

@@ -25,6 +25,17 @@
 #evmeContainer .evme-apps.has-more ul:not(.connection-error) {
     padding-bottom: 45px;
 }
+#evmeContainer .evme-apps .loading-apps {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    height: 100px;
+    line-height: 100px;
+    margin-top: -50px;
+}
+
 #evmeContainer .evme-apps ul li {
     clear: both;
     width: 25%;

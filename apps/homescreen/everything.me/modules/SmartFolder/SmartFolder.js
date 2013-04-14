@@ -2,7 +2,7 @@ Evme.SmartFolder = function Evme_SartFolder(_options) {
     var self = this, NAME = "SmartFolder",
         experienceId = '', query = '', image = '', scroll = null, shouldFadeImage = false, bgImage = null,
         el = null, elScreen = null, elTitle = null, elClose = null,
-        elAppsContainer = null, elApps = null,
+        elAppsContainer = null, elApps = null, elLoading,
         elImage = null, elImageOverlay = null, elImageFullscreen = null,
         reportedScrollMove = false, optionsOnScrollEnd = null,
         fadeBy = 1,
@@ -114,9 +114,38 @@ Evme.SmartFolder = function Evme_SartFolder(_options) {
                 }
             });
         
+        self.hideLoading();
+        
         Evme.EventHandler.trigger(NAME, "load");
         
         return iconsResult;
+    };
+    
+    this.showLoading = function showLoading() {
+      if (elLoading) {
+        return false;
+      }
+      
+      elLoading = Evme.$create('div',
+                  { 'class': 'loading-apps' },
+                  '<progress class="small skin-dark"></progress>');
+
+      elLoading.style.transform = 'translateY(' + self.getInstalledHeight()/2 + 'px)';
+      
+      elAppsContainer.appendChild(elLoading);
+      
+      return true;
+    };
+    
+    this.hideLoading = function hideLoading() {
+      if (!elLoading) {
+        return false;
+      }
+      
+      elLoading.parentNode.removeChild(elLoading);
+      elLoading = null;
+      
+      return true;
     };
     
     this.appendTo = function appendTo(elParent) {
@@ -243,7 +272,15 @@ Evme.SmartFolder = function Evme_SartFolder(_options) {
     this.addInstalledSeparator = function addInstalledSeparator() {
         elApps.appendChild(Evme.$create('li', {'class': "installed-separator"}));
     };
-    
+
+    this.getInstalledHeight = function getInstalledHeight() {
+      var elSeparator = (Evme.$('.installed-separator', elApps) || [])[0],
+          top = elSeparator? elSeparator.getBoundingClientRect().top : 0,
+          parentTop = elSeparator? elSeparator.parentNode.getBoundingClientRect().top : 0;
+      
+      return (top - parentTop);
+    };
+
     this.MoreIndicator = new function MoreIndicator() {
         var self = this,
             el = null, elParent = null,
