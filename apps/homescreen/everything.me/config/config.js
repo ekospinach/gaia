@@ -99,6 +99,22 @@ Evme.__config = {
             }
         }
     },
+    // disableAfter: if the app can't render the feature under the timeout, it will disable it
+    // bringBack: if, after disabling the feature, it's faster than bringBack- re-enable it
+    "featureStateByConnection": {
+      "iconQuality": {
+        "disableAfter": 2500,
+        "bringBack": 600
+      },
+      "typingImage": {
+        "disableAfter": 3000,
+        "bringBack": 1500
+      },
+      "typingApps": {
+        "disableAfter": 3500,
+        "bringBack": 800
+      }
+    },
     // time before refreshing user location (milliseconds)
     "locationInterval": 10 * 60 * 1000,
     // timeout for get location request (milliseconds)

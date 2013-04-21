@@ -7,8 +7,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         deviceId = '',
         NUMBER_OF_RETRIES = 3,                          // number of retries before returning error
         RETRY_TIMEOUT = {"from": 1000, "to": 3000},     // timeout before retrying a failed request
-        MAX_REQUEST_TIME = 10000,                       // timeout before declaring a request as failed (if server isn't responding)
-        
+        MAX_REQUEST_TIME = 20000,                       // timeout before declaring a request as failed (if server isn't responding)
         MAX_ITEMS_IN_CACHE = 40,                        // maximum number of calls to save in the user's cache
         CACHE_EXPIRATION_IN_MINUTES = 60*24,
         updatingCache = false,
@@ -108,13 +107,13 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "typeHint": options.typeHint || '',
             "feature": options.feature || '',
             "cachedIcons": options.cachedIcons || '',
-            "exact": options.exact,
-            "spellcheck": options.spellcheck,
-            "suggest": options.suggest,
-            "first": options.first,
-            "limit": options.limit,
-            "idx": options.index,
-            "iconFormat": options.iconFormat,
+            "exact": !!options.exact,
+            "spellcheck": !!options.spellcheck,
+            "suggest": !!options.suggest,
+            "first": options.first || 0,
+            "limit": options.limit || 16,
+            "idx": options.index || '',
+            "iconFormat": options.iconFormat || 10,
             "prevQuery": (options.first === 0)? options.prevQuery || "" : ""
         };
         
@@ -195,7 +194,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "experienceId": options.experienceId || '',
             "typeHint": options.typeHint || '',
             "feature": options.feature || '',
-            "exact": options.exact || false,
+            "exact": !!options.exacte,
             "width": Math.round(options.width || 320),
             "height": Math.round(options.height || 480),
             "idx": options.index || '',
@@ -836,6 +835,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                       saveParamFromRequest(methodKey, value);
                       
                       callback && window.setTimeout(function() {
+                          value._cache = true;
                           callback(value);
                       }, 10);
                       
