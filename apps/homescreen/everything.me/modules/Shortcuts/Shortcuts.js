@@ -1,6 +1,6 @@
 Evme.Shortcuts = new function Evme_Shortcuts() {
     var NAME = "Shortcuts", self = this, scroll = null,
-        el = null, elList = null, elLoading = null, loadedResponse = null,
+        el, elList, elLoading, loadedResponse,
         shortcuts = [], visible = false, isSwiping = false, swiped = false, customizing = false, enabled = true,
         categoryPageData = {};
     
@@ -10,14 +10,11 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
         el = options.el;
         elLoading = options.elLoading;
         
-        elList = Evme.$("#shortcuts-items", el);
+        elList = Evme.$('#shortcuts-items', el);
         
-        scroll = new Scroll(Evme.$("#shortcuts-list", el), {
-            "hScroll": false,
-            "checkDOMChanges": false,
-            "onBeforeScrollMove": function onBeforeScrollMove(e){ swiped = true; el.classList.add("swiping"); },
-            "onBeforeScrollEnd": function onBeforeScrollEnd(){ swiped = false; el.classList.remove("swiping"); }
-        });
+        scroll = new Scroll(Evme.$('#shortcuts-list', el));
+        
+        Evme.$('.close', el)[0].addEventListener('touchstart', toggle);
         
         if (navigator.mozSettings) {
           navigator.mozSettings.addObserver('language.current', onLanguageChange);
@@ -25,40 +22,44 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
         
         Evme.EventHandler.trigger(NAME, "init");
     };
-    
+
     this.load = function load(data) {
         loadedResponse = Evme.Utils.cloneObject(data);
-        
+
         var _shortcuts = data.shortcuts.splice(0),
             icons = data.icons;
-            
+
         for (var id in icons) {
-            Evme.IconManager.add(id, icons[id], Evme.Utils.ICONS_FORMATS.small);
+          Evme.IconManager.add(id, icons[id], Evme.Utils.ICONS_FORMATS.small);
         }
-        
-        for (var i=0; i<_shortcuts.length; i++) {
-            var appIds = _shortcuts[i].appIds,
-                apps = [];
-            
+
+        for (var i=0, shortcut; shortcut = _shortcuts[i++];) {
+          var appIds = shortcut.appIds || [],
+              apps = [];
+          
+          if (appIds.length === 0) {
+            Evme.Utils.log('No appIds found for shortcut [' + JSON.stringify(shortcut) + '], removing it');
+          } else {
             for (var j=0; j<appIds.length; j++) {
-                apps.push({
-                    "id": appIds[j],
-                    "icon": icons[appIds[j]]
-                });
+              apps.push({
+                "id": appIds[j],
+                "icon": icons[appIds[j]]
+              });
             }
-            
-            _shortcuts[i].appIds = apps;
+  
+            shortcut.appIds = apps;
+          }
         }
-        
+
         self.clear();
         self.draw(_shortcuts);
         cbLoaded();
     };
-    
+
     this.getLoadedResponse = function getLoadedResponse() {
         return loadedResponse;
     };
-    
+
     this.scrollToBottom = function scrollToBottom(callback) {
         var max = elList.parentNode.offsetHeight,
             height = elList.offsetHeight;
@@ -80,21 +81,15 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
     };
 
     this.draw = function draw(_shortcuts, icons) {
-        var docFrag = Evme.$create('documentFragment');
-        
         for (var i=0; i<_shortcuts.length; i++) {
             var shortcut = new Evme.Shortcut(),
                 elShortcut = shortcut.init(_shortcuts[i], i);
             
             if (elShortcut) {
                 shortcuts.push(shortcut);
-                docFrag.appendChild(elShortcut);
+                elList.appendChild(elShortcut);
             }
         }
-        
-        elList.appendChild(docFrag);
-        
-        self.refreshScroll();
     };
     
     this.get = function get() {
@@ -112,11 +107,11 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
     this.orderByElements = function orderByElements() {
         var _shortcuts = [];
             
-        Evme.$(".shortcut", elList, function itemIteration(elShortcut) {
+        Evme.$('.shortcut', elList, function itemIteration(elShortcut) {
             var query = elShortcut.getAttribute("query");
-            for (var j=0; j<shortcuts.length; j++) {
-                if (shortcuts[j].getQuery() == query) {
-                    _shortcuts.push(shortcuts[j]);
+            for (var i=0,shortcut; shortcut=shortcuts[i++];) {
+                if (shortcut.getQuery() == query) {
+                    _shortcuts.push(shortcut);
                     break;
                 }
             }
@@ -128,8 +123,8 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
     this.remove = function remove(shortcut) {
         var id = shortcut.getId();
         
-        for (var i=0; i<shortcuts.length; i++) {
-            if (shortcuts[i].getId() === id) {
+        for (var i=0,shortcut; shortcut=shortcuts[i++];) {
+            if (shortcut.getId() === id) {
                 shortcuts.splice(i, 1);
                 return true;
             }
@@ -165,8 +160,8 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
     };
 
     this.clear = function clear() {
-        for (var i=0; i<shortcuts.length; i++) {
-            shortcuts[i].remove(null, true);
+        for (var i=0,shortcut; shortcut=shortcuts[i++];) {
+            shortcut.remove(null, true);
         }
         shortcuts = [];
         elList.innerHTML = '';
@@ -184,14 +179,26 @@ Evme.Shortcuts = new function Evme_Shortcuts() {
     }
 
     this.show = function show(bReport) {
+        if (visible) {
+          return;
+        }
+        
         visible = true;
         window.setTimeout(self.refreshScroll, 100);
         cbShow(bReport);
     };
 
     this.hide = function hide(bReport) {
+        if (!visible) {
+          return;
+        }
+        
         visible = false;
         cbHide(bReport);
+    };
+    
+    this.isVisible = function isVisible() {
+      return visible;
     };
     
     this.getElement = function getElement() {
@@ -275,7 +282,7 @@ Evme.Shortcut = function Evme_Shortcut() {
                             '<span class="thumb"></span>' +
                             '<span class="remove"></span>'
                         );
-                        
+        
         elThumb = Evme.$(".thumb", el)[0];
         
         self.setImage(cfg.appIds);
@@ -291,24 +298,22 @@ Evme.Shortcut = function Evme_Shortcut() {
             });
         }
         
-        Evme.$(".remove", el)[0].addEventListener("touchstart", function onClick(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            self.remove(e, false);
-            onRemove(e);
-        });
+        Evme.$(".remove", el)[0].addEventListener("click", onRemoveClick);
         
         return el;
     };
     
     this.setImage = function setImage(shortcutIcons) {
-        if (elThumb && shortcutIcons && shortcutIcons.length > 0) {
-            var elIconGroup = Evme.IconGroup.get(shortcutIcons, self.getName());
-            elThumb.innerHTML = '';
-            elThumb.appendChild(elIconGroup);
-        }
+      if (elThumb && shortcutIcons && shortcutIcons.length > 0) {
+        var elIconGroup = Evme.IconGroup.get(shortcutIcons, self.getName());
+        elThumb.innerHTML = '';
+        elThumb.appendChild(elIconGroup);
+      }
     };
+     
+   this.refreshImage = function refreshImage() {
+     cfg.appIds && self.setImage(cfg.appIds);
+   };
     
     this.refreshImage = function refreshImage() {
         cfg.appIds && self.setImage(cfg.appIds);
@@ -320,7 +325,26 @@ Evme.Shortcut = function Evme_Shortcut() {
         }
         
         removed = true;
+        el.removeEventListener("touchstart", onTouchStart);
+        el.removeEventListener("touchmove", onTouchMove);
+        el.removeEventListener("touchend", onTouchEnd);
+        Evme.$(".remove", el)[0].removeEventListener("click", onRemoveClick);
         Evme.$remove(el);
+    };
+
+    this.getName = function getName() {
+        var name = query;
+
+        if (experienceId) {
+            var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+                translatedExperience = Evme.Utils.l10n(NAME, l10nkey);
+            
+            if (translatedExperience) {
+              name = translatedExperience;
+            }
+        }
+        
+        return name;
     };
     
     this.getName = function getName() {
@@ -345,6 +369,14 @@ Evme.Shortcut = function Evme_Shortcut() {
     this.getQuery = function getQuery() { return query; };
     this.getExperience = function getExperience() { return experienceId; };
     this.isCustom = function isCustom() { return cfg.isCustom; };
+    
+    function onRemoveClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        self.remove(e, false);
+        onRemove(e);
+    }
     
     function onRemove(e) {
         Evme.EventHandler.trigger(NAME, "remove", {

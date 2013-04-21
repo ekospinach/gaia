@@ -19,7 +19,7 @@ var GridManager = (function() {
 
   var numberOfSpecialPages = 0, landingPage, prevLandingPage, nextLandingPage;
   var pages = [];
-  var currentPage = 1;
+  var currentPage = 0;
 
   var saveStateTimeout = null;
 
@@ -42,6 +42,119 @@ var GridManager = (function() {
                      function(e) { return e.pageX; };
   })();
 
+  var panningResolver;
+  
+  var hadTouchend = false;
+  // if hashchange was triggered by goToPage the was triggered by touchend
+  // (as opposed to homebutton click)
+  // add attribute to event
+  window.addEventListener('hashchange', function onHashChange(e) {
+    if (hadTouchend) {
+      e.triggeredByPanning = true;
+      hadTouchend = false;
+    }
+  });
+
+  function createPanningResolver() {
+    // Get our configuration data from build/applications-data.js
+    var configuration = Configurator.getSection('prediction') ||
+      { enabled: false };
+
+    // This algorithm is based on the change between events, so we need to
+    // remember some things from the previous invocation
+    var lookahead, lastPrediction, x0, t0, x1, t1 = 0, dx, velocity;
+
+    function calculateVelocity(evt) {
+      if (t1 < touchStartTimestamp) {
+        // If this is the first move of this series, use the start event
+        x0 = startX;
+        t0 = touchStartTimestamp;
+      } else {
+        x0 = x1;
+        t0 = t1;
+      }
+
+      x1 = currentX;
+      t1 = evt.timeStamp;
+
+      dx = x1 - x0;
+      velocity = dx / (t1 - t0); // px/ms
+    }
+
+    var getDeltaX;
+    // Assume that if we're using mouse events we're on a desktop that
+    // is fast enough that we don't need to do this prediction.
+    if (!isTouch || !configuration.enabled) {
+      getDeltaX = function getDeltaX(evt) {
+        calculateVelocity(evt);
+        return currentX - startX;
+      };
+    } else {
+      getDeltaX = function getDeltaX(evt) {
+        calculateVelocity(evt);
+
+        // If we've overshot too many times, don't predict anything
+        if (lookahead === 0) {
+          return currentX - startX;
+        }
+
+        // Guess how much extra motion we will have by the time the redraw
+        // happens
+        var adjustment = velocity * lookahead;
+
+        // predict deltaX based on that extra motion
+        var prediction = Math.round(x1 + adjustment - startX);
+
+        // Make sure we don't return a prediction greater than the screen width
+        if (prediction >= windowWidth) {
+          prediction = windowWidth - 1;
+        }
+        else if (prediction <= -windowWidth) {
+          prediction = -windowWidth + 1;
+        }
+
+        // If the change in the prediction has a different sign than the
+        // change in the user's finger position, then we overshot: the
+        // previous prediction was too large. So temporarily reduce the
+        // lookahead so we don't overshoot as easily next time. Also,
+        // return the last prediction to give the user's finger a chance
+        // to catch up with where we've already panned to. If we don't
+        // do this, the panning changes direction and looks jittery.
+        if (lastPrediction !== null) {
+          var deltaP = prediction - lastPrediction;
+          if ((deltaP > 0 && dx < 0) || (deltaP < 0 && dx > 0)) {
+            lookahead = lookahead >> 1;  // avoid future overshoots for this pan
+            startX += deltaP;            // adjust for overshoot
+            prediction = lastPrediction; // alter our prediction
+          }
+        }
+
+        // Remember this for next time.
+        lastPrediction = prediction;
+        return prediction;
+      };
+    }
+
+    return {
+      reset: function reset() {
+        lastPrediction = null;
+        // Start each new touch with the configured lookahead value
+        lookahead = configuration.lookahead;
+        t1 = 0;
+        velocity = 0;
+      },
+
+      // This will be a function that returns an actual or predicted deltaX
+      // from a mouse or touch event
+      getDeltaX: getDeltaX,
+
+      // Returns the velocity of the swipe gesture in px/ms
+      getVelocity: function getVelocity() {
+        return velocity;
+      }
+    };
+  }
+
   function addActive(target) {
     if ('isIcon' in target.dataset) {
       target.classList.add('active');
@@ -59,8 +172,8 @@ var GridManager = (function() {
   function handleEvent(evt) {
     switch (evt.type) {
       case touchstart:
-        if (currentPage || numberOfSpecialPages === 1)
-          evt.stopPropagation();
+        //if (currentPage && !landingPage || numberOfSpecialPages === 1)
+          //evt.stopPropagation();
         touchStartTimestamp = evt.timeStamp;
         startEvent = isTouch ? evt.touches[0] : evt;
         deltaX = 0;
@@ -71,6 +184,7 @@ var GridManager = (function() {
         break;
 
       case touchmove:
+        // Don't pan if noted in event object
         if (evt.preventPanning === true) {
           return;
         }
@@ -271,7 +385,7 @@ var GridManager = (function() {
       releaseEvents();
       pageHelper.getCurrent().tap(evt.target);
     }
-
+    hadTouchend = true;
     goToPage(page);
   }
 
@@ -357,6 +471,7 @@ var GridManager = (function() {
 
   function goToPage(index, callback) {
     document.location.hash = (index === landingPage ? 'root' : '');
+
     if (index < 0 || index >= pages.length)
       return;
 
