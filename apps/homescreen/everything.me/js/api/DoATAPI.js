@@ -40,18 +40,18 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         CLIENT_INFO_COOKIE_NAME = 'clientInfo',
         
         requestsToCache = {
-            "Search.apps": true,
-            "Search.bgimage": true,
-            "Shortcuts.get": 60*24*2,
-            "Search.trending": true
+            "Search/apps": true,
+            "Search/bgimage": true,
+            "Shortcuts/get": 60*24*2,
+            "Search/trending": true
         },
         requestsThatDontNeedConnection = {
-            "App.icons": true
+            "App/icons": true
         },
         paramsToCleanFromCacheKey = ["cachedIcons", "idx", "feature", "sid", "credentials"],
         doesntNeedSession = {
-            "Session.init": true,
-            "Search.trending": true
+            "Session/init": true,
+            "Search/trending": true
         },
         
         /*

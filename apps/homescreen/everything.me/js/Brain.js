@@ -2099,6 +2099,7 @@ Evme.Brain = new function Evme_Brain() {
               }, TIMEOUT_BEFORE_RUNNING_APPS_SEARCH);
             } else {
               Evme.Apps.clear();
+              resetLastSearch();
             }
 
             if (Evme.Features.isOn('typingImage')) {
@@ -2110,6 +2111,7 @@ Evme.Brain = new function Evme_Brain() {
               }, TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH);
             } else {
               Evme.BackgroundImage.loadDefault();
+              resetLastSearch();
             }
         };
 
