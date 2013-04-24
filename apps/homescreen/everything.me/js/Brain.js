@@ -2068,11 +2068,15 @@ Evme.Brain = new function Evme_Brain() {
             if (Evme.Features.isOn('typingApps')) {
               Evme.Features.startTimingFeature('typingApps', Evme.Features.ENABLE);
               Searcher.getApps(options);
+            } else {
+              Evme.Apps.clear();
             }
             
             if (Evme.Features.isOn('typingImage')) {
               Evme.Features.startTimingFeature('typingImage', Evme.Features.ENABLE);
               Searcher.getBackgroundImage(options);
+            } else {
+              Evme.BackgroundImage.loadDefault();
             }
         };
 
@@ -2093,6 +2097,8 @@ Evme.Brain = new function Evme_Brain() {
                   Evme.Features.startTimingFeature('typingApps', Evme.Features.DISABLE);
                   Searcher.getApps(searchOptions);
               }, TIMEOUT_BEFORE_RUNNING_APPS_SEARCH);
+            } else {
+              Evme.Apps.clear();
             }
 
             if (Evme.Features.isOn('typingImage')) {
@@ -2102,6 +2108,8 @@ Evme.Brain = new function Evme_Brain() {
                   Evme.Features.startTimingFeature('typingImage', Evme.Features.DISABLE);
                   Searcher.getBackgroundImage(searchOptions);
               }, TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH);
+            } else {
+              Evme.BackgroundImage.loadDefault();
             }
         };
 
