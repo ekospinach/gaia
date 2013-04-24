@@ -1606,7 +1606,7 @@ Evme.Brain = new function Evme_Brain() {
                         return;
                     }
 
-                    cancelSearch();
+                    Searcher.cancelSearch();
 
                     if (appsCurrentOffset === 0) {
                       Evme.Utils.isOnline(function isOnlineCallback(isOnline){

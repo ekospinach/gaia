@@ -145,6 +145,7 @@ var EvmeManager = (function EvmeManager() {
                       'modules/SearchHistory/SearchHistory.js',
                       'modules/Helper/Helper.js',
                       'modules/ConnectionMessage/ConnectionMessage.js',
+                      'modules/Features/Features.js',
                       'modules/SmartFolder/SmartFolder.js',
                       'js/helpers/Storage.js',
                       'js/plugins/Scroll.js',
