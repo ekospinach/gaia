@@ -194,7 +194,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "experienceId": options.experienceId || '',
             "typeHint": options.typeHint || '',
             "feature": options.feature || '',
-            "exact": !!options.exacte,
+            "exact": !!options.exact,
             "width": Math.round(options.width || 320),
             "height": Math.round(options.height || 480),
             "idx": options.index || '',
