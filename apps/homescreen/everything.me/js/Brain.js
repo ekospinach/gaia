@@ -1519,7 +1519,6 @@ Evme.Brain = new function Evme_Brain() {
             requestAutocomplete = null,
 
             timeoutShowDefaultImage = null,
-            timeoutHideHelper = null,
             timeoutSearchImageWhileTyping = null,
             timeoutSearch = null,
             timeoutSearchWhileTyping = null,
@@ -1564,19 +1563,12 @@ Evme.Brain = new function Evme_Brain() {
             var prevQuery = removeSession? "" : lastSearch.query;
             var getSpelling = (source !== SEARCH_SOURCES.SUGGESTION && source !== SEARCH_SOURCES.REFINE && source !== SEARCH_SOURCES.SPELLING);
             
-            if (exact && appsCurrentOffset === 0) {
-                window.clearTimeout(timeoutHideHelper);
-
-                if (!onlyDidYouMean && !options.automaticSearch) {
-                    var urlOffset = appsCurrentOffset+NUMBER_OF_APPS_TO_LOAD;
-                    if (urlOffset == NUMBER_OF_APPS_TO_LOAD && NUMBER_OF_APPS_TO_LOAD == DEFAULT_NUMBER_OF_APPS_TO_LOAD) {
-                        urlOffset = 0;
-                    }
-
-                    Evme.SearchHistory.save(query, type);
-                }
+            // conditions to save query to history
+            if (exact && appsCurrentOffset === 0 && !onlyDidYouMean && !options.automaticSearch) {
+              Evme.SearchHistory.save(query, type);
             }
 
+            // determine icons format (low or high res)
             iconsFormat = Evme.Utils.getIconsFormat();
             
             // override icons format according to connection
@@ -1588,6 +1580,7 @@ Evme.Brain = new function Evme_Brain() {
             }
             
             options.iconsFormat = iconsFormat;
+            
 
             var _NOCACHE = false;
             if (QUERIES_TO_NOT_CACHE.toLowerCase().indexOf(query.toLowerCase()) !== -1) {
@@ -1596,75 +1589,90 @@ Evme.Brain = new function Evme_Brain() {
 
             Searcher.cancelSearch();
 
-            var installedApps = [],
-                searchbarValue = Evme.Searchbar.getValue(),
+            var searchbarValue = Evme.Searchbar.getValue(),
                 isNewQuery = searchbarValue !== installedAppsQuery ||
                              source === SEARCH_SOURCES.RETURN_KEY;
             
-            // current installed apps results don't match the query in the searchbar
-            // search installed again   
             if (appsCurrentOffset === 0 && isNewQuery) {
               installedAppsQuery = searchbarValue;
-              
-              installedApps = Searcher.getInstalledApps({
-                  "query": installedAppsQuery
-              });
-              
-              options.hasInstalledApps = installedApps.length > 0;
             }
             
-            Evme.Apps.load({
-                "apps": installedApps,
-                "clear": appsCurrentOffset === 0 && isNewQuery,
-                "iconFormat": iconsFormat,
-                "offset": 0,
-                "installed": true,
-                "onDone": function onAppsLoaded() {
-                    if (!exact && query.length < MINIMUM_LETTERS_TO_SEARCH) {
-                        return;
-                    }
+            loadInstalledApps({
+              "query": installedAppsQuery,
+              "clear": appsCurrentOffset === 0 && isNewQuery,
+              "iconsFormat": iconsFormat
+            }, function onInstalledAppsLoad(installedApps) {
+              options.hasInstalledApps = installedApps.length > 0;
+              
+              if (!exact && query.length < MINIMUM_LETTERS_TO_SEARCH) {
+                  return;
+              }
 
-                    Searcher.cancelSearch();
+              Searcher.cancelSearch();
 
-                    if (appsCurrentOffset === 0) {
-                      Evme.Utils.isOnline(function isOnlineCallback(isOnline){
-                        if (isOnline) {
-                          timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
-                                                      TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
-                        }
-                      });
-                    }
+              if (appsCurrentOffset === 0) {
+                Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+                  if (isOnline) {
+                    timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
+                                                TIMEOUT_BEFORE_SHOWING_APPS_LOADING);
+                  }
+                });
+              }
 
-                    requestSearch = Evme.DoATAPI.search({
-                        "query": query,
-                        "typeHint": type,
-                        "index": index,
-                        "feature": source,
-                        "exact": exact,
-                        "spellcheck": getSpelling,
-                        "suggest": !onlyDidYouMean,
-                        "limit": NUMBER_OF_APPS_TO_LOAD,
-                        "first": appsCurrentOffset,
-                        "cachedIcons": Evme.Utils.convertIconsToAPIFormat(iconsCachedFromLastRequest),
-                        "iconFormat": iconsFormat,
-                        "prevQuery": prevQuery,
-                        "_NOCACHE": _NOCACHE
-                    }, function onSuccess(data) {
-                        window.clearTimeout(timeoutShowAppsLoading);
-                        Evme.Apps.hideLoading();
+              requestSearch = Evme.DoATAPI.search({
+                  "query": query,
+                  "typeHint": type,
+                  "index": index,
+                  "feature": source,
+                  "exact": exact,
+                  "spellcheck": getSpelling,
+                  "suggest": !onlyDidYouMean,
+                  "limit": NUMBER_OF_APPS_TO_LOAD,
+                  "first": appsCurrentOffset,
+                  "cachedIcons": Evme.Utils.convertIconsToAPIFormat(iconsCachedFromLastRequest),
+                  "iconFormat": iconsFormat,
+                  "prevQuery": prevQuery,
+                  "_NOCACHE": _NOCACHE
+              }, function onSuccess(data) {
+                  window.clearTimeout(timeoutShowAppsLoading);
+                  Evme.Apps.hideLoading();
 
-                        getAppsComplete(data, options, installedApps);
+                  getAppsComplete(data, options, installedApps);
 
-                        NUMBER_OF_APPS_TO_LOAD = DEFAULT_NUMBER_OF_APPS_TO_LOAD;
+                  NUMBER_OF_APPS_TO_LOAD = DEFAULT_NUMBER_OF_APPS_TO_LOAD;
 
-                        // only try to refresh location of it's a "real" search- with keyboard down
-                        if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
-                            Evme.Location.updateIfNeeded();
-                        }
-                    }, removeSession);
-                }
+                  // only try to refresh location of it's a "real" search- with keyboard down
+                  if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
+                      Evme.Location.updateIfNeeded();
+                  }
+              }, removeSession);
             });
+            
         };
+        
+        function loadInstalledApps(options, onDone) {
+          var installedApps = [],
+              query = options.query,
+              shouldClear = options.clear,
+              iconsFormat = options.iconsFormat;
+          
+          installedAppsQuery = query;
+          
+          installedApps = Searcher.getInstalledApps({
+              "query": query
+          });
+          
+          Evme.Apps.load({
+              "apps": installedApps,
+              "clear": shouldClear,
+              "iconFormat": iconsFormat,
+              "offset": 0,
+              "installed": true,
+              "onDone": function onInstalledAppsLoaded() {
+                onDone && onDone(installedApps);
+              }
+          });
+        }
 
         this.getInstalledApps = function getInstalledApps(options) {
             if (!DISPLAY_INSTALLED_APPS) {
@@ -1716,8 +1724,6 @@ Evme.Brain = new function Evme_Brain() {
             if (data.errorCode !== Evme.DoATAPI.ERROR_CODES.SUCCESS) {
               return false;
             }
-
-            window.clearTimeout(timeoutHideHelper);
 
             var _query = options.query,
                 _type = options.type,
@@ -1888,7 +1894,7 @@ Evme.Brain = new function Evme_Brain() {
                 Evme.BackgroundImage.update(image);
             }
             
-            Evme.Features.stopTimingFeature('typingImage');
+            Evme.Features.stopTimingFeature('typingImage', true);
         }
 
         this.getIcons = function getIcons(ids, format) {
@@ -2088,6 +2094,12 @@ Evme.Brain = new function Evme_Brain() {
               Searcher.getApps(options);
             } else {
               Evme.Apps.clear();
+              resetLastSearch();
+              
+              loadInstalledApps({
+                "query": queryTyped,
+                "clear": true
+              });
             }
             
             if (Evme.Features.isOn('typingImage')) {
@@ -2095,6 +2107,7 @@ Evme.Brain = new function Evme_Brain() {
               Searcher.getBackgroundImage(options);
             } else {
               Evme.BackgroundImage.loadDefault();
+              resetLastSearch();
             }
         };
 
@@ -2118,6 +2131,11 @@ Evme.Brain = new function Evme_Brain() {
             } else {
               Evme.Apps.clear();
               resetLastSearch();
+              
+              loadInstalledApps({
+                "query": query,
+                "clear": true
+              });
             }
 
             if (Evme.Features.isOn('typingImage')) {
