@@ -104,15 +104,15 @@ Evme.__config = {
     "featureStateByConnection": {
       "iconQuality": {
         "disableAfter": 2500,
-        "bringBack": 600
+        "bringBack": 1500
       },
       "typingImage": {
         "disableAfter": 3000,
-        "bringBack": 3000
+        "bringBack": 2000
       },
       "typingApps": {
         "disableAfter": 3500,
-        "bringBack": 800
+        "bringBack": 1500
       }
     },
     // time before refreshing user location (milliseconds)
