@@ -1395,7 +1395,13 @@ Evme.Brain = new function Evme_Brain() {
         var featureName = data.featureName,
             isEnabled = data.newValue;
 
-        if (!isEnabled) {
+        if (isEnabled) {
+          // and if we need to enable the background image-
+          // enable the Apps as well, same reason as below
+          if (featureName === 'typingImage') {
+            Evme.Features.enable('typingApps');
+          }
+        } else {
           if (featureName === 'typingApps') {
             Searcher.cancelSearch();
             Evme.Apps.clear();
@@ -1407,10 +1413,6 @@ Evme.Brain = new function Evme_Brain() {
           if (featureName === 'typingImage') {
             Searcher.cancelImageSearch();
             Evme.BackgroundImage.loadDefault();
-          }
-        } else {
-          if (featureName === 'typingImage') {
-            Evme.Features.enable('typingApps');
           }
         }
       };
@@ -1608,7 +1610,7 @@ Evme.Brain = new function Evme_Brain() {
 
                     Searcher.cancelSearch();
 
-                    if (appsCurrentOffset === 0) {
+                    if (!Evme.Utils.isKeyboardVisible && appsCurrentOffset === 0) {
                       Evme.Utils.isOnline(function isOnlineCallback(isOnline){
                         if (isOnline) {
                           timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,
