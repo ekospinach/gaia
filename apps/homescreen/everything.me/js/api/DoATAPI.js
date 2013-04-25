@@ -8,8 +8,12 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         NUMBER_OF_RETRIES = 3,                          // number of retries before returning error
         RETRY_TIMEOUT = {"from": 1000, "to": 3000},     // timeout before retrying a failed request
         MAX_REQUEST_TIME = 10000,                       // timeout before declaring a request as failed (if server isn't responding)
-        MAX_ITEMS_IN_CACHE = 20,                        // maximum number of calls to save in the user's cache
-        CACHE_EXPIRATION_IN_MINUTES = 30,
+        
+        MAX_ITEMS_IN_CACHE = 40,                        // maximum number of calls to save in the user's cache
+        CACHE_EXPIRATION_IN_MINUTES = 60*24,
+        updatingCache = false,
+        onCachedItemsChange,
+        
         STORAGE_KEY_CREDS = "credentials",
         authCookieName = '',
         userLat,
@@ -20,21 +24,21 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         requestingSession = false,
         
         requestsQueue = {},
-        requestsToPerformOnOnline = [],
+        requestsToPerformOnOnline = {},
         sessionInitRequest = null,
         
         // here we will save the actual params to pass
         savedParamsToPass = {},
         // which param to pass from normal requests to stats and logs
-        PARAM_TO_PASS_FROM_REQUEST_TO_STATS = "requestId",
+        PARAM_TO_PASS_BETWEEN_REQUESTS = "requestId",
+        PARAM_TO_PASS_BETWEEN_REQUESTS_NAME = "originatingRequestId",
         
         // client info- saved in cookie and sent to API
-        currentClientInfo = {
+        clientInfo = {
             'lc': navigator.language,
             'tz': (new Date().getTimezoneOffset()/-60).toString(),
             'kb': ''
         },
-        CLIENT_INFO_COOKIE_NAME = 'clientInfo',
         
         requestsToCache = {
             "Search.apps": true,
@@ -43,7 +47,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "Search.trending": true
         },
         requestsThatDontNeedConnection = {
-            "Search.suggestions": true,
             "App.icons": true
         },
         paramsToCleanFromCacheKey = ["cachedIcons", "idx", "feature", "sid", "credentials"],
@@ -73,20 +76,26 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         authCookieName = options.authCookieName;
         manualCampaignStats = options.manualCampaignStats;
         
-        deviceId = getDeviceId();
-        manualCredentials = Evme.Storage.get(STORAGE_KEY_CREDS);
+        getDeviceId(function deviceIdGot(value) {
+          deviceId = value;
+        });
+        
+        Evme.Storage.get(STORAGE_KEY_CREDS, function storageGot(value) {
+          manualCredentials = value;
+        });
         
         // make sure our client info cookie is always updated according to phone ettings
-        navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
-            self.setClientInfoLocale(e.settingValue);
-        });
-        navigator.mozSettings.addObserver('time.timezone', function onTimeZoneChange(e) {
-            self.setClientInfoTimeZone();
-        });
-        navigator.mozSettings.addObserver('keyboard.current', function onKeyboardLayoutChange(e) {
-            self.setKeyboardLanguage(e.settingValue);
-        });
-        setClientInfoCookie();
+        if (navigator.mozSettings) {
+            navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
+                self.setClientInfoLocale(e.settingValue);
+            });
+            navigator.mozSettings.addObserver('time.timezone', function onTimeZoneChange(e) {
+                self.setClientInfoTimeZone();
+            });
+            navigator.mozSettings.addObserver('keyboard.current', function onKeyboardLayoutChange(e) {
+                self.setKeyboardLanguage(e.settingValue);
+            });
+        }
         
         self.Session.init();
     };
@@ -96,10 +105,10 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         
         var params = {
             "query": options.query,
-            "experienceId": options.experienceId,
-            "typeHint": options.typeHint,
-            "feature": options.feature,
-            "cachedIcons": options.cachedIcons,
+            "experienceId": options.experienceId || '',
+            "typeHint": options.typeHint || '',
+            "feature": options.feature || '',
+            "cachedIcons": options.cachedIcons || '',
             "exact": options.exact,
             "spellcheck": options.spellcheck,
             "suggest": options.suggest,
@@ -184,13 +193,13 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
 
         var params = {
             "query": options.query,
-            "experienceId": options.experienceId,
-            "typeHint": options.typeHint,
-            "feature": options.feature,
-            "exact": options.exact,
-            "width": options.width,
-            "height": options.height,
-            "idx": options.index,
+            "experienceId": options.experienceId || '',
+            "typeHint": options.typeHint || '',
+            "feature": options.feature || '',
+            "exact": options.exact || false,
+            "width": Math.round(options.width || 320),
+            "height": Math.round(options.height || 480),
+            "idx": options.index || '',
             "prevQuery": options.prevQuery || ""
         };
 
@@ -224,17 +233,18 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             queriesToAppIds = {};
         
         this.get = function get(options, callback) {
-            var shortcuts = Evme.Storage.get(STORAGE_KEY_SHORTCUTS),
-                icons = Evme.Storage.get(STORAGE_KEY_ICONS);
-            
-            if (!shortcuts) {
-                shortcuts = Evme.__config["_" + STORAGE_KEY_SHORTCUTS];
-                icons = Evme.__config["_" + STORAGE_KEY_ICONS];
-            }
-            
-            saveAppIds(shortcuts);
-            
-            callback && callback(createResponse(shortcuts, icons));
+            Evme.Storage.get(STORAGE_KEY_SHORTCUTS, function storageShortcuts(shortcuts) {
+              Evme.Storage.get(STORAGE_KEY_ICONS, function storageIcons(icons) {
+                if (!shortcuts) {
+                    shortcuts = Evme.__config['_' + STORAGE_KEY_SHORTCUTS];
+                    icons = Evme.__config['_' + STORAGE_KEY_ICONS];
+                }
+                
+                saveAppIds(shortcuts);
+                
+                callback && callback(createResponse(shortcuts, icons));
+              });
+            });
         };
         
         this.set = function set(options, callback) {
@@ -338,7 +348,8 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             !options && (options = {});
             
             var params = {
-                "existing": JSON.stringify(options.existing || [])
+                "existing": JSON.stringify(options.existing || []),
+                "iconFormat": options.iconFormat || 20
             };
             
             return request({
@@ -355,6 +366,10 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         // check if a list of shortcuts contain the given shortcut
         // not a simple indexOf since a shortcut is either a query or an experienceId
         function contains(shortcuts, shortcut) {
+            if (!shortcuts) {
+              return false;
+            }
+            
             for (var i=0,shortcutToCheck; shortcutToCheck=shortcuts[i++];) {
                 var experienceId1 = shortcutToCheck.experienceId,
                     experienceId2 = shortcut.experienceId,
@@ -371,6 +386,10 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         }
         
         function saveAppIds(shortcuts) {
+            if (!shortcuts) {
+              return;
+            }
+            
             for (var i=0,shortcut,value; shortcut=shortcuts[i++];) {
                 value = (shortcut.experienceId || shortcut.query).toString().toLowerCase();
                 queriesToAppIds[value] = shortcut.appIds;
@@ -379,7 +398,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         
         function getAppIds(shortcut) {
             var value = (shortcut.experienceId || shortcut.query).toString().toLowerCase();
-            return queriesToAppIds[value] || [];
+            return queriesToAppIds[value] || shortcut.appIds || [];
         }
         
         function createResponse(shortcuts, icons) {
@@ -470,7 +489,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                 for (var i=0,e; e=events[i++];) {
                     var savedValue = savedParamsToPass[e.userEvent];
                     if (savedValue) {
-                        e[PARAM_TO_PASS_FROM_REQUEST_TO_STATS] = savedValue;
+                        e[PARAM_TO_PASS_BETWEEN_REQUESTS_NAME] = savedValue;
                     }
                 }
                 
@@ -483,7 +502,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     // takes a method's response, and saves data according to paramsToPassBetweenRequests
     function saveParamFromRequest(method, response) {
         var events = paramsToPassBetweenRequests[method],
-            paramValue = response && response[PARAM_TO_PASS_FROM_REQUEST_TO_STATS];
+            paramValue = response && response[PARAM_TO_PASS_BETWEEN_REQUESTS];
             
         if (!paramValue || !events) {
             return;
@@ -626,20 +645,14 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         };
         
         this.init = function init() {
-            var sessionFromCache = Evme.Storage.get(_key),
-                createCause;
+          Evme.Storage.get(_key, function storageGot(sessionFromCache) {
+            var createCause;
                 
             if (sessionFromCache) {
-                try {
-                    sessionFromCache = JSON.parse(sessionFromCache);
-                    
-                    if (!self.expired(sessionFromCache)) {
-                        _session = sessionFromCache;
-                    } else {
-                        createCause = self.INIT_CAUSE.EXPIRED;
-                    }
-                } catch(ex) {
-                    createCause = self.INIT_CAUSE.CACHE_ERROR;
+                if (!self.expired(sessionFromCache)) {
+                    _session = sessionFromCache;
+                } else {
+                    createCause = self.INIT_CAUSE.EXPIRED;
                 }
             } else {
                 createCause = self.INIT_CAUSE.NOT_IN_CACHE;
@@ -648,6 +661,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             if (!_session) {
                 self.create(null, null, createCause);
             }
+          });
         };
         
         this.shouldInit = function shouldInit() {
@@ -716,52 +730,57 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         function save() {
             _session["timeWritten"] = (new Date()).getTime();
             
-            Evme.Storage.add(_key, JSON.stringify(_session));
+            Evme.Storage.set(_key, _session);
         }
     };
     
     this.cancelQueue = function cancelQueue() {
-        for (var i=0; i<requestsToPerformOnOnline.length; i++) {
-            requestsToPerformOnOnline[i].abort();
+        for (var method in requestsToPerformOnOnline) {
+            requestsToPerformOnOnline[method].abort();
         }
         
-        requestsToPerformOnOnline = [];
+        requestsToPerformOnOnline = {};
     };
     
     this.backOnline = function backOnline() {
-        if (requestsToPerformOnOnline.length == 0) return;
+        var keys = Object.keys(requestsToPerformOnOnline);
         
-        for (var i=0; i<requestsToPerformOnOnline.length; i++) {
-            requestsToPerformOnOnline[i].request();
+        if (keys.length === 0) return;
+        
+        var request = requestsToPerformOnOnline[keys[0]].request(function onRequestComplete() {
+          delete requestsToPerformOnOnline[keys[0]];
+          self.backOnline();
+        });
+        
+        // if the request was aborted we won't get the "onRequestComplete"
+        // so we move on to the next request immediately
+        if (!request) {
+          delete requestsToPerformOnOnline[keys[0]];
+          self.backOnline();
         }
-        
-        requestsToPerformOnOnline = [];
     };
     
     this.setClientInfoLocale = function setClientInfoLocale(newLocale) {
-        currentClientInfo.lc = newLocale || navigator.language || '';
-        setClientInfoCookie();
+        clientInfo.lc = newLocale || navigator.language || '';
     };
     this.setClientInfoTimeZone = function setClientInfoTimeZone(newTimeZone) {
-        currentClientInfo.tz = newTimeZone || (new Date().getTimezoneOffset()/-60).toString();
-        setClientInfoCookie();
+        clientInfo.tz = newTimeZone || (new Date().getTimezoneOffset()/-60).toString();
     };
     this.setKeyboardLanguage = function setKeyboardLanguage(newKeyboardLanguage) {
-        currentClientInfo.kb = newKeyboardLanguage || '';
-        setClientInfoCookie();
+        clientInfo.kb = newKeyboardLanguage || '';
     };
     
-    // save the current client info in a cookie, for the server to read
-    // format: lc=<locale code>,tz=<timezone offset>,kb=<keyboard language>
-    function setClientInfoCookie() {
-        var cookieVal = [];
-        for (var key in currentClientInfo) {
-            cookieVal.push(key + '=' + encodeURIComponent(currentClientInfo[key]));
+    // go over the clientInfo object and construct a param from it
+    // clientInfo=key=value,key=value,...
+    this.getClientInfo = function getClientInfo() {
+        var value = [];
+        for (var key in clientInfo) {
+            value.push(key + '=' + clientInfo[key]);
         }
-        cookieVal = cookieVal.join(',');
+        value = value.join(',');
         
-        Evme.Utils.Cookies.set(CLIENT_INFO_COOKIE_NAME, cookieVal, null, '.everything.me');  
-    }
+        return value;
+    };
     
     function request(options, ignoreCache, dontRetryIfNoSession) {
         var methodNamespace = options.methodNamespace,
@@ -770,94 +789,136 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             callback = options.callback,
             noSession = options.noSession,
             
-            useCache = requestsToCache[methodNamespace+"."+methodName],
+            useCache = requestsToCache[methodNamespace + '/' + methodName],
             cacheKey = '',
             
-            shouldInit = Evme.DoATAPI.Session.shouldInit();
+            methodKey = methodNamespace + '/' + methodName,
+            
+            shouldInit = Evme.DoATAPI.Session.shouldInit(),
+            needSessionInit = shouldInit.should &&
+                              !doesntNeedSession[methodKey] &&
+                              !manualCredentials &&
+                              !dontRetryIfNoSession;
         
-        if (requestsToPerformOnOnline.length != 0 && shouldInit.should && !doesntNeedSession[methodNamespace+"." + methodName] && !manualCredentials && !dontRetryIfNoSession) {
-            requestsQueue[JSON.stringify(options)] = options;
-            reInitSession(shouldInit.cause);
-            return false;
+        if (Object.keys(requestsToPerformOnOnline).length !== 0 && needSessionInit) {
+            Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+              if (!isOnline) {
+                Evme.EventHandler.trigger(NAME, "cantSendRequest", {
+                  "method": methodKey,
+                  "queue": requestsToPerformOnOnline
+                });
+              }
+
+              if (requestsQueue[methodKey]) {
+                delete requestsQueue[methodKey];
+              }
+              requestsQueue[methodKey] = options;
+              
+              reInitSession(shouldInit.cause);
+            });
+            
+            return true;
         }
         
-        // add the lat,lon to the cache key (DUH)
+        // the following params will be added to the cache key
         if (userLat && userLon && typeof params["latlon"] == "undefined") {
             params["latlon"] = userLat + "," + userLon;
         }
+        params["clientInfo"] = self.getClientInfo();
         
         if (useCache) {
             cacheKey = getCacheKey(methodNamespace, methodName, params);
             
             if (!ignoreCache) {
-                var fromCache = getFromCache(cacheKey);
-                if (fromCache) {
-                    saveParamFromRequest(methodNamespace + '.' + methodName, fromCache);
-                    callback && window.setTimeout(function() {
-                        callback(fromCache);
-                    }, 10);
-                    return true;
-                }
+                Evme.Storage.get(cacheKey, function storageGot(value) {
+                    if (value) {
+                      saveParamFromRequest(methodKey, value);
+                      
+                      callback && window.setTimeout(function() {
+                          callback(value);
+                      }, 10);
+                      
+                      return true;
+                    } else {
+                      actualRequest();
+                    }
+                });
+                
+                return true;
             }
         }
         
-        // the following params WILL NOT BE ADDED TO THE CACHE KEY
-        params["apiKey"] = apiKey;
-        params["v"] = appVersion;
-        if (manualCredentials) {
-            params["credentials"] = manualCredentials;
+        function actualRequest() {
+          // the following params WILL NOT BE ADDED TO THE CACHE KEY
+          params["apiKey"] = apiKey;
+          params["v"] = appVersion;
+          params["native"] = true;
+  
+          if (manualCredentials) {
+              params["credentials"] = manualCredentials;
+          }
+          if (manualCampaignStats) {
+              for (var k in manualCampaignStats){
+                  params[k] = manualCampaignStats[k];
+              }
+          }
+          if (!noSession) {
+              params["sid"] = self.Session.get().id;
+          }
+          if (!params.stats) {
+              params.stats = {};
+          }
+          /* ---------------- */
+         
+          var _request = new Evme.Request();
+          _request.init({
+              "methodNamespace": methodNamespace,
+              "methodName": methodName,
+              "params": params,
+              "callback": callback,
+              "requestTimeout": MAX_REQUEST_TIME,
+              "retries": NUMBER_OF_RETRIES,
+              "retryCheck": shouldRetry,
+              "timeoutBetweenRetries": RETRY_TIMEOUT,
+              "request": cbRequest,
+              "error": cbError,
+              "success": cbSuccess,
+              "clientError": cbClientError,
+              "onAbort": cbRequestAbort,
+              "cacheKey": cacheKey,
+              "cacheTTL": (typeof useCache == "number")? useCache : CACHE_EXPIRATION_IN_MINUTES
+          });
+          
+          if (requestsThatDontNeedConnection[methodKey]) {
+              _request.request();
+          } else {
+              Evme.Utils.isOnline(function isOnlineCallback(isOnline){
+                  if (isOnline) {
+                      _request.request();
+                  } else {
+                      Evme.EventHandler.trigger(NAME, "cantSendRequest", {
+                          "method": methodKey,
+                          "request": _request,
+                          "queue": requestsToPerformOnOnline
+                      });
+
+                      if (needSessionInit) {
+                        reInitSession(shouldInit.cause);
+                      }
+
+                      if (requestsToPerformOnOnline[methodKey]) {
+                        delete requestsToPerformOnOnline[methodKey];
+                      }
+                      
+                      requestsToPerformOnOnline[methodKey] = _request;
+                  }
+              });
+          }
+          
+          return _request;
         }
-        if (manualCampaignStats) {
-            for (var k in manualCampaignStats){
-                params[k] = manualCampaignStats[k];
-            }
-        }
-        if (!noSession) {
-            params["sid"] = self.Session.get().id;
-        }
-        if (!params.stats) {
-            params.stats = {};
-        }
-        /* ---------------- */
-       
-        var _request = new Evme.Request();
-        _request.init({
-            "methodNamespace": methodNamespace,
-            "methodName": methodName,
-            "params": params,
-            "callback": callback,
-            "requestTimeout": MAX_REQUEST_TIME,
-            "retries": NUMBER_OF_RETRIES,
-            "retryCheck": shouldRetry,
-            "timeoutBetweenRetries": RETRY_TIMEOUT,
-            "request": cbRequest,
-            "error": cbError,
-            "success": cbSuccess,
-            "clientError": cbClientError,
-            "onAbort": cbRequestAbort,
-            "cacheKey": cacheKey,
-            "cacheTTL": (typeof useCache == "number")? useCache : CACHE_EXPIRATION_IN_MINUTES
-        });
         
-        if (requestsThatDontNeedConnection[methodNamespace+"."+methodName]) {
-            _request.request();
-        } else {
-            Evme.Utils.isOnline(function isOnlineCallback(isOnline){
-                if (isOnline) {
-                    _request.request();
-                } else {
-                    requestsToPerformOnOnline.push(_request);
-                    
-                    Evme.EventHandler.trigger(NAME, "cantSendRequest", {
-                        "method": methodNamespace + '/' + methodName,
-                        "request": _request,
-                        "queue": requestsToPerformOnOnline
-                    });
-                }
-            });
-        }
-        
-        return _request;
+        return actualRequest();
     }
     
     function shouldRetry(data) {
@@ -867,20 +928,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     
     function getCacheKey(methodNamespace, methodName, params) {
         var sOptions = cacheCleanUpParams(params);
-        return (methodNamespace + "." + methodName + "." + sOptions).toLowerCase();
-    }
-    
-    function getFromCache(cacheKey) {
-        var cached = Evme.Storage.get(cacheKey);
-        if (cached) {
-            try {
-                cached = JSON.parse(cached);
-            } catch(ex) {
-                cached = null;
-            }
-        }
-        
-        return cached;
+        return (methodNamespace + "/" + methodName + "/" + sOptions).toLowerCase();
     }
     
     this.insertToCache = function insertToCache(cacheKey, data, cacheTTL) {
@@ -915,30 +963,43 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                 }
             }
         }
-        
-        Evme.Storage.add(cacheKey, JSON.stringify(data), cacheTTL*60);
-        
-        var itemsCached = itemsCached? (Evme.Storage.get(itemsCached) || "").split("]][[") : [];
-        if (itemsCached.length == 1 && itemsCached[0] == "") {
-            itemsCached = [];
+
+        Evme.Storage.set(cacheKey, data, cacheTTL*60);
+
+        if (updatingCache) {
+          onCachedItemsChange = function() {
+            insertToCache(cacheKey, data, cacheTTL);
+          };
+
+          return true;
         }
-        
-        itemsCached.push(cacheKey);
-        if (itemsCached.length > MAX_ITEMS_IN_CACHE) {
-            var itemToRemove = itemsCached[0];
-            itemsCached.splice(0, 1);
-            Evme.Storage.remove(itemToRemove);
-        }
-        
-        Evme.Storage.add("itemsCached", itemsCached.join("]][["));
+
+        onCachedItemsChange = null;
+        updatingCache = true;
+        Evme.Storage.get('itemsCached', function storageGot(itemsInCache) {
+          itemsInCache = itemsInCache || [];
+
+          itemsInCache.push(cacheKey);
+
+          if (itemsInCache.length > MAX_ITEMS_IN_CACHE) {
+              var itemToRemove = itemsInCache[0];
+              itemsInCache.splice(0, 1);
+
+              Evme.Storage.remove(itemToRemove);
+          }
+
+          Evme.Storage.set('itemsCached', itemsInCache, null, function onCacheUpdated() {
+            updatingCache = false;
+
+            if (onCachedItemsChange) {
+              onCachedItemsChange();
+            }
+          });
+        });
         
         return true;
     };
-    
-    this.removeFromCache = function removeFromCache(cacheKey) {
-        Evme.Storage.remove(cacheKey);
-    };
-    
+
     function cacheCleanUpParams(params) {
         var retParams = [];
         for (var param in params) {
@@ -950,15 +1011,15 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         return retParams.join(",");
     }
     
-    function getDeviceId() {
-        var _deviceId = Evme.Storage.get("deviceId");
-        
-        if (!_deviceId) {
-            _deviceId = generateDeviceId();
-            Evme.Storage.add("deviceId", _deviceId);
+    function getDeviceId(callback) {
+      Evme.Storage.get("deviceId", function storageGot(deviceId) {
+        if (!deviceId) {
+            deviceId = generateDeviceId();
+            Evme.Storage.set("deviceId", deviceId);
         }
         
-        return _deviceId;
+        callback(deviceId);
+      });
     }
     
     this.getDeviceId = function getDeviceId(){
@@ -973,7 +1034,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
 
     function cbRequest(methodNamespace, method, params, retryNumber) {
         Evme.EventHandler.trigger(NAME, "request", {
-            "method": methodNamespace + "/" + method,
+            "method": methodNamespace + '/' + method,
             "params": params,
             "retryNumber": retryNumber
         });
@@ -981,17 +1042,17 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     
     function cbRequestAbort(methodNamespace, method, params, retryNumber) {
         Evme.EventHandler.trigger(NAME, "abort", {
-            "method": methodNamespace + "/" + method,
+            "method": methodNamespace + '/' + method,
             "params": params,
             "retryNumber": retryNumber
         });
     }
     
     function cbSuccess(methodNamespace, method, url, params, retryNumber, data, requestDuration) {
-        saveParamFromRequest(methodNamespace + '.' + method, data);
+        saveParamFromRequest(methodNamespace + '/' + method, data);
         
         Evme.EventHandler.trigger(NAME, "success", {
-            "method": methodNamespace + "/" + method,
+            "method": methodNamespace + '/' + method,
             "params": params,
             "retryNumber": retryNumber,
             "url": url,
@@ -1002,7 +1063,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     
     function cbClientError(methodNamespace, method, url, params, data, ex) {
         Evme.EventHandler.trigger(NAME, "clientError", {
-            "method": methodNamespace + "/" + method,
+            "method": methodNamespace + '/' + method,
             "params": params,
             "url": url,
             "response": data,
@@ -1012,7 +1073,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     
     function cbError(methodNamespace, method, url, params, retryNumber, data, callback, retryCallback) {
         Evme.EventHandler.trigger(NAME, "error", {
-            "method": methodNamespace + "/" + method,
+            "method": methodNamespace + '/' + method,
             "params": params,
             "retryNumber": retryNumber,
             "url": url,
@@ -1050,7 +1111,7 @@ Evme.Request = function Evme_Request() {
         requestRetry = null,
         timeoutBetweenRetries = 0,
         
-        request = null,
+        httpRequest = null,
         aborted = false,
         cacheKey = "",
         cacheTTL = 0,
@@ -1088,10 +1149,10 @@ Evme.Request = function Evme_Request() {
         return self;
     };
     
-    this.request = function request() {
+    this.request = function request(onDone) {
         if (aborted) return false;
         
-        requestSentTime = (new Date()).getTime();
+        requestSentTime = Date.now();
         
         cbRequest(methodNamespace, methodName, params, retryNumber);
         
@@ -1102,11 +1163,22 @@ Evme.Request = function Evme_Request() {
         
         params.stats = JSON.stringify(params.stats);
         
-        request = Evme.api[methodNamespace][methodName](params, apiCallback);
+        httpRequest = Evme.api[methodNamespace][methodName](params, function onResponse(data, url) {
+          // try-catch so if it throws an error, the callback would still fire
+          if (onDone) {
+            try {
+              onDone(data, url);
+            } catch (ex) {
+              
+            }
+          }
+          
+          apiCallback(data, url);
+        });
         
         requestTimeout = window.setTimeout(requestTimeoutCallback, maxRequestTime);
         
-        return request;
+        return httpRequest;
     };
     
     this.abort = function abort() {
@@ -1116,7 +1188,11 @@ Evme.Request = function Evme_Request() {
         
         aborted = true;
         clearTimeouts();
-        request && request.abort();
+        
+        if (httpRequest) {
+          httpRequest.onreadystatechange = null;
+          httpRequest.abort();
+        }
         
         cbAbort(methodNamespace, methodName, params, retryNumber);
     };
@@ -1139,7 +1215,7 @@ Evme.Request = function Evme_Request() {
             }
         } else {
             if (!isError) {
-                var requestDuration = (new Date().getTime()) - requestSentTime;
+                var requestDuration = Date.now() - requestSentTime;
                 cbSuccess(methodNamespace, methodName, url, params, retryNumber, data, requestDuration);
             }
             
@@ -1160,7 +1236,7 @@ Evme.Request = function Evme_Request() {
             return;
         }
         
-        request.abort();
+        httpRequest.abort();
         
         var data = {
             "errorCode": -100,

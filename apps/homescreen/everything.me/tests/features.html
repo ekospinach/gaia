@@ -53,9 +53,9 @@
         </style>
         <script>
             window.onload = function onLoad() {
-
+                
                 BlurTest.init();
-
+                              
                 window.addEventListener("touchend", function onTouchEnd(e){
                     exec({
                         "cond": e.pageX !== 0 && e.pageY !== -20,
@@ -65,12 +65,12 @@
                         }
                     });
                 }, false);
-
+                
                 exec({
                     "cond": false,
                     "elId": "geo"
                 });
-
+                    
                 navigator.geolocation.getCurrentPosition(function onLocationSuccess(pos){
                     exec({
                         "cond": true,
@@ -80,28 +80,28 @@
                         }
                     });
                 });
-
+                
                 exec({
                     "cond": "ontouchstart" in window,
                     "elId": "touch"
                 });
-
+                
                 exec({
                     "cond": $("viewport").offsetWidth === 380,
                     "elId": "viewport"
                 });
-
+                
                 exec({
                     "cond": "hidden" in document && "visibilityState" in document,
                     "elId": "visibility"
                 });
-
+                
                 exec({
                     "cond": "devicePixelRatio" in window,
                     "elId": "ratio"
                 });
             }
-
+            
             function exec(cfg) {
                 var el = $(cfg.elId);
                 if (cfg.cond) {
@@ -111,36 +111,36 @@
                     el.className = "fail";
                 }
             }
-
+            
             function coord(x) {
                 return parseInt(x*100, 10)/100;
             }
-
+            
             function $(x){
                 return document.getElementById(x);
             }
-
+            
             var BlurTest = new function BlurTest() {
                 var el, button, input, flag = false, blurred = false;
-
+                
                 this.init = function init() {
                     el = $("blur"),
                     input = el.querySelector("input"),
                     button = el.querySelector("button");
-
+                    
                     button.addEventListener("mousedown", touchstart1);
-
+                    
                     input.addEventListener("focus", function onFocus() {
                         console.log("start");
                         start();
                     });
-
+                    
                     input.addEventListener("blur", function onBlur() {
                         console.log("blur");
                         end();
                     });
                 };
-
+                
                 function touchstart1(e) {
                     console.log("touchstart1");
                     e.preventDefault();
@@ -148,7 +148,7 @@
                     button.addEventListener("mousedown",touchstart2);
                     button.innerHTML = "Click to end test";
                 }
-
+                
                 function touchstart2() {
                     console.log("touchstart2");
                     button.removeEventListener("mousedown", touchstart2);
@@ -156,11 +156,11 @@
                         flag = true;
                     }
                 }
-
+                    
                 function start() {
                     el.className = "started";
                 };
-
+                
                 function end() {
                     console.log("end");
                     el.innerHTML = "Blur test complete";
@@ -171,13 +171,12 @@
                 };
             };
         </script>
-
-    <link rel="stylesheet" href="/shared/style/resolution.css" > </head>
+    </head>
     <body>
         <a id="rfsh" href="">refresh</a>
-
+        
         <h1>Critical</h1>
-
+        
         <div id="blur">
             <input type="text" value="Start input blur test">
             <button>Now click again</button>
@@ -188,9 +187,9 @@
         <div id="geo">
             Geolocation: <span id="coords"></span>
         </div>
-
+        
         <h1>Important for the future</h1>
-
+        
         <div id="touchend">
             <small>Touchend event always returns coords [0,-20]</small>
         </div>
@@ -200,9 +199,9 @@
         <div id="ratio">
             Device pixel ratio
         </div>
-
+        
         <h1>Nice to have</h1>
-
+        
         <div id="visibility">
             Page visibility API
         </div>

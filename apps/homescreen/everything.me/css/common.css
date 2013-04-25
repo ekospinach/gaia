@@ -11,9 +11,13 @@
     background-size: 100% 100%;
     font: normal 1.2rem 'MozTT', Sans-Serif;
     text-align: left;
+    display: none;
+}
+.evme-visible #evmeContainer {
+    display: block !important;
 }
 
-#evmeContainer div, #evmeContainer p, #evmeContainer span,
+#evmeContainer div, #evmeContainer p:not(.building-block), #evmeContainer span,
 #evmeContainer h1, #evmeContainer h2, #evmeContainer h3, #evmeContainer h4,
 #evmeContainer a, #evmeContainer em, #evmeContainer img, #evmeContainer b,
 #evmeContainer ol, #evmeContainer ul, #evmeContainer li,
@@ -32,6 +36,10 @@
 }
 #evmeContainer ul {
     list-style-type: none;
+}
+
+.evme-hide-os #landing-time {
+    display: none;
 }
 
 #evmeContainer .textinput {
@@ -123,31 +131,91 @@
     box-shadow: 0 0.1rem 0.1rem 0 rgba(255, 255, 255, .3) inset;
 }
 
-/* When clicking on an app */
-.loading-app #header {
-    -moz-transition: all .2s linear;
-    transition: all .2s linear;
-    opacity: 0 !important;
-}
-
 #bgimage-overlay .content .close,
 .app-icon:after,
 #location-selector .close,
 #shortcuts .handle b:before,
 #shortcuts .done b:before,
+#shortcuts .add:before,
 #shortcuts-panel ul .shortcut .remove,
 .shortcut .remove,
 .fbbutton .button-real .icon:before,
 #shortcuts-customize:before,
+.shortcut.add .thumb:before,
 #shortcuts-favorites li.on:before,
-#close-category
+#close-category,
+#button-clear
 {
     background-image: url('/everything.me/images/sprite.png');
     background-repeat: no-repeat;
-    background-size: 13.1rem 25rem;
 }
-#location-selector .options div:before,
-#dialog_location .content:before {
-    background-image: url('/everything.me/images/location/location_sprite.png');
-    background-size: 6.4rem 10.6rem;
+
+/* actionbar */
+.actionbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 5rem;
+    line-height: 5rem;
+    padding: 0 0 0 3.2rem;
+    z-index: 20;
+    cursor: pointer;
+    background: rgba(0, 0, 0, .8);
+}
+    .actionbar h2 {
+        font-size: 2.3rem;
+        color: #ffffff;
+        text-indent: 3rem;
+        line-height: 5rem;
+        font-weight: 400;
+    }
+    .actionbar .close {
+        background: transparent url('../images/imageclose.png') 0.2rem 50% no-repeat;
+        background-size: 1.7rem;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        width: 4rem;
+    }
+    .actionbar .close:before {
+        content: "";
+        background: transparent url('../images/actionbar_sep.png') 50% 50% no-repeat;
+        background-size: 100% 100%;
+        position: absolute;
+        top: 0;
+        left: 2.1rem;
+        bottom: 0;
+        width: 0.2rem;
+    }
+    .actionbar .rightbutton {
+        width: 4.9rem;
+        height: 5rem;
+        background-position: 50%;
+        background-repeat: no-repeat;
+        float: right;
+    }
+    .actionbar .separator {
+        width: 0.2rem;
+        height: 5rem;
+        background: url('../images/actionbar_sep.png') 0 50% no-repeat;
+        background-size: 0.2rem 3.5rem;
+        float: right;
+        margin-left: 0.3rem;
+    }
+
+
+
+#landing-time {
+  position: absolute;
+  bottom: 10rem;
+  padding-top: 0;
+  transition: all 200ms ease-in-out;
+}
+
+.evme-shortcuts-visible #landing-time {
+    opacity: 0;
+    transform: translate3d(0, 100%, 0);
 }

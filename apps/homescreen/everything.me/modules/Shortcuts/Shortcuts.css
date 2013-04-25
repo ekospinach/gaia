@@ -1,24 +1,56 @@
-#evmeContainer #page-categories {
-    color: #fff;
-    text-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.3),
-                 0 0.1rem 0.1rem rgba(0, 0, 0, 0.6),
-                 0 0.1rem 0.2rem rgba(0, 0, 0, 0.7);
-}
-
-#evmeContainer #shortcuts {
-    background: transparent;
+#evmeContainer #evme-shortcuts {
     position: absolute;
-    top: 8rem;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 100;
+    z-index: 200;
     opacity: 0;
+    background: rgba(0, 0, 0, .25);
     pointer-events: none;
-    -moz-transition: opacity .2s linear;
-    transition: opacity .2s linear;
+}
+.evme-shortcuts-visible #evmeContainer #evme-shortcuts {
+    pointer-events: inherit;
+    opacity: 0.01;
+    animation: shortcuts-visible 300ms linear 1;
+    animation-fill-mode: forwards;
 }
 
+@-moz-keyframes shortcuts-visible {
+    from {
+        opacity: 0.01;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+
+#evmeContainer #shortcuts {
+    position: absolute;
+    top: 5rem;
+    left: 0;
+    right: -2rem;
+    bottom: 0;
+    z-index: 100;
+    overflow: hidden;
+    transition: opacity .2s linear;
+}
+#evmeContainer #shortcuts-actionbar {
+    transition: opacity .2s linear;
+    background: transparent;
+}
+.evme-smart-folder-visible #evmeContainer #shortcuts-actionbar {
+    opacity: 0;
+}
+.evme-shortcuts-customizing #evmeContainer #shortcuts-actionbar .separator,
+.evme-shortcuts-customizing #evmeContainer #shortcuts-actionbar .rightbutton {
+    opacity: 0;
+    pointer-events: none;
+} 
+.evme-smart-folder-visible #evmeContainer #shortcuts {
+    opacity: 0;
+}
     #evmeContainer #shortcuts-loading {
         position: absolute;
         top: 50%;
@@ -35,17 +67,12 @@
     #evmeContainer #shortcuts #shortcuts-list {
         position: absolute;
         top: 0;
-        right: 0;
         bottom: 0;
         left: 0;
+        padding: 0 2rem 0 0;
     }
     #evmeContainer #shortcuts #shortcuts-list ul {
-        padding-bottom: 5rem;
-    }
-    #evmeContainer #shortcuts #shortcuts-list ul:after {
-        content: "";
-        display: list-item;
-        clear: both;
+        padding: 0.8rem 0;
     }
     #evmeContainer .shortcut {
         position: relative;
@@ -60,37 +87,18 @@
         #evmeContainer .shortcut .remove {
             position: absolute;
             top: -0.5rem;
-            left: .5rem;
+            left: 0;
             right: 0;
-            height: 2.5rem;
+            height: 3rem;
             z-index: 100;
             display: none;
             cursor: pointer;
-            background: transparent url('/resources/images/delete.png') no-repeat left top;
+            background: transparent url('/resources/images/delete.png') no-repeat 0.5rem 0;
+            background-size: 2.4rem 2.4rem;
         }
-    #evmeContainer .shortcut.disabled {
-        opacity: 0;
-        -moz-transition: none;
-        transition: none;
-    }
     #evmeContainer .shortcut.remove {
         opacity: 0;
     }
-    #evmeContainer .shortcut.placeholder {
-        position: absolute;
-        top: 0;
-        left: 0.2rem;
-        right: 0.2rem;
-        height: 5.5rem;
-        z-index: 15;
-        background: rgba(66, 192, 230, .4);
-        border: 0.1rem solid #4abcd9;
-        -moz-transition: none;
-        transition: none;
-    }
-        #evmeContainer .shortcut .remove {
-            display: none;
-        }
         #evmeContainer .shortcut .thumb {
             display: block;
             position: relative;
@@ -98,16 +106,9 @@
             z-index: 10;
             -moz-transform-origin: 50% 50%;
         }
-        #evmeContainer .shortcut.add .thumb:before {
-            content: "";
-            background: url(/everything.me/images/add.png) 50% 50% no-repeat;
+        #evmeContainer .shortcut.add .thumb {
+            background: url(/everything.me/images/add.png) 50% no-repeat;
             background-size: 3rem 3.1rem;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 3.1rem;
-            height: 3.2rem;
-            margin: -1.4rem 0 0 -1.6rem;
             opacity: .7;
         }
         #evmeContainer .shortcut b {
@@ -119,214 +120,41 @@
             font-weight: 600;
             text-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, .6);
         }
-        #evmeContainer.shortcuts-customize #shortcuts #shortcuts-list {
-        }
-        #evmeContainer.shortcuts-customize #shortcuts .shortcut.add {
+        .evme-shortcuts-customizing #shortcuts .shortcut.add {
             opacity: 0;
             pointer-events: none;
             display: none;
         }
-        #evmeContainer.shortcuts-customize #shortcuts .apps-group span {
-            -moz-transform: scale(.7) !important;
-            transform: scale(.7) !important;
-        }
-
-#evmeContainer #category-page-screen {
-    position: absolute;
-    top: -8rem;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, .5);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 80;
-}
-#evmeContainer .page-category #category-page-screen {
-    opacity: 1;
-    pointer-events: inherit;
-}
-
-#evmeContainer .pages {
-    position: absolute;
-    top: 4.4rem;
-    bottom: 0;
-    left: 0;
-    right: 0;
-}
-    #evmeContainer .pages > .page {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        -moz-transform: translate(0, 0) !important;
-        transform: translate(0, 0) !important;
-    }
-
-#evmeContainer #page-category {
-    font-size: 1.5rem;
-    opacity: 0;
-    pointer-events: none;
-    top: -2.5rem;
-    left: 2.2rem;
-    right: 2.2rem;
-    bottom: 9.1rem;
-    padding-top: 1.5rem;
-    background: #c9c5cb;
-    border-radius: 0.6rem;
-    z-index: 100;
-}
-    #evmeContainer #page-category .category-scroll {
-        padding: 0 2rem;
-    }
-
-#evmeContainer .pages > #page-category.active {
-    opacity: 1;
-    pointer-events: inherit;
-}
-
-#evmeContainer #page-category > * {
-    right: 0;
-}
-#evmeContainer #page-category .continue {
-    position: relative;
-    padding: 1.9rem 0;
-}
-#evmeContainer #page-category .category-item {
-    font-size: 1.5rem;
-    position: relative;
-    padding: 0.8rem 4.4rem 1.9rem 0;
-    margin-bottom: 0.1rem;
-    box-shadow: 0 -0.1rem 0 0 rgba(0, 0, 0, .25) inset, 0 0.1rem 0 0 rgba(255, 255, 255, .4);
-}
-    #evmeContainer #page-category.one-option .category-item {
-        padding-top: 3rem;
-        padding-bottom: 3rem;
-    }
-    #evmeContainer #page-category .category-item:before {
-        content: "OR";
-        background: #c9c5cb;
-        position: absolute;
-        bottom: -1rem;
-        left: 50%;
-        width: 3rem;
-        height: 2rem;
-        color: #8c8a8e;
-        text-shadow: 0 0.1rem 0 rgba(255, 255, 255, 1);
-        line-height: 2rem;
-        margin-left: -1.5rem;
-        text-align: center;
-    }
-    #evmeContainer #page-category .continue .arrow-next {
-        position: absolute;
-        top: 50%;
-        right: 0.8rem;
-        margin-top: -1.2rem;
-        pointer-events: none;
-    }
-    #evmeContainer #page-category .category-item .arrow-next {
-        position: absolute;
-        bottom: 2.1rem;
-        right: 0.8rem;
-    }
-    #evmeContainer #page-category.one-option .continue {
-        padding-top: 3rem;
-    }
-    #evmeContainer #page-category.one-option .category-item .arrow-next {
-        bottom: 3.1rem;
-    }
-
-    #evmeContainer #page-category .category-item label {
-        display: block;
-        margin-bottom: 0.4rem;
-        font-weight: 600;
-        text-shadow: 0 0.1rem 0 rgba(255, 255, 255, .7);
-    }
-    #evmeContainer #page-category .continue b {
-        display: none;
-        height: 5.3rem;
-        line-height: 5.3rem;
-        padding: 0 1.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        text-shadow: 0 0.1rem 0 rgba(255, 255, 255, .8);
-        border: 0.1rem solid #b7b7b7;
-        border-radius: 0.6rem;
-        -moz-box-sizing: border-box;
-        background: #e2e2e2;
-        background: -moz-linear-gradient(center top, #efefef 0, #d6d6d6 100%);
-    }
-    #evmeContainer #page-category .continue b.visible {
-        display: block;
-    }
-    #evmeContainer #page-category .textinput {
-        -moz-box-sizing: border-box;
-        margin: 0;
-    }
-
-#evmeContainer #close-category {
-    background-position: 0 -22rem;
-    position: absolute;
-    top: -3.4rem;
-    right: 1.6rem;
-    width: 2.9rem;
-    height: 3.5rem;
-    cursor: pointer;
-    z-index: 120;
-    opacity: 0;
-    pointer-events: none;
-}
-#evmeContainer .page-category #close-category {
-    opacity: 1;
-    pointer-events: inherit;
-}
-
-#evmeContainer #shortcuts #shortcuts-custom-title {
-    color: #ffffff;
-    text-shadow: 0 0.1rem 0 rgba(0, 0, 0, .3);
-    opacity: .7;
-}
-#evmeContainer #shortcuts .pages {
-    top: 0;
-}
-
-#evmeContainer.empty-query:not(.keyboard-visible) #shortcuts {
-    opacity: 1;
-    pointer-events: inherit;
-}
 
 #evmeContainer #shortcuts-customize {
     display: none;
 }
-#evmeContainer #shortcuts #shortcuts-list ul {
-    padding-top: 0.5rem;
-    padding-bottom: 0;
-}
+    .evme-shortcuts-customizing  #evmeContainer #shortcuts canvas {
+    }
 
 
-#evmeContainer.shortcuts-customizing #shortcuts:not(.swiping) .shortcut .thumb {
-    -moz-animation: shake 800ms infinite ease-out;
+.evme-shortcuts-customizing #evmeContainer #shortcuts #shortcuts-list:not([data-scrolling^=true]):not([data-touched^=true]) .shortcut .thumb {
+    animation: shake 800ms infinite ease-out;
 }
-#evmeContainer.shortcuts-customizing .shortcut .remove {
+.evme-shortcuts-customizing #evmeContainer .shortcut {
+    overflow: visible;
+}
+.evme-shortcuts-customizing #evmeContainer .shortcut .remove {
     display: block;
 }
-#evmeContainer.shortcuts-customizing .shortcut.add {
-    display: none;
-}
 
-#evmeContainer.shortcuts-customizing .shortcut.remove .thumb {
-    -moz-animation: remove 150ms 1;
+.evme-shortcuts-customizing #evmeContainer .shortcut.remove .thumb {
+    animation: remove 150ms 1;
 }
 
 @-moz-keyframes shake {
-  0%   { -moz-transform: scale(1) translateZ(0); }
-  25%  { -moz-transform: scale(1.05) translateZ(0); }
-  50%  { -moz-transform: scale(1) translateZ(0); }
-  75%  { -moz-transform: scale(0.95) translateZ(0); }
-  100% { -moz-transform: scale(1) translateZ(0); }
+  0%   { transform: scale(1) translateZ(0); }
+  25%  { transform: scale(1.05) translateZ(0); }
+  50%  { transform: scale(1) translateZ(0); }
+  75%  { transform: scale(0.95) translateZ(0); }
+  100% { transform: scale(1) translateZ(0); }
 }
 @-moz-keyframes remove {
-  0%   { -moz-transform: scale(1) translateZ(0); opacity: 1; }
-  100% { -moz-transform: scale(1.1) translateZ(0); opacity: 0; }
+  0%   { transform: scale(1) translateZ(0); opacity: 1; }
+  100% { transform: scale(1.1) translateZ(0); opacity: 0; }
 }

@@ -3,7 +3,7 @@
     <head>
         <meta name="viewport" content="width=device-width initial-scale=1 minimum-scale=1 maximum-scale=1 user-scalable=0" />
         <title>Blur test</title>
-
+        
         <style>
             input, button {
                 padding: 10px;
@@ -20,48 +20,47 @@
                 color: red;
             }
         </style>
-
+        
         <script>
             var ul, timeout;
-
+            
             window.onload = function onLoad() {
                 var button = document.querySelector("button"),
                     input = document.querySelector("input");
                     ul = document.querySelector("ul");
-
+                    
                 button.addEventListener("mousedown", function onMouseDown(e) {
                     e.preventDefault();
                     message("clicked!");
                 });
-
+                
                 input.addEventListener("blur", function onBlur(e) {
                      message("blured!", false);
                 });
             }
-
+            
             function message(msg, success) {
                 clearTimeout(timeout);
-
+                
                 var li = document.createElement("li");
                 li.innerHTML = msg;
                 if (success === false) {
                     li.className = "error";
                 }
                 ul.appendChild(li);
-
+                
                 timeout = setTimeout(function onTimeout() {
                     ul.innerHTML = "";
                 }, 3000);
             }
         </script>
-
-    <link rel="stylesheet" href="/shared/style/resolution.css" > </head>
+    </head>
     <body>
         <a href="">Refresh</a>
-
+        
         <input type="text">
         <button>click me!</button>
-
+        
         <ul></ul>
     </body>
 </html>

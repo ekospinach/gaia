@@ -5,11 +5,11 @@
         <script>
             var Message = new function Message() {
                 var el;
-
+                
                 this.init = function init() {
                     el = document.getElementById("msg");
                 };
-
+                
                 this.onMessage = function onMessage(msg) {
                     if (!msg || !msg.data) {
                         alert("bad message data");
@@ -18,16 +18,16 @@
                     try {
                         var json = JSON.parse(msg.data)
                         var type = json.type;
-                        var data = json.data ? JSON.stringify(json.data) : "{}";
+                        var data = json.data ? JSON.stringify(json.data) : "{}"; 
                     } catch (ex){
                         alert("bad message data");
                         return;
                     }
-
-
+                    
+                    
                     var li = document.createElement("li");
                     var html = "<b>"+type+"</b>"+":"+data.substring(1, data.length-1).replace(/\"/g, "");
-
+                    
                     if (/add-bookmark|open-in-app/.test(type)) {
                         html+= "<img src='"+json.data.icon+"' />";
                     }
@@ -35,13 +35,13 @@
                     el.insertBefore(li, el.firstChild);
                 };
             }
-
+            
             window.addEventListener("message", Message.onMessage, false);
             window.addEventListener("load", function onLoad(){
                 Message.init();
                 document.getElementById("frame").src = "http://"+location.hostname;
             }, false);
-
+            
             function simulateMessage(type) {
                 var msg = {"type": type};
                 switch (type){
@@ -57,7 +57,7 @@
                             "icon": "iconImageUrl"
                         }
                 }
-
+                
                 window.postMessage(JSON.stringify(msg), "*");
             }
         </script>
@@ -82,12 +82,11 @@
                 margin-bottom: 10px;
             }
         </style>
-
-    <link rel="stylesheet" href="/shared/style/resolution.css" > </head>
+    </head>
     <body>
         <ul id="msg"></ul>
         <iframe id="frame" src="about:blank"></iframe>
-
+        
         <h3>Simulate events</h3>
         <button onclick="simulateMessage('open-in-app')">app click</button>
         <button onclick="simulateMessage('add-bookmark')">app bookmark</button>
