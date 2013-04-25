@@ -108,7 +108,7 @@ Evme.__config = {
       },
       "typingImage": {
         "disableAfter": 3000,
-        "bringBack": 1500
+        "bringBack": 3000
       },
       "typingApps": {
         "disableAfter": 3500,
