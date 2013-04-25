@@ -409,26 +409,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         }
     };
     
-    this.trending = function trending(options, callback) {
-        !options && (options = {});
-        
-        var params = {
-            "first": options.first,
-            "limit": options.limit,
-            "returnImage": options.returnImage,
-            "iconFormat": options.iconFormat,
-            "quality": options.quality,
-            "queries": options.queries
-        };
-        
-        return request({
-            "methodNamespace": "Search",
-            "methodName": "trending",
-            "params": params,
-            "callback": callback
-        }, options._NOCACHE);
-    }
-    
     this.Logger = new function Logger(){
         var self = this,
             methodArr = ["error", "warn", "info"];
@@ -513,22 +493,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         }
     }
     
-    this.searchLocations = function searchLocations(options, callback) {
-        !options && (options = {});
-        
-        var params = {
-            "query": options.query,
-            "latlon": undefined
-        };
-        
-        return request({
-            "methodNamespace": "Location",
-            "methodName": "search",
-            "params": params,
-            "callback": callback
-        }, options._NOCACHE);
-    };
-    
     this.setLocation = function setLocation(lat, lon) {
         userLat = lat;
         userLon = lon;
@@ -537,10 +501,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "lat": lat,
             "lon": lon
         });
-    };
-    
-    this.hasLocation = function hasLocation() {
-        return (userLat && userLon);
     };
     
     this.request = function publicRequest(methodNamespace, methodName, params, callback) {
@@ -645,15 +605,15 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         this.init = function init() {
           Evme.Storage.get(_key, function storageGot(sessionFromCache) {
             var createCause;
-                
+            
             if (sessionFromCache) {
-                if (!self.expired(sessionFromCache)) {
-                    _session = sessionFromCache;
-                } else {
-                    createCause = self.INIT_CAUSE.EXPIRED;
-                }
+              if (!self.expired(sessionFromCache)) {
+                _session = sessionFromCache;
+              } else {
+                createCause = self.INIT_CAUSE.EXPIRED;
+              }
             } else {
-                createCause = self.INIT_CAUSE.NOT_IN_CACHE;
+              createCause = self.INIT_CAUSE.NOT_IN_CACHE;
             }
             
             if (!_session) {
@@ -704,7 +664,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                 return;
             }
             
-            _session["ttl"] = ttl;
+            _session.ttl = ttl;
             save();
         };
         
@@ -726,7 +686,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         };
         
         function save() {
-            _session["timeWritten"] = (new Date()).getTime();
+            _session.timeWritten = Date.now();
             
             Evme.Storage.set(_key, _session);
         }
@@ -800,7 +760,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                               !doesntNeedSession[methodKey] &&
                               !manualCredentials &&
                               !dontRetryIfNoSession;
-        
+
         if (Object.keys(requestsToPerformOnOnline).length !== 0 && needSessionInit) {
             Evme.Utils.isOnline(function isOnlineCallback(isOnline){
               if (!isOnline) {

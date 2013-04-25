@@ -918,12 +918,13 @@ Evme.Brain = new function Evme_Brain() {
         // hiding the folder
         this.hide = function hide() {
           document.body.classList.remove(CLASS_FOLDER_VISIBLE);
-          Evme.Brain.SmartFolder.cancelRequests();
+          self.cancelRequests();
           Evme.goTo('shortcuts');
         };
 
         // close button was clicked
         this.close = function close() {
+            self.cancelRequests();
             currentFolder = null;
         };
 
@@ -959,6 +960,8 @@ Evme.Brain = new function Evme_Brain() {
             currentFolder && currentFolder.hideLoading();
             requestSmartFolderApps && requestSmartFolderApps.abort && requestSmartFolderApps.abort();
             requestSmartFolderImage && requestSmartFolderImage.abort && requestSmartFolderImage.abort();
+            requestSmartFolderApps = null;
+            requestSmartFolderImage = null;
         };
         
         // load the folder's background image
@@ -1028,6 +1031,14 @@ Evme.Brain = new function Evme_Brain() {
                     "first": currentFolder.appsPaging.offset,
                     "iconFormat": iconsFormat
                 }, function onSuccess(data) {
+                    // this can happen if the request went out when offline,
+                    // then the folder was closed before going online
+                    if (!currentFolder) {
+                      requestSmartFolderApps = null;
+                      window.clearTimeout(timeoutShowAppsLoading);
+                      return;
+                    }
+                    
                     var apps = data.response.apps;
 
                     currentFolder.appsPaging.max = data.response.paging.max;
@@ -1089,6 +1100,11 @@ Evme.Brain = new function Evme_Brain() {
                 "first": currentFolder.appsPaging.offset,
                 "iconFormat": iconsFormat
             }, function onSuccess(data) {
+                if (!currentFolder) {
+                  requestSmartFolderApps = null;
+                  return;
+                }
+
                 var apps = data.response.apps;
 
                 currentFolder.MoreIndicator.hide();
@@ -1610,7 +1626,7 @@ Evme.Brain = new function Evme_Brain() {
 
                     Searcher.cancelSearch();
 
-                    if (!Evme.Utils.isKeyboardVisible && appsCurrentOffset === 0) {
+                    if (appsCurrentOffset === 0) {
                       Evme.Utils.isOnline(function isOnlineCallback(isOnline){
                         if (isOnline) {
                           timeoutShowAppsLoading = window.setTimeout(Evme.Apps.showLoading,

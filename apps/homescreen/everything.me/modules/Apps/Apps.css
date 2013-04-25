@@ -58,8 +58,8 @@
     display: none;
     pointer-events: none;
 }
-#evme-search .show-loading-apps .loading-apps,
-#evmeContainer .show-loading-apps .loading-apps {
+body:not(.evme-keyboard-visible) #evme-search .show-loading-apps .loading-apps,
+body:not(.evme-keyboard-visible) #evmeContainer .show-loading-apps .loading-apps {
     display: block;    
 }
 
