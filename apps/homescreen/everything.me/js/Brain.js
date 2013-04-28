@@ -216,6 +216,8 @@ Evme.Brain = new function Evme_Brain() {
             } else {
               Evme.goTo('search-results');
             }
+            
+            Evme.Searchbar.updateFontSize();
           }, 400);
         };
 
