@@ -643,7 +643,7 @@ Evme.Brain = new function Evme_Brain() {
             
             var isAppInstalled = Evme.Utils.sendToOS(
                 Evme.Utils.OSMessages.IS_APP_INSTALLED,
-                { 'url': data.data.appUrl }
+                { 'url': data.app.getFavLink() }
             );
 
             if (isAppInstalled) {
