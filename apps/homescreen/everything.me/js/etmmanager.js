@@ -55,6 +55,15 @@ var EvmeManager = (function EvmeManager() {
         return GridManager.getApps();
     }
 
+    function getAppInfo(app) {
+        return {
+            'id': app.origin,
+            'name': getAppName,
+            'url': app.origin,
+            'icon': getAppIcon()
+        }
+    }
+
     function getAppIcon(app) {
         var iconObject = GridManager.getIcon(app);
         if (iconObject &&
@@ -94,8 +103,7 @@ var EvmeManager = (function EvmeManager() {
                    GridManager.getAppByOrigin(url);
         },
         getApps: getApps,
-        getAppIcon: getAppIcon,
-        getAppName: getAppName,
+        getAppInfo: getAppInfo,
 
         openUrl: openUrl,
 

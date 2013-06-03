@@ -863,11 +863,25 @@ var GridManager = (function() {
     var appMgr = navigator.mozApps.mgmt;
 
     appMgr.oninstall = function oninstall(event) {
-     GridManager.install(event.application);
+      var customEvent = new CustomEvent('onAppInstalled', {
+        'application': event.application
+      });
+      window.dispatchEvent(customEvent);
     };
     appMgr.onuninstall = function onuninstall(event) {
-      GridManager.uninstall(event.application);
+      var customEvent = new CustomEvent('onAppUninstalled', {
+        'application': event.application
+      });
+      window.dispatchEvent(customEvent);
     };
+
+    window.addEventListener('onAppInstalled', function onAppInstalled(event) {
+      GridManager.install(event.data.application);
+    });
+
+    window.addEventListener('onAppUninstalled', function onAppUnnstalled(event) {
+      GridManager.uninstall(event.data.application);
+    });
 
     appMgr.getAll().onsuccess = function onsuccess(event) {
       // Create a copy of all icons we know about so we can find out which icons

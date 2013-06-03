@@ -120,10 +120,8 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
-            case OSMessages.GET_APP_ICON:
-                return EvmeManager.getAppIcon(data);
-            case OSMessages.GET_APP_NAME:
-                return EvmeManager.getAppName(data);
+            case OSMessages.GET_APP_INFO:
+                return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
         }
@@ -519,6 +517,21 @@ Evme.Utils = new function Evme_Utils() {
     // check that localStorage is enabled by setting and getting a temp value
     this.bLocalStorageEnabled = function bLocalStorageEnabled(){
         return Evme.Storage.enabled();
+    };
+
+    this.unique = function unique() {
+        // concat
+        var concatArr = [];
+        for (var i=0,arr; arr=arguments[i++];) {
+            concatArr = concatArr.concat(arr);
+        }
+
+        // unique
+        var uniqueArr = concatArr.filter(function(elem, pos, self) {
+            return self.indexOf(elem) == pos;
+        });
+
+        return uniqueArr;
     };
 
     function _getIconsFormat() {
