@@ -493,6 +493,19 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "callback": callback
         }, options._NOCACHE);
     };
+
+    this.appNativeInfo = function appNativeInfo(options, callback) {
+        var params = {
+            "nativeAppIds": options.appIds || ""
+        };
+
+        return request({
+            "methodNamespace": "App",
+            "methodName": "nativeInfo",
+            "params": params,
+            "callback": callback
+        }, options._NOCACHE);
+    };
     
     function addGlobals(options) {
         var globals = options["globals"] || {};

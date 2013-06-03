@@ -80,6 +80,7 @@ var EverythingME = {
                     'js/helpers/Utils.js',
                     'js/Brain.js',
                     'modules/Apps/Apps.js',
+                    'modules/Apps/InstalledApps.js',
                     'modules/BackgroundImage/BackgroundImage.js',
                     'modules/Banner/Banner.js',
                     'modules/Dialog/Dialog.js',

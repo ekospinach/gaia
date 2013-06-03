@@ -135,6 +135,8 @@ window.Evme = new function Evme_Core() {
             "maxEntries": data.maxHistoryEntries
         });
 
+        Evme.InstalledApps.init({});
+
         Evme.Analytics.init({
             "config": data.analytics,
             "namespace": Evme,

@@ -570,6 +570,20 @@ Evme.Brain = new function Evme_Brain() {
         }
     };
 
+    this.InstalledApps = new function InstalledApps() {
+        this.requestAppsInfo = function getAppsInfo(data) {
+           // get app info from API
+            Evme.DoATAPI.appNativeInfo({
+                "appIds": Object.keys(data.appIndex || {})
+            },function onSuccess(response) {
+                var appsInfo = response && response.response;
+                if (appsInfo) {
+                    Evme.InstalledApps.createQueryIndex(appsInfo);    
+                }
+            });
+        };
+    };
+
     // modules/Apps/
     this.AppsMore = new function AppsMore() {
         // more button was clicked
