@@ -51,6 +51,13 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "Session.init": true,
             "Search.trending": true
         },
+
+        // parameters for getting native app suggestions
+        paramsForNativeSuggestions = {
+            'nativeSuggestions': true,
+            'nativeIconFormat': 60, // same as GridManager.PREFERRED_ICON_SIZE
+            '_opt': 'app.type'
+        },
         
         /*
          * config of params to pass from requests to reports
@@ -115,6 +122,14 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "iconFormat": options.iconFormat,
             "prevQuery": (options.first === 0)? options.prevQuery || "" : ""
         };
+
+        if (params.exact){
+            for (var key in paramsForNativeSuggestions){
+                if (params[key] === undefined){
+                    params[key] = paramsForNativeSuggestions[key];
+                }
+            }
+        }
         
         return request({
             "methodNamespace": "Search",

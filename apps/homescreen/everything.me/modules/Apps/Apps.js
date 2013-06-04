@@ -5,13 +5,14 @@ Evme.Apps = new function Evme_Apps() {
         scroll = null, defaultIconToUse = 0,
         reportedScrollMove = false, shouldFadeBG = false,
         isSwiping = false,
-        
+
         fadeBy = 0, showingFullScreen = false,
         timeoutAppsToDrawLater = null,
-        
+
         SCROLL_BOTTOM_THRESHOLD = 5,
         APP_HEIGHT = "FROM CONFIG",
         DEFAULT_SCREEN_WIDTH = "FROM CONFIG",
+        DEVICE_PIXEL_RATIO_NAME = Evme.Utils.getDevicePixelRatioName(),
         MAX_SCROLL_FADE = 200,
         FULLSCREEN_THRESHOLD = 0.8,
         MAX_APPS_CLASSES = 150,
@@ -19,10 +20,11 @@ Evme.Apps = new function Evme_Apps() {
         ICONS_STYLE_ID = "apps-icons",
         MIN_HEIGHT_FOR_MORE_BUTTON = "FROM CONFIG",
         DEFAULT_ICON_URL = "FROM CONFIG",
+        DEFAULT_MARKET_APP_ICON_URL = "FROM_CONFIG",
         TIMEOUT_BEFORE_REPORTING_APP_HOLD = 800,
         CLASS_WHEN_LOADING = 'show-loading-apps',
         ftr = {};
-        
+
     this.APPS_SHADOW_OFFSET = 2 * Evme.Utils.devicePixelRatio;
     this.APPS_SHADOW_BLUR = 2 * Evme.Utils.devicePixelRatio;
     this.APPS_TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3;
@@ -46,7 +48,9 @@ Evme.Apps = new function Evme_Apps() {
         self.More.init();
         
         DEFAULT_ICON_URL = options.design.defaultIconUrl[Evme.Utils.ICONS_FORMATS.Large];
-        if (typeof DEFAULT_ICON_URL == "string") {
+        DEFAULT_MARKET_APP_ICON_URL = options.design.defaultMarketAppIcon[DEVICE_PIXEL_RATIO_NAME];
+
+        if (typeof DEFAULT_ICON_URL === "string") {
             DEFAULT_ICON_URL = [DEFAULT_ICON_URL];
         }
         
@@ -227,7 +231,11 @@ Evme.Apps = new function Evme_Apps() {
         return scroll.y;
     };
     
-    this.getDefaultIcon = function getDefaultIcon() {
+    this.getDefaultIcon = function getDefaultIcon(market) {
+        if (market){
+            return DEFAULT_MARKET_APP_ICON_URL;
+        }
+
         var defaultIcon = DEFAULT_ICON_URL[defaultIconToUse];
         
         defaultIconToUse++;
@@ -653,10 +661,23 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
     var NAME = "App", self = this,
         cfg = {}, el = null, index = __index, isMore = __isMore, hadID = true,
         timeTouchStart = 0, touchStartPos = null, firedHold = false, tapIgnored = false,
+        isMarketApp = false,
         DISTANCE_TO_IGNORE_AS_MOVE = 3;
         
+    // TODO: reuse the market badge image
+    // by saving it in the MarketApp class Ran is working on
+    // and use Evme.config.apps.design.marketBadgeUrl for the src
+    this.marketBadge = new Image();
+    if (Evme.Utils.devicePixelRatio > 1){
+        this.marketBadge.src = "/everything.me/images/market/badge@2x.png";
+    } else {
+        this.marketBadge.src = "/everything.me/images/market/badge.png";
+    }
+    
     this.init = function init(_cfg) {
         cfg = normalize(_cfg);
+        
+        isMarketApp = (cfg.type === 'native_download');
 
         // generate id if there was none
         if (!cfg.id) {
@@ -666,10 +687,10 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
 
         if (!cfg.icon) {
             if (!hadID || cfg.preferences.defaultIcon) {
-                cfg.icon = Evme.Apps.getDefaultIcon();
+                cfg.icon = Evme.Apps.getDefaultIcon(isMarketApp);
             } else {
                 Evme.IconManager.get(cfg.id, function onIconFromCache(iconFromCache) {
-                    self.setIcon(iconFromCache || Evme.Apps.getDefaultIcon());
+                    self.setIcon(iconFromCache || Evme.Apps.getDefaultIcon(isMarketApp));
                 });
             }
         } else {
@@ -693,10 +714,11 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
           'id': 'app_' + cfg.id,
           'data-name': cfg.name
         }, '<canvas></canvas>');
-        
-        self.update();
-        
+
         el.classList.add(cfg.installed ? 'installed' : 'cloud');
+        el.classList.add("type_" + cfg.type);
+
+        self.update();
         
         if ("ontouchstart" in window) {
             el.addEventListener("touchstart", touchstart);
@@ -761,59 +783,83 @@ Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
     };
     
     function drawIconIntoCanvas(callback) {
-      var SHADOW_OFFSET = Evme.Apps.APPS_SHADOW_OFFSET,
-          SHADOW_BLUR = Evme.Apps.APPS_SHADOW_BLUR,
-          TEXT_HEIGHT = Evme.Apps.APPS_TEXT_HEIGHT,
-          TEXT_WIDTH = Evme.Apps.APPS_TEXT_WIDTH,
-          TEXT_MARGIN = Evme.Apps.APPS_TEXT_MARGIN,
-          SIZE = (cfg.installed? 58 : 44) * Evme.Utils.devicePixelRatio,
-          FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR,
-          canvas = Evme.$('canvas', el)[0],
-          context = canvas.getContext('2d'),
-          icon = Evme.Utils.formatImageData(cfg.icon) || Evme.Apps.getDefaultIcon(),
-          image = new Image();
+        var SHADOW_OFFSET = Evme.Apps.APPS_SHADOW_OFFSET,
+            SHADOW_BLUR = Evme.Apps.APPS_SHADOW_BLUR,
+            TEXT_HEIGHT = Evme.Apps.APPS_TEXT_HEIGHT,
+            TEXT_WIDTH = Evme.Apps.APPS_TEXT_WIDTH,
+            TEXT_MARGIN = Evme.Apps.APPS_TEXT_MARGIN,
+            SIZE = null,
+            FULL_SIZE = null,
+            canvas = Evme.$('canvas', el)[0],
+            context = canvas.getContext('2d'),
+            icon = Evme.Utils.formatImageData(cfg.icon) || Evme.Apps.getDefaultIcon(isMarketApp),
+            image = new Image();
 
-      canvas.width = TEXT_WIDTH;
-      canvas.height = FULL_SIZE + TEXT_MARGIN + TEXT_HEIGHT - 1;
+        function initCanvas(){
+            canvas.width = TEXT_WIDTH;
+            canvas.height = FULL_SIZE + TEXT_MARGIN + TEXT_HEIGHT - 1;
+            
+            Evme.Utils.writeTextToCanvas({
+                "text": cfg.name,
+                "context": context,
+                "offset": SIZE + TEXT_MARGIN
+            });
+        }
 
-      Evme.Utils.writeTextToCanvas({
-        "text": cfg.name,
-        "context": context,
-        "offset": SIZE + TEXT_MARGIN
-      });
+        function finalizeCanvas(image){
+            context.drawImage(image, (TEXT_WIDTH-FULL_SIZE)/2, 0);
+            if (isMarketApp){
+                context.drawImage(self.marketBadge, 0, FULL_SIZE - self.marketBadge.height);
+            }
 
-      image.onload = function onAppIconLoad() {
-        var elImageCanvas = document.createElement('canvas'),
-            imageContext = elImageCanvas.getContext('2d'),
-            fixedImage = new Image();
+            if (callback instanceof Function) {
+              callback(canvas);
+            }
+        }
 
-        elImageCanvas.width = elImageCanvas.height = FULL_SIZE;
+        image.onload = function onAppIconLoad() {
+            if (isMarketApp){
+                // use OS icon rendering
+                var osManipulatedIconCanvas = Icon.prototype.createCanvas(image);
+                
+                FULL_SIZE = SIZE = osManipulatedIconCanvas.height;
+                initCanvas();
+                finalizeCanvas(osManipulatedIconCanvas);
 
-        imageContext.beginPath();
-        imageContext.arc(FULL_SIZE/2, FULL_SIZE/2, SIZE/2, 0, Math.PI*2, false);
-        imageContext.closePath();
-        imageContext.clip();
+            } else {
+                SIZE = (cfg.installed ? 58 : 44) * Evme.Utils.devicePixelRatio;
+                FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR;
 
-        // first we draw the image resized and clipped (to be rounded)
-        imageContext.drawImage(this, (FULL_SIZE-SIZE)/2, (FULL_SIZE-SIZE)/2, SIZE, SIZE);
+                initCanvas();
 
-        fixedImage.onload = function onImageLoad() {
-          // shadow
-          context.shadowOffsetX = 0;
-          context.shadowOffsetY = SHADOW_OFFSET;
-          context.shadowBlur = SHADOW_BLUR;
-          context.shadowColor = 'rgba(0, 0, 0, 0.6)';
-          context.drawImage(this, (TEXT_WIDTH-FULL_SIZE)/2, 0);
+                var elImageCanvas = document.createElement('canvas'),
+                    imageContext = elImageCanvas.getContext('2d'),
+                    fixedImage = new Image();
 
-          if (callback instanceof Function) {
-            callback(canvas);
-          }
+                elImageCanvas.width = elImageCanvas.height = FULL_SIZE;
+
+                imageContext.beginPath();
+                imageContext.arc(FULL_SIZE / 2, FULL_SIZE / 2, SIZE / 2, 0, Math.PI * 2, false);
+                imageContext.closePath();
+                imageContext.clip();
+
+                // first we draw the image resized and clipped (to be rounded)
+                imageContext.drawImage(this, (FULL_SIZE - SIZE) / 2, (FULL_SIZE - SIZE) / 2, SIZE, SIZE);
+
+                fixedImage.onload = function onImageLoad() {
+                    // shadow
+                    context.shadowOffsetX = 0;
+                    context.shadowOffsetY = SHADOW_OFFSET;
+                    context.shadowBlur = SHADOW_BLUR;
+                    context.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                    finalizeCanvas(this);
+                };
+
+                fixedImage.src = elImageCanvas.toDataURL('image/png');
+            }
         };
 
-        fixedImage.src = elImageCanvas.toDataURL('image/png');
-      };
-
-      image.src = icon;
+        image.src = icon;
     }
 
     this.getElement = function getElement() {

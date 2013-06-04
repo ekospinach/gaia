@@ -53,6 +53,10 @@
     transition: transform .2s linear;
 }
 
+#evmeContainer .evme-apps ul li.type_native_download{
+    height: 9.3rem;
+}
+
 #evmeContainer .evme-apps ul .installed-separator {
     display: block;
     width: 100%;

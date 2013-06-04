@@ -299,6 +299,11 @@ Icon.prototype = {
       return;
     }
 
+    var canvas = this.createCanvas(img);
+    canvas.toBlob(this.renderBlob.bind(this));
+  },
+
+  createCanvas: function icon_createCanvas(img){
     var canvas = document.createElement('canvas');
     canvas.width = MAX_ICON_SIZE + 4 * SCALE_RATIO;
     canvas.height = MAX_ICON_SIZE + 4 * SCALE_RATIO;
@@ -323,7 +328,7 @@ Icon.prototype = {
                   width, height);
     ctx.fill();
 
-    canvas.toBlob(this.renderBlob.bind(this));
+    return canvas;
   },
 
   // The url that is passed as a parameter to the callback must be revoked

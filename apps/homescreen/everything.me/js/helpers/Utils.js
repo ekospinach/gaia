@@ -30,6 +30,11 @@ Evme.Utils = new function Evme_Utils() {
 
     this.APPS_FONT_SIZE = 13 * self.devicePixelRatio;
 
+    this.PIXEL_RATIO_NAMES = {
+        NORMAL: 'normal',
+        HIGH: 'high'
+    };
+
     this.ICONS_FORMATS = {
         "Small": 10,
         "Large": 20
@@ -44,6 +49,10 @@ Evme.Utils = new function Evme_Utils() {
         elContainer = document.getElementById(CONTAINER_ID);
     };
     
+    this.getDevicePixelRatioName = function getDevicePixelRatioName() {
+        return (this.devicePixelRatio > 1) ? this.PIXEL_RATIO_NAMES.HIGH : this.PIXEL_RATIO_NAMES.NORMAL;
+    };
+
     this.log = function log(message) {
         var t = new Date(),
             h = t.getHours(),
@@ -216,6 +225,8 @@ Evme.Utils = new function Evme_Utils() {
         return false;
       }
 
+      context.save();
+
       context.textAlign = 'center';
       context.textBaseline = 'top';
       context.fillStyle = 'rgba(255,255,255,1)';
@@ -269,10 +280,12 @@ Evme.Utils = new function Evme_Utils() {
           
           text += '…';
         }
-        
+       
         context.fillText(text, x, y);
       }
 
+      context.restore(); 
+      
       return true;
     };
     
