@@ -96,6 +96,7 @@ var EverythingME = {
                     'js/helpers/Storage.js',
                     'js/plugins/Scroll.js',
                     'js/external/uuid.js',
+                    'js/external/md5.js',
                     'js/api/apiv2.js',
                     'js/api/DoATAPI.js',
                     'js/helpers/EventHandler.js',

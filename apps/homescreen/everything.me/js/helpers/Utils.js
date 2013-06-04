@@ -17,8 +17,8 @@ Evme.Utils = new function Evme_Utils() {
             "HIDE_MENU": "hide-menu",
             "MENU_HEIGHT": "menu-height",
             "GET_ALL_APPS": "get-all-apps",
-            "GET_APP_ICON": "get-app-icon",
-            "GET_APP_NAME": "get-app-name"
+            "GET_APP_INFO": "get-app-info",
+            "GET_ICON_SIZE": "get-icon-size"
         };
     
     

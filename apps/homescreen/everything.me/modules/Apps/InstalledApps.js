@@ -98,12 +98,17 @@ Evme.InstalledApps = new function() {
     // get all apps on grid
     var allApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS);
 
-    for (var i=0,app; app=allApps[i++];) {
+    //for (var i=0,app; app=allApps[i++];) {
+    // TODO: why do I have to allApps.length-1?! It gets stuck if I don't :(
+    for (var i=0,len=allApps.length-1; i<len; i++) {
+      var app = allApps[i];
       // no bookmarks, only packages/hosted
       if (app.isBookmark) { return; }
-
+      
       var appInfo = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_APP_INFO, app);
-      appIndex[appInfo.id] = appInfo;
+      if (appInfo.id) {
+        appIndex[appInfo.id] = appInfo;  
+      }
     }
 
     Evme.Storage.set(APP_INDEX_STORAGE_KEY, appIndex);

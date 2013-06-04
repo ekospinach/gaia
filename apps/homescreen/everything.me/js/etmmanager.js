@@ -57,10 +57,10 @@ var EvmeManager = (function EvmeManager() {
 
     function getAppInfo(app) {
         return {
-            'id': app.origin,
-            'name': getAppName,
+            'id': Evme.Utils.md5(app.manifestURL),
+            'name': getAppName(app),
             'url': app.origin,
-            'icon': getAppIcon()
+            'icon': getAppIcon(app)
         }
     }
 
