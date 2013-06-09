@@ -20,7 +20,8 @@ window.Evme = new function Evme_Core() {
             "minimumLettersForSearch": data.minimumLettersForSearch,
             "searchSources": data.searchSources,
             "pageViewSources": data.pageViewSources,
-            "displayInstalledApps": data.apps.displayInstalledApps
+            "displayInstalledApps": data.apps.displayInstalledApps,
+            "bgImageSize": data.bgImageSize
         });
 
         Evme.DoATAPI.init({

@@ -16,6 +16,7 @@ Evme.Brain = new function Evme_Brain() {
         MINIMUM_LETTERS_TO_SEARCH = 2,
         SEARCH_SOURCES = {},
         PAGEVIEW_SOURCES = {},
+        BG_IMAGE_SIZE = [],
         ICON_SIZE = null,
 
         TIMEOUT_BEFORE_REQUESTING_APPS_AGAIN = 500,
@@ -76,6 +77,11 @@ Evme.Brain = new function Evme_Brain() {
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
+
+        BG_IMAGE_SIZE = [
+            Math.round(_config.bgImageSize[0] * Evme.Utils.devicePixelRatio),
+            Math.round(_config.bgImageSize[1] * Evme.Utils.devicePixelRatio),
+        ];
     };
     
     // l10n: create a mutation observer to know when a node was added
@@ -1826,8 +1832,8 @@ Evme.Brain = new function Evme_Brain() {
                 "feature": source,
                 "exact": exact,
                 "prevQuery": lastQueryForImage,
-                "width": Evme.__config.bgImageSize[0] * Evme.Utils.devicePixelRatio,
-                "height": Evme.__config.bgImageSize[1] * Evme.Utils.devicePixelRatio
+                "width": BG_IMAGE_SIZE[0],
+                "height": BG_IMAGE_SIZE[1]
             }, getBackgroundImageComplete);
         };
 
