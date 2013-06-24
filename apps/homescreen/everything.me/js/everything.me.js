@@ -116,7 +116,7 @@ var EverythingME = {
 	'modules/Banner/Banner.css',
 	'modules/ConnectionMessage/ConnectionMessage.css',
 	'modules/Helper/Helper.css',
-	'modules/Results/Apps.css',
+	'modules/Results/Results.css',
 	'modules/Searchbar/Searchbar.css',
 	'modules/Shortcuts/Shortcuts.css',
 	'modules/ShortcutsCustomize/ShortcutsCustomize.css',

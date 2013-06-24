@@ -696,8 +696,9 @@ Evme.Brain = new function Evme_Brain() {
     };
 
     // modules/Apps/
-    this.App = new function App() {
+    this.Result = new function Result() {
         var self = this,
+            NAME = "Result",
             isKeyboardOpenWhenClicking = false,
             loadingApp = null,
             loadingAppAnalyticsData,
@@ -707,7 +708,7 @@ Evme.Brain = new function Evme_Brain() {
 
         // Remove app clicked
         this.close = function close(data) {
-	    Evme.SearchResults.removeApp(data.data.id);
+            Evme.SearchResults.removeApp(data.data.id);
         };
 
         // app pressed and held
@@ -745,7 +746,7 @@ Evme.Brain = new function Evme_Brain() {
                     'name': data.data.name
                 });
 
-                Evme.EventHandler.trigger("App", "addToHomeScreen", {
+                Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
                     "id": data.data.id,
                     "name": data.data.name
                 });

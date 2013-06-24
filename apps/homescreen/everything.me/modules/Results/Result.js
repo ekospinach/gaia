@@ -1,6 +1,3 @@
-// code copied from Evme.App
-// TODO rename 'App' to 'Result'
-
 Evme.RESULT_TYPE = {
   INSTALLED: 'installed',
   MARKET: 'native_download',
@@ -9,8 +6,8 @@ Evme.RESULT_TYPE = {
   WEBLINK: 'weblink'
 };
 
-Evme.Result = Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
-	var NAME = "App",
+Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
+	var NAME = "Result",
 		self = this,
 		cfg = {}, el = null,
 		index = __index,
@@ -155,41 +152,6 @@ Evme.Result = Evme.App = function Evme_App(__cfg, __index, __isMore, parent) {
 
 	this.goTo = function goTo() {
 		cbClick();
-	};
-
-
-	this.getPositionOnGrid = function getPositionOnGrid() {
-		var pos = {
-			'row': -1,
-			'col': -1,
-			'rows': -1,
-			'cols': -1
-		},
-			elParent = el.parentNode;
-
-		if (elParent) {
-			var bounds = el.getBoundingClientRect(),
-				parentBounds = elParent.getBoundingClientRect(),
-				seperatorEl = elParent.querySelector('.installed-separator'),
-				// if there's a seprator, it shall be the top bound for cloud apps
-				topBound = (!cfg.installed && seperatorEl && seperatorEl.getBoundingClientRect() || parentBounds).top,
-				width = bounds.width,
-				height = bounds.height,
-				left = bounds.left - parentBounds.left,
-				top = bounds.top - topBound,
-
-				elParentWidth = elParent.offsetWidth,
-				// number of apps of the same type
-				numberOfApps = elParent.querySelectorAll('.' + (cfg.installed ? 'installed' : 'cloud')).length;
-
-
-			pos.col = Math.floor(left / width);
-			pos.row = Math.floor(top / height);
-			pos.cols = Math.round(elParentWidth / width)
-			pos.rows = totalRows = Math.ceil(numberOfApps / pos.cols);
-		}
-
-		return pos;
 	};
 
 	function touchstart(e) {

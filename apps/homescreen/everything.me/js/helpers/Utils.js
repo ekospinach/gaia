@@ -444,62 +444,15 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.for = function for(items, callback) {
-	if (items instanceof Array) {
-	    for (var i=0,item;item=items[i++];) {
-		callback(item);
-	    }
-	} else if (arr instanceof Object) {
-	    for (var i in items) {
-		callback(items[i]);
-	    }
-	}
-    };
-    
-    this.Apps = new function Apps() {
-        var self = this;
-        
-        this.print = function print(options) {
-            var apps = options.apps,
-                numAppsOffset = options.numAppsOffset || 0,
-                isMore = options.isMore,
-                iconsFormat = options.iconsFormat,
-                elList = options.elList,
-                onDone = options.onDone,
-                hasInstalled = false,
-
-                appsList = {},
-                iconsResult = {
-                    "cached": [],
-                    "missing": []
-                };
-
-            var docFrag = document.createDocumentFragment();
-            for (var i=0,appData; appData=apps[i++];) {
-                appData.iconFormat = iconsFormat;
-
-                var app = new Evme.App(appData, numAppsOffset+i, isMore, self),
-                    id = appData.id;
-
-                docFrag.appendChild(app.draw());
-
-                appsList['' + id] = app;
-
-                if (appData.installed) {
-                    hasInstalled = true;
-                }
-            }
-
-            if (hasInstalled) {
-                options.obj && options.obj.hasInstalled(true);
-            }
-
-            elList.appendChild(docFrag);
-
-            onDone && onDone(appsList);
-
-	    // TODO: Evyatar? doesn't it always return empty?
-            return iconsResult;
-        }
+    	if (items instanceof Array) {
+    	    for (var i=0,item;item=items[i++];) {
+    		callback(item);
+    	    }
+    	} else if (arr instanceof Object) {
+    	    for (var i in items) {
+    		callback(items[i]);
+    	    }
+    	}
     };
 
     this.User = new function User() {

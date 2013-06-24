@@ -1,4 +1,4 @@
-Evme.ResultManager = Evme.Apps = function Evme_ResultsManager() {
+Evme.ResultManager = function Evme_ResultsManager() {
 
   var NAME = "NOT_SET",  // SearchResults or SmartfolderResults
     self = this,
@@ -8,7 +8,6 @@ Evme.ResultManager = Evme.Apps = function Evme_ResultsManager() {
     TIMEOUT_BEFORE_SHOWING_PROGRESS_INDICATOR = 10,
     providers = {},
 
-    // following vars copied from Evme.Apps
     el = null,
     elHeight = null,
     scrollableEl = null,

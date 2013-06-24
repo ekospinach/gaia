@@ -710,10 +710,10 @@ Evme.Analytics = new function Evme_Analytics() {
         };
     };
     
-    this.App = new function App() {
+    this.Result = new function Result() {
         this.addToHomeScreen = function addToHomeScreen(data) {
             queue({
-                "class": "App",
+                "class": "Result",
                 "event": "addToHomeScreen",
                 "data": data
             });
