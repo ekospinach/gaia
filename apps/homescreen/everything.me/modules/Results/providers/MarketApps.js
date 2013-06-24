@@ -21,7 +21,6 @@ Evme.MarketResult.prototype.marketBadge.src = MARKET_BADGE_ICON;
 
 
 Evme.MarketAppsRenderer = function Evme_MarketAppsRenderer() {
-	// TOOD better access to config
 	var NAME = 'MarketAppsRenderer',
 		DEFAULT_ICON = Evme.Utils.getDefaultAppIcon,
 

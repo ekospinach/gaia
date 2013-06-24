@@ -55,8 +55,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 		defaultIconIndex = 0,
 		requestMissingIcons,
 
-		// TOOD how should we access config file? maybe Utils.getConfig?
-		DEFAULT_ICON_URLS = Evme.__config.design.apps.defaultIconUrl[Evme.Utils.ICONS_FORMATS.Large];
+		DEFAULT_ICON_URLS = Evme.Config.design.apps.defaultIconUrl[Evme.Utils.ICONS_FORMATS.Large];
 
 
 	this.init = function init(cfg) {

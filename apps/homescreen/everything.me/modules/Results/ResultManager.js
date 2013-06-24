@@ -3,7 +3,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   var NAME = "NOT_SET",  // SearchResults or SmartfolderResults
     self = this,
     progressIndicator,
-    DEFAULT_NUMBER_OF_APPS_TO_LOAD = 16, // TODO: duplicate declaration in Brain.js
+    DEFAULT_NUMBER_OF_APPS_TO_LOAD = Evme.Config.numberOfAppsToLoad,
     SELECTOR_PROGRESS_INDICATOR = '[role="notification"].loading-more',
     TIMEOUT_BEFORE_SHOWING_PROGRESS_INDICATOR = 10,
     providers = {},
@@ -294,7 +294,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
   function requestMissingIcons(ids) {
     Evme.Utils.log("requestMissingIcons: requesting " + ids.length + " icons");
-    Evme.EventHandler.trigger(NAME, "requestMissingIcons", ids);
+    Evme.EventHandler.trigger("ResultManager", "requestMissingIcons", ids);
   }
 
   this.cbMissingIcons = function cbMissingIcons(data) {

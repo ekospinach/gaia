@@ -169,7 +169,6 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     };
     
     this.clearImage = function clearImage() {
-	// TODO: Why isn't this working?!
 	image = null;
 	el.style.backgroundImage = 'none';
 

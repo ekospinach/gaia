@@ -556,7 +556,6 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.getAppsSignature = function getAppsSignature(apps) {
-	// TODO add iconsformat to the key
 	// prepend with number of apps for quick comparison (fail early)
 	var key = '' + apps.length;
 	for (var i=0, app; app=apps[i++];) {

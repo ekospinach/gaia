@@ -9,7 +9,7 @@ Evme.Brain = new function Evme_Brain() {
         _config = {},
         elContainer = null,
         QUERIES_TO_NOT_CACHE = "",
-        DEFAULT_NUMBER_OF_APPS_TO_LOAD = 16,
+        DEFAULT_NUMBER_OF_APPS_TO_LOAD = Evme.Config.numberOfAppsToLoad,
         NUMBER_OF_APPS_TO_LOAD_IN_FOLDER = 16,
         NUMBER_OF_APPS_TO_LOAD = "FROM CONFIG",
         TIME_BEFORE_INVOKING_HASH_CHANGE = 200,
@@ -615,29 +615,33 @@ Evme.Brain = new function Evme_Brain() {
       };
     };
 
-    // modules/Apps/
-    this.Apps = this.SearchResults = new function Apps() {
+    
+    // modules/Results/ResultManager
+    this.ResultManager = new function ResultManager() {
+        // get missing icons
+        this.requestMissingIcons = function requestMissingIcons(ids) {
+            var format = Evme.Utils.ICONS_FORMATS.Large;
+
+            requestIcons = Evme.DoATAPI.icons({
+                "ids": ids.join(","),
+                "iconFormat": format
+            }, function onSuccess(data) {
+                var icons = data.response || [];
+                if (icons.length) {
+                    Evme.currentResultsManager.cbMissingIcons(icons);
+                    Evme.IconManager.addIcons(icons, format);
+                }
+            });
+        };
+    };
+
+    // modules/Results/ResultManager instance
+    this.SearchResults = new function SearchResults() {
         var bShouldGetHighResIcons = false;
 
         // init sequence ended
         this.init = function init() {
             bShouldGetHighResIcons = Evme.Utils.getIconsFormat() == Evme.Utils.ICONS_FORMATS.Large;
-        };
-
-	// get missing icons
-	this.requestMissingIcons = function requestMissingIcons(ids) {
-	    var format = Evme.Utils.ICONS_FORMATS.Large;
-
-	    requestIcons = Evme.DoATAPI.icons({
-		"ids": ids.join(","),
-		"iconFormat": format
-	    }, function onSuccess(data) {
-		var icons = data.response || [];
-		if (icons.length) {
-		    Evme.SearchResults.cbMissingIcons(icons);
-		    Evme.IconManager.addIcons(icons, format);
-                }
-	    });
         };
 
         // app list has scrolled to top
@@ -651,7 +655,7 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.clearIfHas = function clearIfHas() {
-	    var hadApps = Evme.SearchResults.clear();
+            var hadApps = Evme.SearchResults.clear();
             if (!hadApps) {
                 return false;
             }
@@ -661,12 +665,10 @@ Evme.Brain = new function Evme_Brain() {
         }
     };
 
+    // modules/Results/ResultManager instance
     this.SmartfolderResults = new function SmartfolderResults() {
-	// TOOD: @ranbena let's talk about binding ResultManger instances
-	// TOOD: missing icons for SmartFolder
-
 	// propogate events to SmartFolder
-	// TODO: this is ugly. make it better.
+	// TODO: this is temporary.
 	this.scrollTop = function scrollTop() {
 	    Evme.EventHandler.trigger("SmartFolder", "scrollTop");
         };
@@ -1051,7 +1053,7 @@ Evme.Brain = new function Evme_Brain() {
 	this.scrollTop = function scrollTop() {
 	    currentFolder.showFullscreen();
 
-	    // TODO: FIXME This is an ugly hack.
+	    // TODO: FIXME This is temporary.
 	    // BackgroundImage should be an instance used in parallel to ResultsManager
 	    Evme.BackgroundImage.cancelFullScreenFade();
         };

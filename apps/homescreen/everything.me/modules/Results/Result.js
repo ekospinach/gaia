@@ -6,7 +6,7 @@ Evme.RESULT_TYPE = {
   WEBLINK: 'weblink'
 };
 
-Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
+Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	var NAME = "Result",
 		self = this,
 		cfg = {}, el = null,
@@ -16,9 +16,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
 		touchStartPos = null,
 		firedHold = false,
 		tapIgnored = false,
-
-		// TODO who is parent and why do we need it?
-		parent = {},
+		timeoutHold,
 
 		DISTANCE_TO_IGNORE_AS_MOVE = 3,
 
@@ -157,7 +155,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
 	function touchstart(e) {
 		firedHold = tapIgnored = false;
 		timeTouchStart = new Date().getTime();
-		parent.timeoutHold = window.setTimeout(cbHold, Evme.SearchResults.getAppTapAndHoldTime());
+		timeoutHold = window.setTimeout(cbHold, Evme.SearchResults.getAppTapAndHoldTime());
 		touchStartPos = getEventPoint(e);
 	}
 
@@ -171,7 +169,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
 
 		if (Math.abs(distance[0]) > DISTANCE_TO_IGNORE_AS_MOVE ||
 			Math.abs(distance[1]) > DISTANCE_TO_IGNORE_AS_MOVE) {
-			window.clearTimeout(parent.timeoutHold);
+			window.clearTimeout(timeoutHold);
 			tapIgnored = true;
 		}
 	}
@@ -181,7 +179,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore, parent) {
 			return;
 		}
 
-		window.clearTimeout(parent.timeoutHold);
+		window.clearTimeout(timeoutHold);
 		e.preventDefault();
 		e.stopPropagation();
 
