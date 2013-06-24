@@ -31,6 +31,9 @@ Evme.api = new function Evme_api() {
         this.icons = function icons(options, callback) {
             return request("App/icons", options, callback);
         };
+	this.nativeInfo = function nativeInfo(options, callback) {
+	    return request("App/nativeInfo", options, callback);
+	};
     };
     
     this.Device = new function Device() {

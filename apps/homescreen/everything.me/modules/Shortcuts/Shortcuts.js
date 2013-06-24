@@ -402,6 +402,7 @@ Evme.Shortcut = function Evme_Shortcut() {
             "shortcut": self,
             "data": cfg,
             "query": cfg.query,
+	    "name": self.getName(),
             "el": el,
             "index": index,
             "e": e

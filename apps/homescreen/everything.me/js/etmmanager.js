@@ -3,7 +3,8 @@
 
 var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
-        currentURL = null;
+	currentURL = null,
+	MARKET_APP_ORIGIN = 'app://marketplace.firefox.com';
 
     function openApp(params) {
         var evmeApp = new EvmeApp({
@@ -55,6 +56,16 @@ var EvmeManager = (function EvmeManager() {
         return GridManager.getApps();
     }
 
+    function getAppInfo(app) {
+	if (!app) { return {}; }
+	return {
+	    'id': app.manifestURL,
+	    'name': getAppName(app),
+	    'appUrl': app.origin,
+	    'icon': getAppIcon(app)
+	}
+    }
+
     function getAppIcon(app) {
         var iconObject = GridManager.getIcon(app);
         if (iconObject &&
@@ -84,6 +95,32 @@ var EvmeManager = (function EvmeManager() {
         return Icon.prototype.MAX_ICON_SIZE;
     }
 
+    function openMarketplaceApp(data) {
+	var activity = new MozActivity({
+	    name: "marketplace-app",
+	    data: {slug: data.slug}
+	});
+    }
+
+    function openMarketplaceSearch(data) {
+	var activity = new MozActivity({
+	    name: "marketplace-search",
+	    data: {query: data.query}
+	});
+    }
+
+    function getMarketplaceAppIcon() {
+	var app = GridManager.getAppByOrigin(MARKET_APP_ORIGIN),
+	    icon = app && getAppIcon(app);
+
+	if (icon){
+	    return icon;
+	} else {
+	    Evme.Utils.warn("market icon not found");
+	    return Evme.Utils.getDefaultAppIcon();
+	}
+    }
+
     return {
         openApp: openApp,
 
@@ -94,10 +131,12 @@ var EvmeManager = (function EvmeManager() {
                    GridManager.getAppByOrigin(url);
         },
         getApps: getApps,
-        getAppIcon: getAppIcon,
-        getAppName: getAppName,
+	getAppInfo: getAppInfo,
 
         openUrl: openUrl,
+	openMarketplaceApp: openMarketplaceApp,
+	openMarketplaceSearch: openMarketplaceSearch,
+	getMarketplaceAppIcon: getMarketplaceAppIcon,
 
         menuShow: menuShow,
         menuHide: menuHide,

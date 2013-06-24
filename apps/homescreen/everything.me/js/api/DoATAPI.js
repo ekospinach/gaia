@@ -51,6 +51,14 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "Session.init": true,
             "Search.trending": true
         },
+
+	// parameters for getting native app suggestions
+	paramsForNativeSuggestions = {
+	    'nativeSuggestions': true,
+	    'nativeIconFormat': 64, // same as GridManager.PREFERRED_ICON_SIZE
+	    'nativeIconAsUrl': true,
+	    '_opt': 'app.type'
+	},
         
         /*
          * config of params to pass from requests to reports
@@ -66,7 +74,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         "INVALID_PARAMS": -14,
         "TIMEOUT": -19
     };
-    
+
     this.init = function init(options){
         apiKey = options.apiKey;
         appVersion = options.appVersion || "";
@@ -94,12 +102,12 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             });
         }
 
-        self.Session.init();
+	self.Session.init(options.callback);
     };
     
     this.search = function search(options, callback, noSession) {
         !options && (options = {});
-        
+
         var params = {
             "query": options.query,
             "experienceId": options.experienceId || '',
@@ -113,8 +121,21 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "limit": options.limit || 16,
             "idx": options.index || '',
             "iconFormat": options.iconFormat || 10,
-            "prevQuery": (options.first === 0)? options.prevQuery || "" : ""
+	    "prevQuery": (options.first === 0) ? options.prevQuery || "" : "",
+	    '_opt': 'app.type'
         };
+
+	if (params.first) {
+	    Evme.EventHandler.trigger(NAME, "loadmore", params);
+	}
+
+	if (params.exact) {
+	    for (var key in paramsForNativeSuggestions) {
+		if (params[key] === undefined) {
+		    params[key] = paramsForNativeSuggestions[key];
+		}
+	    }
+	}
         
         return request({
             "methodNamespace": "Search",
@@ -125,6 +146,26 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         }, options._NOCACHE);
     };
     
+    // icons in cache, to be reported to server
+    this.CachedIcons = new function CachedIcons() {
+	var self = this,
+	    newIcons = [];
+
+	this.add = function add(icon) {
+	    newIcons.push(icon);
+	};
+
+	this.clear = function clear() {
+	    newIcons = [];
+	};
+
+	this.yank = function yank() {
+	    var result = Evme.Utils.convertIconsToAPIFormat(newIcons);
+	    self.clear();
+	    return result;
+	};
+    };
+
     this.User = new function User() {
         this.apps = function apps(options, callback) {
             !options && (options = {});
@@ -539,6 +580,19 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "callback": callback
         }, options._NOCACHE);
     };
+
+    this.appNativeInfo = function appNativeInfo(options, callback) {
+	var params = {
+	    "guids": options.guids || ""
+	};
+
+	return request({
+	    "methodNamespace": "App",
+	    "methodName": "nativeInfo",
+	    "params": params,
+	    "callback": callback
+	}, options._NOCACHE);
+    };
     
     function addGlobals(options) {
         var globals = options["globals"] || {};
@@ -722,7 +776,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "CACHE_ERROR": "cache error"
         };
         
-        this.init = function init() {
+	this.init = function init(callback) {
             Evme.Storage.get(_key, function storageGot(sessionFromCache) {
                 var createCause;
 
@@ -739,6 +793,8 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
                 if (!_session) {
                     self.create(null, null, createCause);
                 }
+
+		callback && callback();
             });
         };
         
@@ -904,6 +960,12 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             params["apiKey"] = apiKey;
             params["v"] = appVersion;
             params["native"] = true;
+	    params["platform.os"] = "firefox-os";
+
+	    // report server about new cached icons
+	    if (methodNamespace === "Search" && methodName === "apps") {
+		params["cachedIcons"] = self.CachedIcons.yank();
+	    }
 
             if (manualCredentials) {
                 params["credentials"] = manualCredentials;

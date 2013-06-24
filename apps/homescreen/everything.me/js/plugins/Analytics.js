@@ -33,15 +33,10 @@ Evme.Analytics = new function Evme_Analytics() {
         if (options.enabled){
             // we send data according to the settings flag (Submit performance data)
             SettingsListener.observe('debug.performance_data.shared', false, onSettingChange);
-        
+
             getCurrentAppsRowsCols = options.getCurrentAppsRowsCols;
             getCurrentSearchQuery = options.getCurrentSearchQuery;
             getCurrentSearchSource = options.getCurrentSearchSource;
-            options.Brain.App.appRedirectBridge = function appRedirectBridge(appUrl, data){
-                setTimeout(function onTimeout(){
-                    Brain.App.appRedirectExecute(appUrl, data);
-                }, 1500);
-            };
             
             // Idle
             idle = new Evme.Idle();
@@ -369,6 +364,25 @@ Evme.Analytics = new function Evme_Analytics() {
                 "data": data
             });
         };
+
+	this.loadmore = function loadmore(data) {
+	    queue({
+		"class": "DoATAPI",
+		"event": "loadmore"
+	    });
+
+	    if (Evme.Utils.isKeyboardVisible){
+		queue({
+		    "class": "Results",
+		    "event": "search",
+		    "data": {
+			"query": data.query,
+			"page": "",
+			"feature": "more"
+		    }
+		});
+	    }
+	};
     };
     
     this.Analytics = new function Analytics(){
@@ -392,10 +406,6 @@ Evme.Analytics = new function Evme_Analytics() {
         var ROWS = 1, COLS = 0, redirectData;
            
         this.redirectedToApp = function redirectedToApp(data) {
-            var total = getCurrentAppsRowsCols(),
-                colIndex = data.index%(total[COLS]),
-                rowIndex = Math.floor(data.index/(total[COLS]));
-            
             var queueData = {
                 "url": data.appUrl,
                 "more": data.isMore ? 1 : 0,
@@ -707,29 +717,6 @@ Evme.Analytics = new function Evme_Analytics() {
                 "event": "addToHomeScreen",
                 "data": data
             });
-        };
-    };
-    
-    this.AppsMore = new function AppsMore() {        
-        this.show = function show(data) {
-            queue({
-                "class": "AppsMore",
-                "event": "show",
-                "data": data
-            });
-            
-            if (Evme.Utils.isKeyboardVisible){
-                data.query = Evme.Utils.getCurrentSearchQuery();
-                queue({
-                    "class": "Results",
-                    "event": "search",
-                    "data": {
-                        "query": data.query,
-                        "page": "",
-                        "feature": "more"
-                    }
-                });
-            }
         };
     };
     

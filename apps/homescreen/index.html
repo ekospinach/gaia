@@ -90,32 +90,52 @@
           </form>
           <div id="evmeContainer">
             <div id="search" class="active">
-                <div id="search-header">
-                    <form action="/#!/search" id="search-rapper">
-                        <fieldset>
-                            <div id="search-q-bg">
-                                <input type="text" id="search-q" name="search-q" maxlength="128" autocorrect="off" autocapitalize="off" />
-                                <span id="default-text" data-l10n-id="evme-searchbar-default"></span>
-                            </div>
-                            <div id="helper-tip"><b></b></div>
-                        </fieldset>
-                    </form>
-                    <b id="button-clear" data-l10n-id="evme-searchbar-clear"></b>
+	     <div id="search-header">
+	      <form action="/#!/search" id="search-rapper">
+		<fieldset>
+		  <div id="search-q-bg">
+		    <input type="text" id="search-q" name="search-q" maxlength="128" autocorrect="off" autocapitalize="off" />
+		    <span id="default-text" data-l10n-id="evme-searchbar-default"></span>
+		  </div>
+		  <div id="helper-tip"><b></b></div>
+		</fieldset>
+	      </form>
+	      <b id="button-clear" data-l10n-id="evme-searchbar-clear"></b>
+	    </div>
+	    <div id="header">
+	      <div id="helper-header">
+		<h1 id="search-title"></h1>
+		<div id="helper-rapper">
+		  <div id="helper">
+		    <ul></ul>
+		  </div>
                 </div>
-                <div id="header">
-                    <div id="helper-header">
-                        <h1 id="search-title"></h1>
-                        <div id="helper-rapper">
-                            <div id="helper">
-                                <ul></ul>
-                            </div>
-                        </div>
-                    </div>
+	      </div>
+	    </div>
+	    <div id="evmeApps" class="evme-apps">
+	      <div>
+		<div>
+		  <ul class="installed"></ul>
+		  <ul class="marketapps"></ul>
+		  <ul class="marketsearch"></ul>
+		  <ul class="cloud"></ul>
                 </div>
-                <div id="evmeApps" class="evme-apps">
-                    <ul id="evmeAppsList"></ul>
-                </div>
+
+		<section role="notification" class="connection-message">
+		  <div>
+		    <span>No Connection</span>
+		  </div>
+		</section>
+		<section role="notification" class="loading-more">
+		  <div>
+		    <progress></progress>
+		    <span data-l10n-id="evme-appsmore-loading">Loading…</span>
+		  </div>
+		</section>
+
+	      </div>
             </div>
+	  </div>
 
             <div id="shortcuts">
                 <div id="shortcuts-list">
@@ -123,7 +143,41 @@
                 </div>
                 <div id="shortcuts-loading"></div>
             </div>
+
+	    <div class="smart-folder">
+	      <h2 class="title"></h2>
+	      <div class="evme-apps">
+		<div>
+		  <div>
+		    <ul class="installed"></ul>
+		    <ul class="marketapps"></ul>
+		    <ul class="marketsearch"></ul>
+		    <ul class="cloud"></ul>
+		  </div>
+
+		  <section role="notification" class="connection-message">
+		    <div>
+		      <span>No Connection</span>
+		    </div>
+		  </section>
+		  <section role="notification" class="loading-more">
+		    <div>
+		      <progress></progress>
+		      <span data-l10n-id="evme-appsmore-loading">Loading…</span>
+		    </div>
+		  </section>
+
+		</div>
+	      </div>
+	      <div class="image">
+		<div class="image-overlay"></div>
+	      </div>
+	      <b class="close"></b>
+	    </div>
+	    <div class="screen smart-folder-screen"></div>
+
             <section id="evmeBanner" role="status" class="noreset"></section>
+
           </div>
       </div>
       <div id="landing-page" data-current-page="true">
