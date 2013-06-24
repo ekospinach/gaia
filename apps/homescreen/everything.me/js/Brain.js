@@ -1413,15 +1413,14 @@ Evme.Brain = new function Evme_Brain() {
         };
         
         this.cantSendRequest = function cantSendRequest(data) {
-	    Searcher.cancelRequests();
+    	    Searcher.cancelRequests();
 
-	    if (data.method === 'Search/apps') {
+    	    if (data.method === 'Search/apps') {
                 var folder = Brain.SmartFolder.get(),
                     query = Evme.Searchbar.getElement().value || (folder && folder.getQuery()) || '',
-		    // TODO: 'apps-has-installed' or 'apps';
-		    textKey = 'apps-has-installed';
+                    textKey = currentResultsManager.hasResults() ? 'apps-has-installed' : 'apps';
 
-		Evme.ConnectionMessage.show(textKey, { 'query': query });
+                Evme.ConnectionMessage.show(textKey, { 'query': query });
             }
         };
         

@@ -28,6 +28,9 @@ Evme.ResultManager = function Evme_ResultsManager() {
     MARKETSEARCH = 'marketsearch',
     CLOUD = 'cloud',
 
+    SELECTOR_CLOUD_RESULTS = 'ul.cloud>li',
+    SELECTOR_ALL_RESULTS = 'div>ul>li',
+
     SCROLL_BOTTOM_THRESHOLD = 5,
     MAX_SCROLL_FADE = 200,
     FULLSCREEN_THRESHOLD = 0.8,
@@ -206,26 +209,26 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
   this.getResultGridData = function getCurrentRowsCols(clickedResult) {
     var data = {},
-	numBelow = 0, // num of results above the separator
-	numAbove = 0; // num of results above the separator
+        numBelow = 0, // num of results above the separator
+        numAbove = 0; // num of results above the separator
 
     // get total rows cols
     forEachProvider(function(providerName) {
       var count = this.getResultCount();
       if (providerName === CLOUD) {
-	numBelow += count;
+        numBelow += count;
       } else {
-	numAbove += count;
+        numAbove += count;
       }
     });
 
     var maxResults = Math.max(numAbove, numBelow),
-	cols = Math.min(maxResults, APPS_PER_ROW),
-	rowsAbove = Math.ceil(numAbove / APPS_PER_ROW),
-	rowsBelow = Math.ceil(numBelow / APPS_PER_ROW);
+      	cols = Math.min(maxResults, APPS_PER_ROW),
+      	rowsAbove = Math.ceil(numAbove / APPS_PER_ROW),
+      	rowsBelow = Math.ceil(numBelow / APPS_PER_ROW);
 
     // get clicked result index
-    var itemSelector = (clickedResult.type === Evme.RESULT_TYPE.CLOUD) ? 'ul.cloud>li' : 'div>ul>li';
+    var itemSelector = (clickedResult.type === Evme.RESULT_TYPE.CLOUD) ? SELECTOR_CLOUD_RESULTS : SELECTOR_ALL_RESULTS;
     var nodeList = Array.prototype.slice.call(Evme.$(itemSelector, scrollableEl));
     var resultIndex = nodeList.indexOf(clickedResult.getElement());
 
@@ -242,6 +245,15 @@ Evme.ResultManager = function Evme_ResultsManager() {
       "rowIndex": row,
       "colIndex" :col
     }
+  };
+
+  this.hasResults = function hasResults() {
+    forEachProvider(function() {
+      if (this.getResultCount()) {
+        return true;
+      }
+    });
+    return false;
   };
 
   this.changeFadeOnScroll = function changeFadeOnScroll(newValue) {
@@ -264,7 +276,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
     if (app.appUrl) {
       var split = app.appUrl.split(SLUG_PREFIX);
       if (split.length) {
-	return split[1];
+        return split[1];
       }
     }
   }
@@ -273,7 +285,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
     var elApps = elList.childNodes;
     for (var i = 0, el = elApps[i]; el; el = elApps[++i]) {
       if (el[i] === elApp) {
-	return i;
+        return i;
       }
     }
 
