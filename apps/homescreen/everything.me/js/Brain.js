@@ -49,6 +49,8 @@ Evme.Brain = new function Evme_Brain() {
             "local": ["Maps", "FM Radio"]
         },
 
+        currentResultsManager = null,
+
         timeoutSetUrlAsActive = null,
         timeoutHashChange = null,
         _ = navigator.mozL10n.get,
@@ -628,7 +630,7 @@ Evme.Brain = new function Evme_Brain() {
             }, function onSuccess(data) {
                 var icons = data.response || [];
                 if (icons.length) {
-                    Evme.currentResultsManager.cbMissingIcons(icons);
+                    currentResultsManager && currentResultsManager.cbMissingIcons(icons);
                     Evme.IconManager.addIcons(icons, format);
                 }
             });
@@ -642,6 +644,7 @@ Evme.Brain = new function Evme_Brain() {
         // init sequence ended
         this.init = function init() {
             bShouldGetHighResIcons = Evme.Utils.getIconsFormat() == Evme.Utils.ICONS_FORMATS.Large;
+            currentResultsManager = Evme.SearchResults;
         };
 
         // app list has scrolled to top
@@ -821,8 +824,8 @@ Evme.Brain = new function Evme_Brain() {
 	    }
 	    loadingAppAnalyticsData.id = appId;
 
-	    if (Evme.Utils.currentResultsManager) {
-		var grid = Evme.Utils.currentResultsManager.getResultGridData(data.app);
+	    if (currentResultsManager) {
+		var grid = currentResultsManager.getResultGridData(data.app);
 		loadingAppAnalyticsData.totalRows = grid.rows;
 		loadingAppAnalyticsData.totalCols = grid.cols;
 		loadingAppAnalyticsData.rowIndex = grid.rowIndex;
@@ -942,7 +945,7 @@ Evme.Brain = new function Evme_Brain() {
             currentFolder = data.folder;
 	    window.setTimeout(loadAppsIntoFolder, 400);
 
-	    Evme.Utils.currentResultsManager = Evme.SmartfolderResults;
+	    currentResultsManager = Evme.SmartfolderResults;
         };
 
         // hiding the folder
@@ -951,7 +954,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Brain.SmartFolder.cancelRequests();
             Evme.ConnectionMessage.hide();
 
-	    Evme.Utils.currentResultsManager = Evme.SearchResults;
+	    currentResultsManager = Evme.SearchResults;
         };
 
         // close button was clicked
@@ -1417,7 +1420,7 @@ Evme.Brain = new function Evme_Brain() {
         this.cantSendRequest = function cantSendRequest(data) {
     	    Searcher.cancelRequests();
 
-    	    if (data.method === 'Search/apps') {
+    	    if (currentResultsManager && data.method === 'Search/apps') {
                 var folder = Brain.SmartFolder.get(),
                     query = Evme.Searchbar.getElement().value || (folder && folder.getQuery()) || '',
                     textKey = currentResultsManager.hasResults() ? 'apps-has-installed' : 'apps';
@@ -1428,7 +1431,7 @@ Evme.Brain = new function Evme_Brain() {
         
         // an API callback method had en error
         this.clientError = function onAPIClientError(data) {
-	    Evme.Utils.error('API Client Error: ' + data.exception.message);
+	       Evme.Utils.error('API Client Error: ' + data.exception.message, data.exception.stack);
         };
         
         // an API callback method had en error

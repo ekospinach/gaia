@@ -298,7 +298,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   }
 
   this.cbMissingIcons = function cbMissingIcons(data) {
-    cloudRenderer.updateIcons(data);
+    providers[CLOUD].updateIcons(data);
   }
 
   function touchStart(e) {
