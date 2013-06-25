@@ -590,8 +590,9 @@ TemplateIcon.prototype = {
  * @param {Array} icons [optional]
  *                List of Icon objects.
  */
-function Page(container, icons) {
+function Page(container, icons, numberOfIcons) {
   this.container = this.movableContainer = container;
+  this.numberOfIcons = numberOfIcons;
   if (icons)
     this.render(icons);
   this.iconsWhileDragging = [];

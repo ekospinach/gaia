@@ -15,11 +15,13 @@ var Homescreen = (function() {
   var initialized = false, landingPage;
   onConnectionChange(navigator.onLine);
 
-  function initialize(lPage) {
+  function initialize(lPage, onInit) {
     if (initialized) {
       return;
     }
-
+    
+    lPage = -1;
+    
     PaginationBar.init('.paginationScroller');
 
     initialized = true;
@@ -59,6 +61,10 @@ var Homescreen = (function() {
       }
       DragDropManager.init();
       Wallpaper.init();
+      
+      if (onInit instanceof Function) {
+        onInit();
+      }
     });
   }
 

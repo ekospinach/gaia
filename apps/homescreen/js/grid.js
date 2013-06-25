@@ -2,6 +2,8 @@
 
 var GridManager = (function() {
   var MAX_ICONS_PER_PAGE = 4 * 4;
+  var MAX_ICONS_PER_EVME_PAGE = 4 * 3;
+  var EVME_PAGE = 1;
   var PREFERRED_ICON_SIZE = 60;
   var SAVE_STATE_TIMEOUT = 100;
   var BASE_WIDTH = 320;
@@ -12,7 +14,8 @@ var GridManager = (function() {
 
   // Check if there is space for another row of icons
   if (AVAILABLE_SPACE > BASE_HEIGHT / 5) {
-    var MAX_ICONS_PER_PAGE = 4 * 5;
+    MAX_ICONS_PER_PAGE = 4 * 5;
+    MAX_ICONS_PER_EVME_PAGE = 4 * 4;
   }
 
   var container;
@@ -616,9 +619,9 @@ var GridManager = (function() {
   }
 
   function getFirstPageWithEmptySpace() {
-    for (var i = numberOfSpecialPages; i < pages.length; i++) {
-      if (pages[i].getNumIcons() < MAX_ICONS_PER_PAGE) {
-        return i;
+    for (var i = numberOfSpecialPages, page; page = pages[i++];) {
+      if (page.getNumIcons() < page.numberOfIcons) {
+        return i - 1;
       }
     }
     return pages.length;
@@ -646,7 +649,7 @@ var GridManager = (function() {
   }
 
   function pageOverflowed(page) {
-    return page.getNumIcons() > MAX_ICONS_PER_PAGE;
+    return page.getNumIcons() > page.numberOfIcons;
   }
 
   /*
@@ -697,9 +700,9 @@ var GridManager = (function() {
      * @param {Array} icons
      *                List of Icon objects.
      */
-    addPage: function(icons) {
+    addPage: function(icons, numberOficons) {
       var pageElement = document.createElement('div');
-      var page = new Page(pageElement, icons);
+      var page = new Page(pageElement, icons, numberOficons || MAX_ICONS_PER_PAGE);
       pages.push(page);
 
       pageElement.className = 'page';
@@ -859,6 +862,7 @@ var GridManager = (function() {
     // not backed by the app database. Note that this creates an
     // offset between these indexes here and the ones in the DB.
     // See also pageHelper.saveAll().
+    // TODOEVME: fix this to be dynamic
     numberOfSpecialPages = container.children.length;
     landingPage = numberOfSpecialPages - 1;
     prevLandingPage = landingPage - 1;
@@ -1198,7 +1202,11 @@ var GridManager = (function() {
         DockManager.init(dockContainer, dock, tapThreshold);
         return;
       }
-      pageHelper.addPage(convertDescriptorsToIcons(pageState));
+      
+      var numberOfIcons = pageState.index === EVME_PAGE? MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
+      dump('evyatar Creating Page ' + pageState.index + ': ' + numberOfIcons);
+      
+      pageHelper.addPage(convertDescriptorsToIcons(pageState), numberOfIcons);
     }, function onState() {
       initApps();
       callback();

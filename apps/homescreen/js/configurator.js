@@ -2,7 +2,8 @@
 'use strict';
 
 var Configurator = (function() {
-  var conf = {};
+  var conf = {},
+      NO_LANDING = true; // TODOEVME
 
   var dummyProvider = {
     init: function() {
@@ -28,15 +29,19 @@ var Configurator = (function() {
         if (searchPage) {
           var provider = window[searchPage.provider] || dummyProvider;
           if (searchPage.enabled) {
-            provider.init();
-            Homescreen.init(1);
+            dump('evyatar searchPage.enabled');
+            Homescreen.init(NO_LANDING? -1 : 1, function onInit() {
+              provider.init();
+            });
           } else {
             startHomescreenByDefault();
             setTimeout(provider.destroy, 0);
           }
         }
       } catch (e) {
-        conf = {};
+        // TODOEVME: setting this to en empty object causes error in the homescreen init
+        // need to understand why it's done in the first place
+        //conf = {};
         console.error('Failed parsing homescreen configuration file: ' + e);
         startHomescreenByDefault();
       }
@@ -56,7 +61,9 @@ var Configurator = (function() {
     }
 
     if (Homescreen) {
-      Homescreen.init(0);
+      dump('evyatar homescreen default');
+      // TODO passing hard-coded -1 (no landing page), should come from config
+      Homescreen.init(NO_LANDING? -1 : 0);
     }
   }
 

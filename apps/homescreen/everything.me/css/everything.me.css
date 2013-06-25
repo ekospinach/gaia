@@ -1,14 +1,16 @@
+#evmePage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 7.5rem; /* height of footer */
+    display: none;
+}
 #evmeContainer {
-  opacity: 0;
-  -moz-transition: opacity .3s ease;
+    height: 25%;
 }
 
-#loading-overlay {
-  z-index: 200;
-  -moz-transition: opacity .3s ease;
-  pointer-events: none;
-}
-
-#loading-overlay > section {
-  visibility: hidden;
+.apps > div.evmePage {
+    -moz-box-sizing: border-box;
+    padding-top: 25%;
 }

@@ -7,8 +7,21 @@ var EverythingME = {
   init: function EverythingME_init() {
     var footerStyle = document.querySelector('#footer').style;
     footerStyle.MozTransition = '-moz-transform .3s ease';
-
+    
     var page = document.getElementById('evmePage');
+
+    // add evme into the first grid page */
+    var gridPage = document.querySelector("#icongrid > div:first-child");
+    gridPage.classList.add('evmePage');
+    gridPage.appendChild(page.parentNode.removeChild(page));
+    
+    EverythingME.load(function success() {
+      page.style.display = 'block';
+      if (EverythingME.displayed) {
+        EvmeFacade.onShow();
+      }
+    });
+
     page.addEventListener('gridpageshowend', function onpageshow() {
       page.removeEventListener('gridpageshowend', onpageshow);
 
@@ -24,17 +37,6 @@ var EverythingME = {
         EverythingME.displayed = true;
         footerStyle.MozTransform = "translateY(100%)";
         EvmeFacade.onShow();
-      });
-
-      EverythingME.load(function success() {
-        if (EverythingME.displayed)
-          EvmeFacade.onShow();
-        var loadingOverlay = document.querySelector('#loading-overlay');
-        loadingOverlay.style.opacity = 0;
-        setTimeout(function starting() {
-          document.querySelector('#evmeContainer').style.opacity = 1;
-          loadingOverlay.parentNode.removeChild(loadingOverlay);
-        }, 0);
       });
     });
 
@@ -132,6 +134,9 @@ var EverythingME = {
     var total = js_files.length + css_files.length, counter = 0;
 
     function updateProgress() {
+      if (!progressLabel) {
+        return;
+      }
       var value = Math.floor(((++counter) / total) * 100);
       progressLabel.textContent = value + '%';
       progressElement.value = value;
@@ -181,7 +186,7 @@ var EverythingME = {
   initEvme: function EverythingME_initEvme(success) {
     Evme.init();
     EvmeFacade = Evme;
-    success();
+    success && success();
   },
 
   start: function EverythingME_start(success) {
