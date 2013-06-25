@@ -16,26 +16,20 @@ var EverythingME = {
     gridPage.appendChild(page.parentNode.removeChild(page));
     
     EverythingME.load(function success() {
+      EverythingME.displayed = true;
+      EvmeFacade.onShow();
       page.style.display = 'block';
-      if (EverythingME.displayed) {
-        EvmeFacade.onShow();
-      }
     });
 
     page.addEventListener('gridpageshowend', function onpageshow() {
       page.removeEventListener('gridpageshowend', onpageshow);
 
-      document.querySelector('#loading-overlay > section').style.visibility =
-                                                                      'visible';
-
       EverythingME.displayed = true;
-      footerStyle.MozTransform = "translateY(100%)";
 
       page.addEventListener('gridpageshowend', function onpageshowafterload() {
         if (EverythingME.displayed) return;
 
         EverythingME.displayed = true;
-        footerStyle.MozTransform = "translateY(100%)";
         EvmeFacade.onShow();
       });
     });

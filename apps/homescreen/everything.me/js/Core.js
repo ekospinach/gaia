@@ -53,7 +53,9 @@ window.Evme = new function Evme_Core() {
 
     this.onHideStart = function onHideStart(source) {
         Evme.Brain.SmartFolder.hideIfOpen();
-        
+
+        Evme.Searchbar.blur();
+
         if (source === "homeButtonClick") {
             if (
                 Evme.Brain.Shortcuts.hideIfEditing() ||
@@ -65,8 +67,7 @@ window.Evme = new function Evme_Core() {
             }
         }
 
-        Evme.Brain.Searchbar.blur();
-        return false; // allow navigation to homescreen
+        return false;
     };
 
     function initObjects(data) {

@@ -1,16 +1,25 @@
 #evmePage {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 7.5rem; /* height of footer */
     display: none;
 }
+
 #evmeContainer {
-    height: 25%;
+    bottom: auto;
+    height: calc((100% - 7.5rem)/4); /* height of footer */
+}
+
+.evme-has-query #evmeContainer {
+    height: calc(100% - 7.5rem);
+}
+.evme-keyboard-visible #evmeContainer {
+    height: 100%;
+}
+.evme-keyboard-visible .apps > div.evmePage ol,
+.evme-has-query .apps > div.evmePage ol
+{
+    opacity: 0;
 }
 
 .apps > div.evmePage {
     -moz-box-sizing: border-box;
-    padding-top: 25%;
+    padding-top: calc(25% + 1.2rem);
 }

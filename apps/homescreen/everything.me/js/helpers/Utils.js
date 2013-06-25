@@ -8,6 +8,8 @@ Evme.Utils = new function Evme_Utils() {
         CONTAINER_ID = "evmeContainer",
         COOKIE_NAME_CREDENTIALS = "credentials",
         
+        CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
+        
         OSMessages = this.OSMessages = {
             "APP_CLICK": "open-in-app",
             "APP_INSTALL": "add-bookmark",
@@ -375,9 +377,9 @@ Evme.Utils = new function Evme_Utils() {
         self.isKeyboardVisible = value;
         
         if (self.isKeyboardVisible) {
-            Evme.$("#" + CONTAINER_ID).classList.add("keyboard-visible");
+            document.body.classList.add(CLASS_WHEN_KEYBOARD_IS_VISIBLE);
         } else {
-            Evme.$("#" + CONTAINER_ID).classList.remove("keyboard-visible");
+            document.body.classList.remove(CLASS_WHEN_KEYBOARD_IS_VISIBLE);
         }
     };
 

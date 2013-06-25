@@ -32,7 +32,7 @@ var GridManager = (function() {
 
   var numberOfSpecialPages = 0, landingPage, prevLandingPage, nextLandingPage;
   var pages = [];
-  var currentPage = 1;
+  var currentPage = 0;
 
   var saveStateTimeout = null;
 
@@ -493,7 +493,7 @@ var GridManager = (function() {
   function goToPage(index, callback) {
     if (index < 0 || index >= pages.length)
       return;
-
+      
     if (index === landingPage) {
       // Homescreen won't call to this method due to stop the propagation
       captureHashchange = true;
@@ -1204,8 +1204,6 @@ var GridManager = (function() {
       }
       
       var numberOfIcons = pageState.index === EVME_PAGE? MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
-      dump('evyatar Creating Page ' + pageState.index + ': ' + numberOfIcons);
-      
       pageHelper.addPage(convertDescriptorsToIcons(pageState), numberOfIcons);
     }, function onState() {
       initApps();

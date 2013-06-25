@@ -24,13 +24,15 @@ Evme.Brain = new function Evme_Brain() {
         TIMEOUT_BEFORE_RENDERING_AC = 300,
         TIMEOUT_BEFORE_RUNNING_APPS_SEARCH = 600,
         TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH = 800,
-	    TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
+        TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
+        
+        CLASS_WHEN_HAS_QUERY = 'evme-has-query';
 
         L10N_SYSTEM_ALERT="alert",
 
         // whether to show shortcuts customize on startup or not
         ENABLE_FAVORITES_SHORTCUTS_SCREEN = false,
-        
+
         QUERY_TYPES = {
             "EXPERIENCE": "experience",
             "APP": "app",
@@ -130,8 +132,6 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
-
-            Evme.Shortcuts.show();
         };
     };
 
@@ -143,6 +143,7 @@ Evme.Brain = new function Evme_Brain() {
 
         // Searchbar focused. Keyboard shows
         this.focus = function focus(data) {
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_MENU);
             Evme.Utils.setKeyboardVisibility(true);
 
             Evme.Helper.disableCloseAnimation();
@@ -161,6 +162,7 @@ Evme.Brain = new function Evme_Brain() {
                 data.e.stopPropagation();
             }
 
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.SHOW_MENU);
 
             var didClickApp = false,
                 elClicked = data && data.e && data.e.explicitOriginalTarget;
@@ -227,8 +229,10 @@ Evme.Brain = new function Evme_Brain() {
 
             if (!query) {
                 elContainer.classList.add("empty-query");
+                document.body.classList.remove(CLASS_WHEN_HAS_QUERY);
             } else {
                 elContainer.classList.remove("empty-query");
+                document.body.classList.add(CLASS_WHEN_HAS_QUERY);
             }
         };
 
