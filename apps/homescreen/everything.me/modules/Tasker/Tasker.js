@@ -18,11 +18,6 @@ Evme.Tasker = new function Evme_Tasker() {
     // handle the alarm callback
     navigator.mozSetMessageHandler("alarm", handleAlarm);
 
-    // trigger when language changes. pass "true" to force the trigger
-    navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
-      self.trigger(true);
-    });
-
     // set the alarm
     addAlarm();
 
@@ -32,7 +27,7 @@ Evme.Tasker = new function Evme_Tasker() {
   function addAlarm(at) {
     if (!alarmId && navigator.mozAlarms) {
       var alarmTime = Date.now() + (at || triggerInterval);
-      Evme.Utils.log('Adding an alarm');
+      Evme.Utils.log('Adding an alarm',triggerInterval);
 
       var alarm = navigator.mozAlarms.add(alarmTime, 'ignoreTimezone', {
         "Tasker": true
@@ -66,7 +61,9 @@ Evme.Tasker = new function Evme_Tasker() {
 
   function removeAlarm() {
     Evme.Utils.log('Removing alarm: ' + alarmId);
-    navigator.mozAlarms.remove(alarmId);
+    if (navigator.mozAlarms) {
+      navigator.mozAlarms.remove(alarmId);
+    }
     alarmId = null;
   }
 

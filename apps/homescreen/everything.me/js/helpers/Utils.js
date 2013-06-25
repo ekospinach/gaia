@@ -17,23 +17,38 @@ Evme.Utils = new function Evme_Utils() {
             "HIDE_MENU": "hide-menu",
             "MENU_HEIGHT": "menu-height",
             "GET_ALL_APPS": "get-all-apps",
-            "GET_APP_ICON": "get-app-icon",
-            "GET_APP_NAME": "get-app-name"
+	    "GET_APP_INFO": "get-app-info",
+	    "GET_ICON_SIZE": "get-icon-size",
+	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
+	    "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
         };
     
     
+    this.PIXEL_RATIO_NAMES = {
+	NORMAL: 'normal',
+	HIGH: 'high'
+    };
+
+    this.ICONS_FORMATS = {
+	"Small": 10,
+	"Large": 20
+    };
+
     this.devicePixelRatio =  window.innerWidth / 320;
 
     this.isKeyboardVisible = false;
 
     this.EMPTY_IMAGE = "../../images/empty.gif";
 
+    this.EMPTY_APPS_SIGNATURE = '';
+
     this.APPS_FONT_SIZE = 13 * self.devicePixelRatio;
 
-    this.ICONS_FORMATS = {
-        "Small": 10,
-        "Large": 20
-    };
+    this.PIXEL_RATIO_NAME = (this.devicePixelRatio > 1) ? this.PIXEL_RATIO_NAMES.HIGH : this.PIXEL_RATIO_NAMES.NORMAL;
+
+    this.NOOP = function(){};
+
+    this.currentResultsManager = null;
     
     this.init = function init() {
         userAgent = navigator.userAgent;
@@ -43,23 +58,29 @@ Evme.Utils = new function Evme_Utils() {
         
         elContainer = document.getElementById(CONTAINER_ID);
     };
-    
-    this.log = function log(message) {
-        var t = new Date(),
-            h = t.getHours(),
-            m = t.getMinutes(),
-            s = t.getSeconds(),
-            ms = t.getMilliseconds();
-        
-        h < 10 && (h = '0' + h);
-        m < 10 && (m = '0' + m);
-        s < 10 && (s = '0' + s);
-        ms < 10 && (ms = '00' + ms) ||
-        ms < 100 && (ms = '0' + ms);
-        
-        console.log("[%s EVME]: %s", [h, m, s, ms].join(':'), message);
+
+    this.logger = function logger(level) {
+        return function Evme_logger() {
+            var t = new Date(),
+                h = t.getHours(),
+                m = t.getMinutes(),
+                s = t.getSeconds(),
+                ms = t.getMilliseconds();
+
+            h < 10 && (h = '0' + h);
+            m < 10 && (m = '0' + m);
+            s < 10 && (s = '0' + s);
+            ms < 10 && (ms = '00' + ms) ||
+                ms < 100 && (ms = '0' + ms);
+
+            console[level]("[%s EVME]: %s", [h, m, s, ms].join(':'), Array.prototype.slice.call(arguments));
+        }
     };
-    
+
+    this.log = this.logger("log");
+    this.warn = this.logger("warn");
+    this.error = this.logger("error");
+
     this.l10n = function l10n(module, key, args) {
         return navigator.mozL10n.get(Evme.Utils.l10nKey(module, key), args);
     };
@@ -120,12 +141,16 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
-            case OSMessages.GET_APP_ICON:
-                return EvmeManager.getAppIcon(data);
-            case OSMessages.GET_APP_NAME:
-                return EvmeManager.getAppName(data);
+	    case OSMessages.GET_APP_INFO:
+		return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
+	    case OSMessages.OPEN_MARKETPLACE_APP:
+		EvmeManager.openMarketplaceApp(data);
+		break;
+	    case OSMessages.OPEN_MARKETPLACE_SEARCH:
+		EvmeManager.openMarketplaceSearch(data);
+		break;
         }
     };
 
@@ -216,6 +241,8 @@ Evme.Utils = new function Evme_Utils() {
         return false;
       }
 
+      context.save();
+
       context.textAlign = 'center';
       context.textBaseline = 'top';
       context.fillStyle = 'rgba(255,255,255,1)';
@@ -269,9 +296,11 @@ Evme.Utils = new function Evme_Utils() {
           
           text += '…';
         }
-        
+
         context.fillText(text, x, y);
       }
+
+      context.restore();
 
       return true;
     };
@@ -289,15 +318,27 @@ Evme.Utils = new function Evme_Utils() {
         if (!image || typeof image !== "object") {
             return image;
         }
-        if (self.isBlob(image)) {
-            return self.EMPTY_IMAGE;
+	if (image.MIMEType === "image/url") {
+	    return image.data;
         }
         if (!image.MIMEType || image.data.length < 10) {
             return null;
         }
+	if (self.isBlob(image)) {
+	    return self.EMPTY_IMAGE;
+	}
 
         return "data:" + image.MIMEType + ";base64," + image.data;
     };
+
+    this.getDefaultAppIcon = function getDefaultAppIcon() {
+        return Evme.Config.design.apps.defaultMarketAppIcon[this.PIXEL_RATIO_NAME];
+    };
+
+    this.getMarketBadgeIcon = function getMarketBadgeIcon() {
+        var quality = (Evme.Utils.devicePixelRatio > 1) ? 'high' : 'normal';
+        return Evme.Config.design.apps.marketBadgeUrl[quality];
+    }
 
     this.getIconGroup = function getIconGroup() {
         return self.cloneObject(Evme.__config.iconsGroupSettings);
@@ -406,51 +447,17 @@ Evme.Utils = new function Evme_Utils() {
 
         return true;
     };
-    
-    this.Apps = new function Apps() {
-        var self = this;
-        
-        this.print = function print(options) {
-            var apps = options.apps,
-                numAppsOffset = options.numAppsOffset || 0,
-                isMore = options.isMore,
-                iconsFormat = options.iconsFormat,
-                elList = options.elList,
-                onDone = options.onDone,
-                hasInstalled = false,
 
-                appsList = {},
-                iconsResult = {
-                    "cached": [],
-                    "missing": []
-                };
-
-            var docFrag = document.createDocumentFragment();
-            for (var i=0,appData; appData=apps[i++];) {
-                appData.iconFormat = iconsFormat;
-
-                var app = new Evme.App(appData, numAppsOffset+i, isMore, self),
-                    id = appData.id;
-
-                docFrag.appendChild(app.draw());
-
-                appsList['' + id] = app;
-
-                if (appData.installed) {
-                    hasInstalled = true;
-                }
-            }
-
-            if (hasInstalled) {
-                options.obj && options.obj.hasInstalled(true);
-            }
-
-            elList.appendChild(docFrag);
-
-            onDone && onDone(appsList);
-
-            return iconsResult;
-        }
+    this.for = function for(items, callback) {
+    	if (items instanceof Array) {
+    	    for (var i=0,item;item=items[i++];) {
+    		callback(item);
+    	    }
+    	} else if (arr instanceof Object) {
+    	    for (var i in items) {
+    		callback(items[i]);
+    	    }
+    	}
     };
 
     this.User = new function User() {
@@ -521,6 +528,23 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.Storage.enabled();
     };
 
+    this.unique = function unique() {
+	// concat
+	var concatArr = [];
+	for (var i=0,arr; arr=arguments[i++];) {
+	    concatArr = concatArr.concat(arr);
+	}
+
+	// unique
+	var uniqueArr = concatArr.filter(uniqueFilter);
+
+	return uniqueArr;
+    };
+
+    function uniqueFilter(elem, pos, self) {
+	return self.indexOf(elem) == pos;
+    }
+
     function _getIconsFormat() {
         return self.ICONS_FORMATS.Large;
     }
@@ -534,6 +558,15 @@ Evme.Utils = new function Evme_Utils() {
 
     this.getCurrentSearchQuery = function getCurrentSearchQuery(){
         return Evme.Brain.Searcher.getDisplayedQuery();
+    };
+
+    this.getAppsSignature = function getAppsSignature(apps) {
+	// prepend with number of apps for quick comparison (fail early)
+	var key = '' + apps.length;
+	for (var i=0, app; app=apps[i++];) {
+	    key += app.id + ':' + app.appUrl + ',';
+	}
+	return key || this.EMPTY_APPS_SIGNATURE;
     };
     
     var Connection = new function Connection(){

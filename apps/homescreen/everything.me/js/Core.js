@@ -8,9 +8,9 @@ window.Evme = new function Evme_Core() {
     this.shouldSearchOnInputBlur = true;
 
     this.init = function init() {
-        data = Evme.__config;
+	var data = Evme.__config,
+	    apiHost = Evme.Utils.getUrlParam("apiHost") || data.apiHost;
 
-        var apiHost = Evme.Utils.getUrlParam("apiHost") || data.apiHost;
         apiHost && Evme.api.setHost(apiHost);
 
         TIMEOUT_BEFORE_INIT_SESSION = data.timeoutBeforeSessionInit;
@@ -26,10 +26,9 @@ window.Evme = new function Evme_Core() {
         Evme.DoATAPI.init({
             "apiKey": data.apiKey,
             "appVersion": data.appVersion,
-            "authCookieName": data.authCookieName
+	    "authCookieName": data.authCookieName,
+	    "callback": function initCallback() { initObjects(data) }
         });
-
-        initObjects(data);
     };
 
     // Gaia communication methods
@@ -76,6 +75,7 @@ window.Evme = new function Evme_Core() {
         });
         
         Evme.ConnectionMessage.init({
+	    "elParent": Evme.Utils.getContainer()
         });
         
         Evme.Location.init({
@@ -109,23 +109,27 @@ window.Evme = new function Evme_Core() {
             "elTip": Evme.$("#helper-tip")
         });
 
-        Evme.Apps.init({
+	Evme.SearchResults = new Evme.ResultManager();
+	Evme.SearchResults.init({
+	    "NAME": 'SearchResults',
             "el": Evme.$("#evmeApps"),
-            "elHeader": Evme.$("#header"),
-            "design": data.design.apps,
-            "appHeight": data.apps.appHeight,
-            "minHeightForMoreButton": data.minHeightForMoreButton,
-            "defaultScreenWidth": {
-                "portrait": 320,
-                "landscape": 480
-            }
+	    "appsPerRow": data.apps.appsPerRow
+	});
+
+	Evme.SmartfolderResults = new Evme.ResultManager();
+	Evme.SmartfolderResults.init({
+	    "NAME": 'SmartfolderResults',
+	    "el": document.querySelector(".smart-folder .evme-apps"),
+	    "appsPerRow": data.apps.appsPerRow
         });
+
+	Evme.InstalledAppsService.init();
 
         Evme.IconGroup.init({});
 
         Evme.BackgroundImage.init({
             "el": Evme.$("#search-overlay"),
-            "elementsToFade": [Evme.$("#evmeApps"), Evme.$("#header"), Evme.$("#search-header")],
+	    "elementsToFade": [Evme.$(".smart-folder .evme-apps")[0], Evme.$("#evmeApps"), Evme.$("#header"), Evme.$("#search-header")],
             "defaultImage": data.defaultBGImage
         });
 
@@ -141,7 +145,6 @@ window.Evme = new function Evme_Core() {
             "config": data.analytics,
             "namespace": Evme,
             "DoATAPI": Evme.DoATAPI,
-            "getCurrentAppsRowsCols": Evme.Apps.getCurrentRowsCols,
             "Brain": Evme.Brain,
             "connectionLow": Evme.Utils.connection().speed != Evme.Utils.connection().SPEED_HIGH,
             "sessionObj": Evme.DoATAPI.Session.get(),
