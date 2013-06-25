@@ -1,5 +1,3 @@
-MARKET_BADGE_ICON = (Evme.Utils.devicePixelRatio > 1)? "/everything.me/images/market/badge@2x.png" : "/everything.me/images/market/badge.png";
-
 Evme.MarketResult = function Evme_MarketResult(slug) {
 	Evme.Result.call(this);
 
@@ -17,12 +15,12 @@ Evme.MarketResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketResult.prototype.constructor = Evme.Evme_MarketResult;
 
 Evme.MarketResult.prototype.marketBadge = new Image();
-Evme.MarketResult.prototype.marketBadge.src = MARKET_BADGE_ICON;
+Evme.MarketResult.prototype.marketBadge.src = Evme.Utils.getMarketBadgeIcon();
 
 
 Evme.MarketAppsRenderer = function Evme_MarketAppsRenderer() {
 	var NAME = 'MarketAppsRenderer',
-		DEFAULT_ICON = Evme.Utils.getDefaultAppIcon,
+		DEFAULT_ICON = Evme.Utils.getDefaultAppIcon(),
 
 		lastSignature = Evme.Utils.EMPTY_APPS_SIGNATURE,
 		self = this,

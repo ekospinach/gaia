@@ -60,21 +60,21 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.logger = function logger(level) {
-        var t = new Date(),
-            h = t.getHours(),
-            m = t.getMinutes(),
-            s = t.getSeconds(),
-            ms = t.getMilliseconds();
-        
-        h < 10 && (h = '0' + h);
-        m < 10 && (m = '0' + m);
-        s < 10 && (s = '0' + s);
-        ms < 10 && (ms = '00' + ms) ||
-        ms < 100 && (ms = '0' + ms);
-        
-	return function Evme_logger() {
-	    console[level]("[%s EVME]: %s", [h, m, s, ms].join(':'), Array.prototype.slice.call(arguments));
-	}
+        return function Evme_logger() {
+            var t = new Date(),
+                h = t.getHours(),
+                m = t.getMinutes(),
+                s = t.getSeconds(),
+                ms = t.getMilliseconds();
+
+            h < 10 && (h = '0' + h);
+            m < 10 && (m = '0' + m);
+            s < 10 && (s = '0' + s);
+            ms < 10 && (ms = '00' + ms) ||
+                ms < 100 && (ms = '0' + ms);
+
+            console[level]("[%s EVME]: %s", [h, m, s, ms].join(':'), Array.prototype.slice.call(arguments));
+        }
     };
 
     this.log = this.logger("log");
@@ -332,8 +332,13 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.getDefaultAppIcon = function getDefaultAppIcon() {
-	return Evme.__config.design.apps.defaultMarketAppIcon[this.PIXEL_RATIO_NAME];
+        return Evme.Config.design.apps.defaultMarketAppIcon[this.PIXEL_RATIO_NAME];
     };
+
+    this.getMarketBadgeIcon = function getMarketBadgeIcon() {
+        var quality = (Evme.Utils.devicePixelRatio > 1) ? 'high' : 'normal';
+        return Evme.Config.design.apps.marketBadgeUrl[quality];
+    }
 
     this.getIconGroup = function getIconGroup() {
         return self.cloneObject(Evme.__config.iconsGroupSettings);

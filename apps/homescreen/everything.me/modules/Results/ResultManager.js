@@ -124,7 +124,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   this.APIData = {
     onRequestSent: function APIData_onRequest() {
       Evme.Utils.isOnline(function isOnlineCallback(isOnline) {
-	isOnline && progressIndicator.wait();
+        isOnline && progressIndicator.wait();
       });
     },
 
@@ -138,29 +138,31 @@ Evme.ResultManager = function Evme_ResultsManager() {
       handleAPIHasMoreCloudApps(response.paging);
 
       var cloudApps = [],
-	  marketApps = [],
-	  installedSlugs = Evme.InstalledAppsService.getSlugs(),
-	  pageNum = response.paging.first;
+        marketApps = [],
+        installedSlugs = Evme.InstalledAppsService.getSlugs(),
+        pageNum = response.paging.first;
 
       // separate cloud from marketplace apps
       response.apps.forEach(function(app) {
-	if (app.type === Evme.RESULT_TYPE.MARKET) {
-	  app.slug = getSlug(app);
-	  // Not if app is already installed
-	  if (installedSlugs.indexOf(app.slug) === -1) {
-	    marketApps.push(app);
-	  }
-	} else if (app.type === Evme.RESULT_TYPE.CLOUD || app.type === Evme.RESULT_TYPE.WEBLINK) {
-	  cloudApps.push(app);
-	}
+        Evme.Utils.log("App '" + app.name + "' [" + app.type + "]");
+
+        if (app.type === Evme.RESULT_TYPE.MARKET) {
+          app.slug = getSlug(app);
+          // Not if app is already installed
+          if (installedSlugs.indexOf(app.slug) === -1) {
+            marketApps.push(app);
+          }
+        } else if (app.type === Evme.RESULT_TYPE.CLOUD || app.type === Evme.RESULT_TYPE.WEBLINK) {
+          cloudApps.push(app);
+        }
       });
 
       // first results page
       // render market apps and result for launching market search
       if (!pageNum) {
-	self.scrollToTop();
-	providers[MARKETAPPS].render(marketApps, pageNum);
-	response.nativeAppsHint && providers[MARKETSEARCH].render();
+        self.scrollToTop();
+        providers[MARKETAPPS].render(marketApps, pageNum);
+        response.nativeAppsHint && providers[MARKETSEARCH].render();
       }
 
       providers[CLOUD].render(cloudApps, pageNum);
