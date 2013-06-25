@@ -15,7 +15,7 @@ var Homescreen = (function() {
   var initialized = false, landingPage;
   onConnectionChange(navigator.onLine);
 
-  function initialize(lPage) {
+  function initialize(lPage, onInit) {
     if (initialized) {
       return;
     }
@@ -38,7 +38,7 @@ var Homescreen = (function() {
     };
 
     GridManager.init(options, function gm_init() {
-      window.addEventListener('hashchange', function() {
+      window.addEventListener('hashchange', function onHashChange() {
         if (!window.location.hash.replace('#', '')) {
           return;
         }
@@ -51,6 +51,7 @@ var Homescreen = (function() {
         } else {
           GridManager.goToPage(landingPage);
         }
+
         GridManager.ensurePanning();
       });
 
@@ -62,7 +63,83 @@ var Homescreen = (function() {
       }
       DragDropManager.init();
       Wallpaper.init();
+      
+      // add tap-and-hold menu
+      GridManager.container.addEventListener('contextmenu', onTapAndHold);
+      
+      if (onInit instanceof Function) {
+        onInit();
+      }
     });
+  }
+
+  function onTapAndHold(e) {
+    e.preventDefault();
+
+    var elDialog = document.createElement('form');
+    elDialog.onsubmit = function() { return false; };
+    elDialog.setAttribute('role', 'dialog');
+    elDialog.setAttribute('data-type', 'action');
+    elDialog.style.zIndex = '10005'; // to be on top of dock
+    elDialog.innerHTML = '<menu>' +
+                            ('Wallpaper' in window?
+                            '<button id="buttonWallpaper">Change Wallpaper...</button>'
+                            : '') +
+                            ('EverythingME' in window?
+                            '<button id="buttonAddSmartfolders">Add Smartfolders</button>' +
+                            '<button id="buttonCustomSmartfolder">Custom Smartfolder</button>'
+                            : '') +
+                            '<button id="btnCancel">Cancel</button>' +
+                          '</menu>' +
+                        '</form>';
+
+    document.body.appendChild(elDialog);
+    
+    attachEvents();
+    
+    function attachEvents() {
+      attachEvent('buttonWallpaper', onClickWallpaper);
+      attachEvent('buttonAddSmartfolders', onClickAdd);
+      attachEvent('buttonCustomSmartfolder', onClickCustom);
+      attachEvent('btnCancel', onClickCancel);
+    }
+
+    function removeEvents() {
+      removeEvent('buttonWallpaper', onClickWallpaper);
+      removeEvent('buttonAddSmartfolders', onClickAdd);
+      removeEvent('buttonCustomSmartfolder', onClickCustom);
+      removeEvent('btnCancel', onClickCancel);
+    }
+
+    function attachEvent(id, listener) {
+      var el = elDialog.querySelector('#' + id);
+      el && el.addEventListener('click', listener);
+    }
+    function removeEvent(id, listener) {
+      var el = elDialog.querySelector('#' + id);
+      el && el.removeEventListener('click', listener);
+    }
+
+    function onClickWallpaper() {
+      Wallpaper.select();
+      window.setTimeout(hide, 50);
+    }
+    function onClickAdd() {
+      EverythingME.SmartFolder.suggest();
+      hide();
+    }
+    function onClickCustom() {
+      EverythingME.SmartFolder.custom();
+      hide();
+    }
+    function onClickCancel() {
+      hide();
+    }
+
+    function hide() {
+      removeEvents();
+      elDialog.parentNode.removeChild(elDialog);
+    }
   }
 
   function exitFromEditMode() {
@@ -164,8 +241,8 @@ var Homescreen = (function() {
     },
 
     didEvmePreventHomeButton: function() {
-      var evme = ('EvmeFacade' in window) && window.EvmeFacade;
-      return evme.onHomeButtonPress && evme.onHomeButtonPress();
+      var evme = window.EvmeFacade;
+      return evme && evme.onHomeButtonPress && evme.onHomeButtonPress();
     },
 
     init: initialize,

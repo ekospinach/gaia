@@ -4,7 +4,7 @@
 var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
         currentURL = null;
-
+        
     function openApp(params) {
         var evmeApp = new EvmeApp({
             bookmarkURL: params.originUrl,
@@ -17,13 +17,43 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function addBookmark(params) {
-        GridManager.install(new Bookmark({
-          bookmarkURL: params.originUrl,
-          name: params.title,
-          icon: params.icon,
-          iconable: false,
-          useAsyncPanZoom: params.useAsyncPanZoom
-        }));
+      GridManager.install(new Bookmark({
+        "id": params.id || Evme.Utils.uuid(),
+        "bookmarkURL": params.originUrl,
+        "name": params.title,
+        "icon": params.icon,
+        "iconable": false,
+        "useAsyncPanZoom": params.useAsyncPanZoom,
+        "isFolder": !!params.isFolder,
+        "isEmpty": !!params.isEmpty
+      }), params.gridPosition);
+
+      GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
+    }
+
+    function toggleOnGrid(ids, hide) {
+        if (!Array.isArray(ids)) {
+            ids = [ids];
+        }
+        
+        // we can not tell if `id` is a bookmarkURL or a manifestURL
+        // since Everything.me does not distinguish apps from bookmarks
+        // hence we send both as descriptors
+        var manifestDescriptors = ids.map(function makeManifestDescriptor(id) {
+            return { "manifestURL": id }
+        });
+
+        var bookmarkDescriptors = ids.map(function makeBookmarkDescriptor(id) {
+            return { "bookmarkURL": id }
+        });
+
+        var descriptors = manifestDescriptors.concat(bookmarkDescriptors);
+
+        if (hide) {
+          return GridManager.hide(descriptors);
+        } else {
+          return GridManager.unhide(descriptors);
+        }
     }
 
     function openUrl(url) {
@@ -51,17 +81,78 @@ var EvmeManager = (function EvmeManager() {
         return document.getElementById("footer").offsetHeight;
     }
 
+    /**
+     * Returns all apps on grid *excluding* folders.
+     */
     function getApps() {
         return GridManager.getApps(true);
     }
+    
+    /**
+     * Returns only the smart folders on the user's phone
+     */
+    function getFolders() {
+        return GridManager.getFolders();
+    }
 
-    function getAppIcon(app) {
-        var iconObject = GridManager.getIcon(app);
-        if (iconObject &&
-                'descriptor' in iconObject &&
-                'renderedIcon' in iconObject.descriptor) {
-            return iconObject.descriptor.renderedIcon;
+    function getAppInfo(gridApp, cb) {
+        cb = cb || Evme.Utils.NOOP;
+
+        var id = gridApp.manifestURL || gridApp.bookmarkURL,
+            icon = GridManager.getIcon(gridApp),
+            appInfo;
+
+        if (!id) return;
+
+        appInfo = {
+            "id": id,
+            "name": getAppName(gridApp),
+            "appUrl": gridApp.origin,
+            "icon": Icon.prototype.DEFAULT_ICON_URL
+        };
+
+        if (!icon) {
+            cb(appInfo);
+        } else {
+            retrieveIcon({
+                icon: icon,
+                done: function(blob) {
+                    if (blob) appInfo['icon'] = blob;
+                    cb(appInfo);
+                }
+            });
         }
+    }
+
+    function retrieveIcon(request) {
+      var xhr = new XMLHttpRequest({
+        mozAnon: true,
+        mozSystem: true
+      });
+
+      var icon = request.icon.descriptor.icon;
+
+      xhr.open('GET', icon, true);
+      xhr.responseType = 'blob';
+
+      try {
+        xhr.send(null);
+      } catch (evt) {
+        request.done();
+        return;
+      }
+
+      xhr.onload = function onload(evt) {
+        var status = xhr.status;
+        if (status !== 0 && status !== 200)
+            request.done();
+        else 
+            request.done(xhr.response);
+      };
+
+      xhr.ontimeout = xhr.onerror = function onerror(evt) {
+        request.done();
+      };
     }
 
     function getAppName(app) {
@@ -88,28 +179,58 @@ var EvmeManager = (function EvmeManager() {
         GridManager.setLandingPageOpacity(isVisible ? 0.4 : 0);
     }
 
+    function openMarketplaceApp(data) {
+      var activity = new MozActivity({
+        name: "marketplace-app",
+        data: {slug: data.slug}
+      });
+
+      activity.onerror = function(){
+        window.open('https://marketplace.firefox.com/app/'+data.slug, 'e.me');
+      }
+    }
+
+    function openMarketplaceSearch(data) {
+      var activity = new MozActivity({
+          name: "marketplace-search",
+          data: {query: data.query}
+      });
+
+      activity.onerror = function(){
+        window.open('https://marketplace.firefox.com/search/?q='+data.query, 'e.me'); 
+      }
+    }
+
     return {
-        openApp: openApp,
+      openApp: openApp,
 
-        addBookmark: addBookmark,
+      addBookmark: addBookmark,
+      hideFromGrid: function hideFromGrid(ids) {
+        return toggleOnGrid(ids, true)
+      },
+      unhideFromGrid: function unhideFromGrid(ids) {
+        return toggleOnGrid(ids, false)
+      },
 
-        isAppInstalled: function isAppInstalled(url) {
-            return GridManager.getIconForBookmark(url) ||
-                   GridManager.getAppByOrigin(url);
-        },
-        getApps: getApps,
-        getAppIcon: getAppIcon,
-        getAppName: getAppName,
+      isAppInstalled: function isAppInstalled(url) {
+          return GridManager.getIconForBookmark(url) ||
+                 GridManager.getAppByOrigin(url);
+      },
+      getApps: getApps,
+      getFolders: getFolders,
+  	  getAppInfo: getAppInfo,
 
-        openUrl: openUrl,
+      openUrl: openUrl,
+  	  openMarketplaceApp: openMarketplaceApp,
+  	  openMarketplaceSearch: openMarketplaceSearch,
 
-        isEvmeVisible: isEvmeVisible,
+      isEvmeVisible: isEvmeVisible,
 
-        menuShow: menuShow,
-        menuHide: menuHide,
-        getMenuHeight: getMenuHeight,
+      menuShow: menuShow,
+      menuHide: menuHide,
+      getMenuHeight: getMenuHeight,
 
-        getIconSize: getIconSize
+      getIconSize: getIconSize
     };
 }());
 

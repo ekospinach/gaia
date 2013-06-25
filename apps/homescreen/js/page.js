@@ -67,9 +67,10 @@ Icon.prototype = {
   },
 
   isOfflineReady: function icon_isOfflineReady() {
-    return !(this.descriptor.isHosted &&
-      !this.descriptor.hasOfflineCache ||
-      this.descriptor.isBookmark);
+    return this.descriptor.isFolder ||
+            !(this.descriptor.isHosted &&
+            !this.descriptor.hasOfflineCache ||
+            this.descriptor.isBookmark);
   },
 
   /*
@@ -105,6 +106,20 @@ Icon.prototype = {
       if (value)
         container.dataset[prop] = value;
     });
+
+
+    // Smart Folders (as bookmarks)
+    if (descriptor.isFolder) {
+      container.dataset.isFolder = true;
+      container.dataset.isEmpty = descriptor.isEmpty;
+      container.dataset.folderId = descriptor.id;
+      container.dataset.folderName = descriptor.name;
+    }
+
+    // apps that shouldn't appear on the grid
+    if (descriptor.hideFromGrid) {
+      container.dataset.hide = true;
+    }
 
     var localizedName = descriptor.localizedName || descriptor.name;
     container.setAttribute('role', 'button');
@@ -145,7 +160,9 @@ Icon.prototype = {
       this.appendOptions();
     }
 
-    target.appendChild(container);
+    if (target) {
+      target.appendChild(container);
+    }
 
     if (this.downloading) {
       //XXX: Bug 816043 We need to force the repaint to show the span
@@ -304,6 +321,11 @@ Icon.prototype = {
       return;
     }
 
+    var canvas = this.createCanvas(img);
+    canvas.toBlob(this.renderBlob.bind(this));
+  },
+
+  createCanvas: function icon_createCanvas(img){
     var canvas = document.createElement('canvas');
     canvas.width = (MAX_ICON_SIZE + ICON_PADDING_IN_CANVAS) * SCALE_RATIO;
     canvas.height = (MAX_ICON_SIZE + ICON_PADDING_IN_CANVAS) * SCALE_RATIO;
@@ -330,7 +352,7 @@ Icon.prototype = {
                   width, height);
     ctx.fill();
 
-    canvas.toBlob(this.renderBlob.bind(this));
+    return canvas;
   },
 
   // The url that is passed as a parameter to the callback must be revoked
@@ -394,8 +416,9 @@ Icon.prototype = {
     this.descriptor = descriptor;
     descriptor.removable === true ? this.appendOptions() : this.removeOptions();
 
-    // Update offline availability
+    // Update dataset properties
     this.container.dataset.offlineReady = this.isOfflineReady();
+    this.container.dataset.isEmpty = descriptor.isEmpty;
 
     if (descriptor.updateTime == oldDescriptor.updateTime &&
         descriptor.icon == oldDescriptor.icon) {
@@ -428,12 +451,24 @@ Icon.prototype = {
     this.container.parentNode.removeChild(this.container);
   },
 
+  isHidden: function icon_isHidden() {
+    return this.descriptor.hideFromGrid;
+  },
+  hideFromGrid: function icon_hideFromGrid() {
+    this.descriptor.hideFromGrid = true;
+    this.container.dataset.hide = true;
+  },
+  unhideFromGrid: function icon_unhideFromGrid() {
+    this.descriptor.hideFromGrid = false;
+    this.container.dataset.hide = false;
+  },
+
   /*
    * Translates the label of the icon
    */
   translate: function icon_translate() {
     var descriptor = this.descriptor;
-    if (descriptor.bookmarkURL)
+    if (descriptor.bookmarkURL && !descriptor.isFolder)
       return;
 
     var app = this.app;
@@ -512,7 +547,7 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback) {
+  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem, originElem, page) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -526,7 +561,46 @@ Icon.prototype = {
     var draggableElem = this.draggableElem;
     var style = draggableElem.style;
     style.MozTransition = '-moz-transform .4s';
-    style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
+
+    if (!dropIntoFolder) {
+      style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
+      draggableElem.querySelector('div').style.MozTransform = 'scale(1)';  
+    } else {
+      var detail;
+      
+      draggableElem.classList.add('droppedInFolder');
+      
+      // Everything.me references both apps and bookmarks by an 'id'
+      
+      if (overlapElem.dataset.isFolder === 'true') {
+        detail = {
+            "app": {
+              "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL
+            },
+            "folder": {
+              "id": overlapElem.dataset.folderId
+            }
+          }
+
+      } else {
+        detail = {
+            "apps": [{
+                "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL,
+                "icon": GridManager.getIcon(originElem.dataset).descriptor.renderedIcon
+              }, {
+                "id": overlapElem.dataset.manifestURL || overlapElem.dataset.bookmarkURL,
+                "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon
+              }
+            ],
+            "gridPosition": {
+              "page": page.getIndex(),
+              "index": page.getIconIndex(overlapElem)
+            }
+          }
+      }
+
+      detail && window.dispatchEvent(new CustomEvent('EvmeDropApp', {"detail": detail })); 
+    }
 
     var finishDrag = function() {
       delete container.dataset.dragging;
@@ -608,8 +682,9 @@ TemplateIcon.prototype = {
  * @param {Array} icons [optional]
  *                List of Icon objects.
  */
-function Page(container, icons) {
+function Page(container, icons, numberOfIcons) {
   this.container = this.movableContainer = container;
+  this.numberOfIcons = numberOfIcons;
   if (icons)
     this.render(icons);
   this.iconsWhileDragging = [];
@@ -632,8 +707,8 @@ Page.prototype = {
    */
   render: function pg_render(icons) {
     this.olist = document.createElement('ol');
-    for (var i = 0; i < icons.length; i++) {
-      this.appendIcon(icons[i]);
+    for (var i = 0, icon; icon = icons[i++];) {
+      this.appendIcon(icon);
     }
     this.container.appendChild(this.olist);
   },
@@ -671,6 +746,12 @@ Page.prototype = {
     }
   },
 
+  getIcons: function pg_getIcons(shouldIncludeHidden) {
+    return shouldIncludeHidden?
+            this.olist.children :
+            this.olist.querySelectorAll('li:not([data-hide="true"])');
+  },
+  
   /*
    * Changes position between two icons
    *
@@ -687,12 +768,11 @@ Page.prototype = {
 
     this.setReady(false);
 
-    var iconList = this.olist.children;
+    var iconList = this.getIcons();
     if (originIcon && targetIcon && iconList.length > 1) {
       if (this.iconsWhileDragging.length === 0)
         this.iconsWhileDragging = Array.prototype.slice.call(iconList, 0,
                                                              iconList.length);
-
       this.animate(this.iconsWhileDragging, originIcon.container,
                    targetIcon.container);
     } else {
@@ -710,10 +790,15 @@ Page.prototype = {
       return;
     }
 
+    // remove 
+    targetNode.dataset.draggedon = "false";
+
     var upward = draggableIndex < targetIndex;
     this.draggableNode = draggableNode;
     this.beforeNode = upward ? targetNode.nextSibling : targetNode;
     this.placeIcon(draggableNode, draggableIndex, targetIndex);
+    // var r = draggableIndex+"->"+targetIndex;
+
 
     var self = this;
     targetNode.addEventListener('transitionend', function onTransitionEnd(e) {
@@ -724,12 +809,17 @@ Page.prototype = {
     });
 
     if (upward) {
-      for (var i = draggableIndex + 1; i <= targetIndex; i++)
+      for (var i = draggableIndex + 1; i <= targetIndex; i++){
         this.placeIcon(children[i], i, i - 1, DRAGGING_TRANSITION);
+        // r+= "; "+i+"->"+(i-1);
+      }
     } else {
-      for (var i = targetIndex; i < draggableIndex; i++)
+      for (var i = targetIndex; i < draggableIndex; i++){
         this.placeIcon(children[i], i, i + 1, DRAGGING_TRANSITION);
+        // r+= "; "+i+"->"+(i+1);
+      }
     }
+    // console.log(r);
   },
 
   doDragLeave: function pg_doReArrange(callback, reflow) {
@@ -842,6 +932,31 @@ Page.prototype = {
   },
 
   /*
+   * Adds an icon at the position specified
+   *
+   * @param{Object} icon object
+   * @param{Number} index to insert at
+   */
+  appendIconAt: function pg_appendIconAt(icon, index) {
+    if (!icon.container) {
+      icon.render();
+    }
+
+    this.setReady(false);
+
+    var olist = this.olist,
+        children = this.getIcons();
+    
+    if (children[index]) {
+      olist.insertBefore(icon.container, children[index]);
+    } else {
+      olist.appendChild(icon.container);
+    }
+
+    this.setReady(true);
+  },
+
+  /*
    * Adds an icon to the begining of the page
    *
    * @param{Object} icon object
@@ -919,7 +1034,7 @@ Page.prototype = {
    * @param {Object} icon the icon to be added.
    */
   appendIconVisible: function pg_appendIconVisible(icon) {
-    if (this.getNumIcons() >= this.maxIcons) {
+    if (this.getNumIcons() >= this.numberOfIcons) {
       this.insertBeforeLastIcon(icon);
     } else {
       this.appendIcon(icon);
@@ -945,18 +1060,30 @@ Page.prototype = {
    * Returns the number of icons
    */
   getNumIcons: function pg_getNumIcons() {
-    return this.olist.children.length;
+    return this.olist.querySelectorAll('li:not([data-hide="true"])').length;
   },
 
   /**
    * Marshall the page's state.
    */
   getIconDescriptors: function pg_getIconDescriptors() {
-    var nodes = this.olist.children;
+    var nodes = this.getIcons(true);
     return Array.prototype.map.call(nodes, function marshall(node) {
       var icon = GridManager.getIcon(node.dataset);
       return icon.descriptor;
     });
+  },
+
+  getIndex: function pg_getIndex() {
+    var pages = this.container.parentNode.children;
+    pages = Array.prototype.slice.call(pages, 0,pages.length);
+    return pages.indexOf(this.container);
+  },
+
+  getIconIndex: function pg_getIconIndex(icon) {
+    var icons = this.getIcons();
+    icons = Array.prototype.slice.call(icons, 0,icons.length);
+    return icons.indexOf(icon);
   }
 };
 

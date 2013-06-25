@@ -1,7 +1,4 @@
 var EverythingME = {
-
-  displayed: false,
-
   init: function EverythingME_init() {
     var footer = document.querySelector('#footer');
     if (footer) {
@@ -9,7 +6,8 @@ var EverythingME = {
     }
     
     var self = this,
-        page = document.getElementById('landing-page'),
+        page = document.getElementById('evmePage'),
+        gridPage = document.querySelector('#icongrid > div:first-child'),
         activationIcon = document.getElementById('evme-activation-icon');
 
     activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
@@ -23,13 +21,17 @@ var EverythingME = {
     activationIcon.addEventListener('click', onClick);
     activationIcon.addEventListener('contextmenu', onContextMenu);
 
-    page.addEventListener('gridpageshowend', function onPageShow() {
+    gridPage.addEventListener('gridpageshowend', function onPageShow() {
       EvmeFacade.onShow();
     });
-    page.addEventListener('gridpagehideend', function onPageHide() {
+    gridPage.addEventListener('gridpagehideend', function onPageHide() {
       EvmeFacade.onHide();
     });
 
+    // add evme into the first grid page
+    gridPage.classList.add('evmePage');
+    gridPage.appendChild(page.parentNode.removeChild(page));
+    
     function onClick(e) {
       this.removeEventListener('click', onClick);
       this.removeEventListener('contextmenu', onContextMenu);
@@ -74,45 +76,59 @@ var EverythingME = {
   load: function EverythingME_load(success) {
 
     var CB = !('ontouchstart' in window),
-        js_files = ['js/etmmanager.js',
-                    'js/Core.js',
-                    'config/config.js',
-                    'config/shortcuts.js',
-                    'js/developer/utils.1.3.js',
-                    'js/helpers/Utils.js',
-                    'js/Brain.js',
-                    'modules/Apps/Apps.js',
-                    'modules/BackgroundImage/BackgroundImage.js',
-                    'modules/Banner/Banner.js',
-                    'modules/Location/Location.js',
-                    'modules/Shortcuts/Shortcuts.js',
-                    'modules/ShortcutsCustomize/ShortcutsCustomize.js',
-                    'modules/Searchbar/Searchbar.js',
-                    'modules/SearchHistory/SearchHistory.js',
-                    'modules/Helper/Helper.js',
-                    'modules/ConnectionMessage/ConnectionMessage.js',
-                    'modules/SmartFolder/SmartFolder.js',
-                    'modules/Tasker/Tasker.js',
-                    'modules/Features/Features.js',
-                    'js/helpers/Storage.js',
-                    'js/plugins/Scroll.js',
-                    'js/external/uuid.js',
-                    'js/api/apiv2.js',
-                    'js/api/DoATAPI.js',
-                    'js/helpers/EventHandler.js',
-                    'js/helpers/Idle.js',
-                    'js/plugins/Analytics.js',
-                    'js/plugins/APIStatsEvents.js'];
-    var css_files = ['css/common.css',
-                     'modules/Apps/Apps.css',
-                     'modules/BackgroundImage/BackgroundImage.css',
-                     'modules/Banner/Banner.css',
-                     'modules/Shortcuts/Shortcuts.css',
-                     'modules/ShortcutsCustomize/ShortcutsCustomize.css',
-                     'modules/Searchbar/Searchbar.css',
-                     'modules/Helper/Helper.css',
-                     'modules/ConnectionMessage/ConnectionMessage.css',
-                     'modules/SmartFolder/SmartFolder.css'];
+        js_files = [
+          'js/Core.js',
+          'js/etmmanager.js',
+
+          'config/config.js',
+          'config/shortcuts.js',
+          'js/developer/utils.1.3.js',
+          'js/helpers/Utils.js',
+          'js/helpers/Storage.js',
+          'js/helpers/IconManager.js',
+          'js/plugins/Scroll.js',
+          'js/plugins/SelectBox.js',
+          'js/external/uuid.js',
+          'js/external/md5.js',
+          'js/api/apiv2.js',
+          'js/api/DoATAPI.js',
+          'js/helpers/EventHandler.js',
+          'js/helpers/Idle.js',
+          'js/plugins/Analytics.js',
+          'js/plugins/APIStatsEvents.js',
+          'js/Brain.js',
+          'modules/BackgroundImage/BackgroundImage.js',
+          'modules/Banner/Banner.js',
+          'modules/ConnectionMessage/ConnectionMessage.js',
+          'modules/Features/Features.js',
+          'modules/Helper/Helper.js',
+          'modules/Location/Location.js',
+          'modules/Results/Result.js',
+          'modules/Results/providers/CloudApps.js',
+          'modules/Results/providers/ContactSearch.js',
+          'modules/Results/providers/InstalledApps.js',
+          'modules/Results/providers/MarketApps.js',
+          'modules/Results/providers/MarketSearch.js',
+          'modules/Results/providers/StaticApps.js',
+          'modules/Results/ResultManager.js',
+          'modules/Searchbar/Searchbar.js',
+          'modules/SearchHistory/SearchHistory.js',
+          'modules/SmartFolderSuggest/SmartFolderSuggest.js',
+          'modules/SmartFolder/SmartFolder.js',
+          'modules/Tasker/Tasker.js'
+        ],
+        css_files = [
+          'css/common.css',
+          'modules/BackgroundImage/BackgroundImage.css',
+          'modules/Banner/Banner.css',
+          'modules/ConnectionMessage/ConnectionMessage.css',
+          'modules/Helper/Helper.css',
+          'modules/Results/Results.css',
+          'modules/Searchbar/Searchbar.css',
+          'modules/SmartFolderSuggest/SmartFolderSuggest.css',
+          'modules/SmartFolder/SmartFolder.css'
+        ];
+
     var head = document.head;
 
     var scriptLoadCount = 0;
@@ -146,7 +162,9 @@ var EverythingME = {
       link.rel = 'stylesheet';
       link.href = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
       link.addEventListener('load', onCSSLoad);
-      setTimeout(function appendCSS() { head.appendChild(link); }, 0);
+      window.setTimeout(function load() {
+        head.appendChild(link);
+      }, 0);
     }
 
     function loadScript(file) {
@@ -155,7 +173,9 @@ var EverythingME = {
       script.src = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
-      setTimeout(function appendScript() { head.appendChild(script) }, 0);
+      window.setTimeout(function load() {
+        head.appendChild(script);
+      }, 0);
     }
 
     loadCSS(css_files[cssLoadCount]);
@@ -164,7 +184,8 @@ var EverythingME = {
   initEvme: function EverythingME_initEvme(success) {
     Evme.init();
     EvmeFacade = Evme;
-    success();
+    // TODO move success to core.init as callback
+    success && success();
   },
 
   start: function EverythingME_start(success) {
@@ -184,6 +205,15 @@ var EverythingME = {
     for (var i = 0; i < list.length; i++) {
       var resource = list[i];
       resource.parentNode.removeChild(resource);
+    }
+  },
+
+  SmartFolder: {
+    suggest: function EverythingME_SmartFolder_suggest() {
+      EvmeFacade.onSmartfolderSuggest();
+    },
+    custom: function EverythingME_SmartFolder_custom() {
+      EvmeFacade.onSmartfolderCustom();
     }
   }
 };

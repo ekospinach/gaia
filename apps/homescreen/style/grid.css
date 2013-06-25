@@ -51,6 +51,23 @@ body[data-transitioning] .apps > div {
   float: left;
   text-align: center;
 }
+.apps ol > li div img {
+  position: relative;
+  z-index: 10;
+}
+.apps ol > li[data-is-folder="true"]:not([data-is-empty="true"]) div::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6rem;
+  height: 6rem;
+  background: white;
+  border-radius: 50%;
+  margin-left: -2.8rem;
+  margin-top: -4rem;
+  opacity: 0.2;
+}
 
 /* Maximum 16 icons for page */
 .apps ol > li:nth-child(17) {
@@ -142,6 +159,7 @@ ol:not([disabled]) li.active > div > img {
   margin: 0.3rem auto 0;
   font-weight: 500;
   letter-spacing: -0.025rem;
+  text-transform: capitalize;
 }
 
 /* Alternative icons when an app is being installed */

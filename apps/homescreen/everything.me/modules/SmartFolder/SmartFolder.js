@@ -1,399 +1,722 @@
-Evme.SmartFolder = function Evme_SartFolder(_options) {
-    var self = this, NAME = "SmartFolder",
-        experienceId = '', query = '', image = '', scroll = null, shouldFadeImage = false, bgImage = null,
-        el = null, elScreen = null, elTitle = null, elClose = null,
-        elAppsContainer = null, elApps = null, elLoading,
-        elImage = null, elImageOverlay = null, elImageFullscreen = null,
-        reportedScrollMove = false, optionsOnScrollEnd = null,
-        fadeBy = 1,
-        
-        SCROLL_BOTTOM_THRESHOLD = 5,
-        CLASS_WHEN_LOADING = 'show-loading-apps',
-        CLASS_WHEN_VISIBLE = 'visible',
-        CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
-        CLASS_WHEN_ANIMATING = 'animate',
-        SCROLL_TO_SHOW_IMAGE = 80,
-        TRANSITION_DURATION = 400,
-        LOAD_MORE_SCROLL_THRESHOLD = -30,
-        MAX_SCROLL_FADE = 200,
-        FULLSCREEN_THRESHOLD = 0.8;
-        
+/**
+ * SmartFolder.js
+ * Main Evme object for using SmartFolders
+ * 
+ */
+ void function() {
+  var NUM_APPS_IN_FOLDER_ICON = 3; // how many icons appear in a folder icon
+
+  Evme.SmartFolder = new function Evme_SmartFolder() {
+    var self = this,
+      NAME = "SmartFolder",
+      
+      currentSettings = null,
+
+      el = null,
+      elScreen = null,
+      elTitle = null,
+      elClose = null,
+      elAppsContainer = null,
+      elImage = null,
+      elImageFullscreen = null,
+      resultsManager = null,
+      elFolderActions = null,
+      isFullScreenVisible = false,
+
+      title = '',
+
+      CLASS_WHEN_VISIBLE = 'visible',
+      CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
+      CLASS_WHEN_ANIMATING = 'animate',
+      TRANSITION_DURATION = 400,
+
+      // number of preinstalled folders to create on the first page
+      NUM_FOLDERS_FIRST_PAGE = 6;
+
+    this.editMode = false;
+
     this.init = function init(options) {
-        !options && (options = {});
-        
-        createElement();
-        
-        options.bgImage && self.setBgImage(options.bgImage);
-        options.query && self.setQuery(options.query);
-        options.experienceId && self.setExperience(options.experienceId);
-        options.image && self.setImage(options.image);
-        options.elParent && self.appendTo(options.elParent);
-        
-        optionsOnScrollEnd = options.onScrollEnd;
-        
-        self.MoreIndicator.init({
-            "elParent": elApps
-        });
+      var actionsButtons;
 
+      !options && (options = {});
 
-      
-        elLoading = Evme.$create('div',
-                    { 'class': 'loading-apps' },
-                    '<progress class="small skin-dark"></progress>');
-          
-        elAppsContainer.appendChild(elLoading);
-        
-        Evme.EventHandler.trigger(NAME, "init");
-        
-        return self;
+      resultsManager = options.resultsManager;
+
+      el = document.getElementsByClassName("smart-folder")[0];
+      elScreen = document.getElementsByClassName("smart-folder-screen")[0];
+
+      elAppsContainer = resultsManager.getElement();
+
+      elTitle = Evme.$(".title", el)[0];
+      elImage = Evme.$(".image", el)[0];
+      elClose = Evme.$('.close', el)[0];
+
+      elFolderActions = Evme.$('.folder-actions', el)[0];
+      actionsButtons = Evme.$('menu button', elFolderActions);
+      for (var i=0,button; button=actionsButtons[i++];) {
+          button.addEventListener('click', folderActionClick);
+      }
+
+      elOpenActions = Evme.$('.open-actions', el)[0];
+      elOpenActions.addEventListener('click', function onClick() {
+          Evme.SmartFolder.toggleEditMode(false);
+          elFolderActions.classList.toggle('show');
+      });    
+
+      elClose.addEventListener("click", self.hide);
+      elAppsContainer.dataset.scrollOffset = 0;
+
+      initPreinstalled();
+      Evme.EventHandler.trigger(NAME, "init");
     };
-    
-    this.show = function show() {
-        window.setTimeout(function onTimeout(){
-            el.classList.add(CLASS_WHEN_VISIBLE);
-            elScreen.classList.add(CLASS_WHEN_VISIBLE);
+
+    this.create = function create(options) {
+      var query = options.query,
+        apps = options.apps,
+        icons = options.icons || [],
+        gridPosition = options.gridPosition,
+        extra = {"icons": icons};
+      
+      if (query) {
+        Evme.SmartFolderSettings.createByQuery(query, extra, function onCreate(folderSettings) {
+          addFolderToHomescreen(folderSettings, gridPosition)
+        });
+      } else if (apps.length > 1) {
+        Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], extra, function onCreate(folderSettings) {
+          addFolderToHomescreen(folderSettings, gridPosition)
+        });
+      }
+    }
+
+    this.show = function launch(e) {
+      var data = e.detail;
+      Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
+        currentSettings = folderSettings;
+
+        el.dataset.id = folderSettings.id;
+        self.setTitle(folderSettings.name || folderSettings.query);
+        folderSettings.bg && self.setBackground(folderSettings.bg);
+
+        self.editMode = false;
+        
+        resultsManager.renderStaticApps(folderSettings.apps);
+
+        window.setTimeout(function onTimeout() {
+          el.classList.add(CLASS_WHEN_VISIBLE);
+          elScreen.classList.add(CLASS_WHEN_VISIBLE);
         }, 0);
-        
+
         Evme.EventHandler.trigger(NAME, "show", {
-            "folder": self
+          "folder": self
         });
-        
-        return self;
-    };
-    
+      });
+    }
+
     this.hide = function hide() {
-        el.classList.remove(CLASS_WHEN_VISIBLE);
-        elScreen.classList.remove(CLASS_WHEN_VISIBLE);
-        
-        Evme.EventHandler.trigger(NAME, "hide", {
-            "folder": self
-        });
-        
-        return self;
-    };
-    
-    this.close = function close(e) {
-        e && e.preventDefault();
-        e && e.stopPropagation();
-        
-        self.hide();
-        
-        window.setTimeout(function onTimeout(){
-            Evme.$remove(el);
-            Evme.$remove(elScreen);
-            
-            Evme.EventHandler.trigger(NAME, "close", {
-                "folder": self
-            });
-        }, 350);
-        
-        return self;
-    };
-    
-    this.clear = function clear() {
-        elApps.innerHTML = '';
-    };
-    
-    this.loadApps = function loadApps(options, onDone) {
-        var apps = options.apps,
-            iconsFormat = options.iconsFormat,
-            offset = options.offset,
-            areInstalledApps = options.installed,
-            
-            iconsResult = Evme.Utils.Apps.print({
-                "obj": self,
-                "apps": apps,
-                "numAppsOffset": offset,
-                "isMore": offset > 0,
-                "iconsFormat": iconsFormat,
-                "elList": elApps,
-                "onDone": function onAppsPrintComplete(appsList) {
-                    if (areInstalledApps && apps && apps.length) {
-                        self.addInstalledSeparator();
-                    }
-                    
-                    if (offset === 0) {
-                        scroll.scrollTo(0, 0);
-                    }
-                    
-                    onDone && onDone();
-                }
-            });
-        
-        self.hideLoading();
-        
-        Evme.EventHandler.trigger(NAME, "load");
-        
-        return iconsResult;
-    };
-    
-    this.showLoading = function showLoading() {
-      elLoading.style.transform = 'translateY(' + self.getInstalledHeight()/2 + 'px)';
-      elAppsContainer.classList.add(CLASS_WHEN_LOADING);
-    };
-    
-    this.hideLoading = function hideLoading() {
-      elAppsContainer.classList.remove(CLASS_WHEN_LOADING);
-    };
-    
-    this.appendTo = function appendTo(elParent) {
-        elParent.appendChild(el);
-        elParent.appendChild(elScreen);
-        
-        return self;
-    };
-    
-    this.setExperience = function setExperience(newExperienceId) {
-        if (!newExperienceId || newExperienceId === experienceId) {
-            return self;
-        }
-        
-        experienceId = newExperienceId;
-        
-        Evme.Utils.log('Folder :: experienceId: ' + experienceId);
-        
-        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-            queryById = Evme.Utils.l10n('shortcut', l10nkey);
-            
-        Evme.Utils.log('Folder :: queryById: ' + queryById);
-        elTitle.innerHTML = '<em></em>' +
-                            '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
-                            '<span ' + Evme.Utils.l10nAttr('shortcut', l10nkey) + '></span>';
-        
-        if (queryById) {
-            self.setQuery(queryById);
-        } else if (query) {
-            Evme.$('span', elTitle)[0].textContent = query;
-        }
-        
-        return self;
-    };
-    
-    this.setQuery = function setQuery(newQuery) {
-        if (!newQuery || newQuery === query) {
-            return self;
-        }
-        
-        query = newQuery;
-        
-        elTitle.innerHTML = '<em></em>' +
-                            '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
-                            '<span>' + query  + '</span>';
-        
-        return self;
-    };
-    
-    this.setImage = function setImage(newImage) {
-        if (!newImage || newImage === image) {
-            return self;
-        }
-        
-        image = newImage;
-        
-        elImage.style.backgroundImage = 'url(' + image.image + ')';
-        
-        elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(image, self.hideFullscreen);
-        el.appendChild(elImageFullscreen);
-        
-        return self;
-    };
-    
-    this.setBgImage = function setBgImage(newBgImage) {
-        if (!newBgImage || newBgImage === bgImage) {
-            return self;
-        }
-        
-        bgImage = newBgImage;
-        
-        el.style.backgroundImage = 'url(' + bgImage + ')';
-        
-        return self;
-    };
-    
-    this.showFullscreen = function showFullScreen(e) {
-        e && e.preventDefault();
-        e && e.stopPropagation();
-        
-        el.classList.add(CLASS_WHEN_ANIMATING);
-        window.setTimeout(function onTimeout(){
-            self.fadeImage(0);
-            el.classList.add(CLASS_WHEN_IMAGE_FULLSCREEN);
-            
-            window.setTimeout(function onTimeout(){
-                scroll.scrollTo(0, 0);
-            }, 100);
-        }, 10);
-    };
-    
-    this.hideFullscreen = function hideFullscreen(e) {
-        e && e.preventDefault();
-        e && e.stopPropagation();
-        
-        el.classList.add(CLASS_WHEN_ANIMATING);
-        window.setTimeout(function onTimeout(){
-            self.fadeImage(1);
-            el.classList.remove(CLASS_WHEN_IMAGE_FULLSCREEN);
-            
-            window.setTimeout(function onTimeout(){
-                el.classList.remove(CLASS_WHEN_ANIMATING);
-            }, TRANSITION_DURATION);
-        }, 10);
-    };
-    
-    this.fadeImage = function fadeImage(howMuch) {
-        elImageOverlay.style.opacity = howMuch;
-        elAppsContainer.style.opacity = howMuch;
-    };
-    
-    this.hasInstalled = function hasInstalled(isTrue) {
-        if (typeof isTrue !== 'boolean') {
-            return elAppsContainer.classList.contains("has-installed");
-        }
-        
-        if (isTrue) {
-            elAppsContainer.classList.add("has-installed");
-        } else {
-            elAppsContainer.classList.remove("has-installed");
-        }
-        
-        return isTrue;
-    };
-    
-    this.addInstalledSeparator = function addInstalledSeparator() {
-        elApps.appendChild(Evme.$create('li', {'class': "installed-separator"}));
+      if (!currentSettings) {
+        return false;
+      }
+
+      updateIcons(currentSettings);
+      currentSettings = null;
+
+      el.classList.remove(CLASS_WHEN_VISIBLE);
+      elScreen.classList.remove(CLASS_WHEN_VISIBLE);
+
+      // hack for preventing the browser from saving the scroll position
+      // and restoring it when a new SmartFolder opens
+      resultsManager.scrollToTop();
+
+      resultsManager.clear();
+      self.clearBackground();
+
+      self.toggleEditMode(false);
+
+      Evme.EventHandler.trigger(NAME, "hide", {
+        "folder": self
+      });
+
+      return true;
     };
 
-    this.getInstalledHeight = function getInstalledHeight() {
-      var elSeparator = (Evme.$('.installed-separator', elApps) || [])[0],
-          top = elSeparator? elSeparator.getBoundingClientRect().top : 0,
-          parentTop = elSeparator? elSeparator.parentNode.getBoundingClientRect().top : 0;
+    this.isOpen = function isOpen(){
+        return currentSettings !== null;
+    };
+
+    this.setTitle = function setTitle(newTitle) {
+      title = newTitle;
       
-      return (top - parentTop);
+      elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
+        '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '>Phone</span>';
     };
 
-    this.MoreIndicator = new function MoreIndicator() {
-        var self = this,
-            el = null, elParent = null,
-            text = '';
-        
-        this.init = function init(options) {
-            elParent = options.elParent;
-            text = options.text;
-        };
-        
-        this.set = function set(hasMore) {
-            if (hasMore) {
-                elParent.classList.add('has-more');
-            } else {
-                elParent.classList.remove('has-more');
-            }
-        };
-        
-        this.show = function show() {
-            el = Evme.$create('li',
-                    {'class': "loadmore"},
-                    '<progress class="small skin-dark"></progress>' +
-                    '<b class="label" ' + Evme.Utils.l10nAttr(NAME, 'loading-more') + '></b>');
-                    
-            elParent.appendChild(el);
-            
-            elParent.classList.add("loading-more");
-        };
-        
-        this.hide = function hide() {
-            elParent.classList.remove("loading-more");
-            Evme.$remove(el);
-        };
+    this.setBackground = function setBackground(newBg) {
+      if (!currentSettings) return;
+
+      self.clearBackground();
+
+      elImage.style.backgroundImage = 'url(' + newBg.image + ')';
+
+      elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
+      el.appendChild(elImageFullscreen);
+
+      Evme.SmartFolderStorage.update(currentSettings, {bg: newBg});
+      
+      resultsManager.changeFadeOnScroll(true);
+    };
+
+    this.clearBackground = function clearBackground() {
+      el.style.backgroundImage = 'none';
+      elImage.style.backgroundImage = 'none';
+
+      Evme.$remove(elImageFullscreen);
+
+      resultsManager.changeFadeOnScroll(false);
+    };
+
+    this.showFullscreen = function showFullScreen(e) {
+      if (isFullScreenVisible) {
+        return false;
+      }
+
+      e && e.preventDefault();
+      e && e.stopPropagation();
+
+      isFullScreenVisible = true;
+      el.classList.add(CLASS_WHEN_ANIMATING);
+      window.setTimeout(function onTimeout() {
+        self.fadeImage(0);
+        el.classList.add(CLASS_WHEN_IMAGE_FULLSCREEN);
+      }, 10);
+
+      return true;
+    };
+
+    this.hideFullscreen = function hideFullscreen(e) {
+      if (!isFullScreenVisible) {
+        return false;
+      }
+
+      e && e.preventDefault();
+      e && e.stopPropagation();
+
+      isFullScreenVisible = false;
+      el.classList.add(CLASS_WHEN_ANIMATING);
+      window.setTimeout(function onTimeout() {
+        self.fadeImage(1);
+        el.classList.remove(CLASS_WHEN_IMAGE_FULLSCREEN);
+
+        window.setTimeout(function onTimeout() {
+          el.classList.remove(CLASS_WHEN_ANIMATING);
+        }, TRANSITION_DURATION);
+      }, 10);
+
+      return true;
+    };
+
+    this.fadeImage = function fadeImage(howMuch) {
+      elAppsContainer.style.opacity = howMuch;
+    };
+
+    this.getExperience = function getExperience() {
+      return currentSettings.experienceId;
     };
     
-    this.getElement = function getElement() { return el; };
-    this.getExperience = function getExperience() { return experienceId; };
-    this.getQuery = function getQuery() { return query; };
-    this.getImage = function getImage() { return image; };
+    this.getQuery = function getQuery() {
+      return currentSettings.query;
+    };
+
+    this.userSetBg = function userSetBg() {
+      return (currentSettings.bg && currentSettings.bg.setByUser);
+    }
     
-    function createElement() {
-        elScreen = Evme.$create('div', {'class': "screen smart-folder-screen"});
-        el =  Evme.$create('div', {'class': "smart-folder"},
-                    '<h2 class="title"></h2>' +
-                    '<div class="evme-apps">' +
-                        '<ul></ul>' +
-                    '</div>' +
-                    '<div class="image"><div class="image-overlay"></div></div>' +
-                    '<b class="close"></b>');
-                
-        elTitle = Evme.$(".title", el)[0];
-        elAppsContainer = Evme.$(".evme-apps", el)[0];
-        elApps = Evme.$('ul', elAppsContainer)[0];
-        elImage = Evme.$(".image", el)[0];
-        elImageOverlay = Evme.$(".image-overlay", el)[0];
-        elClose = Evme.$('.close', el)[0];
-        
-        elClose.addEventListener("click", self.close);
-        elAppsContainer.dataset.scrollOffset = 0;
-        
-        scroll = new Scroll(elApps.parentNode, {
-            "hScroll": false,
-            "onTouchStart": onTouchStart,
-            "onTouchMove": onTouchMove,
-            "onTouchEnd": onTouchEnd,
-            "onScrollMove": onScrollMove,
-            "onScrollEnd": onScrollEndFunc
+    this.addApps = function addApps(newApps, folderSettings) {
+      if (!Array.isArray(newApps)){
+        newApps = [newApps];
+      }
+
+      var settings = folderSettings || currentSettings;
+      if (newApps && newApps.length) {
+        var allApps = settings.apps.concat(newApps);
+        setStaticApps(allApps, settings);
+      }
+    };
+
+    this.removeResult = function removeResult(data) {
+      var id = data.id; // the id of the app to remove
+      
+      Evme.SmartFolderStorage.getFoldersWithApp(id, function onAllFolders(folders){
+        var newApps = currentSettings.apps.filter(function filterApp(app) {
+          return app.id !== id;
         });
-    }
-    
-    function onTouchStart(data) {
-        var y = scroll.y;
-        
-        elAppsContainer.dataset.scrollOffset = y;
-        shouldFadeImage = (y === 0);
-        fadeBy = 1;
-        reportedScrollMove = false;
-    }
-    
-    function onTouchMove(data) {
-        var y = scroll.y,
-            newFadeBy;
 
-        if (shouldFadeImage) {
-            // fade amount (opacity) is calculated as a percent of the amount the user scrolled
-            // out of a maximum we want the swipe-to-fade to be.
-            // so if we say MAX_SCROLL_FADE=100, and the user scrolled for 100px,
-            // we should fade everything to 0.5.
-            newFadeBy = 1 - Math.min(Math.max(scroll.distY, 0), MAX_SCROLL_FADE)/MAX_SCROLL_FADE;
-            
-            // if the user started swiping in the other direction- immediately show the UI fully opaque
-            if (newFadeBy > fadeBy) {
-                newFadeBy = 1;
-                shouldFadeImage = false;
-            }
-            
-            fadeBy = newFadeBy;
-            self.fadeImage(fadeBy);
+        if (newApps.length < currentSettings.apps.length) {
+          // remove the app
+          setStaticApps(newApps);
+
+          // if not in other folders, put app back on the homescreen
+          if (folders.length === 1) {
+            EvmeManager.unhideFromGrid(id);
+          }
         }
-    }
+
+      });
+    };
+
+    this.toggleEditMode = function toggleEditMode(bool) {
+      if (self.editMode === bool) {
+        return false;
+      }
+
+      self.editMode = bool;
+      if (bool) {
+        el.dataset.mode = 'edit';
+        document.addEventListener('mozvisibilitychange', onVisibilityChange);
+      } else {
+        delete el.dataset.mode;
+        document.removeEventListener('mozvisibilitychange', onVisibilityChange);
+      }
+
+      return true;
+    };
     
-    function onScrollMove(data) {
-        var y = scroll.y;
-        
-        if (!reportedScrollMove && scroll.maxY - y <= SCROLL_BOTTOM_THRESHOLD) {
-            reportedScrollMove = true;
-            optionsOnScrollEnd && optionsOnScrollEnd(self);
-        }
-    }
-    
-    function onTouchEnd() {
-        elAppsContainer.dataset.scrollOffset = scroll.y;
-        
-        if (shouldFadeImage && scroll.distY >= FULLSCREEN_THRESHOLD*MAX_SCROLL_FADE) {
-            self.showFullscreen();
-        } else {
-            self.hideFullscreen();
-        }
+    function onVisibilityChange() {
+      if (document.mozHidden) {
+        self.toggleEditMode(false);
+      }
     }
 
-    function onScrollEndFunc() {
-        elAppsContainer.dataset.scrollOffset = scroll.y;
+    /**
+     * Get the icons of first three *visible* results
+     */
+    function updateIcons(folderSettings){
+      if (!folderSettings) return;
+
+      var icons = [],
+        items = Evme.$("li", el);
+      
+      for (var i = 0, item; item = items[i++];) {
+        if (Evme.$isVisible(item)) icons.push(item.dataset.iconSrc);
+
+        if (icons.length === NUM_APPS_IN_FOLDER_ICON) break;
+      }
+
+      // we may get 0 icons (no connection)
+      if (icons.length){
+        Evme.SmartFolderStorage.update(folderSettings, {'icons': icons});
+        addFolderToHomescreen(folderSettings);
+      }
+    };
+
+    function setStaticApps(apps, folderSettings) {
+      var settings = folderSettings || currentSettings,
+        uniqueApps = Evme.Utils.unique(apps, 'id'),
+        icons = mergeAppIcons(apps, settings.icons);
+
+      Evme.SmartFolderStorage.update(settings, {"apps": uniqueApps, "icons": icons}, function onUpdate(updatedSettings){
+        resultsManager.renderStaticApps(updatedSettings.apps);
+        addFolderToHomescreen(updatedSettings);
+      });
+    }
+
+    function folderActionClick(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      switch (this.dataset.action) {
+        case "addApp":
+          Evme.EventHandler.trigger(NAME, "actionAddApp", {
+            "staticApps": currentSettings.apps
+          });
+          break;
+
+        case "rename":
+          var newTitle = prompt("Rename Smart Folder", title);
+          if (newTitle && newTitle !== title) {
+            Evme.SmartFolderStorage.update(currentSettings, {
+              "experienceId": null,
+              "query": newTitle,
+              "name": newTitle
+            }, function onUpdate(updatedSettings) {
+              self.setTitle(newTitle);
+              addFolderToHomescreen(updatedSettings);
+              Evme.EventHandler.trigger(NAME, "rename", {
+                "id": currentSettings.id,
+                "newName": newTitle
+              });
+            });
+          }
+          break;
+
+      }
+      elFolderActions.classList.remove('show');
+    }
+
+    function initPreinstalled() {
+      var cacheKey = 'createdInitialShortcuts';
+
+      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
+        if (didInitShortcuts) {
+          return;
+        }
+
+        var defaultShortcuts = Evme.__config['_localShortcuts'],
+          defaultIcons = Evme.__config['_localShortcutsIcons'];
+
+        for (var i = 0; i < defaultShortcuts.length; i++) {
+          var shortcut = defaultShortcuts[i],
+            gridPosition = {
+              "page": (i < NUM_FOLDERS_FIRST_PAGE) ? 0 : 1,
+              "index": (i < NUM_FOLDERS_FIRST_PAGE) ? i : (i % NUM_FOLDERS_FIRST_PAGE)
+            };
+
+          var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
+            return Evme.Utils.formatImageData(defaultIcons[appId]);
+          });
+
+          (function initFolder(experienceId, shortcutIcons, gridPosition) {
+            Evme.Utils.getRoundIcons({"sources": shortcutIcons }, function onRoundIcons(roundIcons) {
+              createPreinstalledFolder(experienceId, roundIcons, gridPosition);
+            });
+          })(shortcut.experienceId, shortcutIcons, gridPosition);
+        }
+
+        Evme.Storage.set(cacheKey, true);
+      });
+
+      // create the icon, create the folder, add it to homescreen
+      function createPreinstalledFolder(experienceId, icons, position) {
+        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+          query = Evme.Utils.l10n('shortcut', l10nkey);
+
+        var apps = Evme.InstalledAppsService.getMatchingApps({
+          'query': query
+        });
+
+        icons = mergeAppIcons(apps, icons);
+
+        var folderSettings = new Evme.SmartFolderSettings({
+          id: Evme.Utils.uuid(),
+          experienceId: experienceId,
+          query: query,
+          icons: icons,
+          apps: apps
+        });
+
+        saveFolderSettings(folderSettings, function onSettingsSaved(folderSettings) {
+          addFolderToHomescreen(folderSettings, position);
+          populateFolder(folderSettings);
+        });
+      };
+    }
+  };
+
+
+  /**
+   * The data required for displaying a folder
+   * @param {Object} args
+   */
+  Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
+    this.id = args.id;
+    this.name = args.name || args.query;
+    this.bg = args.bg || null;  // object containing backgound information (image, query, source, setByUser)
+    
+    // folder performs search by query or by experience
+    this.query = args.query || args.name;
+    this.experienceId = args.experienceId;
+    
+    this.apps = args.apps || [];
+    this.icons = args.icons || [];
+  };
+
+  /**
+   * Create a settings object from a query
+   * @param  {String}   query
+   * @param  {Object}   extra
+   * @param  {Function} cb
+   */
+  Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb) {
+    if (extra instanceof Function) {
+      (cb = extra) && (extra = {});
+    };
+
+    var installedApps = Evme.InstalledAppsService.getMatchingApps({
+      'query': query
+    });
+
+    var installedIcons = Evme.Utils.pluck(installedApps, 'icon');
+
+    var folderSettings = new Evme.SmartFolderSettings({
+      id: Evme.Utils.uuid(),
+      query: query,
+      icons: installedIcons.concat(extra.icons || []),
+      apps: installedApps
+    });
+
+    saveFolderSettings(folderSettings, cb);
+  };
+
+  /**
+   * Create a settings object from 2 apps.
+   * @param  {Object}   sourceApp - the app being dragged
+   * @param  {Object}   targetApp - the app being dropped on
+   * @param  {Object}   extra
+   * @param  {Function} cb
+   */
+  Evme.SmartFolderSettings.createByAppPair = function createByAppPair(sourceApp, targetApp, extra, cb) {
+    if (extra instanceof Function) {
+      (cb = extra) && (extra = {});
+    };
+
+    var folderId = Evme.Utils.uuid(),
+      folderName,
+      folderApps,
+      folderSettings,
+
+      queriesA = Evme.InstalledAppsService.getMatchingQueries(sourceApp.id),
+      queriesB = Evme.InstalledAppsService.getMatchingQueries(targetApp.id);
+
+    // find a suitable name for the folder
+    if (queriesA.length && queriesB.length) {
+      // search for a common query
+      for (var i = 0, q; q = queriesA[i++]; ) {
+        if (queriesB.indexOf(q) > -1) {
+          folderName = q;
+          break;
+        }
+      }
+    } 
+
+    if (folderName === undefined) {
+      folderName = queriesA[0] || queriesB[0] || sourceApp.name || targetApp.name || "New Folder";
+    }
+
+    folderApps = Evme.InstalledAppsService.getMatchingApps({
+      'query': folderName
+    });
+
+    folderApps.unshift(targetApp);
+    folderApps.unshift(sourceApp);
+    
+    folderApps = Evme.Utils.unique(folderApps, 'id');
+
+    folderSettings = new Evme.SmartFolderSettings({
+      id: folderId,
+      name: folderName,
+      apps: folderApps,
+      icons: Evme.Utils.pluck(folderApps, 'icon')
+    });
+    
+    saveFolderSettings(folderSettings, cb);
+  };
+
+  Evme.SmartFolderSettings.updateAll = function updateAll(){
+    var folderIds = Evme.SmartFolderStorage.getAllIds();
+
+    for (var i = 0, id; id = folderIds[i++];) {
+      Evme.SmartFolderStorage.get(id, populateFolder);
+    }
+  }
+
+  function saveFolderSettings(folderSettings, cb) {
+    // save folder settings in storage and run callback async.
+    Evme.SmartFolderStorage.add(folderSettings, function onFolderStored() {
+      cb && cb(folderSettings);
+    });
+  }
+
+  function populateFolder(folderSettings){ 
+    var existingIds = Evme.Utils.pluck(folderSettings.apps, 'id');
+
+    var newApps = Evme.InstalledAppsService.getMatchingApps({
+      'query': folderSettings.query
+    });
+
+    newApps = newApps.filter(function isNew(app) {
+      return existingIds.indexOf(app.id) === -1
+    })
+
+    if (!newApps.length) return;
+
+    var folderApps = folderSettings.apps.concat(newApps),
+      icons = mergeAppIcons(folderApps, folderSettings.icons);
+    
+    Evme.SmartFolderStorage.update(folderSettings, {"apps": folderApps, "icons": icons}, addFolderToHomescreen);
+  };
+
+  /**
+   * Add a new folder to the homescreen.
+   * If folder exists will update the icon.
+   */
+  function addFolderToHomescreen(folderSettings, gridPosition) {
+    var homescreenIcons = (folderSettings.icons.length) ?
+      folderSettings.icons : Evme.Utils.pluck(folderSettings.apps, 'icon');
+      
+    Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas){
+      EvmeManager.addBookmark({
+        "id": folderSettings.id,
+        "originUrl": 'fldr://' + folderSettings.id,
+        "title": folderSettings.name,
+        "icon": canvas.toDataURL(),
+        "isFolder": true,
+        "isEmpty": !(homescreenIcons.length),
+        "gridPosition": gridPosition
+      });
+    });
+  }
+
+  function mergeAppIcons(apps, icons) {
+    if (!apps || !apps.length) return icons;
+    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, NUM_APPS_IN_FOLDER_ICON);
+  }
+
+
+  /**
+   * SmartFolderStorage
+   * Persists settings to local storage
+   */
+  Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
+    var NAME = "SmartFolderStorage",
+      IDS_STORAGE_KEY = "evmeSmartFolders",
+      PREFIX = "fldrsttngs_",
+      self = this,
+      ids = null,
+      locked = false;  // locks the ids list
+
+    this.init = function init() {
+      Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds){
+        ids = storedIds || [];
+      });
+
+      window.addEventListener('folderUninstalled', this.remove);
+    };
+
+    this.remove = function remove(e) {
+      var rmFolderId = e.detail.folder.id;
+
+      // for apps only in the removed folder - add back to homescreen
+      self.getAllFolders(function onFolders(folders) {
+        var idsRemoved = [], // ids of apps in the removed folder
+          appFolderCount = {}; // mapping app_id -> number of folders it appears in
+
+        for (var i = 0, folder; folder = folders[i++];) {
+          for (var j = 0, app; app = folder.apps[j++];) {
+            appFolderCount[app.id] = appFolderCount[app.id] ? (appFolderCount[app.id] + 1) : 1;
+          }
+
+          if (folder.id === rmFolderId) {
+            idsRemoved = Evme.Utils.pluck(folder.apps, 'id');
+          }
+        }
+
+        for (var i = 0, id; id = idsRemoved[i++];) {
+          if (appFolderCount[id] === 1) {
+            EvmeManager.unhideFromGrid(id);
+          }
+        }
+
+        // delete reference to removed folder
+        removeId(rmFolderId);
+      });
+
     }
     
-    self.init(_options);
-};
+    this.add = function add(folderSettings, cb) {
+      if (!folderSettings.id) return;
+      
+      Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
+        addId(folderSettings.id);
+        cb instanceof Function && cb(folderSettings);
+      });
+    };
+
+    this.update = function update(folderSettings, data, cb) {
+      for (var prop in data) {
+        folderSettings[prop] = data[prop];
+      }
+      self.add(folderSettings, cb);
+    };
+
+    this.get = function get(folderSettingsId, cb) {
+      Evme.Storage.get(PREFIX + folderSettingsId, function onGet(storedSettings) {
+        if (cb && storedSettings !== null) {
+          var folderSettings = new Evme.SmartFolderSettings(storedSettings);
+          cb instanceof Function && cb(folderSettings);
+        }
+      });
+    };
+
+    this.getAllIds = function getAllIds() {
+      return ids;
+    };
+
+    this.getAllFolders = function getAllFolders(callback) {
+      var ids = self.getAllIds(),
+          folders = [];
+
+      for (var i = 0, id; id = ids[i++];) {
+        self.get(id, onGotFolderSettings);
+      }
+
+      function onGotFolderSettings(folderSettings) {
+        folders.push(folderSettings);
+        if (folders.length === ids.length) {
+          callback(folders);
+        }
+      }
+    };
+
+    this.getFoldersWithApp = function getFoldersWithApp(appId, callback) {
+      self.getAllFolders(function onFolders(folders) {
+        callback(folders.filter(isAppInFolder));
+      });
+
+      function isAppInFolder(folder) {
+        return Evme.Utils.pluck(folder.apps, 'id').indexOf(appId) > -1;
+      }
+    }
+
+    function addId(id) {
+      if (ids && ids.indexOf(id) > -1) return;
+
+      if (ids === null || locked) {
+        setTimeout(function retry() {addId(id); }, 100);
+        return;
+      }
+
+      try {
+        lock();
+        ids.push(id);
+        Evme.Storage.set(IDS_STORAGE_KEY, ids, unlock);
+      } catch (ex) {
+        unlock();
+      }
+    }
+
+    function removeId(id) {
+      if (ids === null || locked) {
+        setTimeout(function retry() {removeId(id); }, 100);
+        return;     
+      }
+
+      try {
+        lock();
+        ids = ids.filter(function neqId(storedId) {return storedId !== id }); 
+        Evme.SmartFolderStorage.set(IDS_STORAGE_KEY, ids, function onRemoved(){
+          unlock();
+          Evme.Storage.remove(PREFIX + folderId);
+        });
+      } catch (ex) {
+        unlock();
+      }
+    }
+
+    function lock(){
+      locked = true;
+    }
+
+    function unlock(){
+      locked = false;
+    }
+  };
+ 
+}();

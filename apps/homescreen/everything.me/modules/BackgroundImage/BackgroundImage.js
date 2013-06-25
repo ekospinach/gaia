@@ -37,6 +37,8 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
                 elCurrentImage.style.backgroundImage = 'url(' + currentImage.image + ')';
                 el.appendChild(elCurrentImage);
 
+		cbUpdated(currentImage);
+
                 window.setTimeout(function onTimeout(){
                     elCurrentImage.classList.add("visible");
 
@@ -45,8 +47,6 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
                     }, 300);
                 }, 10);
             }
-
-            cbUpdated(currentImage);
         }
     };
 
@@ -204,6 +204,8 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
             elRemove.classList.remove("visible");
             currentImage = {};
 
+	    cbRemoved();
+
             window.setTimeout(function onTimeout(){
                 Evme.$remove(elRemove);
             }, TIMEOUT_BEFORE_REMOVING_OLD_IMAGE);
@@ -218,6 +220,10 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
         Evme.EventHandler.trigger(NAME, "updated", {
             "image": image
         });
+    }
+
+    function cbRemoved() {
+	Evme.EventHandler.trigger(NAME, "removed");
     }
 
     function cbLoaded() {
