@@ -16,7 +16,8 @@
     "storage":{},
     "geolocation": {},
     "alarms": {},
-    "power":{}
+    "power":{},
+    "contacts":{ "access": "readonly" }
   },
   "locales": {
     "ar": {
@@ -50,6 +51,12 @@
       "disposition": "inline",
       "href": "/save-bookmark.html",
       "returnValue": true
+    },
+    "smartfolder": {
+      "filters": {
+        "type": "url",
+        "url": { "required":true, "regexp":"/^fldr:/" }
+      }
     }
   },
   "messages": [

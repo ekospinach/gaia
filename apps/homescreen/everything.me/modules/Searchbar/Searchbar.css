@@ -3,10 +3,6 @@
     z-index: 50;
     min-height: 8rem;
 }
-#evmeContainer:not(.empty-query) #header,
-#evmeContainer.keyboard-visible #header {
-    background: rgba(0, 0, 0, .3);
-}
 #evmeContainer #search-header {
     position: absolute;
     top: 0;
@@ -26,18 +22,18 @@
         height: 2.8rem;
         line-height: 3rem;
     }
-    #evmeContainer.empty-query:not(.keyboard-visible) #search-rapper {
+    body:not(.evme-keyboard-visible) #evmeContainer.empty-query #search-rapper {
         transform: translate3d(0, 2.3rem, 0);
         height: 3.6rem;
         line-height: 3.6rem;
         left: 0.5rem;
         right: 0.5rem;
     }
-    #evmeContainer.empty-query:not(.keyboard-visible) #search-q {
+    body:not(.evme-keyboard-visible) #evmeContainer.empty-query #search-q {
         height: 3.6rem;
         line-height: 3.6rem;
     }
-    #evmeContainer.empty-query:not(.keyboard-visible) #search-q-bg {
+    body:not(.evme-keyboard-visible) #evmeContainer.empty-query #search-q-bg {
         background-position: 98% 1.1rem;
     }
     

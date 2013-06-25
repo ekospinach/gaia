@@ -2,17 +2,17 @@
 'use strict';
 
 var Configurator = (function() {
-  var conf = {};
+  var conf = {},
 
-  var dummyProvider = {
-    init: function() {
-      // Do nothing
-    },
+      dummyProvider = {
+        init: function() {
+          // Do nothing
+        },
 
-    destroy: function() {
-      // Do nothing
-    }
-  };
+        destroy: function() {
+          // Do nothing
+        }
+      };
 
   function load(file) {
     var xhr = new XMLHttpRequest();
@@ -28,15 +28,18 @@ var Configurator = (function() {
         if (searchPage) {
           var provider = window[searchPage.provider] || dummyProvider;
           if (searchPage.enabled) {
-            provider.init();
-            Homescreen.init(1);
+            Homescreen.init(0, function onInit() {
+              provider.init();
+            });
           } else {
             startHomescreenByDefault();
             setTimeout(provider.destroy, 0);
           }
         }
       } catch (e) {
-        conf = {};
+        // TODOEVME: setting this to en empty object causes error in the homescreen init
+        // need to understand why it's done in the first place
+        //conf = {};
         console.error('Failed parsing homescreen configuration file: ' + e);
         startHomescreenByDefault();
       }

@@ -4,9 +4,19 @@ Evme.Utils = new function Evme_Utils() {
         newUser = false, isTouch = false,
         parsedQuery = parseQuery(),
         elContainer = null,
+        headEl = document.querySelector('html>head'),
+        filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
         
         CONTAINER_ID = "evmeContainer",
         COOKIE_NAME_CREDENTIALS = "credentials",
+        
+        CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
+
+        // all the installed apps (installed, clouds, marketplace) should be the same size
+        // however when creating icons in the same size there's still a noticable difference
+        // this is because the OS' native icons have a transparent padding around them
+        // so to make our icons look the same we add this padding artificially
+        INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
         
         OSMessages = this.OSMessages = {
             "APP_CLICK": "open-in-app",
@@ -17,23 +27,43 @@ Evme.Utils = new function Evme_Utils() {
             "HIDE_MENU": "hide-menu",
             "MENU_HEIGHT": "menu-height",
             "GET_ALL_APPS": "get-all-apps",
-            "GET_APP_ICON": "get-app-icon",
-            "GET_APP_NAME": "get-app-name"
+            "GET_SMART_FOLDERS": "get-folders",
+      	    "GET_APP_INFO": "get-app-info",
+      	    "GET_ICON_SIZE": "get-icon-size",
+      	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
+            "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search",
+            "HIDE_APP_FROM_GRID": "hide-from-grid"
         };
-    
-    
+
+    this.PIXEL_RATIO_NAMES = {
+    	NORMAL: 'normal',
+    	HIGH: 'high'
+    };
+
+    this.ICONS_FORMATS = {
+    	"Small": 10,
+    	"Large": 20
+    };
+
+    this.REGEXP = {
+        URL: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
+    };
+
     this.devicePixelRatio =  window.innerWidth / 320;
 
     this.isKeyboardVisible = false;
 
     this.EMPTY_IMAGE = "../../images/empty.gif";
 
+    this.EMPTY_APPS_SIGNATURE = '';
+
     this.APPS_FONT_SIZE = 13 * self.devicePixelRatio;
 
-    this.ICONS_FORMATS = {
-        "Small": 10,
-        "Large": 20
-    };
+    this.PIXEL_RATIO_NAME = (this.devicePixelRatio > 1) ? this.PIXEL_RATIO_NAMES.HIGH : this.PIXEL_RATIO_NAMES.NORMAL;
+
+    this.NOOP = function(){};
+
+    this.currentResultsManager = null;
     
     this.init = function init() {
         userAgent = navigator.userAgent;
@@ -43,23 +73,80 @@ Evme.Utils = new function Evme_Utils() {
         
         elContainer = document.getElementById(CONTAINER_ID);
     };
-    
-    this.log = function log(message) {
-        var t = new Date(),
-            h = t.getHours(),
-            m = t.getMinutes(),
-            s = t.getSeconds(),
-            ms = t.getMilliseconds();
-        
-        h < 10 && (h = '0' + h);
-        m < 10 && (m = '0' + m);
-        s < 10 && (s = '0' + s);
-        ms < 10 && (ms = '00' + ms) ||
-        ms < 100 && (ms = '0' + ms);
-        
-        console.log("[%s EVME]: %s", [h, m, s, ms].join(':'), message);
+
+    this.logger = function logger(level) {
+        return function Evme_logger() {
+            var t = new Date(),
+                h = t.getHours(),
+                m = t.getMinutes(),
+                s = t.getSeconds(),
+                ms = t.getMilliseconds();
+
+            h < 10 && (h = '0' + h);
+            m < 10 && (m = '0' + m);
+            s < 10 && (s = '0' + s);
+            ms < 10 && (ms = '00' + ms) ||
+                ms < 100 && (ms = '0' + ms);
+
+            console[level]("[%s EVME]: %s", [h, m, s, ms].join(':'), Array.prototype.slice.call(arguments));
+        }
     };
-    
+
+    this.log = this.logger("log");
+    this.warn = this.logger("warn");
+    this.error = this.logger("error");
+
+    /**
+     * Creates a <style> element which basically does result deduping
+     * by applying a css rule {display:none} to certain results
+     * This is to avoid complex JS deduping
+     * @param  {JSON object} cfg
+     *
+     * @example
+     * Cloud results should be hidden if already bookmarked
+     * Installed results call filterProviderResults with the following cfg:
+     * {
+     *  id: 'installed',
+     *  containerSelector: '.installed',
+     *  attribute: 'data-url',
+     *  items: [url1, url2]
+     * }
+     * filterProviderResults creates the following element in <head>
+     * <style>ul:not(.installed) li[data-url="url1"], ul:not(.installed) li[data-url="url2"] {
+     *  display: none
+     * }
+     * </style>
+     *
+     * More uses can be found in InstalledAppService for marketplace result deduping
+     */
+    this.filterProviderResults = function filterProviderResults(cfg) {
+        var styleEl = document.querySelector('style[id="'+cfg.id+'"]'),
+            html = '';
+
+        if (!styleEl) {
+            styleEl = Evme.$create('style', { "id": cfg.id });
+            headEl.appendChild(styleEl);
+        }
+
+        if (cfg.items && cfg.items.length) {
+            var selectors = [];
+            for (var i=0,item; item=cfg.items[i++];) {
+                selectors.push(
+                    self.renderTemplate(filterSelectorTemplate, cfg.containerSelector, cfg.attribute, item)
+                );
+            }
+            html = selectors.join(',')+'{display:none}';
+        }
+        styleEl.innerHTML = html;
+    };
+
+    this.renderTemplate = function renderTemplate(template) {
+        for (var i=0,arg; arg=arguments[++i];) {
+            template = template.replace('{'+(i-1)+'}', arg);
+        }
+        return template;
+    };
+
     this.l10n = function l10n(module, key, args) {
         return navigator.mozL10n.get(Evme.Utils.l10nKey(module, key), args);
     };
@@ -103,11 +190,9 @@ Evme.Utils = new function Evme_Utils() {
     this.sendToOS = function sendToOS(type, data) {
         switch (type) {
             case OSMessages.APP_CLICK:
-                EvmeManager.openApp(data);
-                break;
+                return EvmeManager.openApp(data);
             case OSMessages.APP_INSTALL:
-                EvmeManager.addBookmark(data);
-                break;
+                return EvmeManager.addBookmark(data);
             case OSMessages.IS_APP_INSTALLED:
                 return EvmeManager.isAppInstalled(data.url);
             case OSMessages.OPEN_URL:
@@ -120,12 +205,18 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
-            case OSMessages.GET_APP_ICON:
-                return EvmeManager.getAppIcon(data);
-            case OSMessages.GET_APP_NAME:
-                return EvmeManager.getAppName(data);
+            case OSMessages.GET_SMART_FOLDERS:
+                return EvmeManager.getFolders();
+      	    case OSMessages.GET_APP_INFO:
+                return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
+            case OSMessages.OPEN_MARKETPLACE_APP:
+                return EvmeManager.openMarketplaceApp(data);
+            case OSMessages.OPEN_MARKETPLACE_SEARCH:
+                return EvmeManager.openMarketplaceSearch(data);
+            case OSMessages.HIDE_APP_FROM_GRID:
+                return EvmeManager.hideFromGrid(data);
         }
     };
 
@@ -177,9 +268,10 @@ Evme.Utils = new function Evme_Utils() {
       return arrayOrigin;
     };
 
-    this.getRoundIcon = function getRoundIcon(imageSrc, callback) {
+    this.getRoundIcon = function getRoundIcon(options, callback) {
         var size = self.sendToOS(self.OSMessages.GET_ICON_SIZE) - 2,
-            radius = size/2,
+            padding = options.padding ? INSTALLED_CLOUDS_APPS_ICONS_PADDING : 0,
+            actualIconSize = size - padding*2,
             img = new Image();
         
         img.onload = function() {
@@ -190,16 +282,31 @@ Evme.Utils = new function Evme_Utils() {
             canvas.height = size;
             
             ctx.beginPath();
-            ctx.arc(radius, radius, radius, 0, 2 * Math.PI, false);
+            ctx.arc(size/2, size/2, actualIconSize/2, 2 * Math.PI, false);
             ctx.clip();
             
-            ctx.drawImage(img, 0, 0, size, size);
+            ctx.drawImage(img, padding, padding, actualIconSize, actualIconSize);
             
             callback(canvas.toDataURL());
         };
-        img.src = imageSrc;
+        img.src = options.src;
     };
     
+    this.getRoundIcons = function getRoundIcons(options, callback) {
+        var sources = options.sources,
+            rounded = [];
+        
+        for (var i = 0, src; src = sources[i++];) {
+            Evme.Utils.getRoundIcon({"src": src}, function onRoundIcon(icon){
+                rounded.push(icon);
+                
+                if (rounded.length === sources.length) {
+                    callback(rounded);
+                }
+            });
+        };
+    };
+
     this.writeTextToCanvas = function writeTextToCanvas(options) {
       var context = options.context,
           text = options.text.split(' '),
@@ -209,12 +316,14 @@ Evme.Utils = new function Evme_Utils() {
           textToDraw = [],
 
           WIDTH = context.canvas.width,
-          FONT_SIZE = self.APPS_FONT_SIZE,
+          FONT_SIZE = options.fontSize || self.APPS_FONT_SIZE,
           LINE_HEIGHT = FONT_SIZE + 1 * self.devicePixelRatio;
 
       if (!context || !text) {
         return false;
       }
+
+      context.save();
 
       context.textAlign = 'center';
       context.textBaseline = 'top';
@@ -223,7 +332,7 @@ Evme.Utils = new function Evme_Utils() {
       context.shadowOffsetY = 1;
       context.shadowBlur = 3;
       context.shadowColor = 'rgba(0, 0, 0, 0.6)';
-      context.font = '300 ' + FONT_SIZE + 'px Feura Sans';
+      context.font = '400 ' + FONT_SIZE + 'px Feura Sans';
 
       for (var i=0,word; word=text[i++];) {
         // add 1 to the word with because of the space between words
@@ -269,9 +378,11 @@ Evme.Utils = new function Evme_Utils() {
           
           text += '…';
         }
-        
+
         context.fillText(text, x, y);
       }
+
+      context.restore();
 
       return true;
     };
@@ -289,18 +400,37 @@ Evme.Utils = new function Evme_Utils() {
         if (!image || typeof image !== "object") {
             return image;
         }
-        if (self.isBlob(image)) {
-            return self.EMPTY_IMAGE;
+	if (image.MIMEType === "image/url") {
+	    return image.data;
         }
         if (!image.MIMEType || image.data.length < 10) {
             return null;
         }
+	if (self.isBlob(image)) {
+	    return self.EMPTY_IMAGE;
+	}
 
         return "data:" + image.MIMEType + ";base64," + image.data;
     };
 
-    this.getIconGroup = function getIconGroup() {
-        return self.cloneObject(Evme.__config.iconsGroupSettings);
+    this.getDefaultAppIcon = function getDefaultAppIcon() {
+        return Evme.Config.design.apps.defaultMarketAppIcon[this.PIXEL_RATIO_NAME];
+    };
+
+    this.getMarketBadgeIcon = function getMarketBadgeIcon() {
+        var quality = (Evme.Utils.devicePixelRatio > 1) ? 'high' : 'normal';
+        return Evme.Config.design.apps.marketBadgeUrl[quality];
+    }
+
+    this.getEmptyFolderIcon = function getEmptyFolderIcon(){
+        return Evme.__config.emptyFolderIcon;
+    };
+
+    this.getIconGroup = function getIconGroup(numIcons) {
+        // valid values are 1,2,3
+        numIcons = Math.max(numIcons, 1);
+        numIcons = Math.min(numIcons, 3);
+        return self.cloneObject(Evme.__config.iconsGroupSettings[numIcons]);
     };
 
     this.getIconsFormat = function getIconsFormat() {
@@ -334,9 +464,9 @@ Evme.Utils = new function Evme_Utils() {
         self.isKeyboardVisible = value;
         
         if (self.isKeyboardVisible) {
-            Evme.$("#" + CONTAINER_ID).classList.add("keyboard-visible");
+            document.body.classList.add(CLASS_WHEN_KEYBOARD_IS_VISIBLE);
         } else {
-            Evme.$("#" + CONTAINER_ID).classList.remove("keyboard-visible");
+            document.body.classList.remove(CLASS_WHEN_KEYBOARD_IS_VISIBLE);
         }
     };
 
@@ -406,51 +536,17 @@ Evme.Utils = new function Evme_Utils() {
 
         return true;
     };
-    
-    this.Apps = new function Apps() {
-        var self = this;
-        
-        this.print = function print(options) {
-            var apps = options.apps,
-                numAppsOffset = options.numAppsOffset || 0,
-                isMore = options.isMore,
-                iconsFormat = options.iconsFormat,
-                elList = options.elList,
-                onDone = options.onDone,
-                hasInstalled = false,
 
-                appsList = {},
-                iconsResult = {
-                    "cached": [],
-                    "missing": []
-                };
-
-            var docFrag = document.createDocumentFragment();
-            for (var i=0,appData; appData=apps[i++];) {
-                appData.iconFormat = iconsFormat;
-
-                var app = new Evme.App(appData, numAppsOffset+i, isMore, self),
-                    id = appData.id;
-
-                docFrag.appendChild(app.draw());
-
-                appsList['' + id] = app;
-
-                if (appData.installed) {
-                    hasInstalled = true;
-                }
-            }
-
-            if (hasInstalled) {
-                options.obj && options.obj.hasInstalled(true);
-            }
-
-            elList.appendChild(docFrag);
-
-            onDone && onDone(appsList);
-
-            return iconsResult;
-        }
+    this.for = function for(items, callback) {
+    	if (items instanceof Array) {
+    	    for (var i=0,item;item=items[i++];) {
+    		callback(item);
+    	    }
+    	} else if (arr instanceof Object) {
+    	    for (var i in items) {
+    		callback(items[i]);
+    	    }
+    	}
     };
 
     this.User = new function User() {
@@ -521,6 +617,44 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.Storage.enabled();
     };
 
+    /**
+     * Escape special characters in `s` so it can be used for creating a RegExp
+     * source: http://stackoverflow.com/a/3561711/1559840
+     */
+    this.escapeRegexp = function escapeRegexp(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    };
+
+    // retrieves the value of a specified property from all elements in the `collection`.
+    this.pluck = function pluck(collection, property) {
+        if (Array.isArray(collection)) {
+            return collection.map(function(item) {
+                return item[property];
+            });
+        } else {
+            return [];
+        }
+    };
+
+    // Creates a duplicate-value-free version of the `array`
+    this.unique = function unique(array, property) {
+      // array of objects, unique by `property` of the objects
+      if (property){
+        var values = Evme.Utils.pluck(array, property);
+        return array.filter(function(item, pos) { return uniqueFilter(item[property], pos, values) } );
+      } 
+
+      // array of literals
+      else {
+        return array.filter(uniqueFilter);
+      }
+    };
+
+    function uniqueFilter(elem, pos, self) {
+        // if first appearance of `elem` is `pos` then it is unique
+        return self.indexOf(elem) === pos;
+    }
+    
     function _getIconsFormat() {
         return self.ICONS_FORMATS.Large;
     }
@@ -534,6 +668,15 @@ Evme.Utils = new function Evme_Utils() {
 
     this.getCurrentSearchQuery = function getCurrentSearchQuery(){
         return Evme.Brain.Searcher.getDisplayedQuery();
+    };
+
+    this.getAppsSignature = function getAppsSignature(apps) {
+	// prepend with number of apps for quick comparison (fail early)
+	var key = '' + apps.length;
+	for (var i=0, app; app=apps[i++];) {
+	    key += app.id + ':' + app.appUrl + ',';
+	}
+	return key || this.EMPTY_APPS_SIGNATURE;
     };
     
     var Connection = new function Connection(){
@@ -663,6 +806,10 @@ Evme.$create = function Evme_$create(tagName, attributes, html) {
     }
     
     return el;
+};
+
+Evme.$isVisible = function Evme_$isVisible(el){
+    return !!el.offsetWidth && getComputedStyle(el).visibility === "visible";
 };
 
 Evme.htmlRegex = /</g;

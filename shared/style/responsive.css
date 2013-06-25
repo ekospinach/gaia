@@ -40,13 +40,3 @@
   62.5% * 1.6875 (dppx) = ~105% (105,46875%)
 */
 
-/*Portrait*/
-@media all and (min-device-width: 540px) and (max-device-width: 720px) and (max-device-aspect-ratio: 1/1) {
-  html { font-size: 105%!important; }
-}
-
-/*Landscape*/
-@media all and (min-device-width: 960px) and (max-device-width: 1280px) and (min-device-aspect-ratio: 1/1) {
-  html { font-size: 105%!important; }
-}
-

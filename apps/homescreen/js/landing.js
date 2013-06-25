@@ -15,6 +15,11 @@ const LandingPage = (function() {
   var updateInterval = null;
   var updateTimeout = null;
 
+  // if we don't have a landing page
+  if (!page) {
+    return;
+  }
+
   page.addEventListener('gridpagehideend', function onPageHideEnd() {
     stopClock();
   });

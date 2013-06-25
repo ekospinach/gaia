@@ -1,4 +1,4 @@
-Evme.__config = {
+Evme.Config = Evme.__config = {
     "appVersion": "2.0.145",
     "apiHost": "api.everything.me",
     "apiKey": "68f36b726c1961d488b63054f30d312c",
@@ -61,43 +61,78 @@ Evme.__config = {
         }
     },
     "maxHistoryEntries": "10",
-    "iconsGroupSettings": [
-        {
-            "x": 28,
-            "y": 13,
-            "size": 33,
-            "darken": 0.5,
+    "emptyFolderIcon": "/everything.me/images/empty-folder.png",
+    "iconsGroupSettings": {
+        "1": [{
+            "x": 10,
+            "y": 6,
+            "size": 54,
             "shadowOffset": 2,
             "shadowBlur": 1,
-            "shadowOpacity": 0.2
-        },
-        {
-            "x": 22,
-            "y": 7,
-            "size": 33,
-            "darken": 0.3,
+            "shadowOpacity": 0.1
+        }],
+        "2": [{
+            "x": 20,
+            "y": 10,
+            "size": 54,
+            "darken": 0.25,
             "shadowOffset": 2,
             "shadowBlur": 2,
-            "shadowOpacity": 0.2
+            "shadowOpacity": 0.1
         },
         {
-            "x": 8,
-            "y": 3,
-            "size": 38,
+            "x": 0,
+            "y": 6,
+            "size": 54,
             "shadowOffset": 4,
             "shadowOffsetX": 2,
             "shadowBlur": 4,
-            "shadowOpacity": 0.3
-        }
-    ],
+            "shadowOpacity": 0.2
+        }],
+        "3": [{
+            "x": 26,
+            "y": 20,
+            "size": 46,
+            "darken": 0.4,
+            "shadowOffset": 2,
+            "shadowBlur": 1,
+            "shadowOpacity": 0.1
+        },
+        {
+            "x": 18,
+            "y": 10,
+            "size": 46,
+            "darken": 0.25,
+            "shadowOffset": 2,
+            "shadowBlur": 2,
+            "shadowOpacity": 0.1
+        },
+        {
+            "x": 0,
+            "y": 6,
+            "size": 54,
+            "shadowOffset": 4,
+            "shadowOffsetX": 2,
+            "shadowBlur": 4,
+            "shadowOpacity": 0.2
+        }]
+    },
     "design": {
         "apps": {
             "defaultIconUrl": {
                 "20": [
-                    "/everything.me/images/icn/default1.png?cb=1346169250",
-                    "/everything.me/images/icn/default2.png?cb=1346169250",
-                    "/everything.me/images/icn/default3.png?cb=1346169250"
+                        "/everything.me/images/icn/default1.png?cb=1346169250",
+                        "/everything.me/images/icn/default2.png?cb=1346169250",
+                        "/everything.me/images/icn/default3.png?cb=1346169250"
                 ]
+            },
+            "marketBadgeUrl": {
+                "normal": "/everything.me/images/market/badge.png",
+                "high": "/everything.me/images/market/badge@2x.png"
+            },
+            "defaultMarketAppIcon": {
+                "normal": "/style/images/default.png",
+                "high": "/style/images/default@2x.png"
             }
         }
     },
@@ -155,6 +190,8 @@ Evme.__config = {
         "306": "travel",
         "213": "tv",
         "211": "video",
-        "249": "weather"
+        "249": "weather",
+        "357": "utilities",
+        "349": "photography"
     }
 };

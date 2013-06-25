@@ -5,12 +5,12 @@
 
 var ContextMenu = {
   init: function cm_init() {
-    window.addEventListener('mozbrowsercontextmenu', this, true);
+    //window.addEventListener('mozbrowsercontextmenu', this, true);
   },
 
   handleEvent: function cm_handleEvent(evt) {
     var detail = evt.detail;
-    if (detail.contextmenu.items.length == 0)
+    if (!(detail && detail.contextmenu && detail.contextmenu.items || []).length == 0)
       return;
 
     var onsuccess = function(action) {
