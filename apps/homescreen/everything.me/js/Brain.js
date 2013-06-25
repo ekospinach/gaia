@@ -670,14 +670,14 @@ Evme.Brain = new function Evme_Brain() {
 
     // modules/Results/ResultManager instance
     this.SmartfolderResults = new function SmartfolderResults() {
-	// propogate events to SmartFolder
-	// TODO: this is temporary.
-	this.scrollTop = function scrollTop() {
-	    Evme.EventHandler.trigger("SmartFolder", "scrollTop");
+        // propogate events to SmartFolder
+        // TODO: this is temporary.
+        this.scrollTop = function scrollTop() {
+            Evme.EventHandler.trigger("SmartFolder", "scrollTop");
         };
-        
-	this.scrollBottom = function scrollBottom() {
-	    Evme.EventHandler.trigger("SmartFolder", "scrollBottom");
+
+        this.scrollBottom = function scrollBottom() {
+            Evme.EventHandler.trigger("SmartFolder", "scrollBottom");
         };
     }
 
@@ -937,15 +937,15 @@ Evme.Brain = new function Evme_Brain() {
             requestSmartFolderApps = null,
             requestSmartFolderImage = null,
             timeoutShowAppsLoading = null;
-        
+
         // a folder is shown
         this.show = function show(data) {
             elContainer.classList.add("smart-folder-visible");
 
             currentFolder = data.folder;
-	    window.setTimeout(loadAppsIntoFolder, 400);
+            window.setTimeout(loadAppsIntoFolder, 400);
 
-	    currentResultsManager = Evme.SmartfolderResults;
+            currentResultsManager = Evme.SmartfolderResults;
         };
 
         // hiding the folder
@@ -954,7 +954,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Brain.SmartFolder.cancelRequests();
             Evme.ConnectionMessage.hide();
 
-	    currentResultsManager = Evme.SearchResults;
+            currentResultsManager = Evme.SearchResults;
         };
 
         // close button was clicked
@@ -971,7 +971,7 @@ Evme.Brain = new function Evme_Brain() {
         this.closeCurrent = function closeCurrent() {
             currentFolder && currentFolder.close();
         };
-        
+
         // if a folder is open- close it
         this.hideIfOpen = function hideIfOpen() {
             if (self.get()) {
@@ -981,23 +981,24 @@ Evme.Brain = new function Evme_Brain() {
 
             return false;
         };
-        
+
         // cancel the current outgoing smart folder requests
         this.cancelRequests = function cancelRequests() {
-	    Evme.SmartfolderResults.APIData.onRequestCanceled();
+            Evme.SmartfolderResults.APIData.onRequestCanceled();
             requestSmartFolderApps && requestSmartFolderApps.abort && requestSmartFolderApps.abort();
             requestSmartFolderImage && requestSmartFolderImage.abort && requestSmartFolderImage.abort();
         };
-        
+
         // load the folder's background image
-	function loadBGImage() {
+
+        function loadBGImage() {
             if (!currentFolder) return;
-            
+
             var experienceId = currentFolder.getExperience(),
                 query = currentFolder.getQuery();
-            
+
             requestSmartFolderImage = Evme.DoATAPI.bgimage({
-                "query": experienceId? '' : query,
+                "query": experienceId ? '' : query,
                 "experienceId": experienceId,
                 "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
                 "exact": true,
@@ -1009,76 +1010,29 @@ Evme.Brain = new function Evme_Brain() {
                     "query": query,
                     "source": data.response.source
                 });
-                
+
                 requestSmartFolderImage = null;
             });
         };
-        
+
         // start the smart folder apps loading process
-	function loadAppsIntoFolder() {
+
+        function loadAppsIntoFolder() {
             if (!currentFolder) return;
-            
-            var experienceId = currentFolder.getExperience(),
-                query = currentFolder.getQuery(),
-		iconsFormat = Evme.Utils.getIconsFormat();
-
-            currentFolder.appsPaging = {
-              "offset": 0,
-              "limit": NUMBER_OF_APPS_TO_LOAD_IN_FOLDER
-            };
-
-	    Evme.SmartfolderResults.APIData.onRequestSent();
-
-	    requestSmartFolderApps = Evme.DoATAPI.search({
-		"query": experienceId? '' : query,
-		"experienceId": experienceId,
-		"feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
-		"exact": true,
-		"spellcheck": false,
-		"suggest": false,
-		"limit": currentFolder.appsPaging.limit,
-		"first": currentFolder.appsPaging.offset,
-		"iconFormat": iconsFormat
-	    }, function onSuccess(data) {
-		Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
-
-		updateShortcutIcons(experienceId || query, data.response.apps);
-
-		requestSmartFolderApps = null;
-
-		Evme.Location.updateIfNeeded();
-            });
-            
-	    loadBGImage();
-	};
-
-	// app list has scrolled to top
-	this.scrollTop = function scrollTop() {
-	    currentFolder.showFullscreen();
-
-	    // TODO: FIXME This is temporary.
-	    // BackgroundImage should be an instance used in parallel to ResultsManager
-	    Evme.BackgroundImage.cancelFullScreenFade();
-        };
-
-        // load more apps in smartfolder
-	this.scrollBottom = function scrollBottom() {
-            if (!currentFolder) return;
-
-            currentFolder.appsPaging.offset += currentFolder.appsPaging.limit;
-
-            if (requestSmartFolderApps) {
-                return;
-            }
-
-	    Evme.SmartfolderResults.APIData.onRequestSent();
 
             var experienceId = currentFolder.getExperience(),
                 query = currentFolder.getQuery(),
                 iconsFormat = Evme.Utils.getIconsFormat();
 
+            currentFolder.appsPaging = {
+                "offset": 0,
+                "limit": NUMBER_OF_APPS_TO_LOAD_IN_FOLDER
+            };
+
+            Evme.SmartfolderResults.APIData.onRequestSent();
+
             requestSmartFolderApps = Evme.DoATAPI.search({
-                "query": experienceId? '' : query,
+                "query": experienceId ? '' : query,
                 "experienceId": experienceId,
                 "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
                 "exact": true,
@@ -1088,35 +1042,83 @@ Evme.Brain = new function Evme_Brain() {
                 "first": currentFolder.appsPaging.offset,
                 "iconFormat": iconsFormat
             }, function onSuccess(data) {
-		Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
+                Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
+
+                updateShortcutIcons(experienceId || query, data.response.apps);
+
+                requestSmartFolderApps = null;
+
+                Evme.Location.updateIfNeeded();
+            });
+
+            loadBGImage();
+        };
+
+        // app list has scrolled to top
+        this.scrollTop = function scrollTop() {
+            currentFolder.showFullscreen();
+
+            // TODO: FIXME This is temporary.
+            // BackgroundImage should be an instance used in parallel to ResultsManager
+            Evme.BackgroundImage.cancelFullScreenFade();
+        };
+
+        // load more apps in smartfolder
+        this.scrollBottom = function scrollBottom() {
+            if (!currentFolder) return;
+
+            currentFolder.appsPaging.offset += currentFolder.appsPaging.limit;
+
+            if (requestSmartFolderApps) {
+                return;
+            }
+
+            Evme.SmartfolderResults.APIData.onRequestSent();
+
+            var experienceId = currentFolder.getExperience(),
+                query = currentFolder.getQuery(),
+                iconsFormat = Evme.Utils.getIconsFormat();
+
+            requestSmartFolderApps = Evme.DoATAPI.search({
+                "query": experienceId ? '' : query,
+                "experienceId": experienceId,
+                "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
+                "exact": true,
+                "spellcheck": false,
+                "suggest": false,
+                "limit": currentFolder.appsPaging.limit,
+                "first": currentFolder.appsPaging.offset,
+                "iconFormat": iconsFormat
+            }, function onSuccess(data) {
+                Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
 
                 requestSmartFolderApps = null;
             });
         };
-        
-        function updateShortcutIcons(key, apps) {
-          var shortcutsToUpdate = {},
-              icons = {},
-              numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
-              
-          shortcutsToUpdate[key] = [];
-          for (var i=0,app; i<numberOfIconsInShortcut; i++) {
-            app = apps[i];
-            icons[app.id] = app.icon;
-            shortcutsToUpdate[key].push(app.id);
-          }
 
-          Evme.DoATAPI.Shortcuts.update({
-            "shortcuts": shortcutsToUpdate,
-            "icons": icons
-          }, function onShortcutsUpdated() {
-            for (var key in shortcutsToUpdate) {
-              var shortcut = Evme.Shortcuts.getShortcutByKey(key);
-              if (shortcut) {
-                shortcut.setImage(shortcutsToUpdate[key]);
-              }
+        function updateShortcutIcons(key, apps) {
+            var shortcutsToUpdate = {},
+                icons = {},
+                numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
+
+            shortcutsToUpdate[key] = [];
+            for (var i = 0, app; i < numberOfIconsInShortcut; i++) {
+                app = apps[i];
+                icons[app.id] = app.icon;
+                shortcutsToUpdate[key].push(app.id);
             }
-          });
+
+            Evme.DoATAPI.Shortcuts.update({
+                "shortcuts": shortcutsToUpdate,
+                "icons": icons
+            }, function onShortcutsUpdated() {
+                for (var key in shortcutsToUpdate) {
+                    var shortcut = Evme.Shortcuts.getShortcutByKey(key);
+                    if (shortcut) {
+                        shortcut.setImage(shortcutsToUpdate[key]);
+                    }
+                }
+            });
         }
     };
 
