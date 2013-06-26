@@ -65,17 +65,17 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
   function renderCanvas(options) {
     var apps = options.apps,
-      icons = options.icons,
-      query = options.query,
-      onReady = options.onReady || function() {},
-      elCanvas = document.createElement('canvas'),
-      context = elCanvas.getContext('2d');
+        icons = options.icons,
+        query = options.query,
+        onReady = options.onReady || function() {},
+        elCanvas = document.createElement('canvas'),
+        context = elCanvas.getContext('2d');
 
     elCanvas.width = WIDTH;
     elCanvas.height = query? HEIGHT : WIDTH;
     context.imagesToLoad = icons.length;
     context.imagesLoaded = [];
-    
+
     if (!Array.isArray(apps)) {
       var objectApps = apps;
       apps = [];
@@ -85,7 +85,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
         });
       }
     }
-    
+
     for (var i = 0; i < icons.length; i++) {
       var app = apps[apps.length - 1 - i];
 
@@ -96,7 +96,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
       }
 
       if (app.icon) {
-        loadIcon(Evme.Utils.formatImageData(app.icon), icons[i], context, i, onReady);
+        loadIcon(app.icon, icons[i], context, i, onReady);
       } else {
         (function(app, icon, context, i, onReady) {
           Evme.IconManager.get(app.id, function onIconFromCache(appIcon) {
@@ -128,9 +128,9 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
     image.onload = function onImageLoad() {
       var elImageCanvas = document.createElement('canvas'),
-	imageContext = elImageCanvas.getContext('2d'),
-	fixedImage = new Image(),
-	size = icon.size * Evme.Utils.devicePixelRatio;
+    	imageContext = elImageCanvas.getContext('2d'),
+    	fixedImage = new Image(),
+    	size = icon.size * Evme.Utils.devicePixelRatio;
 
       elImageCanvas.width = elImageCanvas.height = size;
 
@@ -144,15 +144,15 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
       // dark overlay
       if (icon.darken) {
-	imageContext.fillStyle = 'rgba(0, 0, 0, ' + icon.darken + ')';
-	imageContext.beginPath();
-	imageContext.arc(size / 2, size / 2, Math.ceil(size / 2), 0, Math.PI * 2, false);
-	imageContext.fill();
-	imageContext.closePath();
+      	imageContext.fillStyle = 'rgba(0, 0, 0, ' + icon.darken + ')';
+      	imageContext.beginPath();
+      	imageContext.arc(size / 2, size / 2, Math.ceil(size / 2), 0, Math.PI * 2, false);
+      	imageContext.fill();
+      	imageContext.closePath();
       }
 
       fixedImage.onload = function onImageLoad() {
-	onIconLoaded(context, this, icon, index, onReady);
+        onIconLoaded(context, this, icon, index, onReady);
       };
 
       fixedImage.src = elImageCanvas.toDataURL('image/png');
@@ -175,33 +175,34 @@ Evme.IconGroup = new function Evme_IconGroup() {
     if (context.imagesLoaded.length === context.imagesToLoad) {
       // all the images were loaded- let's sort correctly before drawing
       context.imagesLoaded.sort(function(a, b) {
-	return a.index > b.index ? 1 : a.index < b.index ? -1 : 0;
+        return a.index > b.index ? 1 : a.index < b.index ? -1 : 0;
       });
 
       // finally we're ready to draw the icons!
       for (var i = 0, obj; obj = context.imagesLoaded[i++];) {
-	var image = obj.image,
-	  icon = obj.icon,
-	  size = icon.size * Evme.Utils.devicePixelRatio;
+      	var image = obj.image,
+        	  icon = obj.icon,
+        	  size = icon.size * Evme.Utils.devicePixelRatio;
 
-	if (!image) {
-	  continue;
-	}
+      	if (!image) {
+      	  continue;
+      	}
 
-	// shadow
-	context.shadowOffsetX = icon.shadowOffset;
-	context.shadowOffsetY = icon.shadowOffset;
-	context.shadowBlur = icon.shadowBlur;
-	context.shadowColor = 'rgba(0, 0, 0, ' + icon.shadowOpacity + ')';
+      	// shadow
+      	context.shadowOffsetX = icon.shadowOffset;
+      	context.shadowOffsetY = icon.shadowOffset;
+      	context.shadowBlur = icon.shadowBlur;
+      	context.shadowColor = 'rgba(0, 0, 0, ' + icon.shadowOpacity + ')';
 
-	// rotation
-	context.save();
-	context.translate(icon.x * Evme.Utils.devicePixelRatio + size / 2, icon.y * Evme.Utils.devicePixelRatio + size / 2);
-	context.rotate((icon.rotate || 0) * Math.PI / 180);
-	// draw the icon already!
-	context.drawImage(image, -size / 2, -size / 2);
-	context.restore();
+      	// rotation
+      	context.save();
+      	context.translate(icon.x * Evme.Utils.devicePixelRatio + size / 2, icon.y * Evme.Utils.devicePixelRatio + size / 2);
+      	context.rotate((icon.rotate || 0) * Math.PI / 180);
+      	// draw the icon already!
+      	context.drawImage(image, -size / 2, -size / 2);
+      	context.restore();
       }
+
       onAllIconsReady && onAllIconsReady(context.canvas);
     }
   }

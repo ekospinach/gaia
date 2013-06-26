@@ -70,6 +70,13 @@ Evme.Brain = new function Evme_Brain() {
         
         initL10nObserver();
         initActivitiesHandlers();
+        
+        window.addEventListener('EvmeShortcutCreate', function onShortcutCreate(e) {
+          var options = e && e.detail;
+          if (options) {
+            addShortcut(options);
+          }
+        });
 
         _config = options;
 
@@ -83,6 +90,78 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
+
+    // create the shortcut icon and send it to the OS
+    function addShortcut(options) {
+      var query = options.query,
+          id = options.id || query + '_' + Math.random()*100000,
+          shortcutIcons = options.icons || [],
+          url = 'fldr://query/' + query;
+
+      // create the special icon (three apps icons on top of each other)
+      Evme.IconGroup.get(shortcutIcons, '', function onReady(elCanvas) {
+        // install the newely created shortcut!
+        Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+          "id": id,
+          "originUrl": url,
+          "title": query,
+          "icon": elCanvas.toDataURL(),
+          "isFolder": true
+        });
+
+        window.dispatchEvent(new CustomEvent('EvmeShortcutCreated', {
+          "detail": {
+            "id": id,
+            "query": query
+          }
+        }));
+      });
+    }
+
+    function initShortcuts() {
+      var cacheKey = 'createdInitialShortcuts';
+
+      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
+        if (didInitShortcuts) {
+          return;
+        }
+
+        var defaultShortcuts = Evme.__config['_localShortcuts'],
+            defaultIcons = Evme.__config['_localShortcutsIcons'];
+
+        for (var i=0,shortcut,query,experienceId,shortcutIcons; shortcut=defaultShortcuts[i++];) {
+          query = shortcut.query;
+          experienceId = shortcut.experienceId;
+          appIds = shortcut.appIds;
+          shortcutIcons = [];
+
+          if (!query && experienceId) {
+              var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+                  translatedExperience = Evme.Utils.l10n('Shortcut', l10nkey);
+              
+              if (translatedExperience) {
+                query = translatedExperience;
+              }
+          }
+
+          for (var j=0,appId; appId=appIds[j++];) {
+            shortcutIcons.push({
+              'id': appId,
+              'icon': defaultIcons[appId] || defaultIcons['' + appId]
+            });
+          }
+
+          window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
+            "detail": {
+              "icons": shortcutIcons,
+              "query": query
+            }
+          }));
+        }
+
+        Evme.Storage.set(cacheKey, true);
+      });
+    }
     
     function initActivitiesHandlers() {
       if ('mozSetMessageHandler' in window.navigator) {
@@ -157,6 +236,7 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
+            initShortcuts();
         };
     };
 
@@ -1333,31 +1413,15 @@ Evme.Brain = new function Evme_Brain() {
                 });
               }
 
-              self.addShortcut({
-                "icons": shortcutIcons,
-                "query": query
-              });
+              window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
+                "detail": {
+                  "icons": shortcutIcons,
+                  "query": query
+                }
+              }));
             }
           });
         };
-
-        // create the shortcut icon and send it to the OS
-        this.addShortcut = function addShortcut(options) {
-          var query = options.query,
-              shortcutIcons = options.icons || [],
-              url = 'fldr://query/' + query;
-
-          // create the special icon (three apps icons on top of each other)
-          Evme.IconGroup.get(shortcutIcons, '', function onReady(elCanvas) {
-            // install the newely created shortcut!
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-              'originUrl': url,
-              'title': query,
-              'icon': elCanvas.toDataURL(),
-              'isFolder': true
-            });
-          });
-        }
 
         // prepare and show
         this.showUI = function showUI() {

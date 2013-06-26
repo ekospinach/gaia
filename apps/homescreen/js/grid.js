@@ -618,8 +618,9 @@ var GridManager = (function() {
     haveLocale = true;
   }
 
-  function getFirstPageWithEmptySpace() {
-    for (var i = numberOfSpecialPages, page; page = pages[i++];) {
+  function getFirstPageWithEmptySpace(pageOffset) {
+    pageOffset = pageOffset || 0;
+    for (var i = numberOfSpecialPages + pageOffset, page; page = pages[i++];) {
       if (page.getNumIcons() < page.numberOfIcons) {
         return i - 1;
       }
@@ -632,7 +633,7 @@ var GridManager = (function() {
 
     pages.forEach(function checkIsEmpty(page, index) {
       // ignore the landing page
-      if (index < numberOfSpecialPages) {
+      if (index < numberOfSpecialPages + EVME_PAGE) {
         return;
       }
 
@@ -659,7 +660,7 @@ var GridManager = (function() {
    * pages with a number of apps greater that the maximum
    */
   function ensurePagesOverflow(callback) {
-    ensurePageOverflow(numberOfSpecialPages, callback);
+    ensurePageOverflow(numberOfSpecialPages + EVME_PAGE, callback);
   }
 
   function ensurePageOverflow(index, callback) {
@@ -885,17 +886,17 @@ var GridManager = (function() {
 
     appMgr.oninstall = function oninstall(event) {
       var customEvent = new CustomEvent('onAppInstalled', {
-	'detail': {
-	  'application': event.application
-	}
+      	'detail': {
+      	  'application': event.application
+      	}
       });
       window.dispatchEvent(customEvent);
     };
     appMgr.onuninstall = function onuninstall(event) {
       var customEvent = new CustomEvent('onAppUninstalled', {
-	'detail': {
-	  'application': event.application
-	}
+      	'detail': {
+      	  'application': event.application
+      	}
       });
       window.dispatchEvent(customEvent);
     };
@@ -923,7 +924,7 @@ var GridManager = (function() {
       var apps = event.target.result;
       apps.forEach(function eachApp(app) {
         delete iconsByManifestURL[app.manifestURL];
-        processApp(app);
+        processApp(app, null, EVME_PAGE);
       });
 
       for (var origin in bookmarksByOrigin) {
@@ -971,7 +972,7 @@ var GridManager = (function() {
    * corresponding icon(s) for it (an app can have multiple entry
    * points, each one is represented as an icon.)
    */
-  function processApp(app, callback) {
+  function processApp(app, callback, gridPageOffset) {
     // Ignore system apps.
     if (HIDDEN_APPS.indexOf(app.manifestURL) != -1)
       return;
@@ -984,7 +985,7 @@ var GridManager = (function() {
 
     var entryPoints = manifest.entry_points;
     if (!entryPoints || manifest.type != 'certified') {
-      createOrUpdateIconForApp(app);
+      createOrUpdateIconForApp(app, null, gridPageOffset);
       return;
     }
 
@@ -992,7 +993,7 @@ var GridManager = (function() {
       if (!entryPoints[entryPoint].icons)
         continue;
 
-      createOrUpdateIconForApp(app, entryPoint);
+      createOrUpdateIconForApp(app, entryPoint, gridPageOffset);
     }
   }
 
@@ -1010,7 +1011,7 @@ var GridManager = (function() {
   /*
    * Create or update a single icon for an Application (or Bookmark) object.
    */
-  function createOrUpdateIconForApp(app, entryPoint) {
+  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset) {
     // Make sure we update the icon/label when the app is updated.
     if (!app.isBookmark) {
       app.ondownloadapplied = function ondownloadapplied(event) {
@@ -1060,8 +1061,8 @@ var GridManager = (function() {
     var icon = new Icon(descriptor, app);
     rememberIcon(icon);
 
-    var index = getFirstPageWithEmptySpace();
-
+    var index = getFirstPageWithEmptySpace(gridPageOffset);
+    console.log('evyatar add app to page: ' + index);
     if (index < pages.length) {
       pages[index].appendIcon(icon);
     } else {
@@ -1192,11 +1193,11 @@ var GridManager = (function() {
 
     window.addEventListener('hashchange', hashchange);
     IconRetriever.init();
-
+    
     // Initialize the grid from the state saved in IndexedDB.
     HomeState.init(function eachPage(pageState) {
       // First 'page' is the dock.
-      if (pageState.index == 0) {
+      if (pageState.index === 0) {
         var dockContainer = document.querySelector(options.dockSelector);
         var dock = new Dock(dockContainer,
           convertDescriptorsToIcons(pageState));
@@ -1204,9 +1205,11 @@ var GridManager = (function() {
         return;
       }
       
-      var numberOfIcons = pageState.index === EVME_PAGE? MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
-      pageHelper.addPage(convertDescriptorsToIcons(pageState), numberOfIcons);
-    }, function onState() {
+      var pageIcons = convertDescriptorsToIcons(pageState),
+          numberOfIcons = pageState.index === EVME_PAGE? MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
+      
+      pageHelper.addPage(pageIcons, numberOfIcons);
+    }, function onSuccess() {
       initApps();
       callback();
     }, function onError(error) {
@@ -1215,7 +1218,7 @@ var GridManager = (function() {
       DockManager.init(dockContainer, dock, tapThreshold);
       initApps();
       callback();
-    });
+    }, EVME_PAGE);
   }
 
   return {

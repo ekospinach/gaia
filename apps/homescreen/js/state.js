@@ -9,15 +9,23 @@ const HomeState = (function() {
   var database = null;
   var initQueue = [];
 
-  function loadInitialState(iterator, success, error) {
+  function loadInitialState(iterator, success, error, offset) {
     var grid = Configurator.getSection('grid') || [];
 
+    // push empty pages at the beginning of the grid
+    offset = offset || 0;
+    for (var i=0; i<offset; i++) {
+      grid.splice(1, 0, []);
+    }
+
+    // add the actual grid pages from the configurator
     for (var i = 0; i < grid.length; i++) {
       grid[i] = {
         index: i,
         icons: grid[i]
       };
     }
+console.log('evyatar new grid: ' + JSON.stringify(grid));
 
     HomeState.saveGrid(grid, function onSaveGrid() {
       grid.forEach(iterator);
@@ -100,10 +108,10 @@ const HomeState = (function() {
      * Initialize the database and return the homescreen state to the
      * success callback.
      */
-    init: function st_init(iterator, success, error) {
+    init: function st_init(iterator, success, error, offset) {
       openDB(function(emptyDB) {
         if (emptyDB) {
-          loadInitialState(iterator, success, error);
+          loadInitialState(iterator, success, error, offset);
           return;
         }
         HomeState.getGrid(iterator, success, error);
