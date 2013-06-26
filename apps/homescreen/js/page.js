@@ -510,7 +510,7 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback) {
+  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -524,8 +524,19 @@ Icon.prototype = {
     var draggableElem = this.draggableElem;
     var style = draggableElem.style;
     style.MozTransition = '-moz-transform .4s';
-    style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
-    draggableElem.querySelector('div').style.MozTransform = 'scale(1)';
+
+    if (!dropIntoFolder) {
+      style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
+      draggableElem.querySelector('div').style.MozTransform = 'scale(1)';  
+    } else {
+      draggableElem.classList.add('droppedInFolder');
+      
+      if (overlapElem.dataset.folder === 'true') {
+        alert('Drop '+draggableElem.textContent+' into '+overlapElem.dataset.foldername);
+      } else {
+        alert('Create smartfolder with apps '+overlapElem.textContent+" and "+draggableElem.textContent);
+      }
+    }
 
     draggableElem.addEventListener('transitionend', function draggableEnd(e) {
       draggableElem.removeEventListener('transitionend', draggableEnd);
@@ -671,7 +682,6 @@ Page.prototype = {
       if (this.iconsWhileDragging.length === 0)
         this.iconsWhileDragging = Array.prototype.slice.call(iconList, 0,
                                                              iconList.length);
-
       this.animate(this.iconsWhileDragging, originIcon.container,
                    targetIcon.container);
     } else {
@@ -689,10 +699,15 @@ Page.prototype = {
       return;
     }
 
+    // remove 
+    targetNode.dataset.draggedon = "false";
+
     var upward = draggableIndex < targetIndex;
     this.draggableNode = draggableNode;
     this.beforeNode = upward ? targetNode.nextSibling : targetNode;
     this.placeIcon(draggableNode, draggableIndex, targetIndex);
+    // var r = draggableIndex+"->"+targetIndex;
+
 
     var self = this;
     targetNode.addEventListener('transitionend', function onTransitionEnd(e) {
@@ -703,12 +718,17 @@ Page.prototype = {
     });
 
     if (upward) {
-      for (var i = draggableIndex + 1; i <= targetIndex; i++)
+      for (var i = draggableIndex + 1; i <= targetIndex; i++){
         this.placeIcon(children[i], i, i - 1, DRAGGING_TRANSITION);
+        // r+= "; "+i+"->"+(i-1);
+      }
     } else {
-      for (var i = targetIndex; i < draggableIndex; i++)
+      for (var i = targetIndex; i < draggableIndex; i++){
         this.placeIcon(children[i], i, i + 1, DRAGGING_TRANSITION);
+        // r+= "; "+i+"->"+(i+1);
+      }
     }
+    // console.log(r);
   },
 
   doDragLeave: function pg_doReArrange(callback, reflow) {
