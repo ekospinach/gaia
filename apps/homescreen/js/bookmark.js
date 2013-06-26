@@ -9,6 +9,7 @@ var Bookmark = function Bookmark(params) {
     this.iconable = true;
   }
 
+  this.isFolder = !!params.isFolder;
   this.isBookmark = true;
   this.url = this.bookmarkURL = this.origin = params.bookmarkURL;
 
@@ -33,11 +34,11 @@ Bookmark.prototype = {
       remote: true,
       useAsyncPanZoom: this.useAsyncPanZoom
     };
-      
-    if (this.regexSmartFolder.test(this.url)) {
+
+    if (this.isFolder) {
       features.type = 'url';
       features.url = this.url;
-      
+
       new MozActivity({
         name: 'smartfolder',
         data: features

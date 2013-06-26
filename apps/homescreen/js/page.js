@@ -100,6 +100,11 @@ Icon.prototype = {
       if (value)
         container.dataset[prop] = value;
     });
+    
+    if (descriptor.isFolder) {
+      container.dataset.isFolder = true;
+      container.dataset.folderName = descriptor.name;
+    }
 
     var localizedName = descriptor.localizedName || descriptor.name;
     container.setAttribute('role', 'button');

@@ -23,7 +23,8 @@ var EvmeManager = (function EvmeManager() {
           name: params.title,
           icon: params.icon,
           iconable: false,
-          useAsyncPanZoom: params.useAsyncPanZoom
+          useAsyncPanZoom: params.useAsyncPanZoom,
+          isFolder: !!params.isFolder
         }));
     }
 

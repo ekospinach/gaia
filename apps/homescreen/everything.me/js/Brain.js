@@ -1289,16 +1289,6 @@ Evme.Brain = new function Evme_Brain() {
         this.done = function done(data) {
             if (data.shortcuts && data.shortcuts.length > 0) {
                 self.addShortcuts(data.shortcuts);
-                
-                /*
-                Evme.DoATAPI.Shortcuts.add({
-                    "shortcuts": data.shortcuts,
-                    "icons": data.icons
-                }, function onSuccess(){
-                    Evme.Utils.log('Done, let\s refresh the UI');
-                    Brain.Shortcuts.loadFromAPI();
-                });
-                */
             }
         };
         
@@ -1343,28 +1333,28 @@ Evme.Brain = new function Evme_Brain() {
                 });
               }
 
-              url = 'fldr://';
-              if (experienceId) {
-                url += '/experience/' + experienceId + '/';
-              }
-              if (query) {
-                url += '/query/' + query + '/';
-              }
-console.log('evyatar add shortcut [' + query + ']: ' + url)
-              self.addShortcut(shortcutIcons, url, query);
+              self.addShortcut({
+                "icons": shortcutIcons,
+                "query": query
+              });
             }
           });
         };
 
         // create the shortcut icon and send it to the OS
-        this.addShortcut = function addShortcut(shortcutIcons, url, query) {
+        this.addShortcut = function addShortcut(options) {
+          var query = options.query,
+              shortcutIcons = options.icons || [],
+              url = 'fldr://query/' + query;
+
           // create the special icon (three apps icons on top of each other)
           Evme.IconGroup.get(shortcutIcons, '', function onReady(elCanvas) {
             // install the newely created shortcut!
             Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
               'originUrl': url,
               'title': query,
-              'icon': elCanvas.toDataURL()
+              'icon': elCanvas.toDataURL(),
+              'isFolder': true
             });
           });
         }

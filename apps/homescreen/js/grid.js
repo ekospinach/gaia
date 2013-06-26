@@ -1041,7 +1041,8 @@ var GridManager = (function() {
       useAsyncPanZoom: app.useAsyncPanZoom,
       isHosted: isHosted(app),
       hasOfflineCache: hasOfflineCache(app),
-      isBookmark: app.isBookmark
+      isBookmark: app.isBookmark,
+      isFolder: !!app.isFolder
     };
     if (haveLocale && !app.isBookmark) {
       descriptor.localizedName = iconsAndNameHolder.name;
