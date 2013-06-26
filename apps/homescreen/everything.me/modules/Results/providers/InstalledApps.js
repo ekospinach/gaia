@@ -43,9 +43,6 @@ Evme.InstalledAppsRenderer = function Evme_InstalledAppsRenderer() {
     appsSignature = Evme.Utils.EMPTY_APPS_SIGNATURE;
   };
 
-  // update does nothing
-  this.update = Evme.Utils.NOOP;
-
   this.getResultCount = function getResultCount() {
     return containerEl.childElementCount;
   };

@@ -72,6 +72,9 @@ window.Evme = new function Evme_Core() {
   };
 
   function initObjects(data) {
+    var appsEl = Evme.$("#evmeApps"),
+      smartFolderEl = document.querySelector(".smart-folder .evme-apps");
+
     Evme.Features.init({
       "featureStateByConnection": data.featureStateByConnection
     });
@@ -114,15 +117,49 @@ window.Evme = new function Evme_Core() {
     Evme.SearchResults = new Evme.ResultManager();
     Evme.SearchResults.init({
       "NAME": 'SearchResults',
-      "el": Evme.$("#evmeApps"),
-      "appsPerRow": data.apps.appsPerRow
+      "el": appsEl,
+      "appsPerRow": data.apps.appsPerRow,
+      "providers": [{
+          type: Evme.PROVIDER_TYPES.INSTALLED,
+          config: {
+            "renderer": Evme.InstalledAppsRenderer,
+            "containerEl": Evme.$(".installed", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.CLOUD,
+          config: {
+            "renderer": Evme.CloudAppsRenderer,
+            "containerEl": Evme.$(".cloud", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.MARKETAPPS,
+          config: {
+            "renderer": Evme.MarketAppsRenderer,
+            "containerEl": Evme.$(".marketapps", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.MARKETSEARCH,
+          config: {
+            "renderer": Evme.MarketSearchRenderer,
+            "containerEl": Evme.$(".marketsearch", appsEl)[0]
+          }
+        }
+      ]
     });
 
     Evme.SmartfolderResults = new Evme.ResultManager();
     Evme.SmartfolderResults.init({
       "NAME": 'SmartfolderResults',
-      "el": document.querySelector(".smart-folder .evme-apps"),
-      "appsPerRow": data.apps.appsPerRow
+      "el": smartFolderEl,
+      "appsPerRow": data.apps.appsPerRow,
+      "providers": [{
+          type: Evme.PROVIDER_TYPES.CLOUD,
+          config: {
+            "renderer": Evme.CloudAppsRenderer,
+            "containerEl": Evme.$(".cloud", smartFolderEl)[0]
+          }
+        }
+      ]
     });
 
     Evme.InstalledAppsService.init();

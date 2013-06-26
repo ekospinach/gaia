@@ -51,19 +51,17 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 		containerEl,
 		lastRenderedResults = {}, // app.id -> Result instance
 		lastSignature = Evme.Utils.EMPTY_APPS_SIGNATURE,
-		iconFormat = Evme.Utils.getIconsFormat(),
+		iconFormat = Evme.Utils.getIconsFormat(),	
 		defaultIconIndex = 0,
-		requestMissingIcons,
 
 		DEFAULT_ICON_URLS = Evme.Config.design.apps.defaultIconUrl[Evme.Utils.ICONS_FORMATS.Large];
 
 
 	this.init = function init(cfg) {
 		containerEl = cfg.containerEl;
-		requestMissingIcons = cfg.requestMissingIcons;
 	};
 
-	this.render = function render(apps, pageNum) {
+	this.render = function render(apps, pageNum, missingIconsCb) {
 		if (!apps.length) return;
 
 		var	newSignature = Evme.Utils.getAppsSignature(apps);
@@ -80,7 +78,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 			self.clear();
 		}
 
-		_render(apps);
+		_render(apps, missingIconsCb);
 	};
 
 	this.clear = function clear() {
@@ -104,7 +102,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 		return containerEl.childElementCount;
 	};
 
-	function _render(apps){
+	function _render(apps, missingIconsCb){
 		var docFrag = document.createDocumentFragment(),
 			noIconAppIds = [];  // ids of apps received without an icon
 
@@ -132,10 +130,10 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 
 		containerEl.appendChild(docFrag);
 
-		noIconAppIds.length && getCachedIconsAsync(noIconAppIds);
+		noIconAppIds.length && getCachedIconsAsync(noIconAppIds, missingIconsCb);
 	}
 
-	function getCachedIconsAsync(appIds) {
+	function getCachedIconsAsync(appIds, missingIconsCb) {
 		var idsMissing = [], // ids of apps which have no cached icon
 			pendingRequests = appIds.length;
 
@@ -162,7 +160,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 
 				// all cache requests returned - request missing icons
 				if (pendingRequests === 0) {
-					idsMissing.length && requestMissingIcons(idsMissing);
+					idsMissing.length && missingIconsCb(idsMissing);
 				}
 			});
 		}
