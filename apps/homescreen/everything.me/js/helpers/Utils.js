@@ -141,16 +141,16 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
-	    case OSMessages.GET_APP_INFO:
-		return EvmeManager.getAppInfo(data);
+    	    case OSMessages.GET_APP_INFO:
+                return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
-	    case OSMessages.OPEN_MARKETPLACE_APP:
-		EvmeManager.openMarketplaceApp(data);
-		break;
-	    case OSMessages.OPEN_MARKETPLACE_SEARCH:
-		EvmeManager.openMarketplaceSearch(data);
-		break;
+    	    case OSMessages.OPEN_MARKETPLACE_APP:
+                EvmeManager.openMarketplaceApp(data);
+                break;
+    	    case OSMessages.OPEN_MARKETPLACE_SEARCH:
+                EvmeManager.openMarketplaceSearch(data);
+                break;
         }
     };
 

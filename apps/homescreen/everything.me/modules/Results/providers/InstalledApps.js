@@ -73,7 +73,7 @@ App index - list of apps installed on device
   ...
 ]
 
- Query index - a mapping from experience name to apps
+ Query index - a mapping from experience name to app ids (manifestURLs)
 {
   "music": ["soundcloud", "mixcloud", "fm", "friends-music", ...],
   "top apps": ["soundcloud", "fm"],
@@ -86,6 +86,15 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     self = this,
     appIndex = {}, APP_INDEX_STORAGE_KEY = NAME + "-app-index",
     queryIndex = {}, QUERY_INDEX_STORAGE_KEY = NAME + "-query-index";
+
+  // TODO: only for testing
+  this._debug = function _debug() {
+    appIndex = Evme.Fixtures.appIndex;
+    self.requestAppsInfo();
+  }
+  this._getIndexes = function debug_getIndexes() {
+    return {appIndex: appIndex, queryIndex: queryIndex}
+  }
 
   this.init = function init() {
     // create indexes
@@ -105,7 +114,9 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
 
       // verify that the app info relates to an existing one in the appIndex
       var idInAppIndex = appInfo.guid;
-      if (!(idInAppIndex in appIndex)) { continue; }
+      if (!(idInAppIndex in appIndex)) {
+	continue;
+      }
 
       // Store the marketplace api slug, in order to compare and dedup Marketplace app suggestions later on
       appIndex[idInAppIndex].slug = appInfo.nativeId;
@@ -128,7 +139,9 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   };
 
   this.getMatchingApps = function getMatchingApps(data) {
-    if (!data || !data.query) { return []; }
+    if (!data || !data.query) {
+      return [];
+    }
 
     var matchingApps = [],
       query = normalizeQuery(data.query);

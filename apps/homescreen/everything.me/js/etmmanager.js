@@ -57,13 +57,15 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function getAppInfo(app) {
-	if (!app) { return {}; }
-	return {
-	    'id': app.manifestURL,
-	    'name': getAppName(app),
-	    'appUrl': app.origin,
-	    'icon': getAppIcon(app)
-	}
+        if (!app) {
+            return {};
+        }
+        return {
+            'id': app.manifestURL,
+            'name': getAppName(app),
+            'appUrl': app.origin,
+            'icon': getAppIcon(app)
+        }
     }
 
     function getAppIcon(app) {
@@ -131,12 +133,12 @@ var EvmeManager = (function EvmeManager() {
                    GridManager.getAppByOrigin(url);
         },
         getApps: getApps,
-	getAppInfo: getAppInfo,
+    	getAppInfo: getAppInfo,
 
         openUrl: openUrl,
-	openMarketplaceApp: openMarketplaceApp,
-	openMarketplaceSearch: openMarketplaceSearch,
-	getMarketplaceAppIcon: getMarketplaceAppIcon,
+    	openMarketplaceApp: openMarketplaceApp,
+    	openMarketplaceSearch: openMarketplaceSearch,
+    	getMarketplaceAppIcon: getMarketplaceAppIcon,
 
         menuShow: menuShow,
         menuHide: menuHide,
