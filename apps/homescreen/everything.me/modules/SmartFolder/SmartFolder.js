@@ -1,10 +1,16 @@
 Evme.SmartFolder = function Evme_SmartFolder(_options) {
   var self = this,
     NAME = "SmartFolder",
+    
+    folderSettings = null,
+
+    // TOOD some of these will be part of folderSettings
     experienceId = '',
     query = '',
     image = '',
     bgImage = null,
+    title = '',
+
     el = null,
     elScreen = null,
     elTitle = null,
@@ -29,7 +35,10 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   this.init = function init(options) {
     !options && (options = {});
 
+    folderSettings = options.folderSettings;
     resultsManager = options.resultsManager;
+
+    title = folderSettings.name || query;
 
     elScreen = Evme.$(".smart-folder-screen")[0];
 
@@ -45,21 +54,13 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elClose.addEventListener("click", self.close);
     elAppsContainer.dataset.scrollOffset = 0;
 
-    // TODO use options.setStaticApps
-    resultsManager.renderStaticApps([{
-        name: 'static1',
-        icon: null
-      }, {
-        name: 'static2',
-        icon: null
-      }
-    ]);
-    
+    // static apps
+    resultsManager.renderStaticApps(folderSettings.apps);
 
     // query
     options.query && self.setQuery(options.query);
     resultsManager.onNewQuery({
-      "query": options.name
+      "query": options.name  // TODO: why not options.query?
     });
     options.experienceId && self.setExperience(options.experienceId);
 
@@ -139,7 +140,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     if (queryById) {
       self.setQuery(queryById);
     } else if (query) {
-      Evme.$('span', elTitle)[0].textContent = query;
+      Evme.$('span', elTitle)[0].textContent = title;
     }
 
     return self;
@@ -154,7 +155,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
 
     elTitle.innerHTML = '<em></em>' +
       '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
-      '<span>' + query + '</span>';
+      '<span>' + title + '</span>';
 
     return self;
   };
@@ -245,4 +246,99 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   };
 
   self.init(_options);
+};
+
+
+Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
+  this.id = args.id;
+  this.name = args.name;
+  this.apps = args.apps;
+};
+
+Evme.SmartFolderFactory = new function Evme_SmartFolderFactory() {
+  var NAME = "SmartFolderFactory",
+    self = this;
+
+  this.byQuery = function byQuery(query, cb) {
+    var folderSettings = new Evme.SmartFolderSettings({
+      id: Evme.Utils.uuid(),
+      name: query,
+      apps: Evme.InstalledAppsService.getMatchingApps({
+        'query': query
+      })
+    });
+
+    saveFolderSettings(folderSettings, cb);
+  };
+
+  this.byAppPair = function byAppPair(appA, appB, cb) {
+    var folderId = Evme.Utils.uuid(),
+      folderName,
+      folderApps,
+      folderSettings,
+
+      queriesA = Evme.InstalledAppsService.getMatchingQueries(appA),
+      queriesB = Evme.InstalledAppsService.getMatchingQueries(appB);
+
+    // find a suitable name for the folder
+    if (queriesA.length && queriesB.length) {
+      // search for a common query
+      for (q in queriesA) {
+        if (q in queriesB) {
+          folderName = q;
+          break;
+        }
+      }
+    } else {
+      folderName = queriesA[0] || queriesB[0] || appA.name || appB.name;
+    }
+
+    folderApps = Evme.InstalledAppsService.getMatchingApps({
+      'query': folderName
+    });
+
+    folderSettings = new Evme.SmartFolderSettings({
+      id: folderId,
+      name: folderName,
+      apps: folderApps
+    });
+    
+    saveFolderSettings(folderSettings, cb);
+  };
+
+  function saveFolderSettings(folderSettings, cb) {
+    // save folder settings in storage and run callback async.
+    Evme.SmartFolderStorage.set(folderSettings, function onFolderStored() {
+      Evme.Utils.log("saved SmartFolderSettings", JSON.stringify(folderSettings));
+      cb && cb(folderSettings.id);
+    });
+  }
+};
+
+
+Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
+  var NAME = "SmartFolderStorage",
+    PREFIX = "fldrsttngs_",
+    self = this;
+
+  this.set = function set(folderSettings, cb) {
+    Evme.Storage.set(PREFIX + folderSettings.id, JSON.stringify(folderSettings), function onSet() {
+      cb && cb();
+    });
+  };
+
+  this.get = function get(folderSettingsId, cb) {
+    Evme.Storage.get(PREFIX + folderSettingsId, function onGet(result) {
+      if (cb && result !== null) {
+        result = JSON.parse(result || {});
+        var folderSettings = new Evme.SmartFolderSettings({
+          id: result.id,
+          name: result.name,
+          apps: result.apps
+        });
+        
+        cb(folderSettings);
+      }
+    });
+  };
 };
