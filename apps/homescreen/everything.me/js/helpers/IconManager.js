@@ -18,8 +18,8 @@ Evme.IconManager = new function Evme_IconManager() {
 
     self.get(id, function fromCache(iconFromCache) {
       if (!iconFromCache || iconFromCache.format < iconsFormat) {
-	Evme.Storage.set(_prefix + id, icon);
-	Evme.EventHandler.trigger(NAME, "iconAdded", icon);
+        Evme.Storage.set(_prefix + id, icon);
+        Evme.EventHandler.trigger(NAME, "iconAdded", icon);
       }
     });
 

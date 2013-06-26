@@ -1,3 +1,11 @@
+Evme.PROVIDER_TYPES = {
+  STATIC: 'static',
+  INSTALLED: 'installed',
+  MARKETAPPS: 'marketapps',
+  MARKETSEARCH: 'marketsearch',
+  CLOUD: 'cloud',
+};
+
 Evme.ResultManager = function Evme_ResultsManager() {
 
   var NAME = "NOT_SET",  // SearchResults or SmartfolderResults
@@ -22,11 +30,12 @@ Evme.ResultManager = function Evme_ResultsManager() {
     showingFullScreen = false,
     apiHasMoreCloudApps = false,
 
-    // provider types
-    INSTALLED = 'installed',
-    MARKETAPPS = 'marketapps',
-    MARKETSEARCH = 'marketsearch',
-    CLOUD = 'cloud',
+    // for convenience
+    STATIC = Evme.PROVIDER_TYPES.STATIC,
+    INSTALLED = Evme.PROVIDER_TYPES.INSTALLED,
+    MARKETAPPS = Evme.PROVIDER_TYPES.MARKETAPPS,
+    MARKETSEARCH = Evme.PROVIDER_TYPES.MARKETSEARCH,
+    CLOUD = Evme.PROVIDER_TYPES.CLOUD,
 
     SELECTOR_CLOUD_RESULTS = 'ul.cloud>li',
     SELECTOR_ALL_RESULTS = 'div>ul>li',
@@ -61,25 +70,10 @@ Evme.ResultManager = function Evme_ResultsManager() {
     el = options.el;
     scrollableEl = Evme.$('div', el)[0];
 
-    registerProvider(INSTALLED, {
-      "renderer": Evme.InstalledAppsRenderer,
-      "containerEl": Evme.$(".installed", el)[0]
-    });
+    // TODO: register static provider
 
-    registerProvider(CLOUD, {
-      "renderer": Evme.CloudAppsRenderer,
-      "containerEl": Evme.$(".cloud", el)[0],
-      "requestMissingIcons": requestMissingIcons
-    });
-
-    registerProvider(MARKETAPPS, {
-      "renderer": Evme.MarketAppsRenderer,
-      "containerEl": Evme.$(".marketapps", el)[0]
-    });
-
-    registerProvider(MARKETSEARCH, {
-      "renderer": Evme.MarketSearchRenderer,
-      "containerEl": Evme.$(".marketsearch", el)[0]
+    options.providers.forEach(function registerProviders(provider){
+      registerProvider(provider.type, provider.config);
     });
 
     progressIndicator = new Evme.ResultsProgressIndicator();
@@ -117,8 +111,12 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return true;
   };
 
+  // this.setStaticApps = function setStaticApps(data) {
+  //   providers[STATIC].render(data.apps);
+  // };
+
   this.onNewQuery = function onNewQuery(data) {
-    providers[INSTALLED].render(data);
+    INSTALLED in providers && providers[INSTALLED].render(data);
   };
 
   this.APIData = {
@@ -161,11 +159,11 @@ Evme.ResultManager = function Evme_ResultsManager() {
       // render market apps and result for launching market search
       if (!pageNum) {
         self.scrollToTop();
-        providers[MARKETAPPS].render(marketApps, pageNum);
-        response.nativeAppsHint && providers[MARKETSEARCH].render();
+        MARKETAPPS in providers && providers[MARKETAPPS].render(marketApps, pageNum);
+        response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
       }
 
-      providers[CLOUD].render(cloudApps, pageNum);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons);
     }
   };
 
