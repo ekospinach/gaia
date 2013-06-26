@@ -69,7 +69,7 @@ Evme.Config = Evme.__config = {
             "darken": 0.4,
             "shadowOffset": 2,
             "shadowBlur": 1,
-            "shadowOpacity": 0.2
+            "shadowOpacity": 0.1
         },
         {
             "x": 18,
@@ -78,7 +78,7 @@ Evme.Config = Evme.__config = {
             "darken": 0.25,
             "shadowOffset": 2,
             "shadowBlur": 2,
-            "shadowOpacity": 0.2
+            "shadowOpacity": 0.1
         },
         {
             "x": 0,
@@ -87,7 +87,7 @@ Evme.Config = Evme.__config = {
             "shadowOffset": 4,
             "shadowOffsetX": 2,
             "shadowBlur": 4,
-            "shadowOpacity": 0.3
+            "shadowOpacity": 0.2
         }
     ],
     "design": {

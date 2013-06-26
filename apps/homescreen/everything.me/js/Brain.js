@@ -28,6 +28,7 @@ Evme.Brain = new function Evme_Brain() {
         
         CLASS_WHEN_HAS_QUERY = 'evme-has-query',
         CLASS_WHEN_SMART_FOLDER_VISIBLE = 'evme-smart-folder-visible',
+        CLASS_WHEN_LOADING_SHORTCUTS_SUGGESTIONS = 'evme-suggest-folders-loading',
 
         L10N_SYSTEM_ALERT="alert",
 
@@ -1158,19 +1159,19 @@ Evme.Brain = new function Evme_Brain() {
         
         // module was inited
         this.init = function init() {
-            elContainer.addEventListener('click', checkCustomizeDone);
+            //elContainer.addEventListener('click', checkCustomizeDone);
         };
 
         // show
         this.show = function show() {
-            self.loadFromAPI();
+            //self.loadFromAPI();
         };
 
         /// load items from API (as opposed to persistent storage)
         this.loadFromAPI = function loadFromAPI() {
-            Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data) {
-                Evme.Shortcuts.load(data.response);
-            });
+            //Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data) {
+            //    Evme.Shortcuts.load(data.response);
+            //});
         };
 
         // return to normal shortcut mode
@@ -1253,6 +1254,14 @@ Evme.Brain = new function Evme_Brain() {
             Evme.ShortcutsCustomize.Loading.hide();
             isOpen = false;
         };
+        
+        this.loadingShow = function loadingShow() {
+          document.body.classList.add(CLASS_WHEN_LOADING_SHORTCUTS_SUGGESTIONS);
+        };
+        
+        this.loadingHide = function loadingHide() {
+          document.body.classList.remove(CLASS_WHEN_LOADING_SHORTCUTS_SUGGESTIONS);
+        };
 
         this.hideIfOpen = function hideIfOpen() {
             if (isOpen) {
@@ -1279,7 +1288,9 @@ Evme.Brain = new function Evme_Brain() {
         // done button clicked
         this.done = function done(data) {
             if (data.shortcuts && data.shortcuts.length > 0) {
-                Evme.Utils.log('Adding shortcuts: ' + data.shortcuts);
+                self.addShortcuts(data.shortcuts);
+                
+                /*
                 Evme.DoATAPI.Shortcuts.add({
                     "shortcuts": data.shortcuts,
                     "icons": data.icons
@@ -1287,6 +1298,7 @@ Evme.Brain = new function Evme_Brain() {
                     Evme.Utils.log('Done, let\s refresh the UI');
                     Brain.Shortcuts.loadFromAPI();
                 });
+                */
             }
         };
         
@@ -1295,27 +1307,67 @@ Evme.Brain = new function Evme_Brain() {
             return;
           }
 
-          var query = data.query;
+          self.addShortcuts({'query': data.query});
+        };
+        
+        // this gets a list of queries and creates shortcuts
+        this.addShortcuts = function addShortcuts(shortcuts) {
+          if (!Array.isArray(shortcuts)) {
+            shortcuts = [shortcuts];
+          }
           
+          var queries = [];
+          for (var i=0,shortcut; shortcut = shortcuts[i++];) {
+            queries.push(shortcut.query);
+          }
+
           // get the query's apps (icons)
           Evme.DoATAPI.shortcutsGet({
-            "queries": JSON.stringify([query]),
+            "queries": JSON.stringify(queries),
             "_NOCACHE": true
           }, function onShortcutsGet(response) {
             var shortcuts = response.response.shortcuts,
-                icons = response.response.icons;
-                
-            // create the special icon (three apps icons on top of each other)
-            Evme.IconGroup.get(icons, '', function onReady(elCanvas) {
-              // install the newely created shortcut!
-              Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-                'originUrl': 'fldr://query=' + encodeURIComponent(query),
-                'title': query,
-                'icon': elCanvas.toDataURL()
-              });
-            });
+                icons = response.response.icons,
+                query, appIds, experienceId, shortcutIcons;
+
+            for (var i=0, shortcut; shortcut=shortcuts[i++];) {
+              query = shortcut.query;
+              experienceId = shortcut.experienceId;
+              appIds = shortcut.appIds;
+              shortcutIcons = [];
+
+              for (var j=0,appId; appId=appIds[j++];) {
+                shortcutIcons.push({
+                  'id': appId,
+                  'icon': icons[appId]
+                });
+              }
+
+              url = 'fldr://';
+              if (experienceId) {
+                url += '/experience/' + experienceId + '/';
+              }
+              if (query) {
+                url += '/query/' + query + '/';
+              }
+console.log('evyatar add shortcut [' + query + ']: ' + url)
+              self.addShortcut(shortcutIcons, url, query);
+            }
           });
         };
+
+        // create the shortcut icon and send it to the OS
+        this.addShortcut = function addShortcut(shortcutIcons, url, query) {
+          // create the special icon (three apps icons on top of each other)
+          Evme.IconGroup.get(shortcutIcons, '', function onReady(elCanvas) {
+            // install the newely created shortcut!
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+              'originUrl': url,
+              'title': query,
+              'icon': elCanvas.toDataURL()
+            });
+          });
+        }
 
         // prepare and show
         this.showUI = function showUI() {
@@ -1334,58 +1386,38 @@ Evme.Brain = new function Evme_Brain() {
                 }
                 
                 Evme.ShortcutsCustomize.Loading.show();
-    
-                // load user/default shortcuts from API
-                Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data){
-                    var loadedResponse = data.response || {},
-                        currentIcons = loadedResponse.icons || {},
-                        arrCurrentShortcuts = [],
-                        shortcutsToSelect = {};
-    
-                    for (var i=0, shortcut, query; shortcut=loadedResponse.shortcuts[i++];) {
-                        query = shortcut.query;
-                        if (!query && shortcut.experienceId) {
-                            query = Evme.Utils.l10n('shortcut', 'id-' + Evme.Utils.shortcutIdToKey(shortcut.experienceId));
-                        }
-                        
-                        if (query) {
-                            arrCurrentShortcuts.push(query.toLowerCase());
-                        }
+                
+                // need to get from the GridManager
+                var existingShortcuts = [];
+
+                // load suggested shortcuts from API
+                requestSuggest = Evme.DoATAPI.Shortcuts.suggest({
+                    "existing": existingShortcuts
+                }, function onSuccess(data) {
+                    var suggestedShortcuts = data.response.shortcuts || [],
+                        icons = data.response.icons || {};
+
+                    if(!isRequesting) {
+                      return;
                     }
-    
-                    // load suggested shortcuts from API
-                    requestSuggest = Evme.DoATAPI.Shortcuts.suggest({
-                        "existing": arrCurrentShortcuts
-                    }, function onSuccess(data) {
-                        var suggestedShortcuts = data.response.shortcuts || [],
-                            icons = data.response.icons || {};
 
-                        if(!isRequesting) {
-                          return;
-                        }
+                    isFirstShow = false;
+                    isRequesting = false;
 
-                        isFirstShow = false;
-                        isRequesting = false;
-
-                        if (suggestedShortcuts.length === 0) {
-                          window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'no-more-shortcuts'));
-                          Evme.ShortcutsCustomize.Loading.hide();
-                        } else {
-                          for (var id in icons) {
-                              currentIcons[id] = icons[id];
-                          }
-      
-                          Evme.ShortcutsCustomize.load({
-                              "shortcuts": suggestedShortcuts,
-                              "icons": currentIcons
-                          });
-      
-                          Evme.ShortcutsCustomize.show();
-                          // setting timeout to give the select box enough time to show
-                          // otherwise there's visible flickering
-                          window.setTimeout(Evme.ShortcutsCustomize.Loading.hide, 300);
-                        }
-                    });
+                    if (suggestedShortcuts.length === 0) {
+                      window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'no-more-shortcuts'));
+                      Evme.ShortcutsCustomize.Loading.hide();
+                    } else {
+                      Evme.ShortcutsCustomize.load({
+                          "shortcuts": suggestedShortcuts,
+                          "icons": icons
+                      });
+  
+                      Evme.ShortcutsCustomize.show();
+                      // setting timeout to give the select box enough time to show
+                      // otherwise there's visible flickering
+                      window.setTimeout(Evme.ShortcutsCustomize.Loading.hide, 300);
+                    }
                 });
             });
         };

@@ -10,20 +10,22 @@
 .evme-has-query #evmeContainer {
     height: calc(100% - 7.5rem);
 }
+
 .evme-keyboard-visible #evmeContainer,
-.evme-smart-folder-visible #evmeContainer {
+.evme-smart-folder-visible #evmeContainer,
+.evme-suggest-folders-loading #evmeContainer {
     height: 100%;
 }
+.evme-smart-folder-visible #footer,
+.evme-suggest-folders-loading #footer {
+  display: none;
+}
+
 .evme-keyboard-visible .apps > div.evmePage ol,
 .evme-has-query .apps > div.evmePage ol
 {
     opacity: 0;
 }
-
-.evme-smart-folder-visible #footer {
-  display: none;
-}
-
 .apps > div.evmePage {
     -moz-box-sizing: border-box;
     padding-top: calc(25% + 1.2rem);
