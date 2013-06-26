@@ -153,6 +153,12 @@ window.Evme = new function Evme_Core() {
       "el": smartFolderEl,
       "appsPerRow": data.apps.appsPerRow,
       "providers": [{
+          type: Evme.PROVIDER_TYPES.STATIC,
+          config: {
+            "renderer": Evme.StaticAppsRenderer,
+            "containerEl": Evme.$(".static", smartFolderEl)[0]
+          }
+        }, {
           type: Evme.PROVIDER_TYPES.CLOUD,
           config: {
             "renderer": Evme.CloudAppsRenderer,

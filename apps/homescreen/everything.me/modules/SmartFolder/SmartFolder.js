@@ -45,6 +45,17 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elClose.addEventListener("click", self.close);
     elAppsContainer.dataset.scrollOffset = 0;
 
+    // TODO use options.setStaticApps
+    resultsManager.renderStaticApps([{
+        name: 'static1',
+        icon: null
+      }, {
+        name: 'static2',
+        icon: null
+      }
+    ]);
+    
+
     // query
     options.query && self.setQuery(options.query);
     resultsManager.onNewQuery({

@@ -70,8 +70,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
     el = options.el;
     scrollableEl = Evme.$('div', el)[0];
 
-    // TODO: register static provider
-
     options.providers.forEach(function registerProviders(provider){
       registerProvider(provider.type, provider.config);
     });
@@ -111,9 +109,9 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return true;
   };
 
-  // this.setStaticApps = function setStaticApps(data) {
-  //   providers[STATIC].render(data.apps);
-  // };
+  this.renderStaticApps = function renderStaticApps(apps) {
+    STATIC in providers && providers[STATIC].render(apps);
+  };
 
   this.onNewQuery = function onNewQuery(data) {
     INSTALLED in providers && providers[INSTALLED].render(data);
