@@ -24,6 +24,8 @@ var Bookmark = function Bookmark(params) {
 };
 
 Bookmark.prototype = {
+  regexSmartFolder: /fldr:\/\//,
+
   launch: function bookmark_launch() {
     var features = {
       name: this.manifest.name.replace(/\s/g, '&nbsp;'),
@@ -31,10 +33,20 @@ Bookmark.prototype = {
       remote: true,
       useAsyncPanZoom: this.useAsyncPanZoom
     };
-
-    // The third parameter is received in window_manager without whitespaces
-    // so we decice replace them for &nbsp;
-    window.open(this.url, '_blank', JSON.stringify(features));
+      
+    if (this.regexSmartFolder.test(this.url)) {
+      features.type = 'url';
+      features.url = this.url;
+      
+      new MozActivity({
+        name: 'smartfolder',
+        data: features
+      });
+    } else {
+      // The third parameter is received in window_manager without whitespaces
+      // so we decice replace them for &nbsp;
+      window.open(this.url, '_blank', JSON.stringify(features));
+    }
   },
 
   uninstall: function bookmark_uninstall() {

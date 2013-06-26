@@ -18,8 +18,8 @@ Evme.IconManager = new function Evme_IconManager() {
 
     self.get(id, function fromCache(iconFromCache) {
       if (!iconFromCache || iconFromCache.format < iconsFormat) {
-	Evme.Storage.set(_prefix + id, icon);
-	Evme.EventHandler.trigger(NAME, "iconAdded", icon);
+      	Evme.Storage.set(_prefix + id, icon);
+      	Evme.EventHandler.trigger(NAME, "iconAdded", icon);
       }
     });
 
@@ -72,36 +72,48 @@ Evme.IconGroup = new function Evme_IconGroup() {
       context = elCanvas.getContext('2d');
 
     elCanvas.width = WIDTH;
-    elCanvas.height = HEIGHT;
+    elCanvas.height = query? HEIGHT : WIDTH;
     context.imagesToLoad = icons.length;
     context.imagesLoaded = [];
-
+    
+    if (!Array.isArray(apps)) {
+      var objectApps = apps;
+      apps = [];
+      for (var id in objectApps) {
+        apps.push({
+          "icon": objectApps[id]
+        });
+      }
+    }
+    
     for (var i = 0; i < icons.length; i++) {
       var app = apps[apps.length - 1 - i];
 
       if (typeof app !== "object") {
-	app = {
-	  "id": app,
-	};
+      	app = {
+      	  "id": app,
+      	};
       }
 
       if (app.icon) {
-	loadIcon(Evme.Utils.formatImageData(app.icon), icons[i], context, i, onReady);
+        loadIcon(Evme.Utils.formatImageData(app.icon), icons[i], context, i, onReady);
       } else {
-	(function(app, icon, context, i, onReady) {
-	  Evme.IconManager.get(app.id, function onIconFromCache(appIcon) {
-	    loadIcon(Evme.Utils.formatImageData(appIcon), icon, context, i, onReady);
-	  });
-	}(app, icons[i], context, i, onReady));
+        (function(app, icon, context, i, onReady) {
+          Evme.IconManager.get(app.id, function onIconFromCache(appIcon) {
+            loadIcon(Evme.Utils.formatImageData(appIcon), icon, context, i, onReady);
+          });
+        }(app, icons[i], context, i, onReady));
       }
     }
-
+    
     // add the app name
-    Evme.Utils.writeTextToCanvas({
-      "context": context,
-      "text": query,
-      "offset": ICON_HEIGHT + TEXT_MARGIN
-    });
+    if (query) {
+      Evme.Utils.writeTextToCanvas({
+        "context": context,
+        "text": query,
+        "offset": ICON_HEIGHT + TEXT_MARGIN
+      });
+    }
 
     return elCanvas;
   }

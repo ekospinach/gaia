@@ -169,6 +169,6 @@
     opacity: 1;
 }
 
-#evmeContainer.smart-folder-visible #search-header {
+.evme-smart-folder-visible #evmeContainer #search-header {
     display: none;
 }

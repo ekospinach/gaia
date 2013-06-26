@@ -10,13 +10,18 @@
 .evme-has-query #evmeContainer {
     height: calc(100% - 7.5rem);
 }
-.evme-keyboard-visible #evmeContainer {
+.evme-keyboard-visible #evmeContainer,
+.evme-smart-folder-visible #evmeContainer {
     height: 100%;
 }
 .evme-keyboard-visible .apps > div.evmePage ol,
 .evme-has-query .apps > div.evmePage ol
 {
     opacity: 0;
+}
+
+.evme-smart-folder-visible #footer {
+  display: none;
 }
 
 .apps > div.evmePage {

@@ -26,7 +26,8 @@ Evme.Brain = new function Evme_Brain() {
         TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH = 800,
         TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
         
-        CLASS_WHEN_HAS_QUERY = 'evme-has-query';
+        CLASS_WHEN_HAS_QUERY = 'evme-has-query',
+        CLASS_WHEN_SMART_FOLDER_VISIBLE = 'evme-smart-folder-visible',
 
         L10N_SYSTEM_ALERT="alert",
 
@@ -67,6 +68,7 @@ Evme.Brain = new function Evme_Brain() {
         elContainer = Evme.Utils.getContainer();
         
         initL10nObserver();
+        initActivitiesHandlers();
 
         _config = options;
 
@@ -80,6 +82,28 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
+    
+    function initActivitiesHandlers() {
+      if ('mozSetMessageHandler' in window.navigator) {
+        window.navigator.mozSetMessageHandler('activity', onActivity);
+      }
+    }
+    
+    function onActivity(activity) {
+      var activityName = activity.source.name,
+          data = activity.source.data;
+
+      if (activityName === 'smartfolder') {
+        new Evme.SmartFolder({
+            "resultsManager": Evme.SmartfolderResults,
+            "query": data.name,
+            "experienceId": data.experienceId,
+            "bgImage": (Evme.BackgroundImage.get() || {}).image,
+            "elParent": elContainer,
+            "name": data.name
+        }).show();
+      }
+    }
 
     // l10n: create a mutation observer to know when a node was added
     // and check if it needs to be translated
@@ -944,17 +968,17 @@ Evme.Brain = new function Evme_Brain() {
         
         // a folder is shown
         this.show = function show(data) {
-            elContainer.classList.add("smart-folder-visible");
+            document.body.classList.add(CLASS_WHEN_SMART_FOLDER_VISIBLE);
 
             currentFolder = data.folder;
-	    window.setTimeout(loadAppsIntoFolder, 400);
-
-	    currentResultsManager = Evme.SmartfolderResults;
+      	    window.setTimeout(loadAppsIntoFolder, 400);
+      
+      	    currentResultsManager = Evme.SmartfolderResults;
         };
 
         // hiding the folder
         this.hide = function hide() {
-            elContainer.classList.remove("smart-folder-visible");
+          document.body.classList.remove(CLASS_WHEN_SMART_FOLDER_VISIBLE);
             Evme.Brain.SmartFolder.cancelRequests();
             Evme.ConnectionMessage.hide();
 
@@ -1194,12 +1218,12 @@ Evme.Brain = new function Evme_Brain() {
         this.click = function click(data) {
             if(!Evme.Shortcuts.isEditing && !Evme.Shortcuts.isSwiping()) {
                 new Evme.SmartFolder({
-		    "resultsManager": Evme.SmartfolderResults,
+		                "resultsManager": Evme.SmartfolderResults,
                     "query": data.shortcut.getQuery(),
                     "experienceId": data.shortcut.getExperience(),
                     "bgImage": (Evme.BackgroundImage.get() || {}).image,
                     "elParent": elContainer,
-		    "name": data.name
+		                "name": data.name
                 }).show();
             }
         };
@@ -1270,21 +1294,25 @@ Evme.Brain = new function Evme_Brain() {
           if (!data || !data.query) {
             return;
           }
+
+          var query = data.query;
           
-          var queries = [data.query];
-          
+          // get the query's apps (icons)
           Evme.DoATAPI.shortcutsGet({
-            "queries": JSON.stringify(queries),
+            "queries": JSON.stringify([query]),
             "_NOCACHE": true
           }, function onShortcutsGet(response) {
             var shortcuts = response.response.shortcuts,
                 icons = response.response.icons;
-
-            Evme.DoATAPI.Shortcuts.add({
-                "shortcuts": shortcuts,
-                "icons": icons
-            }, function onSuccess(){
-                console.log('evyatar new shortcut added');
+                
+            // create the special icon (three apps icons on top of each other)
+            Evme.IconGroup.get(icons, '', function onReady(elCanvas) {
+              // install the newely created shortcut!
+              Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+                'originUrl': 'fldr://query=' + encodeURIComponent(query),
+                'title': query,
+                'icon': elCanvas.toDataURL()
+              });
             });
           });
         };
