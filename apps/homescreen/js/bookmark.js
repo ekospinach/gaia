@@ -9,6 +9,7 @@ var Bookmark = function Bookmark(params) {
     this.iconable = true;
   }
 
+  this.id = params.id || '';
   this.isFolder = !!params.isFolder;
   this.isBookmark = true;
   this.url = this.bookmarkURL = this.origin = params.bookmarkURL;
@@ -29,6 +30,7 @@ Bookmark.prototype = {
 
   launch: function bookmark_launch() {
     var features = {
+      id: this.id || '',
       name: this.manifest.name.replace(/\s/g, '&nbsp;'),
       icon: this.manifest.icons['60'],
       remote: true,

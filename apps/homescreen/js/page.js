@@ -62,9 +62,10 @@ Icon.prototype = {
   },
 
   isOfflineReady: function icon_isOfflineReady() {
-    return !(this.descriptor.isHosted &&
-      !this.descriptor.hasOfflineCache ||
-      this.descriptor.isBookmark);
+    return this.descriptor.isFolder ||
+            !(this.descriptor.isHosted &&
+            !this.descriptor.hasOfflineCache ||
+            this.descriptor.isBookmark);
   },
 
   /*
@@ -103,6 +104,7 @@ Icon.prototype = {
     
     if (descriptor.isFolder) {
       container.dataset.isFolder = true;
+      container.dataset.folderId = descriptor.id;
       container.dataset.folderName = descriptor.name;
     }
 

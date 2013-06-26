@@ -1005,7 +1005,7 @@ var GridManager = (function() {
   }
 
   function hasOfflineCache(app) {
-    return app.manifest.appcache_path != null;
+    return app.isFolder || app.manifest.appcache_path != null;
   }
 
   /*
@@ -1043,8 +1043,10 @@ var GridManager = (function() {
       isHosted: isHosted(app),
       hasOfflineCache: hasOfflineCache(app),
       isBookmark: app.isBookmark,
+      id: app.id,
       isFolder: !!app.isFolder
     };
+    
     if (haveLocale && !app.isBookmark) {
       descriptor.localizedName = iconsAndNameHolder.name;
     }
@@ -1062,7 +1064,7 @@ var GridManager = (function() {
     rememberIcon(icon);
 
     var index = getFirstPageWithEmptySpace(gridPageOffset);
-    console.log('evyatar add app to page: ' + index);
+
     if (index < pages.length) {
       pages[index].appendIcon(icon);
     } else {

@@ -19,6 +19,7 @@ var EvmeManager = (function EvmeManager() {
 
     function addBookmark(params) {
         GridManager.install(new Bookmark({
+          id: params.id,
           bookmarkURL: params.originUrl,
           name: params.title,
           icon: params.icon,
