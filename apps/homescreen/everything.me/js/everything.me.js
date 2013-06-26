@@ -201,6 +201,15 @@ var EverythingME = {
       var resource = list[i];
       resource.parentNode.removeChild(resource);
     }
+  },
+
+  SmartFolder: {
+    suggest: function EverythingME_SmartFolder_suggest() {
+      EvmeFacade.onSmartfolderSuggest();
+    },
+    custom: function EverythingME_SmartFolder_custom() {
+      EvmeFacade.onSmartfolderCustom();
+    }
   }
 };
 

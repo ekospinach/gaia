@@ -1334,6 +1334,10 @@ var GridManager = (function() {
         return defaultAppIcon.descriptor.renderedIcon;
       }
     },
+    
+    get container() {
+      return container;
+    },
 
     showRestartDownloadDialog: showRestartDownloadDialog,
 

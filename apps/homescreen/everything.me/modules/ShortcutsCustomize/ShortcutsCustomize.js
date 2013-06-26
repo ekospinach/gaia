@@ -25,6 +25,18 @@ Evme.ShortcutsCustomize = new function Evme_ShortcutsCustomize() {
         elList.blur();
     };
 
+    this.newCustom = function newCustom() {
+      var customQuery = prompt('Create your own smartfolder');
+
+      if (!customQuery) {
+        return;
+      }
+
+      Evme.EventHandler.trigger(NAME, 'custom', {
+        "query": customQuery
+      });
+    };
+
     this.get = function get() {
         var selectedShortcuts = [],
             elShourtcuts = Evme.$('option', elList);

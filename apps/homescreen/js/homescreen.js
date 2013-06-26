@@ -62,10 +62,62 @@ var Homescreen = (function() {
       DragDropManager.init();
       Wallpaper.init();
       
+      // add tap-and-hold menu
+      GridManager.container.addEventListener('contextmenu', onTapAndHold);
+      
       if (onInit instanceof Function) {
         onInit();
       }
     });
+  }
+
+  function onTapAndHold(e) {
+    e.preventDefault();
+
+    var elDialog = document.createElement('form');
+    elDialog.onsubmit = function() { return false; };
+    elDialog.setAttribute('role', 'dialog');
+    elDialog.setAttribute('data-type', 'action');
+    elDialog.style.zIndex = '10005'; // to be on top of dock
+    elDialog.innerHTML = '<menu>' +
+                            ('Wallpaper' in window?
+                            '<button id="buttonWallpaper">Change Wallpaper...</button>'
+                            : '') +
+                            ('EverythingME' in window?
+                            '<button id="buttonAddSmartfolders">Add Smartfolders</button>' +
+                            '<button id="buttonCustomSmartfolder">Custom Smartfolder</button>'
+                            : '') +
+                            '<button id="btnCancel">Cancel</button>' +
+                          '</menu>' +
+                        '</form>';
+
+    document.body.appendChild(elDialog);
+
+    elDialog.querySelector('#buttonWallpaper').addEventListener('click', onClickWallpaper);
+    elDialog.querySelector('#buttonAddSmartfolders').addEventListener('click', onClickAdd);
+    elDialog.querySelector('#buttonCustomSmartfolder').addEventListener('click', onClickCustom);
+    elDialog.querySelector('#btnCancel').addEventListener('click', onClickCancel);
+
+
+    function onClickWallpaper() {
+      Wallpaper.select();
+      window.setTimeout(hide, 50);
+    }
+    function onClickAdd() {
+      EverythingME.SmartFolder.suggest();
+      hide();
+    }
+    function onClickCustom() {
+      EverythingME.SmartFolder.custom();
+      hide();
+    }
+    function onClickCancel() {
+      hide();
+    }
+
+    function hide() {
+      elDialog.parentNode.removeChild(elDialog);
+    }
   }
 
   function exitFromEditMode() {

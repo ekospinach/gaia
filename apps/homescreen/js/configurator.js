@@ -29,7 +29,6 @@ var Configurator = (function() {
         if (searchPage) {
           var provider = window[searchPage.provider] || dummyProvider;
           if (searchPage.enabled) {
-            dump('evyatar searchPage.enabled');
             Homescreen.init(NO_LANDING? -1 : 1, function onInit() {
               provider.init();
             });
@@ -61,7 +60,6 @@ var Configurator = (function() {
     }
 
     if (Homescreen) {
-      dump('evyatar homescreen default');
       // TODO passing hard-coded -1 (no landing page), should come from config
       Homescreen.init(NO_LANDING? -1 : 0);
     }

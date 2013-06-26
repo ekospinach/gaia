@@ -80,7 +80,7 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
-    
+
     // l10n: create a mutation observer to know when a node was added
     // and check if it needs to be translated
     function initL10nObserver() {
@@ -1148,11 +1148,6 @@ Evme.Brain = new function Evme_Brain() {
                 Evme.Shortcuts.load(data.response);
             });
         };
-        
-        // shortcuts loaded. add + icon
-        this.load = function load() {
-            Brain.ShortcutsCustomize.addCustomizeButton();
-        };
 
         // return to normal shortcut mode
         this.doneEdit = function doneEdit() {
@@ -1234,7 +1229,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.ShortcutsCustomize.Loading.hide();
             isOpen = false;
         };
-        
+
         this.hideIfOpen = function hideIfOpen() {
             if (isOpen) {
                 Evme.ShortcutsCustomize.hide();
@@ -1269,6 +1264,29 @@ Evme.Brain = new function Evme_Brain() {
                     Brain.Shortcuts.loadFromAPI();
                 });
             }
+        };
+        
+        this.custom = function custom(data) {
+          if (!data || !data.query) {
+            return;
+          }
+          
+          var queries = [data.query];
+          
+          Evme.DoATAPI.shortcutsGet({
+            "queries": JSON.stringify(queries),
+            "_NOCACHE": true
+          }, function onShortcutsGet(response) {
+            var shortcuts = response.response.shortcuts,
+                icons = response.response.icons;
+
+            Evme.DoATAPI.Shortcuts.add({
+                "shortcuts": shortcuts,
+                "icons": icons
+            }, function onSuccess(){
+                console.log('evyatar new shortcut added');
+            });
+          });
         };
 
         // prepare and show
@@ -1352,20 +1370,6 @@ Evme.Brain = new function Evme_Brain() {
             requestSuggest && requestSuggest.abort && requestSuggest.abort();
             window.setTimeout(Evme.ShortcutsCustomize.Loading.hide, 50);
             isRequesting = false;
-        };
-
-        // inject + button
-        this.addCustomizeButton = function addCustomizeButton() {
-            var el = Evme.Shortcuts.getElement(),
-                elCustomize = Evme.$create('li', {'class': "shortcut add"},
-                                '<div class="c">' +
-                                    '<span class="thumb"></span>' +
-                                    '<b ' + Evme.Utils.l10nAttr('shortcuts', 'more') + '></b>' +
-                                '</div>');
-            
-            elCustomize.addEventListener("click", self.showUI);
-
-            el.appendChild(elCustomize);
         };
     };
     

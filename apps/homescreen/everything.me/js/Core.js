@@ -70,6 +70,14 @@ window.Evme = new function Evme_Core() {
         return false;
     };
 
+    this.onSmartfolderSuggest = function onSmartfolderSuggest() {
+      Evme.Brain.ShortcutsCustomize.showUI();
+    };
+
+    this.onSmartfolderCustom = function onSmartfolderCustom() {
+      Evme.ShortcutsCustomize.newCustom();
+    };
+
     function initObjects(data) {
         Evme.Features.init({
             "featureStateByConnection": data.featureStateByConnection
