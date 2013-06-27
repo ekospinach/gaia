@@ -993,7 +993,8 @@ Evme.Brain = new function Evme_Brain() {
 
         function loadBGImage() {
             if (!currentFolder) return;
-
+            if (currentFolder.userSetBg()) return;
+            
             var experienceId = currentFolder.getExperience(),
                 query = currentFolder.getQuery();
 
@@ -1005,10 +1006,11 @@ Evme.Brain = new function Evme_Brain() {
                 "width": screen.width,
                 "height": screen.height
             }, function onSuccess(data) {
-                currentFolder && currentFolder.setImage({
+                currentFolder && currentFolder.setBackground({
                     "image": Evme.Utils.formatImageData(data.response.image),
                     "query": query,
-                    "source": data.response.source
+                    "source": data.response.source,
+                    "setByUser": false
                 });
 
                 requestSmartFolderImage = null;

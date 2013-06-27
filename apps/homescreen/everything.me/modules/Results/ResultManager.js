@@ -376,9 +376,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
       apiHasMoreCloudApps = data ? data.limit + data.first < data.max : false;
     }
 
-    console.log("data", JSON.stringify(data));
-    console.log("apiHasMoreCloudApps", apiHasMoreCloudApps);
-
     if (apiHasMoreCloudApps) {
       el.classList.add(CLASS_HAS_MORE_APPS);
     } else {

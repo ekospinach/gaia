@@ -4,10 +4,6 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     
     folderSettings = null,
 
-    // TOOD should be part of folderSettings
-    image = '',
-    bgImage = null,
-
     el = null,
     elScreen = null,
     elTitle = null,
@@ -50,6 +46,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elAppsContainer.dataset.scrollOffset = 0;
 
     self.setTitle();
+    folderSettings.bg && self.setBackground(folderSettings.bg);
     
     // render apps
     resultsManager.renderStaticApps(folderSettings.apps);
@@ -80,7 +77,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elScreen.classList.remove(CLASS_WHEN_VISIBLE);
 
     resultsManager.clear();
-    self.clearImage();
+    self.clearBackground();
 
     Evme.EventHandler.trigger(NAME, "hide", {
       "folder": self
@@ -121,40 +118,19 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
       '<span>' + title + '</span>';
   };
 
-  this.setImage = function setImage(newImage) {
-    if (!newImage || newImage === image) {
-      return self;
-    }
+  this.setBackground = function setBackground(newBg) {
+    elImage.style.backgroundImage = 'url(' + newBg.image + ')';
 
-    image = newImage;
-
-    elImage.style.backgroundImage = 'url(' + image.image + ')';
-
-    elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(image, self.hideFullscreen);
+    elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
     el.appendChild(elImageFullscreen);
 
+    Evme.SmartFolderStorage.update(folderSettings, {bg: newBg});
+    
     resultsManager.changeFadeOnScroll(true);
-
-    return self;
   };
 
-  this.setBgImage = function setBgImage(newBgImage) {
-    if (!newBgImage || newBgImage === bgImage) {
-      return self;
-    }
-
-    bgImage = newBgImage;
-
-    el.style.backgroundImage = 'url(' + bgImage + ')';
-
-    return self;
-  };
-
-  this.clearImage = function clearImage() {
-    image = null;
+  this.clearBackground = function clearBackground() {
     el.style.backgroundImage = 'none';
-
-    bgImage = null
     elImage.style.backgroundImage = 'none';
 
     Evme.$remove(elImageFullscreen);
@@ -204,11 +180,11 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   this.getQuery = function getQuery() {
     return folderSettings.query;
   };
-  
-  this.getImage = function getImage() {
-    return image;
-  };
 
+  this.userSetBg = function userSetBg() {
+    return (folderSettings.bg && folderSettings.bg.setByUser);
+  }
+  
   self.init(_options);
 };
 
@@ -216,7 +192,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
 Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.id = args.id;
   this.name = args.name || args.query;
-  this.bgImage = args.bgImage || null;
+  this.bg = args.bg || null;  // object containing backgound information (image, query, source, setByUser)
   
   // folder performs search by query or by experience
   this.query = args.query || args.name;
@@ -292,8 +268,8 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
 
   function saveFolderSettings(folderSettings, cb) {
     // save folder settings in storage and run callback async.
-    Evme.SmartFolderStorage.set(folderSettings, function onFolderStored() {
-      Evme.Utils.log("saved SmartFolderSettings", folderSettings);
+    Evme.SmartFolderStorage.add(folderSettings, function onFolderStored() {
+      Evme.Utils.log("saved SmartFolderSettings", JSON.stringify(folderSettings));
       cb && cb(folderSettings);
     });
   }
@@ -305,10 +281,17 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
     PREFIX = "fldrsttngs_",
     self = this;
 
-  this.set = function set(folderSettings, cb) {
+  this.add = function add(folderSettings, cb) {
     Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
       cb instanceof Function && cb();
     });
+  };
+
+  this.update = function update(folderSettings, data, cb) {
+    for (var prop in data) {
+      folderSettings[prop] = data[prop];
+    }
+    self.add(folderSettings, cb);
   };
 
   this.get = function get(folderSettingsId, cb) {
