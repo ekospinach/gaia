@@ -10,7 +10,7 @@ Evme.InstalledAppResult.prototype.constructor = Evme.InstalledAppResult;
 */
 Evme.InstalledAppsRenderer = function Evme_InstalledAppsRenderer() {
   var NAME = "InstalledAppsRenderer",
-    DEFAULT_ICON = Evme.Utils.getDefaultAppIcon,
+    DEFAULT_ICON = Evme.Utils.getDefaultAppIcon(),
     self = this,
     containerEl,
     appsSignature = Evme.Utils.EMPTY_APPS_SIGNATURE;
