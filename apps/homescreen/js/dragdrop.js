@@ -11,7 +11,7 @@ const DragDropManager = (function() {
   /*
    * It defines the time (in ms) between consecutive rearranges
    */
-  var REARRANGE_DELAY = 50;
+  var REARRANGE_DELAY = 300;
 
   /*
    * Drop feature is disabled (in the borders of the icongrid)
@@ -199,8 +199,15 @@ const DragDropManager = (function() {
     isDisabledDrop = false;
     transitioning = false;
     var page = getPage();
+    var dropIntoFolder = false;
+
+    if (overlapElem && overlapElem.dataset.draggedon == "true"){
+      overlapElem.dataset.draggedon = "false";
+      dropIntoFolder = true;
+    }
+
     DragLeaveEventManager.send(page, function(done) {
-      draggableIcon.onDragStop(callback);
+      draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem);
       done();
     }, true);
   }
@@ -300,7 +307,7 @@ const DragDropManager = (function() {
       return;
     }
 
-    if (previousOverlapIcon !== overlapElem) {
+    if (!letHoverOver(overlapElem, draggableIcon.draggableElem)) {
       clearTimeout(overlapingTimeout);
       if (classList.contains('page')) {
         var lastIcon = page.getLastIcon();
@@ -312,6 +319,8 @@ const DragDropManager = (function() {
       } else {
         overlapingTimeout = setTimeout(drop, REARRANGE_DELAY, page);
       }
+    } else {
+      clearTimeout(overlapingTimeout);
     }
 
     previousOverlapIcon = overlapElem;
@@ -330,6 +339,31 @@ const DragDropManager = (function() {
     return overlapingDock ? DockManager.page : pageHelper.getCurrent();
   }
 
+  function letHoverOver(overlapElem, draggableElem) {
+    if (overlapElem == originElem || !isInOriginalPosition(overlapElem)) { return false; }
+
+    var overlapRect = overlapElem.getBoundingClientRect(),
+        centerY = overlapRect.height/2 + overlapRect.top,
+        centerX = overlapRect.width/2 + overlapRect.left;
+
+    var dragRect = draggableElem.getBoundingClientRect(),
+        scale = 1.2;
+
+    var touchesCenter = dragRect.top*scale < centerY &&
+                        dragRect.bottom/scale > centerY &&
+                        dragRect.left*scale < centerX &&
+                        dragRect.right/scale > centerX;
+
+    overlapElem.dataset.draggedon = touchesCenter;
+    
+    return touchesCenter;
+  }
+
+  function isInOriginalPosition(elem) {
+    return !overlapElem.style.MozTransform ||
+            overlapElem.style.MozTransform === 'translate(0%, 0%)';
+  }
+
   // It implements a stack of re-arrange operations in order to avoid
   // appendChild's collisions between pages and/or pages and dock
   var DragLeaveEventManager = (function() {
@@ -346,6 +380,8 @@ const DragDropManager = (function() {
     DragLeaveEvent.prototype.send = function() {
       working = true;
       var self = this;
+
+      console.log(letHoverOver(overlapElem, draggableIcon.draggableElem));
 
       // For some reason, moving a node re-triggers the blob URI to be validated
       // after inserting this one in other position of the DOM

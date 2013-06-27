@@ -71,3 +71,31 @@ body[data-mode = 'edit'] ol > li[data-dragging] {
 body[data-dragging] ol > li {
 	opacity: 0.7;
 }
+
+body[data-mode = 'edit'] ol > li > div > img {
+  position: relative;
+  z-index: 2;
+}
+body[data-mode = 'edit'] ol > li > div::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7rem;
+  height: 7rem;
+  background: black;
+  border-radius: 50%;
+  margin-left: -3.8rem;
+  margin-top: -5.1rem;
+  border: .3rem solid blue;
+  z-index: 1;
+  -moz-transform: scale(0.3);
+  -moz-transition: -moz-transform .3s;
+}
+body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::after {
+ -moz-transform: scale(1); 
+}
+.draggable.droppedInFolder > div {
+  -moz-transform: scale(0);
+  opacity: 0;
+}
