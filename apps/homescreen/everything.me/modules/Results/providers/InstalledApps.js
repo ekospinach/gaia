@@ -195,6 +195,9 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     return queries;
   };
 
+  this.getApps = function() {
+    return appIndex;
+  };
 
   this.getSlugs = function getAPIIds() {
     var ids = [];

@@ -1122,6 +1122,42 @@ Evme.Brain = new function Evme_Brain() {
                 }
             });
         }
+
+        this.actionAddApp = function actionAddApp(data) {
+            // create <select multiple>
+            var select = new Evme.SelectBox();
+            select.init({
+                "callback": function(selectedArr) {
+                    select = null;
+                    currentFolder && currentFolder.addApps(selectedArr);
+                }
+            });
+
+            // get all apps
+            var appIndex = Evme.InstalledAppsService.getApps(),
+                appArray = [],
+                staticAppIds = [];
+
+            // convert static apps to ids for later filtering
+            for (var i=0,app; app=data.staticApps[i++];) {
+                staticAppIds.push(app.id);
+            }
+
+            // normalize to selectbox format
+            for (var k in appIndex) {
+                var app = appIndex[k];
+
+                // filter out already displayed static apps
+                if (staticAppIds.indexOf(app.id) !== -1) { continue; }
+
+                appArray.push({
+                    "text": app.name,
+                    "return": app
+                });
+            }
+            // load apps into select and show
+            select.load(appArray);
+        };
     };
 
     // modules/Shortcuts/
