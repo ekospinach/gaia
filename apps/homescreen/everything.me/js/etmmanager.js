@@ -18,15 +18,15 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function addBookmark(params) {
-        GridManager.install(new Bookmark({
-          id: params.id,
-          bookmarkURL: params.originUrl,
-          name: params.title,
-          icon: params.icon,
-          iconable: false,
-          useAsyncPanZoom: params.useAsyncPanZoom,
-          isFolder: !!params.isFolder
-        }));
+      GridManager.install(new Bookmark({
+        "id": params.id,
+        "bookmarkURL": params.originUrl,
+        "name": params.title,
+        "icon": params.icon,
+        "iconable": false,
+        "useAsyncPanZoom": params.useAsyncPanZoom,
+        "isFolder": !!params.isFolder
+      }), params.gridPosition);
     }
 
     function openUrl(url) {

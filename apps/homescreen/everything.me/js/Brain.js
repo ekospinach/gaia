@@ -96,6 +96,7 @@ Evme.Brain = new function Evme_Brain() {
       var query = options.query,
           id = options.id || query + '_' + Math.random()*100000,
           shortcutIcons = options.icons || [],
+          gridPosition = options.gridPosition,
           url = 'fldr://query/' + query;
 
       // create the special icon (three apps icons on top of each other)
@@ -106,7 +107,8 @@ Evme.Brain = new function Evme_Brain() {
           "originUrl": url,
           "title": query,
           "icon": elCanvas.toDataURL(),
-          "isFolder": true
+          "isFolder": true,
+          "gridPosition": gridPosition
         });
 
         window.dispatchEvent(new CustomEvent('EvmeShortcutCreated', {
@@ -1416,7 +1418,11 @@ Evme.Brain = new function Evme_Brain() {
               window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
                 "detail": {
                   "icons": shortcutIcons,
-                  "query": query
+                  "query": query,
+                  "gridPosition": {
+                    "page": 0,
+                    "index": 4
+                  }
                 }
               }));
             }

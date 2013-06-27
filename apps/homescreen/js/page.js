@@ -147,7 +147,9 @@ Icon.prototype = {
       this.appendOptions();
     }
 
-    target.appendChild(container);
+    if (target) {
+      target.appendChild(container);
+    }
 
     if (this.downloading) {
       //XXX: Bug 816043 We need to force the repaint to show the span
@@ -822,6 +824,27 @@ Page.prototype = {
     setTimeout(function disableTapTimeout() {
       olist.removeAttribute('disabled');
     }, time || this.DISABLE_TAP_EVENT_DELAY);
+  },
+
+  /*
+   * Adds an icon at the position specified
+   *
+   * @param{Object} icon object
+   * @param{Number} index to insert at
+   */
+  appendIconAt: function pg_appendIconAt(icon, index) {
+    if (!icon.container) {
+      icon.render();
+    }
+
+    this.setReady(false);
+
+    var olist = this.olist;
+    if (olist.children[index]) {
+      olist.insertBefore(icon.container, olist.children[index]);
+    }
+
+    this.setReady(true);
   },
 
   /*

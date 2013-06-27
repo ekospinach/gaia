@@ -972,7 +972,7 @@ var GridManager = (function() {
    * corresponding icon(s) for it (an app can have multiple entry
    * points, each one is represented as an icon.)
    */
-  function processApp(app, callback, gridPageOffset) {
+  function processApp(app, callback, gridPageOffset, gridPosition) {
     // Ignore system apps.
     if (HIDDEN_APPS.indexOf(app.manifestURL) != -1)
       return;
@@ -985,7 +985,7 @@ var GridManager = (function() {
 
     var entryPoints = manifest.entry_points;
     if (!entryPoints || manifest.type != 'certified') {
-      createOrUpdateIconForApp(app, null, gridPageOffset);
+      createOrUpdateIconForApp(app, null, gridPageOffset, gridPosition);
       return;
     }
 
@@ -993,7 +993,7 @@ var GridManager = (function() {
       if (!entryPoints[entryPoint].icons)
         continue;
 
-      createOrUpdateIconForApp(app, entryPoint, gridPageOffset);
+      createOrUpdateIconForApp(app, entryPoint, gridPageOffset, gridPosition);
     }
   }
 
@@ -1011,7 +1011,7 @@ var GridManager = (function() {
   /*
    * Create or update a single icon for an Application (or Bookmark) object.
    */
-  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset) {
+  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset, gridPosition) {
     // Make sure we update the icon/label when the app is updated.
     if (!app.isBookmark) {
       app.ondownloadapplied = function ondownloadapplied(event) {
@@ -1062,13 +1062,18 @@ var GridManager = (function() {
 
     var icon = new Icon(descriptor, app);
     rememberIcon(icon);
-
-    var index = getFirstPageWithEmptySpace(gridPageOffset);
-
-    if (index < pages.length) {
-      pages[index].appendIcon(icon);
+    
+    if (gridPosition) {
+      var index = gridPosition.page || 0;
+      pages[index].appendIconAt(icon, gridPosition.index || 0); 
     } else {
-      pageHelper.addPage([icon]);
+      var index = getFirstPageWithEmptySpace(gridPageOffset);
+
+      if (index < pages.length) {
+        pages[index].appendIcon(icon);
+      } else {
+        pageHelper.addPage([icon]);
+      }
     }
 
     markDirtyState();
@@ -1264,8 +1269,8 @@ var GridManager = (function() {
      * @param {Application} app
      *                      The application (or bookmark) object
      */
-    install: function gm_install(app) {
-      processApp(app);
+    install: function gm_install(app, gridPosition) {
+      processApp(app, null, null, gridPosition);
     },
 
     /*
