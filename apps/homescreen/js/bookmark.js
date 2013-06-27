@@ -11,6 +11,7 @@ var Bookmark = function Bookmark(params) {
 
   this.id = params.id || '';
   this.isFolder = !!params.isFolder;
+  this.hideFromGrid = !!params.hideFromGrid;
   this.isBookmark = true;
   this.url = this.bookmarkURL = this.origin = params.bookmarkURL;
 

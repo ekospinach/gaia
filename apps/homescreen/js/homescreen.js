@@ -92,12 +92,31 @@ var Homescreen = (function() {
                         '</form>';
 
     document.body.appendChild(elDialog);
+    
+    attachEvents();
+    
+    function attachEvents() {
+      attachEvent('buttonWallpaper', onClickWallpaper);
+      attachEvent('buttonAddSmartfolders', onClickAdd);
+      attachEvent('buttonCustomSmartfolder', onClickCustom);
+      attachEvent('btnCancel', onClickCancel);
+    }
 
-    elDialog.querySelector('#buttonWallpaper').addEventListener('click', onClickWallpaper);
-    elDialog.querySelector('#buttonAddSmartfolders').addEventListener('click', onClickAdd);
-    elDialog.querySelector('#buttonCustomSmartfolder').addEventListener('click', onClickCustom);
-    elDialog.querySelector('#btnCancel').addEventListener('click', onClickCancel);
+    function removeEvents() {
+      removeEvent('buttonWallpaper', onClickWallpaper);
+      removeEvent('buttonAddSmartfolders', onClickAdd);
+      removeEvent('buttonCustomSmartfolder', onClickCustom);
+      removeEvent('btnCancel', onClickCancel);
+    }
 
+    function attachEvent(id, listener) {
+      var el = elDialog.querySelector('#' + id);
+      el && el.addEventListener('click', listener);
+    }
+    function removeEvent(id, listener) {
+      var el = elDialog.querySelector('#' + id);
+      el && el.removeEventListener('click', listener);
+    }
 
     function onClickWallpaper() {
       Wallpaper.select();
@@ -116,6 +135,7 @@ var Homescreen = (function() {
     }
 
     function hide() {
+      removeEvents();
       elDialog.parentNode.removeChild(elDialog);
     }
   }

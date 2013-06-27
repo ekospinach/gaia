@@ -5,7 +5,7 @@
 
 var ContextMenu = {
   init: function cm_init() {
-    window.addEventListener('mozbrowsercontextmenu', this, true);
+    //window.addEventListener('mozbrowsercontextmenu', this, true);
   },
 
   handleEvent: function cm_handleEvent(evt) {

@@ -104,3 +104,7 @@ body[data-online = 'offline'] li[data-offline-ready = 'false'] > div > span {
 body[data-online = 'offline'] li[data-offline-ready = 'false'] > div > span {
   opacity: 0.5;
 }
+
+.apps ol > li[data-hide = 'true'] {
+  display: none;
+}

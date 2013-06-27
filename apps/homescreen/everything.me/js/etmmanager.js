@@ -29,6 +29,10 @@ var EvmeManager = (function EvmeManager() {
       }), params.gridPosition);
     }
 
+    function hideFromGrid(origins) {
+      return GridManager.hide(origins);
+    }
+
     function openUrl(url) {
         new MozActivity({
            name: "view",
@@ -127,18 +131,19 @@ var EvmeManager = (function EvmeManager() {
         openApp: openApp,
 
         addBookmark: addBookmark,
+        hideFromGrid: hideFromGrid,
 
         isAppInstalled: function isAppInstalled(url) {
             return GridManager.getIconForBookmark(url) ||
                    GridManager.getAppByOrigin(url);
         },
         getApps: getApps,
-	getAppInfo: getAppInfo,
+	      getAppInfo: getAppInfo,
 
         openUrl: openUrl,
-	openMarketplaceApp: openMarketplaceApp,
-	openMarketplaceSearch: openMarketplaceSearch,
-	getMarketplaceAppIcon: getMarketplaceAppIcon,
+      	openMarketplaceApp: openMarketplaceApp,
+      	openMarketplaceSearch: openMarketplaceSearch,
+      	getMarketplaceAppIcon: getMarketplaceAppIcon,
 
         menuShow: menuShow,
         menuHide: menuHide,

@@ -737,11 +737,20 @@ var GridManager = (function() {
       state.unshift(DockManager.page);
       for (var i = 0; i < state.length; i++) {
         var page = state[i];
-        state[i] = {index: i, icons: page.getIconDescriptors()};
+        state[i] = {
+          index: i,
+          icons: page.getIconDescriptors()
+        };
       }
       HomeState.saveGrid(state);
     },
-
+  
+    render: function() {
+      for (var i=0, page; page=pages[i++];) {
+        page.render();
+      }
+    },
+    
     getNext: function() {
       return pages[currentPage + 1];
     },
@@ -1044,7 +1053,8 @@ var GridManager = (function() {
       hasOfflineCache: hasOfflineCache(app),
       isBookmark: app.isBookmark,
       id: app.id,
-      isFolder: !!app.isFolder
+      isFolder: !!app.isFolder,
+      hideFromGrid: !!app.hideFromGrid
     };
     
     if (haveLocale && !app.isBookmark) {
@@ -1274,6 +1284,57 @@ var GridManager = (function() {
     },
 
     /*
+     * Hides an app from the grid, but leaving it installed
+     *
+     * @param {Application} app
+     *                      The application (or bookmark) object
+     */
+    hide: function gm_hide(origins) {
+      if (!Array.isArray(origins)) {
+        origins = [origins];
+      }
+
+      for (var i=0,origin,icon; origin=origins[i++];) {
+        icon = bookmarkIcons[origin];
+        if (icon) {
+          icon.hideFromGrid();
+        }
+      }
+
+      removeEmptyPages();
+      markDirtyState();
+    },
+
+    /*
+     * Return an app to be viewable on the grid
+     *
+     * @param {Application} app
+     *                      The application (or bookmark) object
+     */
+    unhide: function gm_unhide(origins) {
+      if (!Array.isArray(origins)) {
+        origins = [origins];
+      }
+
+      for (var i=0,origin,icon; origin=origins[i++];) {
+        icon = bookmarkIcons[origin];
+        if (icon) {
+          icon.remove();
+          icon.unhideFromGrid();
+          
+          var index = getFirstPageWithEmptySpace();
+          if (index < pages.length) {
+            pages[index].appendIcon(icon);
+          } else {
+            pageHelper.addPage([icon]);
+          }
+        }
+      }
+
+      ensurePagesOverflow(markDirtyState);
+    },
+
+    /*
      * Removes an application from the layout
      *
      * @param {Application} app
@@ -1334,6 +1395,12 @@ var GridManager = (function() {
 
     pageHelper: pageHelper,
 
+    showRestartDownloadDialog: showRestartDownloadDialog,
+
+    exitFromEditMode: exitFromEditMode,
+
+    ensurePanning: ensurePanning,
+
     get landingPage() {
       return landingPage;
     },
@@ -1348,12 +1415,6 @@ var GridManager = (function() {
     
     get container() {
       return container;
-    },
-
-    showRestartDownloadDialog: showRestartDownloadDialog,
-
-    exitFromEditMode: exitFromEditMode,
-
-    ensurePanning: ensurePanning
+    }
   };
 })();

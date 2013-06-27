@@ -19,21 +19,22 @@ Evme.Utils = new function Evme_Utils() {
             "HIDE_MENU": "hide-menu",
             "MENU_HEIGHT": "menu-height",
             "GET_ALL_APPS": "get-all-apps",
-	    "GET_APP_INFO": "get-app-info",
-	    "GET_ICON_SIZE": "get-icon-size",
-	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
-	    "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
+      	    "GET_APP_INFO": "get-app-info",
+      	    "GET_ICON_SIZE": "get-icon-size",
+      	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
+            "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search",
+            "HIDE_APP_FROM_GRID": "hide-from-grid"
         };
     
     
     this.PIXEL_RATIO_NAMES = {
-	NORMAL: 'normal',
-	HIGH: 'high'
+    	NORMAL: 'normal',
+    	HIGH: 'high'
     };
 
     this.ICONS_FORMATS = {
-	"Small": 10,
-	"Large": 20
+    	"Small": 10,
+    	"Large": 20
     };
 
     this.devicePixelRatio =  window.innerWidth / 320;
@@ -126,11 +127,9 @@ Evme.Utils = new function Evme_Utils() {
     this.sendToOS = function sendToOS(type, data) {
         switch (type) {
             case OSMessages.APP_CLICK:
-                EvmeManager.openApp(data);
-                break;
+                return EvmeManager.openApp(data);
             case OSMessages.APP_INSTALL:
-                EvmeManager.addBookmark(data);
-                break;
+                return EvmeManager.addBookmark(data);
             case OSMessages.IS_APP_INSTALLED:
                 return EvmeManager.isAppInstalled(data.url);
             case OSMessages.OPEN_URL:
@@ -143,16 +142,16 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
-	    case OSMessages.GET_APP_INFO:
-		return EvmeManager.getAppInfo(data);
+      	    case OSMessages.GET_APP_INFO:
+      		      return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
-	    case OSMessages.OPEN_MARKETPLACE_APP:
-		EvmeManager.openMarketplaceApp(data);
-		break;
-	    case OSMessages.OPEN_MARKETPLACE_SEARCH:
-		EvmeManager.openMarketplaceSearch(data);
-		break;
+      	    case OSMessages.OPEN_MARKETPLACE_APP:
+            		return EvmeManager.openMarketplaceApp(data);
+            case OSMessages.OPEN_MARKETPLACE_SEARCH:
+                return EvmeManager.openMarketplaceSearch(data);
+            case OSMessages.HIDE_APP_FROM_GRID:
+                return EvmeManager.hideFromGrid(data);
         }
     };
 

@@ -25,7 +25,6 @@ const HomeState = (function() {
         icons: grid[i]
       };
     }
-console.log('evyatar new grid: ' + JSON.stringify(grid));
 
     HomeState.saveGrid(grid, function onSaveGrid() {
       grid.forEach(iterator);

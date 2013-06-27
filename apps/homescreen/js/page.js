@@ -101,11 +101,18 @@ Icon.prototype = {
       if (value)
         container.dataset[prop] = value;
     });
-    
+
+
+    // Smart Folders (as bookmarks)
     if (descriptor.isFolder) {
       container.dataset.isFolder = true;
       container.dataset.folderId = descriptor.id;
       container.dataset.folderName = descriptor.name;
+    }
+
+    // apps that shouldn't appear on the grid
+    if (descriptor.hideFromGrid) {
+      container.dataset.hide = true;
     }
 
     var localizedName = descriptor.localizedName || descriptor.name;
@@ -435,6 +442,15 @@ Icon.prototype = {
     this.container.parentNode.removeChild(this.container);
   },
 
+  hideFromGrid: function icon_hideFromGrid() {
+    this.descriptor.hideFromGrid = true;
+    this.container.dataset.hide = true;
+  },
+  unhideFromGrid: function icon_unhideFromGrid() {
+    this.descriptor.hideFromGrid = false;
+    this.container.dataset.hide = false;
+  },
+
   /*
    * Translates the label of the icon
    */
@@ -621,8 +637,8 @@ Page.prototype = {
    */
   render: function pg_render(icons) {
     this.olist = document.createElement('ol');
-    for (var i = 0; i < icons.length; i++) {
-      this.appendIcon(icons[i]);
+    for (var i = 0, icon; icon = icons[i++];) {
+      this.appendIcon(icon);
     }
     this.container.appendChild(this.olist);
   },
@@ -660,6 +676,12 @@ Page.prototype = {
     }
   },
 
+  getIcons: function pg_getIcons(shouldIncludeHidden) {
+    return shouldIncludeHidden?
+            this.olist.children :
+            this.olist.querySelectorAll('li:not([data-hide="true"])');
+  },
+  
   /*
    * Changes position between two icons
    *
@@ -676,7 +698,7 @@ Page.prototype = {
 
     this.setReady(false);
 
-    var iconList = this.olist.children;
+    var iconList = this.getIcons();
     if (originIcon && targetIcon && iconList.length > 1) {
       if (this.iconsWhileDragging.length === 0)
         this.iconsWhileDragging = Array.prototype.slice.call(iconList, 0,
@@ -839,9 +861,10 @@ Page.prototype = {
 
     this.setReady(false);
 
-    var olist = this.olist;
-    if (olist.children[index]) {
-      olist.insertBefore(icon.container, olist.children[index]);
+    var olist = this.olist,
+        children = this.getIcons();
+    if (children[index]) {
+      olist.insertBefore(icon.container, children[index]);
     }
 
     this.setReady(true);
@@ -854,8 +877,9 @@ Page.prototype = {
    */
   prependIcon: function pg_prependIcon(icon) {
     this.setReady(false);
-    var olist = this.olist;
-    if (olist.children.length > 0) {
+    var olist = this.olist,
+        children = this.getIcons();
+    if (children.length > 0) {
       olist.insertBefore(icon.container, olist.firstChild);
     } else {
       olist.appendChild(icon.container);
@@ -874,8 +898,9 @@ Page.prototype = {
 
   insertBeforeLastIcon: function pg_insertBeforeLastIcon(icon) {
     this.setReady(false);
-    var olist = this.olist;
-    if (olist.children.length > 0) {
+    var olist = this.olist,
+        children = this.getIcons();
+    if (children.length > 0) {
       olist.insertBefore(icon.container, olist.lastChild);
     }
     this.setReady(true);
@@ -957,14 +982,14 @@ Page.prototype = {
    * Returns the number of icons
    */
   getNumIcons: function pg_getNumIcons() {
-    return this.olist.children.length;
+    return this.olist.querySelectorAll('li:not([data-hide="true"])').length;
   },
 
   /**
    * Marshall the page's state.
    */
   getIconDescriptors: function pg_getIconDescriptors() {
-    var nodes = this.olist.children;
+    var nodes = this.getIcons(true);
     return Array.prototype.map.call(nodes, function marshall(node) {
       var icon = GridManager.getIcon(node.dataset);
       return icon.descriptor;
