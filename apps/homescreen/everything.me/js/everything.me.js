@@ -87,6 +87,7 @@ var EverythingME = {
           'js/helpers/Storage.js',
           'js/helpers/IconManager.js',
           'js/plugins/Scroll.js',
+          'js/plugins/SelectBox.js',
           'js/external/uuid.js',
           'js/external/md5.js',
           'js/api/apiv2.js',

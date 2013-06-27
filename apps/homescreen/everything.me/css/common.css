@@ -145,3 +145,16 @@
     background-image: url('/everything.me/images/sprite.png');
     background-repeat: no-repeat;
 }
+#evmeContainer select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    border: 0;
+    z-index: 800;
+}
+#evmeContainer .evme-progress-dialog {
+    text-align: center;
+}
