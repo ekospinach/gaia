@@ -17,6 +17,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elImage = null,
     elImageFullscreen = null,
     resultsManager = null,
+    elFolderActions = null,
 
     SCROLL_BOTTOM_THRESHOLD = 5,
     CLASS_WHEN_LOADING = 'show-loading-apps',
@@ -45,6 +46,17 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elTitle = Evme.$(".title", el)[0];
     elImage = Evme.$(".image", el)[0];
     elClose = Evme.$('.close', el)[0];
+
+    elFolderActions = Evme.$('.folder-actions', el)[0];
+    var actionsButtons = Evme.$('menu button', elFolderActions);
+    for (var i=0,button; button=actionsButtons[i++];) {
+        button.addEventListener('click', folderActionClick);
+    }
+
+    elOpenActions = Evme.$('.open-actions', el)[0];
+    elOpenActions.addEventListener('click', function onClick() {
+        elFolderActions.classList.toggle('show');
+    });    
 
     elClose.addEventListener("click", self.close);
     elAppsContainer.dataset.scrollOffset = 0;
@@ -208,6 +220,27 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   this.getImage = function getImage() {
     return image;
   };
+
+  this.addApps = function addApps(newApps) {
+    var str = '';
+    newApps.forEach(function(app) {
+        str += app.name+",";
+    });
+    alert("new apps: "+str);
+  };
+
+  function folderActionClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    switch (this.dataset.action) {
+        case "addApp":
+            Evme.EventHandler.trigger(NAME, "actionAddApp", {
+                "staticApps": folderSettings.apps
+            });
+            break;
+    }
+    elFolderActions.classList.remove('show');
+  }
 
   self.init(_options);
 };
