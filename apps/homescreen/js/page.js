@@ -535,7 +535,7 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem) {
+  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem, originElem) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -559,7 +559,22 @@ Icon.prototype = {
       if (overlapElem.dataset.folder === 'true') {
         alert('Drop '+draggableElem.textContent+' into '+overlapElem.dataset.foldername);
       } else {
-        alert('Create smartfolder with apps '+overlapElem.textContent+" and "+draggableElem.textContent);
+        window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
+          "detail": {
+            "apps": [{
+                "manifest": overlapElem.dataset.manifestURL,
+                "name": overlapElem.textContent
+              }, {
+                "manifest": originElem.dataset.manifestURL,
+                "name": originElem.textContent
+              }
+            ],
+            "gridPosition": {
+              "page": 0,  // TODO
+              "index": 0  // TODO
+            }
+          }
+        }));
       }
     }
 

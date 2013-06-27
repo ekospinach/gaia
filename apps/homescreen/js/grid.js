@@ -891,7 +891,9 @@ var GridManager = (function() {
    * state with the applications known to the system.
    */
   function initApps(apps) {
-    var appMgr = navigator.mozApps.mgmt;
+    // TODO restore when done testing
+    // var appMgr = navigator.mozApps.mgmt;
+    var appMgr = navigator.mozApps.mgmt || {getAll: function(){return {}}};
 
     appMgr.oninstall = function oninstall(event) {
       var customEvent = new CustomEvent('onAppInstalled', {

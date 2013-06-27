@@ -530,22 +530,22 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.unique = function unique() {
-	// concat
-	var concatArr = [];
-	for (var i=0,arr; arr=arguments[i++];) {
-	    concatArr = concatArr.concat(arr);
-	}
+        // concat
+        var concatArr = [];
+        for (var i = 0, arr; arr = arguments[i++];) {
+            concatArr = concatArr.concat(arr);
+        }
 
-	// unique
-	var uniqueArr = concatArr.filter(uniqueFilter);
+        // unique
+        var uniqueArr = concatArr.filter(uniqueFilter);
 
-	return uniqueArr;
+        return uniqueArr;
     };
 
     function uniqueFilter(elem, pos, self) {
-	return self.indexOf(elem) == pos;
+        return self.indexOf(elem) == pos;
     }
-
+    
     function _getIconsFormat() {
         return self.ICONS_FORMATS.Large;
     }

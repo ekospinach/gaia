@@ -270,8 +270,8 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
       folderApps,
       folderSettings,
 
-      queriesA = Evme.InstalledAppsService.getMatchingQueries(appA),
-      queriesB = Evme.InstalledAppsService.getMatchingQueries(appB);
+      queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifest),
+      queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifest);
 
     // find a suitable name for the folder
     if (queriesA.length && queriesB.length) {
@@ -289,6 +289,15 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
     folderApps = Evme.InstalledAppsService.getMatchingApps({
       'query': folderName
     });
+
+    // ensure folderApps contains both apps and no duplicates
+    var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifest),
+      appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifest);
+    
+    appAFromIndex && folderApps.push(appAFromIndex);
+    appBFromIndex && folderApps.push(appBFromIndex);
+    
+    folderApps = Evme.Utils.unique(folderApps);
 
     folderSettings = new Evme.SmartFolderSettings({
       id: folderId,

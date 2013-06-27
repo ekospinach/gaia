@@ -207,7 +207,7 @@ const DragDropManager = (function() {
     }
 
     DragLeaveEventManager.send(page, function(done) {
-      draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem);
+      draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem, originElem);
       done();
     }, true);
   }

@@ -69,7 +69,11 @@ Evme.Brain = new function Evme_Brain() {
         elContainer = Evme.Utils.getContainer();
         
         initL10nObserver();
-        initActivitiesHandlers();
+        
+        // init activities
+        if ('mozSetMessageHandler' in window.navigator) {
+          window.navigator.mozSetMessageHandler('activity', onActivity);
+        }
         
         window.addEventListener('EvmeShortcutCreate', function onShortcutCreate(e) {
           var options = e && e.detail;
@@ -95,11 +99,10 @@ Evme.Brain = new function Evme_Brain() {
     function addShortcut(options) {
       var query = options.query,
           experienceId = options.experienceId,
+          apps = options.apps,  // should have "name" and "manifest"
           shortcutIcons = options.icons || [],
           gridPosition = options.gridPosition,
           shortcutCanvas = null;
-
-          console.log("ranbena addShortcut "+query+" "+experienceId);
 
       // create the special icon (three apps icons on top of each other)
       Evme.IconGroup.get(shortcutIcons, '', createSmartFolder);
@@ -107,12 +110,14 @@ Evme.Brain = new function Evme_Brain() {
       function createSmartFolder(elCanvas) {
         shortcutCanvas = elCanvas;
 
-        console.log("ranbena createSmartFolder "+query+" "+experienceId);
-
         if (experienceId) {
           Evme.SmartFolderSettings.prototype.byExperience(experienceId, addShortcutToHomescreen);
         } else if (query) {
           Evme.SmartFolderSettings.prototype.byQuery(query, addShortcutToHomescreen);
+        } else if (apps.length > 1) {
+            Evme.SmartFolderSettings.prototype.byAppPair(apps[0], apps[1], addShortcutToHomescreen);
+
+            // TODO remove apps from grid OSMessages.HIDE_APP_FROM_GRID
         }
       }
 
@@ -173,21 +178,13 @@ Evme.Brain = new function Evme_Brain() {
         Evme.Storage.set(cacheKey, true);
       });
     }
-    
-    function initActivitiesHandlers() {
-      if ('mozSetMessageHandler' in window.navigator) {
-        window.navigator.mozSetMessageHandler('activity', onActivity);
-      }
-    }
-    
+      
     function onActivity(activity) {
       var activityName = activity.source.name;
 
       if (activityName === 'smartfolder') {
         var data = activity.source.data;
 
-        // TODO: this is some testing data
-        // Evme.InstalledAppsService._loadFixtures();
         Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
             new Evme.SmartFolder({
                 "resultsManager": Evme.SmartfolderResults,

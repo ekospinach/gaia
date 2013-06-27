@@ -180,19 +180,23 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     return matchingApps;
   };
 
-  this.getMatchingQueries = function getMatchingQueries(app) {
+  this.getMatchingQueries = function getMatchingQueries(appManifest) {
     var queries = [];
 
     // assume app recieved by calling EvmeManager.getAppInfo and so app.id equals the app's manifestURL
-    if (!app || !app.id) {
+    if (!appManifest) {
       return queries;
     }
 
     for (query in queryIndex) {
-      (app.id in queryIndex[query]) && queries.push(query);
+      (queryIndex[query].indexOf(appManifest) > -1) && queries.push(query);
     }
 
     return queries;
+  };
+
+  this.getAppByManifest = function getAppByManifest(manifest) {
+    return appIndex[manifest];
   };
 
   this.getApps = function() {
