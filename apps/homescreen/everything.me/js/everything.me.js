@@ -69,54 +69,61 @@ var EverythingME = {
 
     var CB = !('ontouchstart' in window),
       js_files = [
-	  'js/etmmanager.js',
-	  'js/Core.js',
-	  'config/config.js',
-	  'config/shortcuts.js',
-	  'js/developer/utils.1.3.js',
-	  'js/helpers/Utils.js',
-	  'js/helpers/Storage.js',
-	  'js/helpers/IconManager.js',
-	  'js/plugins/Scroll.js',
-	  'js/external/uuid.js',
-	  'js/external/md5.js',
-	  'js/api/apiv2.js',
-	  'js/api/DoATAPI.js',
-	  'js/helpers/EventHandler.js',
-	  'js/helpers/Idle.js',
-	  'js/plugins/Analytics.js',
-	  'js/plugins/APIStatsEvents.js',
-	  'js/Brain.js',
-	  'modules/BackgroundImage/BackgroundImage.js',
-	  'modules/Banner/Banner.js',
-	  'modules/ConnectionMessage/ConnectionMessage.js',
-	  'modules/Features/Features.js',
-	  'modules/Helper/Helper.js',
-	  'modules/Location/Location.js',
-	  'modules/Results/Result.js',
-	  'modules/Results/providers/CloudApps.js',
-	  'modules/Results/providers/InstalledApps.js',
-	  'modules/Results/providers/MarketApps.js',
-	  'modules/Results/providers/MarketSearch.js',
-	  'modules/Results/ResultManager.js',
-	  'modules/Searchbar/Searchbar.js',
-	  'modules/SearchHistory/SearchHistory.js',
-	  'modules/Shortcuts/Shortcuts.js',
-	  'modules/ShortcutsCustomize/ShortcutsCustomize.js',
-	  'modules/SmartFolder/SmartFolder.js',
-	  'modules/Tasker/Tasker.js'
+          'js/etmmanager.js',
+          'js/Core.js',
+          
+          // TODO: remove when done testing
+          'tests/fixtures/fixtures.js',
+          'tests/fixtures/appIndex.js',
+
+          'config/config.js',
+          'config/shortcuts.js',
+          'js/developer/utils.1.3.js',
+          'js/helpers/Utils.js',
+          'js/helpers/Storage.js',
+          'js/helpers/IconManager.js',
+          'js/plugins/Scroll.js',
+          'js/plugins/SelectBox.js',
+          'js/external/uuid.js',
+          'js/external/md5.js',
+          'js/api/apiv2.js',
+          'js/api/DoATAPI.js',
+          'js/helpers/EventHandler.js',
+          'js/helpers/Idle.js',
+          'js/plugins/Analytics.js',
+          'js/plugins/APIStatsEvents.js',
+          'js/Brain.js',
+          'modules/BackgroundImage/BackgroundImage.js',
+          'modules/Banner/Banner.js',
+          'modules/ConnectionMessage/ConnectionMessage.js',
+          'modules/Features/Features.js',
+          'modules/Helper/Helper.js',
+          'modules/Location/Location.js',
+          'modules/Results/Result.js',
+          'modules/Results/providers/StaticApps.js',
+          'modules/Results/providers/CloudApps.js',
+          'modules/Results/providers/InstalledApps.js',
+          'modules/Results/providers/MarketApps.js',
+          'modules/Results/providers/MarketSearch.js',
+          'modules/Results/ResultManager.js',
+          'modules/Searchbar/Searchbar.js',
+          'modules/SearchHistory/SearchHistory.js',
+          'modules/Shortcuts/Shortcuts.js',
+          'modules/ShortcutsCustomize/ShortcutsCustomize.js',
+          'modules/SmartFolder/SmartFolder.js',
+          'modules/Tasker/Tasker.js'
       ];
     var css_files = [
-	'css/common.css',
-	'modules/BackgroundImage/BackgroundImage.css',
-	'modules/Banner/Banner.css',
-	'modules/ConnectionMessage/ConnectionMessage.css',
-	'modules/Helper/Helper.css',
-	'modules/Results/Results.css',
-	'modules/Searchbar/Searchbar.css',
-	'modules/Shortcuts/Shortcuts.css',
-	'modules/ShortcutsCustomize/ShortcutsCustomize.css',
-	'modules/SmartFolder/SmartFolder.css'
+        'css/common.css',
+        'modules/BackgroundImage/BackgroundImage.css',
+        'modules/Banner/Banner.css',
+        'modules/ConnectionMessage/ConnectionMessage.css',
+        'modules/Helper/Helper.css',
+        'modules/Results/Results.css',
+        'modules/Searchbar/Searchbar.css',
+        'modules/Shortcuts/Shortcuts.css',
+        'modules/ShortcutsCustomize/ShortcutsCustomize.css',
+        'modules/SmartFolder/SmartFolder.css'
     ];
     var head = document.head;
 
@@ -125,7 +132,8 @@ var EverythingME = {
 
     var progressLabel = document.querySelector('#loading-overlay span');
     var progressElement = document.querySelector('#loading-overlay progress');
-    var total = js_files.length + css_files.length, counter = 0;
+    var total = js_files.length + css_files.length,
+      counter = 0;
 
     function updateProgress() {
       if (!progressLabel) {
@@ -162,7 +170,9 @@ var EverythingME = {
       link.rel = 'stylesheet';
       link.href = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
       link.addEventListener('load', onCSSLoad);
-      setTimeout(function appendCSS() { head.appendChild(link); }, 0);
+      setTimeout(function appendCSS() {
+        head.appendChild(link);
+      }, 0);
     }
 
     function loadScript(file) {
@@ -171,7 +181,9 @@ var EverythingME = {
       script.src = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
-      setTimeout(function appendScript() { head.appendChild(script) }, 0);
+      setTimeout(function appendScript() {
+        head.appendChild(script)
+      }, 0);
     }
 
     loadCSS(css_files[cssLoadCount]);

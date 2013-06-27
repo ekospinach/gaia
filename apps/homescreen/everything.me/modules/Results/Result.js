@@ -1,4 +1,5 @@
 Evme.RESULT_TYPE = {
+  STATIC: 'static',
   INSTALLED: 'installed',
   MARKET: 'native_download',
   MARKET_SEARCH: 'market_search',

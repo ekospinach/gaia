@@ -143,11 +143,11 @@ Evme.Utils = new function Evme_Utils() {
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
       	    case OSMessages.GET_APP_INFO:
-      		      return EvmeManager.getAppInfo(data);
+                return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
-      	    case OSMessages.OPEN_MARKETPLACE_APP:
-            		return EvmeManager.openMarketplaceApp(data);
+            case OSMessages.OPEN_MARKETPLACE_APP:
+                return EvmeManager.openMarketplaceApp(data);
             case OSMessages.OPEN_MARKETPLACE_SEARCH:
                 return EvmeManager.openMarketplaceSearch(data);
             case OSMessages.HIDE_APP_FROM_GRID:

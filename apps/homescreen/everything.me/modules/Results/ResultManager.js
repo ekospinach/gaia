@@ -1,6 +1,14 @@
+Evme.PROVIDER_TYPES = {
+  STATIC: 'static',
+  INSTALLED: 'installed',
+  MARKETAPPS: 'marketapps',
+  MARKETSEARCH: 'marketsearch',
+  CLOUD: 'cloud',
+};
+
 Evme.ResultManager = function Evme_ResultsManager() {
 
-  var NAME = "NOT_SET",  // SearchResults or SmartfolderResults
+  var NAME = "NOT_SET", // SearchResults or SmartfolderResults
     self = this,
     progressIndicator,
     DEFAULT_NUMBER_OF_APPS_TO_LOAD = Evme.Config.numberOfAppsToLoad,
@@ -22,11 +30,12 @@ Evme.ResultManager = function Evme_ResultsManager() {
     showingFullScreen = false,
     apiHasMoreCloudApps = false,
 
-    // provider types
-    INSTALLED = 'installed',
-    MARKETAPPS = 'marketapps',
-    MARKETSEARCH = 'marketsearch',
-    CLOUD = 'cloud',
+    // for convenience
+    STATIC = Evme.PROVIDER_TYPES.STATIC,
+    INSTALLED = Evme.PROVIDER_TYPES.INSTALLED,
+    MARKETAPPS = Evme.PROVIDER_TYPES.MARKETAPPS,
+    MARKETSEARCH = Evme.PROVIDER_TYPES.MARKETSEARCH,
+    CLOUD = Evme.PROVIDER_TYPES.CLOUD,
 
     SELECTOR_CLOUD_RESULTS = 'ul.cloud>li',
     SELECTOR_ALL_RESULTS = 'div>ul>li',
@@ -61,25 +70,8 @@ Evme.ResultManager = function Evme_ResultsManager() {
     el = options.el;
     scrollableEl = Evme.$('div', el)[0];
 
-    registerProvider(INSTALLED, {
-      "renderer": Evme.InstalledAppsRenderer,
-      "containerEl": Evme.$(".installed", el)[0]
-    });
-
-    registerProvider(CLOUD, {
-      "renderer": Evme.CloudAppsRenderer,
-      "containerEl": Evme.$(".cloud", el)[0],
-      "requestMissingIcons": requestMissingIcons
-    });
-
-    registerProvider(MARKETAPPS, {
-      "renderer": Evme.MarketAppsRenderer,
-      "containerEl": Evme.$(".marketapps", el)[0]
-    });
-
-    registerProvider(MARKETSEARCH, {
-      "renderer": Evme.MarketSearchRenderer,
-      "containerEl": Evme.$(".marketsearch", el)[0]
+    options.providers.forEach(function registerProviders(provider){
+      registerProvider(provider.type, provider.config);
     });
 
     progressIndicator = new Evme.ResultsProgressIndicator();
@@ -117,8 +109,12 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return true;
   };
 
+  this.renderStaticApps = function renderStaticApps(apps) {
+    STATIC in providers && providers[STATIC].render(apps);
+  };
+
   this.onNewQuery = function onNewQuery(data) {
-    providers[INSTALLED].render(data);
+    INSTALLED in providers && providers[INSTALLED].render(data);
   };
 
   this.APIData = {
@@ -161,11 +157,11 @@ Evme.ResultManager = function Evme_ResultsManager() {
       // render market apps and result for launching market search
       if (!pageNum) {
         self.scrollToTop();
-        providers[MARKETAPPS].render(marketApps, pageNum);
-        response.nativeAppsHint && providers[MARKETSEARCH].render();
+        MARKETAPPS in providers && providers[MARKETAPPS].render(marketApps, pageNum);
+        response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
       }
 
-      providers[CLOUD].render(cloudApps, pageNum);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons);
     }
   };
 
@@ -193,14 +189,14 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
     for (var i = iFrom, elApp = elApps[i]; elApp; elApp = elApps[++i]) {
       if (bAnimate) {
-	elApp.style.cssText += "; -moz-transition-duration: " + (200 - ((iFrom - i) * 20)) + 'ms';
+        elApp.style.cssText += "; -moz-transition-duration: " + (200 - ((iFrom - i) * 20)) + 'ms';
       }
 
       var cls = elApp.className;
       if (elApp.id.indexOf("app_") !== -1) {
-	cls = cls.replace(/pos\d+/g, "");
-	elApp.className = cls + " pos" + index;
-	index++;
+        cls = cls.replace(/pos\d+/g, "");
+        elApp.className = cls + " pos" + index;
+        index++;
       }
     }
   };
@@ -211,8 +207,8 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
   this.getResultGridData = function getCurrentRowsCols(clickedResult) {
     var data = {},
-        numBelow = 0, // num of results above the separator
-        numAbove = 0; // num of results above the separator
+      numBelow = 0, // num of results above the separator
+      numAbove = 0; // num of results above the separator
 
     // get total rows cols
     forEachProvider(function(providerName) {
@@ -225,9 +221,9 @@ Evme.ResultManager = function Evme_ResultsManager() {
     });
 
     var maxResults = Math.max(numAbove, numBelow),
-      	cols = Math.min(maxResults, APPS_PER_ROW),
-      	rowsAbove = Math.ceil(numAbove / APPS_PER_ROW),
-      	rowsBelow = Math.ceil(numBelow / APPS_PER_ROW);
+      cols = Math.min(maxResults, APPS_PER_ROW),
+      rowsAbove = Math.ceil(numAbove / APPS_PER_ROW),
+      rowsBelow = Math.ceil(numBelow / APPS_PER_ROW);
 
     // get clicked result index
     var itemSelector = (clickedResult.type === Evme.RESULT_TYPE.CLOUD) ? SELECTOR_CLOUD_RESULTS : SELECTOR_ALL_RESULTS;
@@ -245,7 +241,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
       "cols": cols,
       "rows": rowsAbove + rowsBelow,
       "rowIndex": row,
-      "colIndex" :col
+      "colIndex": col
     }
   };
 
@@ -319,8 +315,8 @@ Evme.ResultManager = function Evme_ResultsManager() {
       var _fadeBy = scroll.distY / MAX_SCROLL_FADE;
 
       if (_fadeBy < fadeBy) {
-	_fadeBy = 0;
-	shouldFadeBG = false;
+        _fadeBy = 0;
+        shouldFadeBG = false;
       }
 
       fadeBy = _fadeBy;
@@ -335,7 +331,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
       showingFullScreen = true;
       cbScrolledToTop();
       window.setTimeout(function onTimeout() {
-	showingFullScreen = false;
+        showingFullScreen = false;
       }, 1000);
     } else {
       !showingFullScreen && Evme.BackgroundImage.cancelFullScreenFade();
@@ -348,7 +344,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
       // kept separate for performance reasons
       var reachedBottom = scrollableEl.offsetHeight - el.offsetHeight <= scroll.y;
       if (reachedBottom) {
-	cbScrolledToEnd();
+        cbScrolledToEnd();
       }
     }
   }
@@ -361,7 +357,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   }
 
   this.scrollToTop = function scrollToTop() {
-    scroll.scrollTo(0,0);
+    scroll.scrollTo(0, 0);
   }
 
   function cbScrolledToTop() {
@@ -372,7 +368,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
     Evme.EventHandler.trigger(NAME, "scrollBottom");
   }
 
-  function handleAPIHasMoreCloudApps(data){
+  function handleAPIHasMoreCloudApps(data) {
     // if got less apps then requested, assume no more apps
     if (data.limit < DEFAULT_NUMBER_OF_APPS_TO_LOAD) {
       apiHasMoreCloudApps = false;
@@ -380,10 +376,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
       apiHasMoreCloudApps = data ? data.limit + data.first < data.max : false;
     }
 
-    console.log("data", JSON.stringify(data));
-    console.log("apiHasMoreCloudApps", apiHasMoreCloudApps);
-
-    if (apiHasMoreCloudApps){
+    if (apiHasMoreCloudApps) {
       el.classList.add(CLASS_HAS_MORE_APPS);
     } else {
       el.classList.remove(CLASS_HAS_MORE_APPS);

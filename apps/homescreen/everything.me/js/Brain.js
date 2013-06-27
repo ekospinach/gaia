@@ -94,35 +94,44 @@ Evme.Brain = new function Evme_Brain() {
     // create the shortcut icon and send it to the OS
     function addShortcut(options) {
       var query = options.query,
-          id = options.id || query + '_' + Math.random()*100000,
+          experienceId = options.experienceId,
           shortcutIcons = options.icons || [],
           gridPosition = options.gridPosition,
-          url = 'fldr://query/' + query;
+          shortcutCanvas = null;
+
+          console.log("ranbena addShortcut "+query+" "+experienceId);
 
       // create the special icon (three apps icons on top of each other)
-      Evme.IconGroup.get(shortcutIcons, '', function onReady(elCanvas) {
+      Evme.IconGroup.get(shortcutIcons, '', createSmartFolder);
+
+      function createSmartFolder(elCanvas) {
+        shortcutCanvas = elCanvas;
+
+        console.log("ranbena createSmartFolder "+query+" "+experienceId);
+
+        if (experienceId) {
+          Evme.SmartFolderSettings.prototype.byExperience(experienceId, addShortcutToHomescreen);
+        } else if (query) {
+          Evme.SmartFolderSettings.prototype.byQuery(query, addShortcutToHomescreen);
+        }
+      }
+
+      function addShortcutToHomescreen(folderSettings){
+
         // install the newely created shortcut!
         Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-          "id": id,
-          "originUrl": url,
-          "title": query,
-          "icon": elCanvas.toDataURL(),
+          "id": folderSettings.id,
+          "originUrl": 'fldr://' + folderSettings.id,
+          "title": folderSettings.name,
+          "icon": shortcutCanvas.toDataURL(),
           "isFolder": true,
           "gridPosition": gridPosition
         });
-
-        window.dispatchEvent(new CustomEvent('EvmeShortcutCreated', {
-          "detail": {
-            "id": id,
-            "query": query
-          }
-        }));
-      });
+      }
     }
 
     function initShortcuts() {
       var cacheKey = 'createdInitialShortcuts';
-
       Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
         if (didInitShortcuts) {
           return;
@@ -152,10 +161,10 @@ Evme.Brain = new function Evme_Brain() {
               'icon': defaultIcons[appId] || defaultIcons['' + appId]
             });
           }
-
           window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
             "detail": {
               "icons": shortcutIcons,
+              "experienceId": experienceId, 
               "query": query
             }
           }));
@@ -172,18 +181,21 @@ Evme.Brain = new function Evme_Brain() {
     }
     
     function onActivity(activity) {
-      var activityName = activity.source.name,
-          data = activity.source.data;
+      var activityName = activity.source.name;
 
       if (activityName === 'smartfolder') {
-        new Evme.SmartFolder({
-            "resultsManager": Evme.SmartfolderResults,
-            "query": data.name,
-            "experienceId": data.experienceId,
-            "bgImage": (Evme.BackgroundImage.get() || {}).image,
-            "elParent": elContainer,
-            "name": data.name
-        }).show();
+        var data = activity.source.data;
+
+        // TODO: this is some testing data
+        // Evme.InstalledAppsService._loadFixtures();
+        Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
+            new Evme.SmartFolder({
+                "resultsManager": Evme.SmartfolderResults,
+                "folderSettings": folderSettings,
+                "bgImage": (Evme.BackgroundImage.get() || {}).image,
+                "elParent": elContainer
+            }).show();
+        });
       }
     }
 
@@ -604,128 +616,128 @@ Evme.Brain = new function Evme_Brain() {
 
     // modules/Tasker/
     this.Tasker = new function Tasker() {
-      var self = this;
-      
-      this.TASK_UPDATE_SHORTCUT_ICONS = "updateShortcutIcons";
-      this.TASK_UPDATE_INSTALLED_QUERY_INDEX = "installedQueryIndexUpdate";
+        var self = this;
 
-      // module init
-      this.init = function init() {
-        Evme.Tasker.add({
-	  "id": self.TASK_UPDATE_INSTALLED_QUERY_INDEX
-	});
+        this.TASK_UPDATE_SHORTCUT_ICONS = "updateShortcutIcons";
+        this.TASK_UPDATE_INSTALLED_QUERY_INDEX = "installedQueryIndexUpdate";
 
-	Evme.Tasker.add({
-          "id": self.TASK_UPDATE_SHORTCUT_ICONS
-        });
-
-	// trigger when language changes. pass "true" to force the trigger
-	if (navigator.mozSettings) {
-	  navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
-	    Evme.Tasker.trigger(self.TASK_UPDATE_SHORTCUT_ICONS);
-	  });
-	}
-      };
-
-      // when a new task is added to the queue
-      this.taskAdded = function taskAdded(data) {
-        
-      };
-
-      // process the queue
-      this.trigger = function trigger(data) {
-        var tasks = data.tasks;
-
-        for (var id in tasks) {
-          if (self['callback_' + id]) {
-            self['callback_' + id](tasks[id])
-          } else {
-            Evme.Utils.log('Error: No handler for task [' + id + ']');
-          }
-        }
-      };
-
-      this['callback_' + this.TASK_UPDATE_INSTALLED_QUERY_INDEX] = function updateInstalledQueryIndex(taskData) {
-	Evme.InstalledAppsService.requestAppsInfo();
-      };
-
-      this['callback_' + this.TASK_UPDATE_SHORTCUT_ICONS] = function updateShortcutIcons(taskData) {
-        if (Evme.Brain.ShortcutsCustomize.isOpen()) {
-          return false;
-        }
-        
-        Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data){
-          var appsKey = [],
-              currentShortcuts = data && data.response && data.response.shortcuts || [],
-              shortcutsToSend = {};
-  
-          for (var i=0, shortcut, query; shortcut=currentShortcuts[i++];) {
-              query = shortcut.query;
-  
-              if (shortcut.experienceId && !query) {
-                  query = Evme.Utils.l10n('shortcut', 'id-' + Evme.Utils.shortcutIdToKey(shortcut.experienceId));
-              }
-              
-              if (query) {
-                  shortcutsToSend[query.toLowerCase()] = shortcut.experienceId;
-              }
-              
-              // the appsKey will be used later on to determine change
-              appsKey = appsKey.concat(shortcut.appIds);
-          }
-          
-          // re-request all the user's shortcuts to upadte them from the API
-          // otherwise the shortcut icons will remain static and will never change, even if
-          // the apps inside them have
-          Evme.DoATAPI.shortcutsGet({
-            "queries": JSON.stringify(Object.keys(shortcutsToSend)),
-            "_NOCACHE": true
-          }, function onShortcutsGet(response) {
-            var shortcuts = response.response.shortcuts,
-                icons = response.response.icons,
-                newAppsKey = [];
-            
-            if (!shortcuts || !icons) {
-              return;
-            }
-            
-            // create a key from the new shortcuts' icons to determine change
-            for (var i=0,shortcut; shortcut=shortcuts[i++];) {
-              newAppsKey = newAppsKey.concat(shortcut.appIds);
-            }
-            
-            // if the icons haven't changed- no need to update everything and cause a UI refresh
-            if (appsKey.join(',') === newAppsKey.join(',')) {
-              Evme.Utils.log('Shortcuts keys are the same- no need to refresh')
-              return;
-            }
-
-            // experience is more "important" than the query, so if we got it
-            // we reomve the query
-            for (var i=0,shortcut; shortcut=shortcuts[i++];) {
-              if (!shortcut.experienceId) {
-                shortcut.experienceId = shortcutsToSend[shortcut.query];
-              }
-              if (shortcut.experienceId) {
-                delete shortcut.query;
-              }
-            }
-
-            Evme.Utils.log('Updating shortcuts: ' + JSON.stringify(shortcuts));
-            
-            Evme.DoATAPI.Shortcuts.clear(function onShortcuteCleared(){
-              Evme.DoATAPI.Shortcuts.add({
-                  "shortcuts": shortcuts,
-                  "icons": icons
-              }, function onSuccess(){
-                  Brain.Shortcuts.loadFromAPI();
-              });
+        // module init
+        this.init = function init() {
+            Evme.Tasker.add({
+                "id": self.TASK_UPDATE_INSTALLED_QUERY_INDEX
             });
-          });
-          
-          return true;
-        });
-      };
+
+            Evme.Tasker.add({
+                "id": self.TASK_UPDATE_SHORTCUT_ICONS
+            });
+
+            // trigger when language changes. pass "true" to force the trigger
+            if (navigator.mozSettings) {
+                navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
+                    Evme.Tasker.trigger(self.TASK_UPDATE_SHORTCUT_ICONS);
+                });
+            }
+        };
+
+        // when a new task is added to the queue
+        this.taskAdded = function taskAdded(data) {
+
+        };
+
+        // process the queue
+        this.trigger = function trigger(data) {
+            var tasks = data.tasks;
+
+            for (var id in tasks) {
+                if (self['callback_' + id]) {
+                    self['callback_' + id](tasks[id])
+                } else {
+                    Evme.Utils.log('Error: No handler for task [' + id + ']');
+                }
+            }
+        };
+
+        this['callback_' + this.TASK_UPDATE_INSTALLED_QUERY_INDEX] = function updateInstalledQueryIndex(taskData) {
+            Evme.InstalledAppsService.requestAppsInfo();
+        };
+
+        this['callback_' + this.TASK_UPDATE_SHORTCUT_ICONS] = function updateShortcutIcons(taskData) {
+            if (Evme.Brain.ShortcutsCustomize.isOpen()) {
+                return false;
+            }
+
+            Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data) {
+                var appsKey = [],
+                    currentShortcuts = data && data.response && data.response.shortcuts || [],
+                    shortcutsToSend = {};
+
+                for (var i = 0, shortcut, query; shortcut = currentShortcuts[i++];) {
+                    query = shortcut.query;
+
+                    if (shortcut.experienceId && !query) {
+                        query = Evme.Utils.l10n('shortcut', 'id-' + Evme.Utils.shortcutIdToKey(shortcut.experienceId));
+                    }
+
+                    if (query) {
+                        shortcutsToSend[query.toLowerCase()] = shortcut.experienceId;
+                    }
+
+                    // the appsKey will be used later on to determine change
+                    appsKey = appsKey.concat(shortcut.appIds);
+                }
+
+                // re-request all the user's shortcuts to upadte them from the API
+                // otherwise the shortcut icons will remain static and will never change, even if
+                // the apps inside them have
+                Evme.DoATAPI.shortcutsGet({
+                    "queries": JSON.stringify(Object.keys(shortcutsToSend)),
+                    "_NOCACHE": true
+                }, function onShortcutsGet(response) {
+                    var shortcuts = response.response.shortcuts,
+                        icons = response.response.icons,
+                        newAppsKey = [];
+
+                    if (!shortcuts || !icons) {
+                        return;
+                    }
+
+                    // create a key from the new shortcuts' icons to determine change
+                    for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
+                        newAppsKey = newAppsKey.concat(shortcut.appIds);
+                    }
+
+                    // if the icons haven't changed- no need to update everything and cause a UI refresh
+                    if (appsKey.join(',') === newAppsKey.join(',')) {
+                        Evme.Utils.log('Shortcuts keys are the same- no need to refresh')
+                        return;
+                    }
+
+                    // experience is more "important" than the query, so if we got it
+                    // we reomve the query
+                    for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
+                        if (!shortcut.experienceId) {
+                            shortcut.experienceId = shortcutsToSend[shortcut.query];
+                        }
+                        if (shortcut.experienceId) {
+                            delete shortcut.query;
+                        }
+                    }
+
+                    Evme.Utils.log('Updating shortcuts: ' + JSON.stringify(shortcuts));
+
+                    Evme.DoATAPI.Shortcuts.clear(function onShortcuteCleared() {
+                        Evme.DoATAPI.Shortcuts.add({
+                            "shortcuts": shortcuts,
+                            "icons": icons
+                        }, function onSuccess() {
+                            Brain.Shortcuts.loadFromAPI();
+                        });
+                    });
+                });
+
+                return true;
+            });
+        };
     };
 
     
@@ -781,33 +793,33 @@ Evme.Brain = new function Evme_Brain() {
 
     // modules/Results/ResultManager instance
     this.SmartfolderResults = new function SmartfolderResults() {
-	// propogate events to SmartFolder
-	// TODO: this is temporary.
-	this.scrollTop = function scrollTop() {
-	    Evme.EventHandler.trigger("SmartFolder", "scrollTop");
+        // propogate events to SmartFolder
+        // TODO: this is temporary.
+        this.scrollTop = function scrollTop() {
+            Evme.EventHandler.trigger("SmartFolder", "scrollTop");
         };
-        
-	this.scrollBottom = function scrollBottom() {
-	    Evme.EventHandler.trigger("SmartFolder", "scrollBottom");
+
+        this.scrollBottom = function scrollBottom() {
+            Evme.EventHandler.trigger("SmartFolder", "scrollBottom");
         };
     }
 
     this.InstalledAppsService = new function InstalledAppsService() {
-	this.requestAppsInfo = function getAppsInfo(data) {
-	    // string together ids like so:
-	    // apiurl/?guids=["guid1","guid2","guid3", ...]
-	    var guidArr = Object.keys(data.appIndex || {}),
-		guidStr = JSON.stringify(guidArr);
+        this.requestAppsInfo = function getAppsInfo(data) {
+            // string together ids like so:
+            // apiurl/?guids=["guid1","guid2","guid3", ...]
+            var guidArr = Object.keys(data.appIndex || {}),
+                guidStr = JSON.stringify(guidArr);
 
-	    // get app info from API
-	    Evme.DoATAPI.appNativeInfo({
-		"guids": guidStr
-	    }, function onSuccess(response) {
-		var appsInfo = response && response.response;
-		if (appsInfo) {
-		    Evme.InstalledAppsService.requestAppsInfoCb(appsInfo);
-		}
-	    });
+            // get app info from API
+            Evme.DoATAPI.appNativeInfo({
+                "guids": guidStr
+            }, function onSuccess(response) {
+                var appsInfo = response && response.response;
+                if (appsInfo) {
+                    Evme.InstalledAppsService.requestAppsInfoCb(appsInfo);
+                }
+            });
         };
     };
 
@@ -1048,15 +1060,15 @@ Evme.Brain = new function Evme_Brain() {
             requestSmartFolderApps = null,
             requestSmartFolderImage = null,
             timeoutShowAppsLoading = null;
-        
+
         // a folder is shown
         this.show = function show(data) {
             document.body.classList.add(CLASS_WHEN_SMART_FOLDER_VISIBLE);
 
             currentFolder = data.folder;
-      	    window.setTimeout(loadAppsIntoFolder, 400);
-      
-      	    currentResultsManager = Evme.SmartfolderResults;
+            window.setTimeout(loadAppsIntoFolder, 400);
+
+            currentResultsManager = Evme.SmartfolderResults;
         };
 
         // hiding the folder
@@ -1065,7 +1077,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Brain.SmartFolder.cancelRequests();
             Evme.ConnectionMessage.hide();
 
-	    currentResultsManager = Evme.SearchResults;
+            currentResultsManager = Evme.SearchResults;
         };
 
         // close button was clicked
@@ -1082,7 +1094,7 @@ Evme.Brain = new function Evme_Brain() {
         this.closeCurrent = function closeCurrent() {
             currentFolder && currentFolder.close();
         };
-        
+
         // if a folder is open- close it
         this.hideIfOpen = function hideIfOpen() {
             if (self.get()) {
@@ -1092,104 +1104,60 @@ Evme.Brain = new function Evme_Brain() {
 
             return false;
         };
-        
+
         // cancel the current outgoing smart folder requests
         this.cancelRequests = function cancelRequests() {
-	    Evme.SmartfolderResults.APIData.onRequestCanceled();
+            Evme.SmartfolderResults.APIData.onRequestCanceled();
             requestSmartFolderApps && requestSmartFolderApps.abort && requestSmartFolderApps.abort();
             requestSmartFolderImage && requestSmartFolderImage.abort && requestSmartFolderImage.abort();
         };
-        
+
         // load the folder's background image
-	function loadBGImage() {
+
+        function loadBGImage() {
             if (!currentFolder) return;
+            if (currentFolder.userSetBg()) return;
             
             var experienceId = currentFolder.getExperience(),
                 query = currentFolder.getQuery();
-            
+
             requestSmartFolderImage = Evme.DoATAPI.bgimage({
-                "query": experienceId? '' : query,
+                "query": experienceId ? '' : query,
                 "experienceId": experienceId,
                 "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
                 "exact": true,
                 "width": screen.width,
                 "height": screen.height
             }, function onSuccess(data) {
-                currentFolder && currentFolder.setImage({
+                currentFolder && currentFolder.setBackground({
                     "image": Evme.Utils.formatImageData(data.response.image),
                     "query": query,
-                    "source": data.response.source
+                    "source": data.response.source,
+                    "setByUser": false
                 });
-                
+
                 requestSmartFolderImage = null;
             });
         };
-        
+
         // start the smart folder apps loading process
-	function loadAppsIntoFolder() {
+
+        function loadAppsIntoFolder() {
             if (!currentFolder) return;
-            
-            var experienceId = currentFolder.getExperience(),
-                query = currentFolder.getQuery(),
-		iconsFormat = Evme.Utils.getIconsFormat();
-
-            currentFolder.appsPaging = {
-              "offset": 0,
-              "limit": NUMBER_OF_APPS_TO_LOAD_IN_FOLDER
-            };
-
-	    Evme.SmartfolderResults.APIData.onRequestSent();
-
-	    requestSmartFolderApps = Evme.DoATAPI.search({
-		"query": experienceId? '' : query,
-		"experienceId": experienceId,
-		"feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
-		"exact": true,
-		"spellcheck": false,
-		"suggest": false,
-		"limit": currentFolder.appsPaging.limit,
-		"first": currentFolder.appsPaging.offset,
-		"iconFormat": iconsFormat
-	    }, function onSuccess(data) {
-		Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
-
-		updateShortcutIcons(experienceId || query, data.response.apps);
-
-		requestSmartFolderApps = null;
-
-		Evme.Location.updateIfNeeded();
-            });
-            
-	    loadBGImage();
-	};
-
-	// app list has scrolled to top
-	this.scrollTop = function scrollTop() {
-	    currentFolder.showFullscreen();
-
-	    // TODO: FIXME This is temporary.
-	    // BackgroundImage should be an instance used in parallel to ResultsManager
-	    Evme.BackgroundImage.cancelFullScreenFade();
-        };
-
-        // load more apps in smartfolder
-	this.scrollBottom = function scrollBottom() {
-            if (!currentFolder) return;
-
-            currentFolder.appsPaging.offset += currentFolder.appsPaging.limit;
-
-            if (requestSmartFolderApps) {
-                return;
-            }
-
-	    Evme.SmartfolderResults.APIData.onRequestSent();
 
             var experienceId = currentFolder.getExperience(),
                 query = currentFolder.getQuery(),
                 iconsFormat = Evme.Utils.getIconsFormat();
 
+            currentFolder.appsPaging = {
+                "offset": 0,
+                "limit": NUMBER_OF_APPS_TO_LOAD_IN_FOLDER
+            };
+
+            Evme.SmartfolderResults.APIData.onRequestSent();
+
             requestSmartFolderApps = Evme.DoATAPI.search({
-                "query": experienceId? '' : query,
+                "query": experienceId ? '' : query,
                 "experienceId": experienceId,
                 "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
                 "exact": true,
@@ -1199,36 +1167,120 @@ Evme.Brain = new function Evme_Brain() {
                 "first": currentFolder.appsPaging.offset,
                 "iconFormat": iconsFormat
             }, function onSuccess(data) {
-		Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
+                Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
+
+                updateShortcutIcons(experienceId || query, data.response.apps);
+
+                requestSmartFolderApps = null;
+
+                Evme.Location.updateIfNeeded();
+            });
+
+            loadBGImage();
+        };
+
+        // app list has scrolled to top
+        this.scrollTop = function scrollTop() {
+            currentFolder.showFullscreen();
+
+            // TODO: FIXME This is temporary.
+            // BackgroundImage should be an instance used in parallel to ResultsManager
+            Evme.BackgroundImage.cancelFullScreenFade();
+        };
+
+        // load more apps in smartfolder
+        this.scrollBottom = function scrollBottom() {
+            if (!currentFolder) return;
+
+            currentFolder.appsPaging.offset += currentFolder.appsPaging.limit;
+
+            if (requestSmartFolderApps) {
+                return;
+            }
+
+            Evme.SmartfolderResults.APIData.onRequestSent();
+
+            var experienceId = currentFolder.getExperience(),
+                query = currentFolder.getQuery(),
+                iconsFormat = Evme.Utils.getIconsFormat();
+
+            requestSmartFolderApps = Evme.DoATAPI.search({
+                "query": experienceId ? '' : query,
+                "experienceId": experienceId,
+                "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
+                "exact": true,
+                "spellcheck": false,
+                "suggest": false,
+                "limit": currentFolder.appsPaging.limit,
+                "first": currentFolder.appsPaging.offset,
+                "iconFormat": iconsFormat
+            }, function onSuccess(data) {
+                Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
 
                 requestSmartFolderApps = null;
             });
         };
-        
-        function updateShortcutIcons(key, apps) {
-          var shortcutsToUpdate = {},
-              icons = {},
-              numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
-              
-          shortcutsToUpdate[key] = [];
-          for (var i=0,app; i<numberOfIconsInShortcut; i++) {
-            app = apps[i];
-            icons[app.id] = app.icon;
-            shortcutsToUpdate[key].push(app.id);
-          }
 
-          Evme.DoATAPI.Shortcuts.update({
-            "shortcuts": shortcutsToUpdate,
-            "icons": icons
-          }, function onShortcutsUpdated() {
-            for (var key in shortcutsToUpdate) {
-              var shortcut = Evme.Shortcuts.getShortcutByKey(key);
-              if (shortcut) {
-                shortcut.setImage(shortcutsToUpdate[key]);
-              }
+        function updateShortcutIcons(key, apps) {
+            var shortcutsToUpdate = {},
+                icons = {},
+                numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
+
+            shortcutsToUpdate[key] = [];
+            for (var i = 0, app; i < numberOfIconsInShortcut; i++) {
+                app = apps[i];
+                icons[app.id] = app.icon;
+                shortcutsToUpdate[key].push(app.id);
             }
-          });
+
+            Evme.DoATAPI.Shortcuts.update({
+                "shortcuts": shortcutsToUpdate,
+                "icons": icons
+            }, function onShortcutsUpdated() {
+                for (var key in shortcutsToUpdate) {
+                    var shortcut = Evme.Shortcuts.getShortcutByKey(key);
+                    if (shortcut) {
+                        shortcut.setImage(shortcutsToUpdate[key]);
+                    }
+                }
+            });
         }
+
+        this.actionAddApp = function actionAddApp(data) {
+            // create <select multiple>
+            var select = new Evme.SelectBox();
+            select.init({
+                "callback": function(selectedArr) {
+                    select = null;
+                    currentFolder && currentFolder.addApps(selectedArr);
+                }
+            });
+
+            // get all apps
+            var appIndex = Evme.InstalledAppsService.getApps(),
+                appArray = [],
+                staticAppIds = [];
+
+            // convert static apps to ids for later filtering
+            for (var i=0,app; app=data.staticApps[i++];) {
+                staticAppIds.push(app.id);
+            }
+
+            // normalize to selectbox format
+            for (var k in appIndex) {
+                var app = appIndex[k];
+
+                // filter out already displayed static apps
+                if (staticAppIds.indexOf(app.id) !== -1) { continue; }
+
+                appArray.push({
+                    "text": app.name,
+                    "return": app
+                });
+            }
+            // load apps into select and show
+            select.load(appArray);
+        };
     };
 
     // modules/Shortcuts/
@@ -1299,16 +1351,7 @@ Evme.Brain = new function Evme_Brain() {
 
         // item clicked
         this.click = function click(data) {
-            if(!Evme.Shortcuts.isEditing && !Evme.Shortcuts.isSwiping()) {
-                new Evme.SmartFolder({
-		                "resultsManager": Evme.SmartfolderResults,
-                    "query": data.shortcut.getQuery(),
-                    "experienceId": data.shortcut.getExperience(),
-                    "bgImage": (Evme.BackgroundImage.get() || {}).image,
-                    "elParent": elContainer,
-		                "name": data.name
-                }).show();
-            }
+            // TOOD remove
         };
 
         // item remove
@@ -1418,11 +1461,8 @@ Evme.Brain = new function Evme_Brain() {
               window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
                 "detail": {
                   "icons": shortcutIcons,
-                  "query": query,
-                  "gridPosition": {
-                    "page": 0,
-                    "index": 4
-                  }
+                  "experienceId": experienceId,
+                  "query": query
                 }
               }));
             }
