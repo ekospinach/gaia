@@ -75,8 +75,11 @@ var EverythingME = {
       js_files = [
           'js/etmmanager.js',
           'js/Core.js',
-          'fixtures/fixtures.js',
-          'fixtures/appIndex.js',
+          
+          // TODO: remove when done testing
+          'tests/fixtures/fixtures.js',
+          'tests/fixtures/appIndex.js',
+
           'config/config.js',
           'config/shortcuts.js',
           'js/developer/utils.1.3.js',

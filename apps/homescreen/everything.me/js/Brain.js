@@ -1198,7 +1198,7 @@ Evme.Brain = new function Evme_Brain() {
             var shortcutname = "tools";
             
             // TODO: this is some testing data
-            Evme.InstalledAppsService._debug();
+            Evme.InstalledAppsService._loadFixtures();
             Evme.SmartFolderFactory.byQuery(shortcutname, function onCreated(folderId) {
                 data.folderId = folderId;
 
