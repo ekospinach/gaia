@@ -4,12 +4,9 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     
     folderSettings = null,
 
-    // TOOD some of these will be part of folderSettings
-    experienceId = '',
-    query = '',
+    // TOOD should be part of folderSettings
     image = '',
     bgImage = null,
-    title = '',
 
     el = null,
     elScreen = null,
@@ -38,8 +35,6 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     folderSettings = options.folderSettings;
     resultsManager = options.resultsManager;
 
-    title = folderSettings.name || query;
-
     elScreen = Evme.$(".smart-folder-screen")[0];
 
     el = Evme.$(".smart-folder")[0];
@@ -54,15 +49,13 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elClose.addEventListener("click", self.close);
     elAppsContainer.dataset.scrollOffset = 0;
 
-    // static apps
+    self.setTitle();
+    
+    // render apps
     resultsManager.renderStaticApps(folderSettings.apps);
-
-    // query
-    options.query && self.setQuery(options.query);
     resultsManager.onNewQuery({
-      "query": options.name  // TODO: why not options.query?
+      "query": folderSettings.query
     });
-    options.experienceId && self.setExperience(options.experienceId);
 
     Evme.EventHandler.trigger(NAME, "init");
 
@@ -120,44 +113,12 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     return self;
   };
 
-  this.setExperience = function setExperience(newExperienceId) {
-    if (!newExperienceId || newExperienceId === experienceId) {
-      return self;
-    }
-
-    experienceId = newExperienceId;
-
-    Evme.Utils.log('Folder :: experienceId: ' + experienceId);
-
-    var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-      queryById = Evme.Utils.l10n('shortcut', l10nkey);
-
-    Evme.Utils.log('Folder :: queryById: ' + queryById);
-    elTitle.innerHTML = '<em></em>' +
-      '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
-      '<span ' + Evme.Utils.l10nAttr('shortcut', l10nkey) + '></span>';
-
-    if (queryById) {
-      self.setQuery(queryById);
-    } else if (query) {
-      Evme.$('span', elTitle)[0].textContent = title;
-    }
-
-    return self;
-  };
-
-  this.setQuery = function setQuery(newQuery) {
-    if (!newQuery || newQuery === query) {
-      return self;
-    }
-
-    query = newQuery;
-
+  this.setTitle = function setTitle() {
+    var title = folderSettings.name || folderSettings.query;
+    
     elTitle.innerHTML = '<em></em>' +
       '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
       '<span>' + title + '</span>';
-
-    return self;
   };
 
   this.setImage = function setImage(newImage) {
@@ -235,12 +196,15 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   this.getElement = function getElement() {
     return el;
   };
+  
   this.getExperience = function getExperience() {
-    return experienceId;
+    return folderSettings.experienceId;
   };
+  
   this.getQuery = function getQuery() {
-    return query;
+    return folderSettings.query;
   };
+  
   this.getImage = function getImage() {
     return image;
   };
@@ -251,17 +215,38 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
 
 Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.id = args.id;
-  this.name = args.name;
-  this.query = args.query || args.name;
-  this.apps = args.apps;
+  this.name = args.name || args.query;
   this.bgImage = args.bgImage || null;
+  
+  // folder performs search by query or by experience
+  this.query = args.query || args.name;
+  this.experienceId = args.experienceId;
+  
+  this.apps = args.apps;
 };
 
 Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsPrototype() {
+  
+  this.byExperience = function byExperience(experienceId, cb) {
+    var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+      query = Evme.Utils.l10n('shortcut', l10nkey);
+
+      var folderSettings = new Evme.SmartFolderSettings({
+        id: Evme.Utils.uuid(),
+        experienceId: experienceId,
+        query: query,
+        apps: Evme.InstalledAppsService.getMatchingApps({
+          'query': query
+        })
+      });
+
+      saveFolderSettings(folderSettings, cb);
+  };
+
   this.byQuery = function byQuery(query, cb) {
     var folderSettings = new Evme.SmartFolderSettings({
       id: Evme.Utils.uuid(),
-      name: query,
+      query: query,
       apps: Evme.InstalledAppsService.getMatchingApps({
         'query': query
       })
