@@ -252,13 +252,12 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
 Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.id = args.id;
   this.name = args.name;
+  this.query = args.query || args.name;
   this.apps = args.apps;
+  this.bgImage = args.bgImage || null;
 };
 
-Evme.SmartFolderFactory = new function Evme_SmartFolderFactory() {
-  var NAME = "SmartFolderFactory",
-    self = this;
-
+Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsPrototype() {
   this.byQuery = function byQuery(query, cb) {
     var folderSettings = new Evme.SmartFolderSettings({
       id: Evme.Utils.uuid(),
@@ -309,8 +308,8 @@ Evme.SmartFolderFactory = new function Evme_SmartFolderFactory() {
   function saveFolderSettings(folderSettings, cb) {
     // save folder settings in storage and run callback async.
     Evme.SmartFolderStorage.set(folderSettings, function onFolderStored() {
-      Evme.Utils.log("saved SmartFolderSettings", JSON.stringify(folderSettings));
-      cb && cb(folderSettings.id);
+      Evme.Utils.log("saved SmartFolderSettings", folderSettings);
+      cb && cb(folderSettings);
     });
   }
 };
@@ -322,22 +321,16 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
     self = this;
 
   this.set = function set(folderSettings, cb) {
-    Evme.Storage.set(PREFIX + folderSettings.id, JSON.stringify(folderSettings), function onSet() {
-      cb && cb();
+    Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
+      cb instanceof Function && cb();
     });
   };
 
   this.get = function get(folderSettingsId, cb) {
-    Evme.Storage.get(PREFIX + folderSettingsId, function onGet(result) {
-      if (cb && result !== null) {
-        result = JSON.parse(result || {});
-        var folderSettings = new Evme.SmartFolderSettings({
-          id: result.id,
-          name: result.name,
-          apps: result.apps
-        });
-        
-        cb(folderSettings);
+    Evme.Storage.get(PREFIX + folderSettingsId, function onGet(storedSettings) {
+      if (cb && storedSettings !== null) {
+        var folderSettings = new Evme.SmartFolderSettings(storedSettings);
+        cb instanceof Function && cb(folderSettings);
       }
     });
   };

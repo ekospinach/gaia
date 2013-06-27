@@ -1199,22 +1199,19 @@ Evme.Brain = new function Evme_Brain() {
             
             // TODO: this is some testing data
             Evme.InstalledAppsService._loadFixtures();
-            Evme.SmartFolderFactory.byQuery(shortcutname, function onCreated(folderId) {
-                data.folderId = folderId;
-
+            Evme.SmartFolderSettings.prototype.byQuery(shortcutname, function onCreated(folderSettings) {
+                
                 if (!Evme.Shortcuts.isEditing && !Evme.Shortcuts.isSwiping()) {
-                    Evme.SmartFolderStorage.get(data.folderId, function onGotSetting(storedSettings){
-                      new Evme.SmartFolder({
-                          "resultsManager": Evme.SmartfolderResults,
-                          "query": data.shortcut.getQuery(),
-                          "experienceId": data.shortcut.getExperience(),
-                          "bgImage": (Evme.BackgroundImage.get() || {}).image,
-                          "elParent": elContainer,
-                          "name": data.name,
-                          "folderSettings": storedSettings 
+                    new Evme.SmartFolder({
+                        "resultsManager": Evme.SmartfolderResults,
+                        "query": data.shortcut.getQuery(), // ""
+                        "experienceId": data.shortcut.getExperience(), // 289
+                        "bgImage": (Evme.BackgroundImage.get() || {}).image,
+                        "elParent": elContainer,
+                        "name": data.name, // "Social"
+                        "folderSettings": folderSettings
 
-                      }).show();
-                    });
+                    }).show();
                 }
 
 
