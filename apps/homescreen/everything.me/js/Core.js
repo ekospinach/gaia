@@ -179,7 +179,7 @@ window.Evme = new function Evme_Core() {
 
     Evme.InstalledAppsService.init();
     // TODO: this is some testing data
-    Evme.InstalledAppsService._loadFixtures();
+    // Evme.InstalledAppsService._loadFixtures();
 
     Evme.IconGroup.init({});
 

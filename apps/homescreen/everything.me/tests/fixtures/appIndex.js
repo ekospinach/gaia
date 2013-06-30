@@ -209,3 +209,17 @@ Evme.Fixtures.appIndex = {
     "icon": null
   }
 };
+
+// load the icon blobs from GridManager
+for (var id in Evme.Fixtures.appIndex) {
+  var app = Evme.Fixtures.appIndex[id];
+ 
+  var iconObject = GridManager.getIcon({
+    'manifestURL': app.id
+  });
+  if (iconObject &&
+    'descriptor' in iconObject &&
+    'renderedIcon' in iconObject.descriptor) {
+    app.icon = iconObject.descriptor.renderedIcon;
+  }
+}
