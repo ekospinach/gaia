@@ -1719,6 +1719,8 @@ Evme.Brain = new function Evme_Brain() {
             }
 
             Searcher.cancelSearch();
+            
+            Evme.Helper.showTitle();
 
 	    // set timer for progress indicator
 	    Evme.SearchResults.APIData.onRequestSent();

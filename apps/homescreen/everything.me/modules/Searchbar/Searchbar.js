@@ -1,6 +1,6 @@
 Evme.Searchbar = new function Evme_Searchbar() {
     var NAME = "Searchbar", self = this,
-        el = null, elForm = null, elClear = null, elDefaultText = null,
+        el = null, elClear = null, elDefaultText = null,
         value = "", isFocused = false,
         timeoutSearchOnBackspace = null, timeoutPause = null, timeoutIdle = null,
         intervalPolling = null,
@@ -19,17 +19,10 @@ Evme.Searchbar = new function Evme_Searchbar() {
         
         el = options.el;
         elDefaultText = options.elDefaultText;
-        elForm = options.elForm;
         
         if (typeof options.setFocusOnClear === "boolean") {
             SET_FOCUS_ON_CLEAR = options.setFocusOnClear;
         }
-        
-        elForm.addEventListener("submit", function oSubmit(e){
-            e.preventDefault();
-            e.stopPropagation();
-            cbReturnPressed(e, el.value);
-        });
         
         TIMEOUT_BEFORE_SENDING_PAUSE_EVENT = options.timeBeforeEventPause;
         TIMEOUT_BEFORE_SENDING_IDLE_EVENT = options.timeBeforeEventIdle;
@@ -142,15 +135,20 @@ Evme.Searchbar = new function Evme_Searchbar() {
             cbClear();
             cbEmpty();
         }, 0);
-        
+
         Evme.EventHandler.trigger(NAME, "clearButtonClick");
     }
-    
+
     function inputKeyDown(e) {
         window.clearTimeout(timeoutPause);
         window.clearTimeout(timeoutIdle);
+
+        if (e.keyCode === RETURN_KEY_CODE) {
+          e.preventDefault();
+          cbReturnPressed(e, el.value);
+        }
     }
-    
+
     function inputKeyUp(e) {
         var currentValue = el.value;
         

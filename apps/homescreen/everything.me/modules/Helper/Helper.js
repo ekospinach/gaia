@@ -1,6 +1,6 @@
 Evme.Helper = new function Evme_Helper() {
     var NAME = "Helper", self = this,
-        el = null, elWrapper = null, elTitle = null, elList = null, elTip = null,
+        el = null, elWrapper = null, elTitle = null, elList = null,
         _data = {}, defaultText = "", scroll = null, currentDisplayedType = "", timeoutShowRefine = null,
         queryForSuggestions = "", lastVisibleItem, clicked = false, titleVisible = false,
         
@@ -18,7 +18,6 @@ Evme.Helper = new function Evme_Helper() {
 
         el = options.el;
         elTitle = options.elTitle;
-        elTip = options.elTip;
         
         elWrapper = el.parentNode;
         elList = Evme.$("ul", el)[0];
@@ -196,7 +195,6 @@ Evme.Helper = new function Evme_Helper() {
         
         self.showList({
             "data": _data.history,
-            "l10nKey": 'history-title',
             "className": "history"
         });
         
@@ -218,10 +216,6 @@ Evme.Helper = new function Evme_Helper() {
             "l10nKey": 'didyoumean-title',
             "className": "didyoumean"
         });
-        
-        if (list.length > 0) {
-            self.flash();
-        }
         
         Evme.EventHandler.trigger(NAME, "showSpelling", {
             "data": _data.spelling
@@ -255,9 +249,11 @@ Evme.Helper = new function Evme_Helper() {
         currentDisplayedType = classToAdd;
         
         self.empty();
-        
+
+        document.body.classList.remove('evme-helper-' + elList.className);
         elList.className = classToAdd;
-        
+        document.body.classList.add('evme-helper-' + elList.className);
+
         var html = "";
         
         if (label) {
@@ -282,26 +278,14 @@ Evme.Helper = new function Evme_Helper() {
         });
     };
     
-    this.flash = function flash() {
-        elWrapper.classList.remove("flash");
-        elTip.classList.remove("flash");
-        
-        window.setTimeout(function onTimeout() {
-            elWrapper.classList.add("flash");
-            elTip.classList.add("flash");
-            
-            window.setTimeout(function onTimeout(){
-                elWrapper.classList.remove("flash");
-                elTip.classList.remove("flash");
-            }, 4000);
-        }, 0);
-    };
-    
     this.scrollToStart = function refreshScroll() {
         scroll.scrollTo(0,0);
     };
 
     this.setTitle = function setTitle(title, type) {
+        elTitle.innerHTML = 'Everything';
+        return;
+
         if (!title) {
             elTitle.innerHTML = '<b ' + Evme.Utils.l10nAttr(NAME, 'title-empty') + '></b>';
             return false;
@@ -341,9 +325,11 @@ Evme.Helper = new function Evme_Helper() {
     this.showTitle = function showTitle() {
         if (titleVisible) return;
         
+        self.setTitle();
+        document.body.classList.remove('evme-helper-' + elList.className);
+
         elWrapper.classList.add("close");
         elTitle.classList.remove("close");
-        self.hideTip();
         window.setTimeout(self.disableCloseAnimation, 50);
         
         titleVisible = true;
@@ -379,17 +365,9 @@ Evme.Helper = new function Evme_Helper() {
         bShouldAnimate = false;
     };
     
-    this.showTip = function showTip() {
-        elTip.style.visibility = 'visible';
-    };
-    
-    this.hideTip = function hideTip() {
-        elTip.style.visibility = 'hidden';
-    };
-    
     this.addLink = function addLink(l10Key, callback, isBefore) {
         var elLink = Evme.$create('li', {
-            'class': "link",
+            'class': "link strong",
             'data-l10n-id': Evme.Utils.l10nKey(NAME, l10Key)
         });
         
@@ -442,10 +420,6 @@ Evme.Helper = new function Evme_Helper() {
                 
                 window.setTimeout(function onTimeout(){
                     elList.classList.remove("anim");
-                    
-                    if (currentDisplayedType == "" && !Evme.Utils.Cookies.get("fs")) {
-                        self.flash();
-                    }
                 }, 50);
             }, 50);
         }, 50);

@@ -1,7 +1,7 @@
 #helper-header {
     position: absolute;
-    left: 0;
     top: 3.9rem;
+    left: 0;
     right: 0;
 }
 body:not(.evme-keyboard-visible) .empty-query #helper-header {
@@ -10,16 +10,15 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
 
 #search-title {
     position: absolute;
-    top: 0;
-    left: 0.6rem;
-    right: 0.6rem;
+    top: -3rem;
+    left: 1.1rem;
+    right: 1.2rem;
     color: #fff;
     z-index: 50;
     height: 3.8rem;
     line-height: 3.8rem;
-    font-size: 1.6rem;
-    font-weight: 600;
-    text-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 1), 0 0.1rem 0.1rem #000;
+    font-size: 1.7rem;
+    font-weight: 400;
     cursor: pointer;
     overflow: hidden;
     visibility: visible;
@@ -54,19 +53,14 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
 
 #helper-rapper {
     position: absolute;
-    background: #fff;
     top: 0.4rem;
-    left: 0.6rem;
-    right: 0.6rem;
+    left: 1.2rem;
+    right: 1.2rem;
     height: 2.8rem;
     line-height: 2.2rem;
-    color: #000;
     font-size: 1.5rem;
-    border-radius: 0.2rem;
-    border: 0.1rem solid #1f1f1f;
     z-index: 55;
     overflow: hidden;
-    transform-origin: 50% 50%;
 }
 
 #helper-rapper.animate:not(.anim-disabled) {
@@ -79,29 +73,6 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
 }
     #helper-rapper.close ul {
         display: none;
-    }
-    
-    #helper-tip {
-        position: absolute;
-        left: 2.2rem;
-        bottom: 0.1rem;
-        overflow: visible;
-        z-index: 300;
-        display: none;
-        transform: scale(.7, 1);
-        transition: all .2s ease;
-    }
-    #helper-tip b {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 1.3rem;
-        width: 1.3rem;
-        background: #fff;
-        border-left: 0.1rem solid #000;
-        border-top: 0.1rem solid #000;
-        transform: rotate(45deg);
-        box-shadow: -0.4rem -0.4rem 0.4rem -0.2rem rgba(0, 0, 0, .4);
     }
     
     
@@ -155,6 +126,7 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
             height: 100%;
             padding: 0.2rem 1rem 0.4rem;
             cursor: pointer;
+            color: #b4dae7;
         }
         #helper ul li b {
             font-weight: 600;
@@ -166,12 +138,12 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
             left: -0.3rem;
             width: 0.4rem;
             height: 0.4rem;
-            background: #000;
+            background: #b4dae7;
+            opacity: .7;
             border-radius: 0.2rem;
         }
         #helper ul li:first-child {
-            font-weight: 600;
-            color: #0485af;
+          padding-left: 0;
         }
         #helper ul li:first-child b {
             font-weight: 600;
@@ -183,7 +155,7 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
             font-weight: inherit;
             color: inherit;
         }
-        #helper ul.default li, #helper ul.history li {
+        #helper ul.default li {
             font-weight: 600;
         }
         #helper ul li.label {
@@ -193,6 +165,8 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
             padding-right: 0.2rem;
             cursor: default;
             text-transform: none;
+
+            display: none;
         }
         #helper ul.text li.label {
             font-style: normal;
@@ -214,9 +188,7 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
             padding-left: 0;
         }
         #helper ul li.link {
-            color: #0485af !important;
-            font-weight: normal;
-            cursor: pointer;
+            font-weight: bold;
             text-transform: none;
         }
         #helper ul li.link.disabled {
