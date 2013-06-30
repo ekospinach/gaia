@@ -337,7 +337,9 @@ Evme.Helper = new function Evme_Helper() {
     
     this.hideTitle = function hideTitle() {
         if (!titleVisible) return;
-        
+
+        document.body.classList.remove('evme-helper-' + elList.className);
+
         elWrapper.classList.remove("close");
         elTitle.classList.add("close");
         window.setTimeout(self.disableCloseAnimation, 50);

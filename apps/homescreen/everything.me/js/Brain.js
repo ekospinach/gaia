@@ -1719,45 +1719,43 @@ Evme.Brain = new function Evme_Brain() {
             }
 
             Searcher.cancelSearch();
-            
-            Evme.Helper.showTitle();
 
-	    // set timer for progress indicator
-	    Evme.SearchResults.APIData.onRequestSent();
-
-	    // triggers installed provider search
-	    Evme.SearchResults.onNewQuery({
-		"query": Evme.Searchbar.getValue()
+      	    // set timer for progress indicator
+      	    Evme.SearchResults.APIData.onRequestSent();
+      
+      	    // triggers installed provider search
+      	    Evme.SearchResults.onNewQuery({
+      		    "query": Evme.Searchbar.getValue()
             });
-
-	    if (!exact && query.length < MINIMUM_LETTERS_TO_SEARCH) {
-		Searcher.cancelRequests();
-		return;
+      
+      	    if (!exact && query.length < MINIMUM_LETTERS_TO_SEARCH) {
+          		Searcher.cancelRequests();
+          		return;
             }
-
-	    requestSearch = Evme.DoATAPI.search({
-		"query": query,
-		"typeHint": type,
-		"index": index,
-		"feature": source,
-		"exact": exact,
-		"spellcheck": getSpelling,
-		"suggest": !onlyDidYouMean,
-		"limit": NUMBER_OF_APPS_TO_LOAD,
-		"first": appsCurrentOffset,
-		"iconFormat": iconsFormat,
-		"prevQuery": prevQuery,
-		"_NOCACHE": _NOCACHE
-	    }, function onSuccess(data) {
-		getAppsComplete(data, options);
-		requestSearch = null;
-
-		// only try to refresh location of it's a "real" search- with keyboard down
-		if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
-		    Evme.Location.updateIfNeeded();
-                }
-	    }, removeSession);
-        };
+      
+      	    requestSearch = Evme.DoATAPI.search({
+          		"query": query,
+          		"typeHint": type,
+          		"index": index,
+          		"feature": source,
+          		"exact": exact,
+          		"spellcheck": getSpelling,
+          		"suggest": !onlyDidYouMean,
+          		"limit": NUMBER_OF_APPS_TO_LOAD,
+          		"first": appsCurrentOffset,
+          		"iconFormat": iconsFormat,
+          		"prevQuery": prevQuery,
+          		"_NOCACHE": _NOCACHE
+      	    }, function onSuccess(data) {
+          		getAppsComplete(data, options);
+          		requestSearch = null;
+      
+          		// only try to refresh location of it's a "real" search- with keyboard down
+          		if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
+          		    Evme.Location.updateIfNeeded();
+              }
+            }, removeSession);
+    };
 
 	function getAppsComplete(data, options) {
             if (data.errorCode !== Evme.DoATAPI.ERROR_CODES.SUCCESS) {
@@ -1823,14 +1821,14 @@ Evme.Brain = new function Evme_Brain() {
                     lastSearch.source = _source;
                     lastSearch.type = _type;
 
-		    Evme.SearchResults.APIData.onResponseRecieved(data.response);
+            		    Evme.SearchResults.APIData.onResponseRecieved(data.response);
 
-		    // if got less apps then requested, assume no more apps
-		    if (searchResults.paging.limit < NUMBER_OF_APPS_TO_LOAD) {
-			hasMoreApps = false;
-		    } else {
-			var maxApps = (searchResults.paging && searchResults.paging.max) || NUMBER_OF_APPS_TO_LOAD * 2;
-			hasMoreApps = appsCurrentOffset + searchResults.paging.limit < maxApps;
+            		    // if got less apps then requested, assume no more apps
+            		    if (searchResults.paging.limit < NUMBER_OF_APPS_TO_LOAD) {
+            			   hasMoreApps = false;
+            		    } else {
+                			var maxApps = (searchResults.paging && searchResults.paging.max) || NUMBER_OF_APPS_TO_LOAD * 2;
+                			hasMoreApps = appsCurrentOffset + searchResults.paging.limit < maxApps;
                     }
 
                     if (hasMoreApps) {
@@ -1845,11 +1843,8 @@ Evme.Brain = new function Evme_Brain() {
 
             Evme.Searchbar.endRequest();
 
-            // consider this benchmark only if the response didn't come from the cache
-            if (!data._cache) {
-		Evme.Features.stopTimingFeature('typingApps', true);
-		Evme.Features.stopTimingFeature('iconQuality', true);
-            }
+        		Evme.Features.stopTimingFeature('typingApps', true);
+        		Evme.Features.stopTimingFeature('iconQuality', true);
 
             return true;
         }
@@ -2031,6 +2026,7 @@ Evme.Brain = new function Evme_Brain() {
             if (!automaticSearch) {
                 Evme.Searchbar.setValue(query, false, true);
                 Evme.Helper.setTitle(query);
+                Evme.Helper.showTitle();
             }
 
             var options = {
