@@ -54,8 +54,8 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
   this.get = function get(ids, query, callback) {
     var el = renderCanvas({
-      "apps": ids || [],
-      "icons": Evme.Utils.getIconGroup() || [],
+      "apps": ids || [],  // list of objects with "id" and "icon" properties
+      "icons": Evme.Utils.getIconGroup() || [],  // the settings for the icons
       "query": query,
       "onReady": callback
     });
@@ -73,7 +73,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
     elCanvas.width = WIDTH;
     elCanvas.height = query? HEIGHT : WIDTH;
-    context.imagesToLoad = icons.length;
+    context.imagesToLoad = apps.length;
     context.imagesLoaded = [];
 
     if (!Array.isArray(apps)) {
@@ -86,7 +86,8 @@ Evme.IconGroup = new function Evme_IconGroup() {
       }
     }
 
-    for (var i = 0; i < icons.length; i++) {
+    for (var i = 0; i < apps.length; i++) {
+      // render the icons from bottom to top
       var app = apps[apps.length - 1 - i];
 
       if (typeof app !== "object") {
@@ -96,7 +97,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
       }
 
       if (app.icon) {
-        loadIcon(app.icon, icons[i], context, i, onReady);
+        loadIcon(app.icon, icons[(icons.length - apps.length) + i], context, i, onReady);
       } else {
         (function(app, icon, context, i, onReady) {
           Evme.IconManager.get(app.id, function onIconFromCache(appIcon) {
@@ -158,7 +159,13 @@ Evme.IconGroup = new function Evme_IconGroup() {
       fixedImage.src = elImageCanvas.toDataURL('image/png');
     };
 
-    image.src = Evme.Utils.formatImageData(iconSrc);
+    if (Evme.Utils.isBlob(iconSrc)) {
+      Evme.Utils.blobToDataURI(iconSrc, function onDataReady(src) {
+        image.src = src;
+      });
+    } else {
+      image.src = Evme.Utils.formatImageData(iconSrc);
+    }
 
     return true;
   }

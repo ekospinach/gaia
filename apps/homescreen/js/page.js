@@ -569,6 +569,10 @@ Icon.prototype = {
                 "name": originElem.textContent
               }
             ],
+            "icons": [
+              {"id": null, "icon": GridManager.getIcon(originElem.dataset).descriptor.renderedIcon},
+              {"id": null, "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon}
+            ],
             "gridPosition": {
               "page": 0,  // TODO
               "index": 0  // TODO
