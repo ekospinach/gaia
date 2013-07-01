@@ -29,6 +29,8 @@ window.Evme = new function Evme_Core() {
             "authCookieName": data.authCookieName
         });
 
+        handleMozSettings();
+
         initObjects(data);
     };
 
@@ -155,5 +157,26 @@ window.Evme = new function Evme_Core() {
         });
 
         Evme.EventHandler.trigger(NAME, "init", {"deviceId": Evme.DoATAPI.getDeviceId()});
+    }
+
+    function handleMozSettings() {
+        // Use a setting in order to be "called" by settings app to clear search cache
+        if (navigator.mozSettings) {
+            var req = navigator.mozSettings.createLock().get('clear.evme-cache.data');
+            req.onsuccess = function getLockSuccess() {
+                if (req.result['clear.evme-cache.data']) {
+                    Evme.DoATAPI.clearSearchCache();
+                }
+            };
+
+            navigator.mozSettings.addObserver(
+                'clear.evme-cache.data',
+                function clearEvmeCache(setting) {
+                    if(setting.settingValue) {
+                        Evme.DoATAPI.clearSearchCache();
+                    }
+                }
+            );
+        }
     }
 };

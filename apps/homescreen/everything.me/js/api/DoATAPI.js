@@ -28,6 +28,9 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         // which param to pass from normal requests to stats and logs
         PARAM_TO_PASS_BETWEEN_REQUESTS = "requestId",
         PARAM_TO_PASS_BETWEEN_REQUESTS_NAME = "originatingRequestId",
+
+        // key to store the cached item
+        ITEMS_CACHED_KEY = 'itemsCached',
         
         // client info- saved in cookie and sent to API
         clientInfo = {
@@ -1010,7 +1013,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         // IndexDB stores in seconds and the cacheTTL is in minutes, so we multiply by 60 to conver it to seconds
         Evme.Storage.set(cacheKey, data, cacheTTL*60);
 
-        Evme.Storage.get('itemsCached', function storageGot(itemsCached) {
+        Evme.Storage.get(ITEMS_CACHED_KEY, function storageGot(itemsCached) {
             itemsCached = itemsCached || [];
             if (itemsCached.length == 1 && itemsCached[0] == "") {
                 itemsCached = [];
@@ -1033,6 +1036,22 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
 
     this.removeFromCache = function removeFromCache(cacheKey) {
         Evme.Storage.remove(cacheKey);
+    };
+
+    this.clearSearchCache = function clearSearchCache() {
+        // get all the cached items key index
+        Evme.Storage.get(ITEMS_CACHED_KEY, function storageGot(itemsCached) {
+            if (!itemsCached) return;
+            // remove each key
+            for (var i=0,itemToRemove;itemToRemove=itemsCached[i++];) {
+                Evme.Storage.remove(itemToRemove);
+            }
+            // remove all cached key index
+            Evme.Storage.remove(ITEMS_CACHED_KEY);
+        });
+
+        var lock = navigator.mozSettings.createLock();
+        lock.set({'clear.evme-cache.data': false});
     };
     
     function cacheCleanUpParams(params) {

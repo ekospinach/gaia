@@ -4,9 +4,35 @@
 'use strict';
 
 var About = {
+  EvmeSearchClear: {
+    dialog: document.querySelector('#about-moreInfo-developer .clear-evme-cache'),
+    goButton: document.querySelector('#about-moreInfo-developer .clear-evme-cache-go'),
+    cancelButton: document.querySelector('#about-moreInfo-developer .clear-evme-cache-cancel'),
+    mainButton: document.getElementById('clearEvmeCache')
+  },
+
   init: function about_init() {
     document.getElementById('check-update-now').onclick = this.checkForUpdates;
     document.getElementById('ftuLauncher').onclick = this.launchFTU;
+
+    // Implement clear everything.me searchs cache and its confirm dialog
+    var confirmDialog = this.EvmeSearchClear.dialog;
+    this.EvmeSearchClear.goButton.onclick = function cb_confirmGoClicked(event) {
+      var settings = navigator.mozSettings;
+      var lock = settings.createLock();
+      lock.set({'clear.evme-cache.data': true});
+
+      confirmDialog.hidden = true;
+    };
+
+    this.EvmeSearchClear.cancelButton.onclick = function cb_confirmCancelClicked(event) {
+      confirmDialog.hidden = true;
+    };
+
+    this.EvmeSearchClear.mainButton.onclick = function clearEvmeCache() {
+      confirmDialog.hidden = false;
+    };
+
     this.loadHardwareInfo();
     this.loadGaiaCommit();
     this.loadLastUpdated();

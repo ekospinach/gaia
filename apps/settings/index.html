@@ -2110,7 +2110,25 @@
               <button id="ftuLauncher" data-l10n-id="launch-ftu">Launch FTU</button>
             </label>
           </li>
+          <li>
+            <label>
+              <button id="clearEvmeCache" class="icon icon-dialog" data-l10n-id="clear-evme-cache">Clear everything.me cache</button>
+            </label>
+          </li>
         </ul>
+
+        <form role="dialog" data-type="confirm" hidden class="clear-evme-cache">
+          <section>
+            <h1 data-l10n-id="confirm-clear-evme-cache-title">Clear everything.me data</h1>
+            <p>
+              <strong data-l10n-id="confirm-clear-evme-cache-desc">This clears everything.me search history and search cache. This cannot be undone.</strong>
+            </p>
+          </section>
+          <menu>
+            <button class="clear-evme-cache-cancel" data-l10n-id="cancel">Cancel</button>
+            <button class="clear-evme-cache-go recommend danger" data-l10n-id="clear">Clear</button>
+          </menu>
+        </form>
 
         <header>
           <h2 data-l10n-id="keyboardLayouts">Keyboard Layouts</h2>
