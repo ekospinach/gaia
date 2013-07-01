@@ -68,11 +68,7 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     self.setTitle(folderSettings.name || folderSettings.query);
     folderSettings.bg && self.setBackground(folderSettings.bg);
     
-    // render apps
     resultsManager.renderStaticApps(folderSettings.apps);
-    resultsManager.onNewQuery({
-      "query": folderSettings.query
-    });
 
     window.setTimeout(function onTimeout() {
       el.classList.add(CLASS_WHEN_VISIBLE);

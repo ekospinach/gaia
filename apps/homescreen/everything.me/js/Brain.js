@@ -1115,6 +1115,7 @@ Evme.Brain = new function Evme_Brain() {
         // a smart folder was renamed
         this.rename = function rename(data) {
             loadBGImage();
+            loadAppsIntoFolder();
             // TOOD: update the shortcut name
         };
 
@@ -1144,8 +1145,7 @@ Evme.Brain = new function Evme_Brain() {
             });
         };
 
-        // start the smart folder apps loading process
-
+        // load the cloud apps into the folder
         function loadAppsIntoFolder() {
             if (!currentFolder) return;
 

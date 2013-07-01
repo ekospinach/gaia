@@ -25,6 +25,10 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
     containerEl.innerHTML = '';
   };
 
+  this.getResultCount = function getResultCount() {
+    return containerEl.childElementCount;
+  };
+
   function renderDocFrag(apps) {
     var docFrag = document.createDocumentFragment();
     for (var i = 0, app; app = apps[i++];) {
