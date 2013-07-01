@@ -207,7 +207,7 @@ const DragDropManager = (function() {
     }
 
     DragLeaveEventManager.send(page, function(done) {
-      draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem, originElem);
+      draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem, originElem, page);
       done();
     }, true);
   }
@@ -340,7 +340,11 @@ const DragDropManager = (function() {
   }
 
   function letHoverOver(overlapElem, draggableElem) {
-    if (overlapElem == originElem || !isInOriginalPosition(overlapElem)) { return false; }
+    if (overlapElem == originElem || // if not dragging over the same icon
+        originElem.dataset.isFolder === 'true' || // and not dragging a smartfolder
+        !isInOriginalPosition(overlapElem)) { // add the dragged upon element is in it's original position (like android)
+      return false;
+    }
 
     var overlapRect = overlapElem.getBoundingClientRect(),
         centerY = overlapRect.height/2 + overlapRect.top,
@@ -380,8 +384,6 @@ const DragDropManager = (function() {
     DragLeaveEvent.prototype.send = function() {
       working = true;
       var self = this;
-
-      console.log(letHoverOver(overlapElem, draggableIcon.draggableElem));
 
       // For some reason, moving a node re-triggers the blob URI to be validated
       // after inserting this one in other position of the DOM

@@ -90,10 +90,12 @@ body[data-mode = 'edit'] ol > li > div::after {
   border: .3rem solid blue;
   z-index: 1;
   -moz-transform: scale(0.3);
+  opacity: 0;
   -moz-transition: -moz-transform .3s;
 }
 body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::after {
  -moz-transform: scale(1); 
+ opacity: 1;
 }
 .draggable.droppedInFolder > div {
   -moz-transform: scale(0);

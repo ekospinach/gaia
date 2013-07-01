@@ -535,7 +535,7 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem, originElem) {
+  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem, originElem, page) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -556,8 +556,18 @@ Icon.prototype = {
     } else {
       draggableElem.classList.add('droppedInFolder');
       
-      if (overlapElem.dataset.folder === 'true') {
-        alert('Drop '+draggableElem.textContent+' into '+overlapElem.dataset.foldername);
+      if (overlapElem.dataset.isFolder === 'true') {
+        window.dispatchEvent(new CustomEvent('EvmeShortcutAddApp', {
+          "detail": {
+            "app": {
+              "manifest": originElem.dataset.manifestURL,
+              "name": originElem.textContent
+            },
+            "folder": {
+              "id": overlapElem.dataset.folderId
+            }
+          }
+        }));
       } else {
         window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
           "detail": {
@@ -574,8 +584,8 @@ Icon.prototype = {
               {"id": null, "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon}
             ],
             "gridPosition": {
-              "page": 0,  // TODO
-              "index": 0  // TODO
+              "page": page.getIndex(),
+              "index": page.getIconIndex(overlapElem)
             }
           }
         }));
@@ -1033,6 +1043,18 @@ Page.prototype = {
       var icon = GridManager.getIcon(node.dataset);
       return icon.descriptor;
     });
+  },
+
+  getIndex: function pg_getIndex() {
+    var pages = this.container.parentNode.children;
+    pages = Array.prototype.slice.call(pages, 0,pages.length);
+    return pages.indexOf(this.container);
+  },
+
+  getIconIndex: function pg_getIconIndex(icon) {
+    var icons = this.getIcons();
+    icons = Array.prototype.slice.call(icons, 0,icons.length);
+    return icons.indexOf(icon);
   }
 };
 

@@ -43,16 +43,6 @@ Evme.Brain = new function Evme_Brain() {
 
         DISPLAY_INSTALLED_APPS = "FROM_CONFIG",
 
-        INSTALLED_APPS_TO_TYPE = {
-            "music": ["FM Radio", "Music", "Video"],
-            "games": ["Marketplace", "CrystalSkull", "PenguinPop", "TowerJelly"],
-            "maps": ["Maps"],
-            "email": ["E-mail"],
-            "images": ["Gallery", "Camera"],
-            "video": ["Video", "Camera"],
-            "local": ["Maps", "FM Radio"]
-        },
-
         currentResultsManager = null,
 
         timeoutSetUrlAsActive = null,
@@ -79,6 +69,16 @@ Evme.Brain = new function Evme_Brain() {
           var options = e && e.detail;
           if (options) {
             addShortcut(options);
+            hideFromGrid(options.apps);
+          }
+        });
+        
+        window.addEventListener('EvmeShortcutAddApp', function onShortcutCreate(e) {
+          var options = e && e.detail;
+          if (options) {
+            // TODO: Add app to shortcut
+            alert("Not implemented");
+            hideFromGrid(app);
           }
         });
 
@@ -94,6 +94,20 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
+
+    function hideFromGrid(apps) {
+        if (!Array.isArray(apps)) {
+            apps = [apps];
+        }
+        
+        for (var i=0,appData; appData=apps[i++];) {
+            var app = Evme.InstalledAppsService.getAppByManifest(appData.manifest);
+            if (app && app.appUrl) {
+                debugger;
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, app.appUrl);
+            }
+        }
+    }
 
     // create the shortcut icon and send it to the OS
     function addShortcut(options) {
@@ -116,8 +130,6 @@ Evme.Brain = new function Evme_Brain() {
           Evme.SmartFolderSettings.prototype.byQuery(query, addShortcutToHomescreen);
         } else if (apps.length > 1) {
             Evme.SmartFolderSettings.prototype.byAppPair(apps[0], apps[1], addShortcutToHomescreen);
-
-            // TODO remove apps from grid OSMessages.HIDE_APP_FROM_GRID
         }
       }
 
