@@ -79,6 +79,25 @@ Evme.Brain = new function Evme_Brain() {
           var options = e && e.detail;
           if (options) {
             addShortcut(options);
+            // remove apps from grid
+            for (var i=0,appData; appData=options.apps[i++];) {
+                var app = Evme.InstalledAppsService.getAppByManifest(appData.manifest);
+                if (app && app.appUrl) {
+                    hideFromGrid(app.appUrl);
+                }
+            }
+          }
+        });
+        
+        window.addEventListener('EvmeShortcutAddApp', function onShortcutCreate(e) {
+          var options = e && e.detail;
+          if (options) {
+            // TODO: Add app to shortcut
+            // remove app from grid
+            var app = getAppByManifest(app.manifest);
+            if (app && app.appUrl) {
+                hideFromGrid(app.appUrl);    
+            }
           }
         });
 
@@ -116,8 +135,6 @@ Evme.Brain = new function Evme_Brain() {
           Evme.SmartFolderSettings.prototype.byQuery(query, addShortcutToHomescreen);
         } else if (apps.length > 1) {
             Evme.SmartFolderSettings.prototype.byAppPair(apps[0], apps[1], addShortcutToHomescreen);
-
-            // TODO remove apps from grid OSMessages.HIDE_APP_FROM_GRID
         }
       }
 
