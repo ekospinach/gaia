@@ -186,12 +186,7 @@ Evme.Brain = new function Evme_Brain() {
         var data = activity.source.data;
 
         Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
-            new Evme.SmartFolder({
-                "resultsManager": Evme.SmartfolderResults,
-                "folderSettings": folderSettings,
-                "bgImage": (Evme.BackgroundImage.get() || {}).image,
-                "elParent": elContainer
-            }).show();
+            Evme.SmartFolder.show(folderSettings);
         });
       }
     }

@@ -123,6 +123,12 @@ window.Evme = new function Evme_Core() {
       "elTip": Evme.$("#helper-tip")
     });
 
+    Evme.BackgroundImage.init({
+      "el": Evme.$("#search-overlay"),
+      "elementsToFade": [Evme.$(".smart-folder .evme-apps")[0], Evme.$("#evmeApps"), Evme.$("#header"), Evme.$("#search-header")],
+      "defaultImage": data.defaultBGImage
+    });
+
     Evme.SearchResults = new Evme.ResultManager();
     Evme.SearchResults.init({
       "NAME": 'SearchResults',
@@ -177,17 +183,16 @@ window.Evme = new function Evme_Core() {
       ]
     });
 
+    Evme.SmartFolder.init({
+      "resultsManager": Evme.SmartfolderResults,
+      "bgImage": (Evme.BackgroundImage.get() || {}).image
+    });
+
     Evme.InstalledAppsService.init();
     // TODO: this is some testing data
     // Evme.InstalledAppsService._loadFixtures();
 
     Evme.IconGroup.init({});
-
-    Evme.BackgroundImage.init({
-      "el": Evme.$("#search-overlay"),
-      "elementsToFade": [Evme.$(".smart-folder .evme-apps")[0], Evme.$("#evmeApps"), Evme.$("#header"), Evme.$("#search-header")],
-      "defaultImage": data.defaultBGImage
-    });
 
     Evme.Banner.init({
       "el": Evme.$("#evmeBanner")
