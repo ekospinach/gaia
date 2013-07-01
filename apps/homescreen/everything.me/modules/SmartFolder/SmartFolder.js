@@ -14,6 +14,9 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elImageFullscreen = null,
     resultsManager = null,
     elFolderActions = null,
+    elStaticAppActions = null,
+
+    pendingActionAppId = null,  // the id of the app that triggered the actions menu
 
     SCROLL_BOTTOM_THRESHOLD = 5,
     CLASS_WHEN_LOADING = 'show-loading-apps',
@@ -27,6 +30,8 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     FULLSCREEN_THRESHOLD = 0.8;
 
   this.init = function init(options) {
+    var actionsButtons;
+
     !options && (options = {});
 
     folderSettings = options.folderSettings;
@@ -43,8 +48,14 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elImage = Evme.$(".image", el)[0];
     elClose = Evme.$('.close', el)[0];
 
+    elStaticAppActions = Evme.$('.static-app-actions', el)[0];
+    actionsButtons = Evme.$('menu button', elStaticAppActions);
+    for (var i = 0, button; button = actionsButtons[i++];) {
+      button.addEventListener('click', staticAppActionClick);
+    }
+
     elFolderActions = Evme.$('.folder-actions', el)[0];
-    var actionsButtons = Evme.$('menu button', elFolderActions);
+    actionsButtons = Evme.$('menu button', elFolderActions);
     for (var i=0,button; button=actionsButtons[i++];) {
         button.addEventListener('click', folderActionClick);
     }
@@ -198,12 +209,45 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   }
   
   this.addApps = function addApps(newApps) {
-    var str = '';
-    newApps.forEach(function(app) {
-        str += app.name+",";
-    });
-    alert("new apps: "+str);
+    if (newApps && newApps.length) {
+      var allApps = folderSettings.apps.concat(newApps);
+      setStaticApps(allApps);
+    }
   };
+
+  this.removeApp = function removeApp(appId) {
+    var newApps = folderSettings.apps.filter(function(app) {
+      return app.id !== appId;
+    });
+
+    if (newApps.length !== folderSettings.apps.length) {
+      setStaticApps(newApps);
+    }
+  };
+
+  this.openAppActions = function openAppActions(data) {
+    pendingActionAppId = data.appId;
+    elStaticAppActions.classList.add("show");
+  };
+
+  function setStaticApps(apps) {
+    Evme.SmartFolderStorage.update(folderSettings, {"apps": apps}, function onUpdate(updatedSettings){
+      folderSettings = updatedSettings;
+      resultsManager.renderStaticApps(folderSettings.apps);
+    });
+  }
+
+  function staticAppActionClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    switch (this.dataset.action) {
+        case "remove":
+            self.removeApp(pendingActionAppId);
+            break;
+    }
+    elStaticAppActions.classList.remove('show');
+    pendingActionAppId = null;
+  }
 
   function folderActionClick(e) {
     e.preventDefault();
@@ -231,7 +275,7 @@ Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.query = args.query || args.name;
   this.experienceId = args.experienceId;
   
-  this.apps = args.apps;
+  this.apps = args.apps || [];
 };
 
 Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsPrototype() {
@@ -325,7 +369,7 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
 
   this.add = function add(folderSettings, cb) {
     Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
-      cb instanceof Function && cb();
+      cb instanceof Function && cb(folderSettings);
     });
   };
 
