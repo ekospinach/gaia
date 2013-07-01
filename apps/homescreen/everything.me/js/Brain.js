@@ -43,16 +43,6 @@ Evme.Brain = new function Evme_Brain() {
 
         DISPLAY_INSTALLED_APPS = "FROM_CONFIG",
 
-        INSTALLED_APPS_TO_TYPE = {
-            "music": ["FM Radio", "Music", "Video"],
-            "games": ["Marketplace", "CrystalSkull", "PenguinPop", "TowerJelly"],
-            "maps": ["Maps"],
-            "email": ["E-mail"],
-            "images": ["Gallery", "Camera"],
-            "video": ["Video", "Camera"],
-            "local": ["Maps", "FM Radio"]
-        },
-
         currentResultsManager = null,
 
         timeoutSetUrlAsActive = null,
@@ -79,13 +69,7 @@ Evme.Brain = new function Evme_Brain() {
           var options = e && e.detail;
           if (options) {
             addShortcut(options);
-            // remove apps from grid
-            for (var i=0,appData; appData=options.apps[i++];) {
-                var app = Evme.InstalledAppsService.getAppByManifest(appData.manifest);
-                if (app && app.appUrl) {
-                    hideFromGrid(app.appUrl);
-                }
-            }
+            hideFromGrid(options.apps);
           }
         });
         
@@ -93,11 +77,8 @@ Evme.Brain = new function Evme_Brain() {
           var options = e && e.detail;
           if (options) {
             // TODO: Add app to shortcut
-            // remove app from grid
-            var app = getAppByManifest(app.manifest);
-            if (app && app.appUrl) {
-                hideFromGrid(app.appUrl);    
-            }
+            alert("Not implemented");
+            hideFromGrid(app);
           }
         });
 
@@ -113,6 +94,20 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
+
+    function hideFromGrid(apps) {
+        if (!Array.isArray(apps)) {
+            apps = [apps];
+        }
+        
+        for (var i=0,appData; appData=apps[i++];) {
+            var app = Evme.InstalledAppsService.getAppByManifest(appData.manifest);
+            if (app && app.appUrl) {
+                debugger;
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, app.appUrl);
+            }
+        }
+    }
 
     // create the shortcut icon and send it to the OS
     function addShortcut(options) {
