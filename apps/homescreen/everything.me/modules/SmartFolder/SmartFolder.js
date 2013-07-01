@@ -16,6 +16,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elFolderActions = null,
     elStaticAppActions = null,
 
+    title = '',
     pendingActionAppId = null,  // the id of the app that triggered the actions menu
 
     SCROLL_BOTTOM_THRESHOLD = 5,
@@ -68,7 +69,7 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     elClose.addEventListener("click", self.close);
     elAppsContainer.dataset.scrollOffset = 0;
 
-    self.setTitle();
+    self.setTitle(folderSettings.name || folderSettings.query);
     folderSettings.bg && self.setBackground(folderSettings.bg);
     
     // render apps
@@ -133,8 +134,8 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     return self;
   };
 
-  this.setTitle = function setTitle() {
-    var title = folderSettings.name || folderSettings.query;
+  this.setTitle = function setTitle(newTitle) {
+    title = newTitle;
     
     elTitle.innerHTML = '<em></em>' +
       '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
@@ -142,6 +143,8 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
   };
 
   this.setBackground = function setBackground(newBg) {
+    self.clearBackground();
+    
     elImage.style.backgroundImage = 'url(' + newBg.image + ')';
 
     elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
@@ -253,11 +256,29 @@ Evme.SmartFolder = function Evme_SmartFolder(_options) {
     e.preventDefault();
     e.stopPropagation();
     switch (this.dataset.action) {
-        case "addApp":
-            Evme.EventHandler.trigger(NAME, "actionAddApp", {
-                "staticApps": folderSettings.apps
+      case "addApp":
+        Evme.EventHandler.trigger(NAME, "actionAddApp", {
+          "staticApps": folderSettings.apps
+        });
+        break;
+
+      case "rename":
+        var newTitle = prompt("Rename Smart Folder", title);
+        if (newTitle && newTitle !== title) {
+          Evme.SmartFolderStorage.update(folderSettings, {
+            "experienceId": null,
+            "query": newTitle,
+            "name": newTitle
+          }, function onUpdate() {
+            self.setTitle(newTitle);
+            Evme.EventHandler.trigger(NAME, "rename", {
+              "id": folderSettings.id,
+              "newName": newTitle
             });
-            break;
+          });
+        }
+        break;
+
     }
     elFolderActions.classList.remove('show');
   }

@@ -1117,18 +1117,22 @@ Evme.Brain = new function Evme_Brain() {
             requestSmartFolderImage && requestSmartFolderImage.abort && requestSmartFolderImage.abort();
         };
 
+        // a smart folder was renamed
+        this.rename = function rename(data) {
+            loadBGImage();
+            // TOOD: update the shortcut name
+        };
+
         // load the folder's background image
 
         function loadBGImage() {
             if (!currentFolder) return;
             if (currentFolder.userSetBg()) return;
             
-            var experienceId = currentFolder.getExperience(),
-                query = currentFolder.getQuery();
+            var query = currentFolder.getQuery();
 
             requestSmartFolderImage = Evme.DoATAPI.bgimage({
-                "query": experienceId ? '' : query,
-                "experienceId": experienceId,
+                "query": query,
                 "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
                 "exact": true,
                 "width": screen.width,
