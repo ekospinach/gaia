@@ -886,8 +886,7 @@ Evme.Brain = new function Evme_Brain() {
                         "name": data.data.name
                     });
                 });
-            }
-            else if (data.app.type === Evme.RESULT_TYPE.STATIC) {
+            } else if (data.app.group === Evme.RESULT_GROUP.STATIC) {
                 Brain.SmartFolder.staticAppHold(data);
             }
 
@@ -895,7 +894,7 @@ Evme.Brain = new function Evme_Brain() {
 
         // app clicked
         this.click = function click(data) {
-	    if (!Searcher.isLoadingApps() || Evme.Utils.isKeyboardVisible) {
+            if (!Searcher.isLoadingApps() || Evme.Utils.isKeyboardVisible) {
                 data.keyboardVisible = Evme.Utils.isKeyboardVisible ? 1 : 0;
                 var query = Searcher.getDisplayedQuery();
 
@@ -905,13 +904,13 @@ Evme.Brain = new function Evme_Brain() {
                     if (!data.isFolder) {
                         Evme.Storage.set(STORAGE_KEY_CLOSE_WHEN_RETURNING, true);
 
-			Evme.Searchbar.setValue(data.app.type === Evme.RESULT_TYPE.INSTALLED? data.data.name : Searcher.getDisplayedQuery(), false, true);
+                        Evme.Searchbar.setValue(data.app.type === Evme.RESULT_TYPE.INSTALLED ? data.data.name : Searcher.getDisplayedQuery(), false, true);
 
                         Evme.Searchbar.blur();
                         Brain.Searchbar.cancelBlur();
                     }
 
-                    window.setTimeout(function onTimeout(){
+                    window.setTimeout(function onTimeout() {
                         self.animateAppLoading(data);
                     }, 50);
                 } else {
@@ -939,71 +938,72 @@ Evme.Brain = new function Evme_Brain() {
                 "appUrl": data.app.getLink(),
                 "favUrl": data.app.getFavLink(),
                 "name": data.data.name,
-		"appType": data.app.type === Evme.RESULT_TYPE.CLOUD ? "cloud" : data.app.type,
-		"isExternal": loadingApp.isExternal(),
+                "appType": data.app.type === Evme.RESULT_TYPE.CLOUD ? "cloud" : data.app.type,
+                "isExternal": loadingApp.isExternal(),
                 "query": Searcher.getDisplayedQuery(),
                 "source": Searcher.getDisplayedSource(),
-		"icon": data.data.icon
+                "icon": data.data.icon
             };
 
-	    var appId;
-	    switch (data.app.type) {
-		case Evme.RESULT_TYPE.CLOUD:
-		    appId = data.appId;
-		    break;
-		case Evme.RESULT_TYPE.WEBLINK:
-		    appId = 0;
-		    break;
-		default:
-		    appId = -1;
-	    }
-	    loadingAppAnalyticsData.id = appId;
+            var appId;
+            switch (data.app.type) {
+                case Evme.RESULT_TYPE.CLOUD:
+                    appId = data.appId;
+                    break;
+                case Evme.RESULT_TYPE.WEBLINK:
+                    appId = 0;
+                    break;
+                default:
+                    appId = -1;
+            }
+            loadingAppAnalyticsData.id = appId;
 
-	    if (currentResultsManager) {
-		var grid = currentResultsManager.getResultGridData(data.app);
-		loadingAppAnalyticsData.totalRows = grid.rows;
-		loadingAppAnalyticsData.totalCols = grid.cols;
-		loadingAppAnalyticsData.rowIndex = grid.rowIndex;
-		loadingAppAnalyticsData.colIndex = grid.colIndex;
-	    }
-
-	    Evme.EventHandler.trigger("Core", "redirectedToApp", loadingAppAnalyticsData);
-
-	    var resultType = data.app.type;
-	    if (resultType === Evme.RESULT_TYPE.INSTALLED) {
-		GridManager.getAppByOrigin(data.app.getLink()).launch();
-
-	    } else if (resultType === Evme.RESULT_TYPE.MARKET) {
-		if (data.app.slug) {
-		    Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_APP, {
-			"slug": data.app.slug
-		    });
-		}
-
-	    } else if (resultType === Evme.RESULT_TYPE.CLOUD){
-		var appIcon = Evme.Utils.formatImageData(data.data.icon);
-		Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
-		    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
-			"url": data.app.getLink(),
-			"originUrl": data.app.getFavLink(),
-			"title": data.data.name,
-			"icon": roundedAppIcon,
-			"urlTitle": Evme.Searchbar.getValue(),
-			"useAsyncPanZoom": data.app.isExternal()
-		    });
-		});
-
-	    } else if (resultType == Evme.RESULT_TYPE.MARKET_SEARCH) {
-		Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_SEARCH, {
-		    query: Evme.Searchbar.getElement().value
-		});
+            if (currentResultsManager) {
+                var grid = currentResultsManager.getResultGridData(data.app);
+                loadingAppAnalyticsData.totalRows = grid.rows;
+                loadingAppAnalyticsData.totalCols = grid.cols;
+                loadingAppAnalyticsData.rowIndex = grid.rowIndex;
+                loadingAppAnalyticsData.colIndex = grid.colIndex;
             }
 
-	    setTimeout(returnFromOutside, 2000);
+            Evme.EventHandler.trigger("Core", "redirectedToApp", loadingAppAnalyticsData);
+
+            var resultType = data.app.type;
+            if (resultType === Evme.RESULT_TYPE.INSTALLED) {
+                
+                GridManager.getAppByOrigin(data.app.getLink()).launch();
+
+            } else if (resultType === Evme.RESULT_TYPE.MARKET) {
+                if (data.app.slug) {
+                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_APP, {
+                        "slug": data.app.slug
+                    });
+                }
+
+            } else if (resultType === Evme.RESULT_TYPE.CLOUD) {
+                var appIcon = Evme.Utils.formatImageData(data.data.icon);
+                Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
+                        "url": data.app.getLink(),
+                        "originUrl": data.app.getFavLink(),
+                        "title": data.data.name,
+                        "icon": roundedAppIcon,
+                        "urlTitle": Evme.Searchbar.getValue(),
+                        "useAsyncPanZoom": data.app.isExternal()
+                    });
+                });
+
+            } else if (resultType == Evme.RESULT_TYPE.MARKET_SEARCH) {
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_SEARCH, {
+                    query: Evme.Searchbar.getElement().value
+                });
+            }
+
+            setTimeout(returnFromOutside, 2000);
         };
 
         function updateLoadingAppData(apps) {
-            for (var i=0; i<apps.length; i++) {
+            for (var i = 0; i < apps.length; i++) {
                 if (apps[i].id == loadingAppId) {
                     loadingApp.update(apps[i]);
                     loadingAppAnalyticsData.appUrl = apps[i].appUrl;
@@ -1013,6 +1013,7 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         // returned from opened app
+
         function returnFromOutside() {
             if (loadingApp) {
                 loadingApp = null;
@@ -1032,13 +1033,13 @@ Evme.Brain = new function Evme_Brain() {
 
                     Evme.Storage.remove(STORAGE_KEY_CLOSE_WHEN_RETURNING);
                 });
-                
+
                 Evme.EventHandler.trigger("Core", "returnedFromApp");
             }
         }
 
         this.cancel = function app_cancel() {
-          returnFromOutside();
+            returnFromOutside();
         }
     };
 

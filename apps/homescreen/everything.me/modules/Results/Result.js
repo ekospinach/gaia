@@ -1,10 +1,14 @@
 Evme.RESULT_TYPE = {
-  STATIC: 'static',
   INSTALLED: 'installed',
   MARKET: 'native_download',
   MARKET_SEARCH: 'market_search',
   CLOUD: 'app',
   WEBLINK: 'weblink'
+};
+
+Evme.RESULT_GROUP = {
+  STATIC: 'static',
+  DYNAMIC: 'dynamic'
 };
 
 Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
@@ -28,6 +32,8 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		image = new Image();
 
 	this.type = 'NOT_SET';
+	this.group = Evme.RESULT_GROUP.DYNAMIC;
+	
 	this.canvas = null;
 	this.context = null;
 

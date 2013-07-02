@@ -1,6 +1,10 @@
 Evme.StaticAppResult = function Evme_StaticAppResult() {
   Evme.Result.call(this);
-  this.type = Evme.RESULT_TYPE.STATIC;
+  this.group = Evme.RESULT_GROUP.STATIC;
+
+  // TODO: if a cloud app was pinned to folder type should be CLOUD
+  // at the moment all static apps are installed apps
+  this.type = Evme.RESULT_TYPE.INSTALLED;
 }
 Evme.StaticAppResult.prototype = Object.create(Evme.Result.prototype);
 Evme.StaticAppResult.prototype.constructor = Evme.StaticAppResult;
