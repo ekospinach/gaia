@@ -29,8 +29,11 @@ var EvmeManager = (function EvmeManager() {
       }), params.gridPosition);
     }
 
-    function hideFromGrid(origins) {
-      return GridManager.hide(origins);
+    function hideFromGrid(descriptors) {
+        if (!Array.isArray(descriptors)) {
+            descriptors = [descriptors];
+        }
+        return GridManager.hide(descriptors);
     }
 
     function openUrl(url) {

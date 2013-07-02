@@ -65,22 +65,8 @@ Evme.Brain = new function Evme_Brain() {
           window.navigator.mozSetMessageHandler('activity', onActivity);
         }
         
-        window.addEventListener('EvmeShortcutCreate', function onShortcutCreate(e) {
-          var options = e && e.detail;
-          if (options) {
-            addShortcut(options);
-            hideFromGrid(options.apps);
-          }
-        });
-        
-        window.addEventListener('EvmeShortcutAddApp', function onShortcutCreate(e) {
-          var options = e && e.detail;
-          if (options) {
-            // TODO: Add app to shortcut
-            alert("Not implemented");
-            hideFromGrid(app);
-          }
-        });
+        window.addEventListener('EvmeShortcutCreate', onShortcutCreate);
+        window.addEventListener('EvmeShortcutAddApp', onShortcutAddApp);
 
         _config = options;
 
@@ -95,18 +81,38 @@ Evme.Brain = new function Evme_Brain() {
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
 
-    function hideFromGrid(apps) {
-        if (!Array.isArray(apps)) {
-            apps = [apps];
-        }
+    function onShortcutCreate(e) {
+        var options = e && e.detail,
+            descriptors;
         
-        for (var i=0,appData; appData=apps[i++];) {
-            var app = Evme.InstalledAppsService.getAppByManifest(appData.manifest);
-            if (app && app.appUrl) {
-                debugger;
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, app.appUrl);
-            }
+        if (options) {
+            descriptors = options.apps.map(function extractManifest(app) {
+                return {"manifestURL": app.manifest}
+            });
+            
+            addShortcut(options);
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
         }
+    }
+
+    function onShortcutAddApp(e) {
+        var options = e && e.detail,
+            appManifest = options.app && options.app.manifest,
+            folderId = options.folder && options.folder.id;
+
+        if (appManifest && folderId) {
+            Evme.SmartFolderStorage.get(folderId, function onGotSettings(folderSettings) {
+                var app = Evme.InstalledAppsService.getAppByManifest(appManifest);
+                if (app) {
+                    folderSettings.apps.push(app);
+                    Evme.SmartFolderStorage.update(folderSettings, {
+                        "apps": folderSettings.apps
+                    }, function onUpdateSettings() {
+                        Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, {"manifestURL": appManifest});
+                    });
+                };
+            });
+        };
     }
 
     // create the shortcut icon and send it to the OS
@@ -134,7 +140,6 @@ Evme.Brain = new function Evme_Brain() {
       }
 
       function addShortcutToHomescreen(folderSettings){
-
         // install the newely created shortcut!
         Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
           "id": folderSettings.id,

@@ -196,7 +196,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   };
 
   this.getAppByManifest = function getAppByManifest(manifest) {
-    return appIndex[manifest];
+    return (manifest in appIndex) && appIndex[manifest];
   };
 
   this.getApps = function() {

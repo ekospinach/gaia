@@ -1288,16 +1288,11 @@ var GridManager = (function() {
     /*
      * Hides an app from the grid, but leaving it installed
      *
-     * @param {Application} app
-     *                      The application (or bookmark) object
+     * @param {Array} descriptors
      */
-    hide: function gm_hide(origins) {
-      if (!Array.isArray(origins)) {
-        origins = [origins];
-      }
-
-      for (var i=0,origin,icon; origin=origins[i++];) {
-        icon = bookmarkIcons[origin];
+    hide: function gm_hide(descriptors) {
+      for (var i = 0, descriptor, icon; descriptor = descriptors[i++];) {
+        icon = getIcon(descriptor);
         if (icon) {
           icon.hideFromGrid();
         }
@@ -1310,20 +1305,15 @@ var GridManager = (function() {
     /*
      * Return an app to be viewable on the grid
      *
-     * @param {Application} app
-     *                      The application (or bookmark) object
+     * @param {Array} descriptors
      */
-    unhide: function gm_unhide(origins) {
-      if (!Array.isArray(origins)) {
-        origins = [origins];
-      }
-
-      for (var i=0,origin,icon; origin=origins[i++];) {
-        icon = bookmarkIcons[origin];
+    unhide: function gm_unhide(descriptors) {
+      for (var i = 0, descriptor, icon; descriptor = descriptors[i++];) {
+        icon = getIcon(descriptor);
         if (icon) {
           icon.remove();
           icon.unhideFromGrid();
-          
+
           var index = getFirstPageWithEmptySpace();
           if (index < pages.length) {
             pages[index].appendIcon(icon);

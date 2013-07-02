@@ -560,8 +560,7 @@ Icon.prototype = {
         window.dispatchEvent(new CustomEvent('EvmeShortcutAddApp', {
           "detail": {
             "app": {
-              "manifest": originElem.dataset.manifestURL,
-              "name": originElem.textContent
+              "manifest": originElem.dataset.manifestURL
             },
             "folder": {
               "id": overlapElem.dataset.folderId
