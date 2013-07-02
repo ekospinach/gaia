@@ -30,8 +30,8 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
 
     resultsManager = options.resultsManager;
 
-    el = Evme.$(".smart-folder")[0];
-    elScreen = Evme.$(".smart-folder-screen")[0];
+    el = document.getElementsByClassName("smart-folder")[0];
+    elScreen = document.getElementsByClassName("smart-folder-screen")[0];
 
     elAppsContainer = resultsManager.getElement();
 

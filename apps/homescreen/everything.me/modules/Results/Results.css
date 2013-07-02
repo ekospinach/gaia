@@ -1,4 +1,4 @@
-#evmeContainer .evme-apps {
+.evmeScope .evme-apps {
     position: absolute;
     top: 8.1rem;
     left: 0;
@@ -6,15 +6,15 @@
     bottom: 0;
     z-index: 50;
 }
-#evmeContainer.loading-app .evme-apps {
+.evmeScope.loading-app .evme-apps {
     pointer-events: none;
 }
 
-#evmeContainer.empty-query #evmeApps {
+.evmeScope.empty-query #evmeApps {
     display: none;
 }
 
-#evmeContainer .evme-apps > div {
+.evmeScope .evme-apps > div {
     -moz-box-orient: vertical;
     -moz-box-sizing: border-box;
     display: -moz-box;
@@ -22,7 +22,7 @@
     min-height: 100%;
     padding-right: 1rem;
 }
-#evmeContainer .evme-apps .loading-apps {
+.evmeScope .evme-apps .loading-apps {
     position: absolute;
     top: 50%;
     left: 0;
@@ -34,11 +34,11 @@
     display: none;
     pointer-events: none;
 }
-#evmeContainer .show-loading-apps .loading-apps {
+.evmeScope .show-loading-apps .loading-apps {
     display: block;
 }
 
-#evmeContainer .evme-apps ul li {
+.evmeScope .evme-apps ul li {
     clear: both;
     width: 25%;
     height: 8.9rem;
@@ -51,17 +51,17 @@
     transition: transform .2s linear;
 }
 
-#evmeContainer .evme-apps ul li.type_native_download{
+.evmeScope .evme-apps ul li.type_native_download{
     height: 9.3rem;
 }
 
-#evmeContainer .evme-apps:not(.has-installed) .has-installed-visible {
+.evmeScope .evme-apps:not(.has-installed) .has-installed-visible {
     display: none;
 }
-    #evmeContainer .evme-apps ul li canvas {
+    .evmeScope .evme-apps ul li canvas {
 	transition: transform .2s linear;
     }
-#evmeContainer .evme-apps ul #button-more {
+.evmeScope .evme-apps ul #button-more {
     position: absolute;
     top: auto;
     bottom: 1.5rem;
@@ -75,39 +75,39 @@
     z-index: 100;
     opacity: 0;
 }
-#evmeContainer .evme-apps ul #button-more.visible {
+.evmeScope .evme-apps ul #button-more.visible {
     opacity: 1;
 }
 
-#evmeContainer .evme-apps ul li:nth-child(4n+1) {
+.evmeScope .evme-apps ul li:nth-child(4n+1) {
     clear: both;
 }
-#evmeContainer .evme-apps ul {
+.evmeScope .evme-apps ul {
   padding: 0;
   margin: 0;
   display: inline;
 }
-#evmeContainer .evme-apps ul.cloud {
+.evmeScope .evme-apps ul.cloud {
   display: block;
 }
-#evmeContainer .evme-apps ul li.new:not(.installed) canvas {
+.evmeScope .evme-apps ul li.new:not(.installed) canvas {
     transform: scale(0);
 }
 
 /* Notifications */
 
-#evmeContainer .evme-apps section[role="notification"] {
+.evmeScope .evme-apps section[role="notification"] {
     position: relative;
     -moz-box-flex: 1;
     display: none;
     visibility: hidden;
     min-height: 6rem;
 }
-#evmeContainer .evme-apps.has-more section[role="notification"] {
+.evmeScope .evme-apps.has-more section[role="notification"] {
     margin-top: 1rem;
     box-shadow: 0 -0.1rem 0 0 rgba(255, 255, 255, .4), 0 -0.2rem 0 0 rgba(0, 0, 0, .4);
 }
-#evmeContainer .evme-apps section[role="notification"] > div {
+.evmeScope .evme-apps section[role="notification"] > div {
     position: absolute;
     left: 0;
     right: 2rem;
@@ -116,40 +116,40 @@
     font-size: 1.6rem;
     text-align: center;
 }
-#evmeContainer .evme-apps section[role="notification"].loading-more > div {
+.evmeScope .evme-apps section[role="notification"].loading-more > div {
     height: 3rem;
     margin-top: -1.5rem;
 }
-#evmeContainer .evme-apps section[role="notification"].connection-message > div {
+.evmeScope .evme-apps section[role="notification"].connection-message > div {
     height: 3rem;
     margin-top: -2rem;
 }
 
-#evmeContainer:not(.connection-error) .evme-apps.has-more section[role="notification"].loading-more,
-#evmeContainer.connection-error .evme-apps section[role="notification"].connection-message {
+.evmeScope:not(.connection-error) .evme-apps.has-more section[role="notification"].loading-more,
+.evmeScope.connection-error .evme-apps section[role="notification"].connection-message {
     display: block;
 }
 
-#evmeContainer .evme-apps section[role="notification"].show,
-#evmeContainer.connection-error .evme-apps section[role="notification"].connection-message {
+.evmeScope .evme-apps section[role="notification"].show,
+.evmeScope.connection-error .evme-apps section[role="notification"].connection-message {
     display: block;
     visibility: visible;
 }
 
-#evmeContainer .evme-apps section[role="notification"].loading-more progress{
+.evmeScope .evme-apps section[role="notification"].loading-more progress{
     margin-right: 0.8rem;
 }
-#evmeContainer .evme-apps:not(.has-more) section[role="notification"].loading-more span {
+.evmeScope .evme-apps:not(.has-more) section[role="notification"].loading-more span {
     display: none;
 }
 
 /* Loading an app */
-#evmeContainer.loading-app .evme-apps ul li,
-#evmeContainer.loading-app .evme-apps ul #button-more.visible,
-#evmeContainer.loading-app .evme-apps.has-installed ul:before {
+.evmeScope.loading-app .evme-apps ul li,
+.evmeScope.loading-app .evme-apps ul #button-more.visible,
+.evmeScope.loading-app .evme-apps.has-installed ul:before {
     opacity: 0;
 }
-#evmeContainer.loading-app .evme-apps ul li.inplace {
+.evmeScope.loading-app .evme-apps ul li.inplace {
     position: absolute;
     top: 0;
     left: 0;
@@ -158,18 +158,18 @@
     margin-top: 0 !important;
     transition: transform .2s linear;
 }
-#evmeContainer.loading-app .evme-apps ul li.inplace .doat-loading {
+.evmeScope.loading-app .evme-apps ul li.inplace .doat-loading {
     position: absolute;
     top: -0.8rem;
     left: 50%;
     margin-left: -3rem;
 }
 
-#evmeContainer.loading-app .evme-apps > div {
+.evmeScope.loading-app .evme-apps > div {
     min-height: 100%;
 }
 /* always show a divider if installed or marketplace apps appear */
-#evmeContainer ul:not(:empty) ~ ul.cloud{
+.evmeScope ul:not(:empty) ~ ul.cloud{
     margin-top: 1.2rem !important;
     min-height: 0.1rem; /* meant for when there's no content */
     box-shadow: 0 -0.1rem 0 0 rgba(255, 255, 255, .4), 0 -0.2rem 0 0 rgba(0, 0, 0, .4);

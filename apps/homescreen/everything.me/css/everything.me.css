@@ -2,18 +2,18 @@
     display: none;
 }
 
-#evmeContainer {
+.evmeScope {
     bottom: auto;
     height: calc((100% - 7.5rem)/4); /* height of footer */
 }
 
-.evme-has-query #evmeContainer {
+.evme-has-query .evmeScope {
     height: calc(100% - 7.5rem);
 }
 
-.evme-keyboard-visible #evmeContainer,
-.evme-smart-folder-visible #evmeContainer,
-.evme-suggest-folders-loading #evmeContainer {
+.evme-keyboard-visible .evmeScope,
+.evme-smart-folder-visible .evmeScope,
+.evme-suggest-folders-loading .evmeScope {
     height: 100%;
 }
 .evme-smart-folder-visible #footer,
