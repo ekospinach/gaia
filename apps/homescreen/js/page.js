@@ -911,8 +911,11 @@ Page.prototype = {
 
     var olist = this.olist,
         children = this.getIcons();
+    
     if (children[index]) {
       olist.insertBefore(icon.container, children[index]);
+    } else {
+      olist.appendChild(icon.container);
     }
 
     this.setReady(true);
