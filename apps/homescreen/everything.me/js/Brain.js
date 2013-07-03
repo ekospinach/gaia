@@ -86,13 +86,16 @@ Evme.Brain = new function Evme_Brain() {
             descriptors;
         
         if (options) {
+	    addShortcut(options);
+
+	    if (options.apps) {
             descriptors = options.apps.map(function extractManifest(app) {
                 return {"manifestURL": app.manifest}
             });
             
-            addShortcut(options);
             Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
         }
+    }
     }
 
     function onShortcutAddApp(e) {
