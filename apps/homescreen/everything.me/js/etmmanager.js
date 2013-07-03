@@ -27,6 +27,8 @@ var EvmeManager = (function EvmeManager() {
         "useAsyncPanZoom": params.useAsyncPanZoom,
         "isFolder": !!params.isFolder
       }), params.gridPosition);
+
+      GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
     function hideFromGrid(descriptors) {

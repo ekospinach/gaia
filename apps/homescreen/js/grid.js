@@ -1393,6 +1393,8 @@ var GridManager = (function() {
 
     ensurePanning: ensurePanning,
 
+    ensurePagesOverflow: ensurePagesOverflow,
+
     get landingPage() {
       return landingPage;
     },
