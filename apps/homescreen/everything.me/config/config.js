@@ -163,6 +163,8 @@ Evme.Config = Evme.__config = {
         "306": "travel",
         "213": "tv",
         "211": "video",
-        "249": "weather"
+        "249": "weather",
+        "357": "utilities",
+        "349": "photography"
     }
 };

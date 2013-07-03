@@ -86,16 +86,16 @@ Evme.Brain = new function Evme_Brain() {
             descriptors;
         
         if (options) {
-	    addShortcut(options);
-
-	    if (options.apps) {
-            descriptors = options.apps.map(function extractManifest(app) {
-                return {"manifestURL": app.manifest}
-            });
+            addShortcut(options);
             
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
+            if (options.apps) {
+                descriptors = options.apps.map(function extractManifest(app) {
+                    return {"manifestURL": app.manifest}
+                });
+                
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
+            }
         }
-    }
     }
 
     function onShortcutAddApp(e) {
@@ -156,49 +156,86 @@ Evme.Brain = new function Evme_Brain() {
     }
 
     function initShortcuts() {
-      var cacheKey = 'createdInitialShortcuts';
-      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-        if (didInitShortcuts) {
-          return;
-        }
-
-        var defaultShortcuts = Evme.__config['_localShortcuts'],
-            defaultIcons = Evme.__config['_localShortcutsIcons'];
-
-        for (var i=0,shortcut,query,experienceId,shortcutIcons; shortcut=defaultShortcuts[i++];) {
-          query = shortcut.query;
-          experienceId = shortcut.experienceId;
-          appIds = shortcut.appIds;
-          shortcutIcons = [];
-
-          if (!query && experienceId) {
-              var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-                  translatedExperience = Evme.Utils.l10n('Shortcut', l10nkey);
-              
-              if (translatedExperience) {
-                query = translatedExperience;
-              }
-          }
-
-          for (var j=0,appId; appId=appIds[j++];) {
-            shortcutIcons.push({
-              'id': appId,
-              'icon': defaultIcons[appId] || defaultIcons['' + appId]
-            });
-          }
-          window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
-            "detail": {
-              "icons": shortcutIcons,
-              "experienceId": experienceId, 
-              "query": query
+        var cacheKey = 'createdInitialShortcuts',
+            appsFirstPage = 8;
+        
+        Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
+            if (didInitShortcuts) {
+                return;
             }
-          }));
-        }
 
-        Evme.Storage.set(cacheKey, true);
-      });
+            var defaultShortcuts = Evme.__config['_localShortcuts'];
+
+            for (var i = 0; i < defaultShortcuts.length; i++) {
+                var page = (i < appsFirstPage) ? 0 : 1,
+                    index = (i < appsFirstPage) ? i : (i % appsFirstPage),
+                    shortcut = defaultShortcuts[i];
+
+                if (shortcut.experienceId) {  // smartfolder shortcut
+                    preinstalledFolder(shortcut, page, index);
+                } else if (shortcut.originUrl) {  // app shortcut
+                    preinstalledApp(shortcut, page, index);
+                }
+            }
+
+            Evme.Storage.set(cacheKey, true);
+        });
     }
       
+    function preinstalledFolder(shortcut, page, index) {
+        var query = shortcut.query,
+            experienceId = shortcut.experienceId,
+            appIds = shortcut.appIds,
+            shortcutIcons = [],
+            defaultIcons = Evme.__config['_localShortcutsIcons'];
+
+        if (!query && experienceId) {
+            var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+                translatedExperience = Evme.Utils.l10n('Shortcut', l10nkey);
+
+            if (translatedExperience) {
+                query = translatedExperience;
+            }
+        }
+
+        for (var j = 0, appId; appId = appIds[j++];) {
+            shortcutIcons.push({
+                'id': appId,
+                'icon': defaultIcons[appId] || defaultIcons['' + appId]
+            });
+        }
+
+        window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
+            "detail": {
+                "icons": shortcutIcons,
+                "experienceId": experienceId,
+                "query": query,
+                "gridPosition": {
+                    "page": page,
+                    "index": index
+                }
+            }
+        }));
+    }
+
+    function preinstalledApp(shortcut, page, index) {
+        var defaultIcons = Evme.__config['_localShortcutsIcons'],
+            appIcon = Evme.Utils.formatImageData(defaultIcons[shortcut.appId]);
+
+        Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+                "originUrl": shortcut.originUrl,
+                "title": shortcut.title,
+                "icon": roundedAppIcon,
+                "useAsyncPanZoom": false,
+                "gridPosition": {
+                    "page": page,
+                    "index": index
+                }
+            });
+        });
+    }
+
     function onActivity(activity) {
       var activityName = activity.source.name;
 
