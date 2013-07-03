@@ -299,7 +299,6 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
-            initShortcuts();
         };
     };
 
@@ -868,6 +867,7 @@ Evme.Brain = new function Evme_Brain() {
                 if (appsInfo) {
                     Evme.InstalledAppsService.requestAppsInfoCb(appsInfo);
                 }
+                initShortcuts();
             });
         };
     };
