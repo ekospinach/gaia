@@ -560,7 +560,8 @@ Icon.prototype = {
         window.dispatchEvent(new CustomEvent('EvmeShortcutAddApp', {
           "detail": {
             "app": {
-              "manifest": originElem.dataset.manifestURL
+              "manifestURL": originElem.dataset.manifestURL,
+              "bookmarkURL": originElem.dataset.bookmarkURLURL
             },
             "folder": {
               "id": overlapElem.dataset.folderId
@@ -571,10 +572,12 @@ Icon.prototype = {
         window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
           "detail": {
             "apps": [{
-                "manifest": overlapElem.dataset.manifestURL,
+                "manifestURL": overlapElem.dataset.manifestURL,
+                "bookmarkURL": overlapElem.dataset.bookmarkURL,
                 "name": overlapElem.textContent
               }, {
-                "manifest": originElem.dataset.manifestURL,
+                "manifestURL": originElem.dataset.manifestURL,
+                "bookmarkURL": originElem.dataset.bookmarkURL,
                 "name": originElem.textContent
               }
             ],

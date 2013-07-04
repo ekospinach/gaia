@@ -82,25 +82,19 @@ Evme.Brain = new function Evme_Brain() {
     };
 
     function onShortcutCreate(e) {
-        var options = e && e.detail,
-            descriptors;
+        var options = e && e.detail;
         
         if (options) {
             addShortcut(options);
             
-            if (options.apps) {
-                descriptors = options.apps.map(function extractManifest(app) {
-                    return {"manifestURL": app.manifest}
-                });
-                
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
-            }
+            // if shortcut created by dragging apps, hide the apps that created it
+            options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
         }
     }
 
     function onShortcutAddApp(e) {
         var options = e && e.detail,
-            appManifest = options.app && options.app.manifest,
+            appManifest = options.app && options.app.manifestURL,
             folderId = options.folder && options.folder.id;
 
         if (appManifest && folderId) {
