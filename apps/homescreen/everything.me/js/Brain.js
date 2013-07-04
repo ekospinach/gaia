@@ -199,8 +199,7 @@ Evme.Brain = new function Evme_Brain() {
             });
         }
 
-        window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
-            "detail": {
+	addShortcut({
                 "icons": shortcutIcons,
                 "experienceId": experienceId,
                 "query": query,
@@ -208,8 +207,7 @@ Evme.Brain = new function Evme_Brain() {
                     "page": page,
                     "index": index
                 }
-            }
-        }));
+	});
     }
 
     function preinstalledApp(shortcut, page, index) {
