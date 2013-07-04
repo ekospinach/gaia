@@ -272,11 +272,16 @@ Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.experienceId = args.experienceId;
   
   this.apps = args.apps || [];
+  this.icons = args.icons || [];
 };
 
 Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsPrototype() {
   
-  this.byExperience = function byExperience(experienceId, cb) {
+  this.createByExperience = function createByExperience(experienceId, extra, cb) {
+    if (extra instanceof Function) {
+      (cb = extra) && (extra = {});
+    };
+
     var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
       query = Evme.Utils.l10n('shortcut', l10nkey);
 
@@ -284,6 +289,7 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
         id: Evme.Utils.uuid(),
         experienceId: experienceId,
         query: query,
+	icons: extra.icons || [],
         apps: Evme.InstalledAppsService.getMatchingApps({
           'query': query
         })
@@ -292,10 +298,16 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
       saveFolderSettings(folderSettings, cb);
   };
 
-  this.byQuery = function byQuery(query, cb) {
+  this.createByQuery = function createByQuery(query, extra, cb) {
+    if (extra instanceof Function) {
+      (cb = extra) && (extra = {});
+    };
+
+
     var folderSettings = new Evme.SmartFolderSettings({
       id: Evme.Utils.uuid(),
       query: query,
+      icons: extra.icons || [],
       apps: Evme.InstalledAppsService.getMatchingApps({
         'query': query
       })
@@ -304,7 +316,11 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
     saveFolderSettings(folderSettings, cb);
   };
 
-  this.byAppPair = function byAppPair(appA, appB, cb) {
+  this.createByAppPair = function createByAppPair(appA, appB, extra, cb) {
+    if (extra instanceof Function) {
+      (cb = extra) && (extra = {});
+    };
+
     var folderId = Evme.Utils.uuid(),
       folderName,
       folderApps,
@@ -342,7 +358,8 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
     folderSettings = new Evme.SmartFolderSettings({
       id: folderId,
       name: folderName,
-      apps: folderApps
+      apps: folderApps,
+      icons: extra.icons || []
     });
     
     saveFolderSettings(folderSettings, cb);
@@ -362,6 +379,10 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
   var NAME = "SmartFolderStorage",
     PREFIX = "fldrsttngs_",
     self = this;
+
+  this.remove = function remove(folderSettingsId) {
+    // TODO
+  }
 
   this.add = function add(folderSettings, cb) {
     Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {

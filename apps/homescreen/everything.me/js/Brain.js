@@ -133,11 +133,11 @@ Evme.Brain = new function Evme_Brain() {
         shortcutCanvas = elCanvas;
 
         if (experienceId) {
-          Evme.SmartFolderSettings.prototype.byExperience(experienceId, addShortcutToHomescreen);
+	  Evme.SmartFolderSettings.prototype.createByExperience(experienceId, {"icons": shortcutIcons}, addShortcutToHomescreen);
         } else if (query) {
-          Evme.SmartFolderSettings.prototype.byQuery(query, addShortcutToHomescreen);
+	  Evme.SmartFolderSettings.prototype.createByQuery(query, {"icons": shortcutIcons}, addShortcutToHomescreen);
         } else if (apps.length > 1) {
-            Evme.SmartFolderSettings.prototype.byAppPair(apps[0], apps[1], addShortcutToHomescreen);
+	    Evme.SmartFolderSettings.prototype.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addShortcutToHomescreen);
         }
       }
 
