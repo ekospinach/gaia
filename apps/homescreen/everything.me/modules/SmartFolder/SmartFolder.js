@@ -289,7 +289,7 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
         id: Evme.Utils.uuid(),
         experienceId: experienceId,
         query: query,
-	icons: extra.icons || [],
+        icons: extra.icons || [],
         apps: Evme.InstalledAppsService.getMatchingApps({
           'query': query
         })
@@ -365,27 +365,70 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
     saveFolderSettings(folderSettings, cb);
   };
 
+  this.refreshIcons = function refreshIcons() {
+    var folderIds = Evme.SmartFolderStorage.getAllIds();
+    
+    for (var i = 0, id; id = folderIds[i++];) {
+      Evme.SmartFolderStorage.get(id, refreshIcon);
+    }
+  };
+
   function saveFolderSettings(folderSettings, cb) {
     // save folder settings in storage and run callback async.
     Evme.SmartFolderStorage.add(folderSettings, function onFolderStored() {
-      Evme.Utils.log("saved SmartFolderSettings", JSON.stringify(folderSettings));
       cb && cb(folderSettings);
     });
   }
+
+  function refreshIcon(folderSettings){
+    var apps = Evme.InstalledAppsService.getMatchingApps({
+      'query': folderSettings.query
+    });
+
+    if (!apps.length) return;
+
+    var appIcons = [];
+    for (var i=0, app; app=apps[i++]; ){
+      appIcons.push({"id": app.id, "icon": app.icon});
+    }
+
+    var shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
+    
+    Evme.IconGroup.get(shortcutIcons, '', function(elCanvas){
+        Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+          "id": folderSettings.id,
+          "originUrl": 'fldr://' + folderSettings.id,
+          "title": folderSettings.name,
+          "icon": elCanvas.toDataURL(),
+          "isFolder": true
+        });
+    });
+  };
 };
 
 
 Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
   var NAME = "SmartFolderStorage",
+    IDS_STORAGE_KEY = "evmeSmartFolders",
     PREFIX = "fldrsttngs_",
-    self = this;
+    self = this,
+    ids = null;
+
+  this.init = function init() {
+    Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds){
+      ids = storedIds || [];
+    });
+  };
 
   this.remove = function remove(folderSettingsId) {
     // TODO
   }
-
+  
   this.add = function add(folderSettings, cb) {
+    if (!folderSettings.id) return;
+    
     Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
+      addId(folderSettings.id);
       cb instanceof Function && cb(folderSettings);
     });
   };
@@ -405,4 +448,21 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
       }
     });
   };
+
+  this.getAllIds = function getAllIds() {
+    return ids;
+  };
+
+  // TODO handle sync. issues (read/write)
+  function addId(id) {
+    if (ids === null) {
+      setTimeout(function retry() {
+        Evme.Utils.warn("SmartFolderStorage: addId called but storage is not ready. Will retry.");
+        addId(id);
+      }, 100);
+    } else {
+      ids.push(id);
+      Evme.Storage.set(IDS_STORAGE_KEY, ids);
+    }
+  }
 };

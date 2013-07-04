@@ -183,6 +183,8 @@ window.Evme = new function Evme_Core() {
       ]
     });
 
+    Evme.SmartFolderStorage.init();
+    
     Evme.SmartFolder.init({
       "resultsManager": Evme.SmartfolderResults,
       "bgImage": (Evme.BackgroundImage.get() || {}).image
