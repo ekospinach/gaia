@@ -85,10 +85,15 @@ Evme.Brain = new function Evme_Brain() {
         var options = e && e.detail;
         
         if (options) {
+	    // if shortcut created by dragging apps, hide the apps that created it
+	    if (options.apps && options.apps.length > 1) {
+		options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
+		addShortcut(options);
+		options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
+	    } else {
             addShortcut(options);
+	    }
             
-            // if shortcut created by dragging apps, hide the apps that created it
-            options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, descriptors);
         }
     }
 
