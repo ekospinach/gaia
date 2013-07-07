@@ -114,9 +114,8 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
   this.setTitle = function setTitle(newTitle) {
     title = newTitle;
     
-    elTitle.innerHTML = '<em></em>' +
-      '<b ' + Evme.Utils.l10nAttr(NAME, 'title-prefix') + '></b> ' +
-      '<span>' + title + '</span>';
+    elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
+      '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '></span>';
   };
 
   this.setBackground = function setBackground(newBg) {
