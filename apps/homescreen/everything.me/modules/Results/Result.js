@@ -37,12 +37,13 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.canvas = null;
 	this.context = null;
 
-	this.init = function init(_cfg) {
+	this.init = function init(app, extra) {
 
-		cfg = _cfg;
+		cfg = app;
+		extra = extra || {"animate": true};
 
 		el = Evme.$create('li', {
-			'class': 'new',
+			'class': extra.animate ? 'new' : '',
 			'id': 'app_' + cfg.id,
 			'data-name': cfg.name
 		}, '<canvas></canvas>');
