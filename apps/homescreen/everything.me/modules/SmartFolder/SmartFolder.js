@@ -275,37 +275,17 @@ Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.icons = args.icons || [];
 };
 
-Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsPrototype() {
-  
-  this.createByExperience = function createByExperience(experienceId, extra, cb) {
-    if (extra instanceof Function) {
-      (cb = extra) && (extra = {});
-    };
-
-    var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-      query = Evme.Utils.l10n('shortcut', l10nkey);
-
-      var folderSettings = new Evme.SmartFolderSettings({
-        id: Evme.Utils.uuid(),
-        experienceId: experienceId,
-        query: query,
-        icons: extra.icons || [],
-        apps: Evme.InstalledAppsService.getMatchingApps({
-          'query': query
-        })
-      });
-
-      saveFolderSettings(folderSettings, cb);
+Evme.SmartFolderSettings.createByExperience = function createByExperience(experienceId, extra, cb) {
+  if (extra instanceof Function) {
+    (cb = extra) && (extra = {});
   };
 
-  this.createByQuery = function createByQuery(query, extra, cb) {
-    if (extra instanceof Function) {
-      (cb = extra) && (extra = {});
-    };
-
+  var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+    query = Evme.Utils.l10n('shortcut', l10nkey);
 
     var folderSettings = new Evme.SmartFolderSettings({
       id: Evme.Utils.uuid(),
+      experienceId: experienceId,
       query: query,
       icons: extra.icons || [],
       apps: Evme.InstalledAppsService.getMatchingApps({
@@ -314,98 +294,114 @@ Evme.SmartFolderSettings.prototype = new function Evme_SmartFolderSettingsProtot
     });
 
     saveFolderSettings(folderSettings, cb);
-  };
-
-  this.createByAppPair = function createByAppPair(appA, appB, extra, cb) {
-    if (extra instanceof Function) {
-      (cb = extra) && (extra = {});
-    };
-
-    var folderId = Evme.Utils.uuid(),
-      folderName,
-      folderApps,
-      folderSettings,
-
-      queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifest),
-      queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifest);
-
-    // find a suitable name for the folder
-    if (queriesA.length && queriesB.length) {
-      // search for a common query
-      for (q in queriesA) {
-        if (q in queriesB) {
-          folderName = q;
-          break;
-        }
-      }
-    } else {
-      folderName = queriesA[0] || queriesB[0] || appA.name || appB.name;
-    }
-
-    folderApps = Evme.InstalledAppsService.getMatchingApps({
-      'query': folderName
-    });
-
-    // ensure folderApps contains both apps and no duplicates
-    var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifest),
-      appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifest);
-    
-    appAFromIndex && folderApps.push(appAFromIndex);
-    appBFromIndex && folderApps.push(appBFromIndex);
-    
-    folderApps = Evme.Utils.unique(folderApps);
-
-    folderSettings = new Evme.SmartFolderSettings({
-      id: folderId,
-      name: folderName,
-      apps: folderApps,
-      icons: extra.icons || []
-    });
-    
-    saveFolderSettings(folderSettings, cb);
-  };
-
-  this.refreshIcons = function refreshIcons() {
-    var folderIds = Evme.SmartFolderStorage.getAllIds();
-    
-    for (var i = 0, id; id = folderIds[i++];) {
-      Evme.SmartFolderStorage.get(id, refreshIcon);
-    }
-  };
-
-  function saveFolderSettings(folderSettings, cb) {
-    // save folder settings in storage and run callback async.
-    Evme.SmartFolderStorage.add(folderSettings, function onFolderStored() {
-      cb && cb(folderSettings);
-    });
-  }
-
-  function refreshIcon(folderSettings){
-    var apps = Evme.InstalledAppsService.getMatchingApps({
-      'query': folderSettings.query
-    });
-
-    if (!apps.length) return;
-
-    var appIcons = [];
-    for (var i=0, app; app=apps[i++]; ){
-      appIcons.push({"id": app.id, "icon": app.icon});
-    }
-
-    var shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
-    
-    Evme.IconGroup.get(shortcutIcons, '', function(elCanvas){
-        Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-          "id": folderSettings.id,
-          "originUrl": 'fldr://' + folderSettings.id,
-          "title": folderSettings.name,
-          "icon": elCanvas.toDataURL(),
-          "isFolder": true
-        });
-    });
-  };
 };
 
+Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb) {
+  if (extra instanceof Function) {
+    (cb = extra) && (extra = {});
+  };
+
+
+  var folderSettings = new Evme.SmartFolderSettings({
+    id: Evme.Utils.uuid(),
+    query: query,
+    icons: extra.icons || [],
+    apps: Evme.InstalledAppsService.getMatchingApps({
+      'query': query
+    })
+  });
+
+  saveFolderSettings(folderSettings, cb);
+};
+
+Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, extra, cb) {
+  if (extra instanceof Function) {
+    (cb = extra) && (extra = {});
+  };
+
+  var folderId = Evme.Utils.uuid(),
+    folderName,
+    folderApps,
+    folderSettings,
+
+    queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifest),
+    queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifest);
+
+  // find a suitable name for the folder
+  if (queriesA.length && queriesB.length) {
+    // search for a common query
+    for (q in queriesA) {
+      if (q in queriesB) {
+        folderName = q;
+        break;
+      }
+    }
+  } else {
+    folderName = queriesA[0] || queriesB[0] || appA.name || appB.name;
+  }
+
+  folderApps = Evme.InstalledAppsService.getMatchingApps({
+    'query': folderName
+  });
+
+  // ensure folderApps contains both apps and no duplicates
+  var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifest),
+    appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifest);
+  
+  appAFromIndex && folderApps.push(appAFromIndex);
+  appBFromIndex && folderApps.push(appBFromIndex);
+  
+  folderApps = Evme.Utils.unique(folderApps);
+
+  folderSettings = new Evme.SmartFolderSettings({
+    id: folderId,
+    name: folderName,
+    apps: folderApps,
+    icons: extra.icons || []
+  });
+  
+  saveFolderSettings(folderSettings, cb);
+};
+
+Evme.SmartFolderSettings.refreshIcons = function refreshIcons() {
+  var folderIds = Evme.SmartFolderStorage.getAllIds();
+  
+  for (var i = 0, id; id = folderIds[i++];) {
+    Evme.SmartFolderStorage.get(id, refreshIcon);
+  }
+};
+
+function saveFolderSettings(folderSettings, cb) {
+  // save folder settings in storage and run callback async.
+  Evme.SmartFolderStorage.add(folderSettings, function onFolderStored() {
+    cb && cb(folderSettings);
+  });
+}
+
+function refreshIcon(folderSettings){
+  var apps = Evme.InstalledAppsService.getMatchingApps({
+    'query': folderSettings.query
+  });
+
+  if (!apps.length) return;
+
+  var appIcons = [];
+  for (var i=0, app; app=apps[i++]; ){
+    appIcons.push({"id": app.id, "icon": app.icon});
+  }
+
+  var shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
+  
+  Evme.IconGroup.get(shortcutIcons, '', function(elCanvas){
+      Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+        "id": folderSettings.id,
+        "originUrl": 'fldr://' + folderSettings.id,
+        "title": folderSettings.name,
+        "icon": elCanvas.toDataURL(),
+        "isFolder": true
+      });
+  });
+};
 
 Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
   var NAME = "SmartFolderStorage",

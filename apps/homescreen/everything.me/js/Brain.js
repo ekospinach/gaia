@@ -133,11 +133,11 @@ Evme.Brain = new function Evme_Brain() {
         shortcutCanvas = elCanvas;
 
         if (experienceId) {
-          Evme.SmartFolderSettings.prototype.createByExperience(experienceId, {"icons": shortcutIcons}, addShortcutToHomescreen);
+          Evme.SmartFolderSettings.createByExperience(experienceId, {"icons": shortcutIcons}, addShortcutToHomescreen);
         } else if (query) {
-          Evme.SmartFolderSettings.prototype.createByQuery(query, {"icons": shortcutIcons}, addShortcutToHomescreen);
+          Evme.SmartFolderSettings.createByQuery(query, {"icons": shortcutIcons}, addShortcutToHomescreen);
         } else if (apps.length > 1) {
-            Evme.SmartFolderSettings.prototype.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addShortcutToHomescreen);
+            Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addShortcutToHomescreen);
         }
       }
 
@@ -875,7 +875,7 @@ Evme.Brain = new function Evme_Brain() {
                 var appsInfo = response && response.response;
                 if (appsInfo) {
                     Evme.InstalledAppsService.requestAppsInfoCb(appsInfo);
-                    Evme.SmartFolderSettings.prototype.refreshIcons();
+                    Evme.SmartFolderSettings.refreshIcons();
                 }
             });
         };
