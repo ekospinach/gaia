@@ -362,11 +362,17 @@ Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, 
   saveFolderSettings(folderSettings, cb);
 };
 
-Evme.SmartFolderSettings.refreshIcons = function refreshIcons() {
-  var folderIds = Evme.SmartFolderStorage.getAllIds();
+Evme.SmartFolderSettings.update = function update(folderSettings) {
+  var folderIds;
+  
+  if (folderSettings) {
+    folderIds = [folderSettings.id];
+  } else {
+    folderIds = Evme.SmartFolderStorage.getAllIds();
+  }
   
   for (var i = 0, id; id = folderIds[i++];) {
-    Evme.SmartFolderStorage.get(id, refreshIcon);
+    Evme.SmartFolderStorage.get(id, updateFolderSettings);
   }
 };
 
@@ -377,19 +383,32 @@ function saveFolderSettings(folderSettings, cb) {
   });
 }
 
-function refreshIcon(folderSettings){
-  var apps = Evme.InstalledAppsService.getMatchingApps({
+function updateFolderSettings(folderSettings){ 
+  var apps, existingIds, appIcons, shortcutIcons;
+
+  apps = Evme.InstalledAppsService.getMatchingApps({
     'query': folderSettings.query
   });
 
   if (!apps.length) return;
 
-  var appIcons = [];
-  for (var i=0, app; app=apps[i++]; ){
-    appIcons.push({"id": app.id, "icon": app.icon});
-  }
+  existingIds = folderSettings.apps.map(function(existingApp) {
+    return existingApp.id
+  });
 
-  var shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
+  // update apps
+  for (var i=0, app; app=apps[i++]; ){
+    if (existingIds.indexOf(app.id) < 0) {
+      folderSettings.apps.push(app);
+    }
+  }
+  Evme.SmartFolderStorage.update(folderSettings, {"apps": folderSettings.apps});
+
+  // update icons
+  appIcons = folderSettings.apps.map(function(app) {
+    return {"id": app.id, "icon": app.icon};
+  });
+  shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
   
   Evme.IconGroup.get(shortcutIcons, '', function(elCanvas){
       Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {

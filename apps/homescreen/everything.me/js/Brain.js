@@ -88,10 +88,10 @@ Evme.Brain = new function Evme_Brain() {
             // if shortcut created by dragging apps, hide the apps that created it
             if (options.apps && options.apps.length > 1) {
                 options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
-                addShortcut(options);
+                addFolder(options);
                 options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
             } else {
-                addShortcut(options);
+                addFolder(options);
             }
             
         }
@@ -118,7 +118,7 @@ Evme.Brain = new function Evme_Brain() {
     }
 
     // create the shortcut icon and send it to the OS
-    function addShortcut(options) {
+    function addFolder(options) {
       var query = options.query,
           experienceId = options.experienceId,
           apps = options.apps,  // should have "name" and "manifest"
@@ -133,15 +133,15 @@ Evme.Brain = new function Evme_Brain() {
         shortcutCanvas = elCanvas;
 
         if (experienceId) {
-          Evme.SmartFolderSettings.createByExperience(experienceId, {"icons": shortcutIcons}, addShortcutToHomescreen);
+          Evme.SmartFolderSettings.createByExperience(experienceId, {"icons": shortcutIcons}, addFolderToHomescreen);
         } else if (query) {
-          Evme.SmartFolderSettings.createByQuery(query, {"icons": shortcutIcons}, addShortcutToHomescreen);
+          Evme.SmartFolderSettings.createByQuery(query, {"icons": shortcutIcons}, addFolderToHomescreen);
         } else if (apps.length > 1) {
-            Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addShortcutToHomescreen);
+            Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addFolderToHomescreen);
         }
       }
 
-      function addShortcutToHomescreen(folderSettings){
+      function addFolderToHomescreen(folderSettings){
         // install the newely created shortcut!
         Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
           "id": folderSettings.id,
@@ -151,6 +151,9 @@ Evme.Brain = new function Evme_Brain() {
           "isFolder": true,
           "gridPosition": gridPosition
         });
+
+        // populate installed apps and update icon
+        Evme.SmartFolderSettings.update(folderSettings);
       }
     }
 
@@ -197,17 +200,6 @@ Evme.Brain = new function Evme_Brain() {
             }
         }
 
-        var apps = Evme.InstalledAppsService.getMatchingApps({
-          'query': query
-        });
-
-        for (var i=0, app; app=apps[i++]; ){
-            shortcutIcons.push({
-                "id": app.id,
-                "icon": app.icon
-            });
-        }
-
         for (var j = 0, appId; appId = appIds[j++];) {
             shortcutIcons.push({
                 'id': appId,
@@ -215,7 +207,7 @@ Evme.Brain = new function Evme_Brain() {
             });
         }
 
-        addShortcut({
+        addFolder({
             "icons": shortcutIcons.slice(0,3),
             "experienceId": experienceId,
             "query": query,
@@ -875,10 +867,13 @@ Evme.Brain = new function Evme_Brain() {
                 var appsInfo = response && response.response;
                 if (appsInfo) {
                     Evme.InstalledAppsService.requestAppsInfoCb(appsInfo);
-                    Evme.SmartFolderSettings.refreshIcons();
                 }
             });
         };
+
+        this.queryIndexUpdated = function queryIndexUpdated() {
+            Evme.SmartFolderSettings.update();
+        }
     };
 
     // modules/Apps/

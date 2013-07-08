@@ -140,8 +140,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     }
 
     Evme.Storage.set(QUERY_INDEX_STORAGE_KEY, queryIndex);
-
-    Evme.Utils.log(NAME, "requestAppsInfoCb", queryIndex);
+    Evme.EventHandler.trigger(NAME, "queryIndexUpdated");
   };
 
   this.getMatchingApps = function getMatchingApps(data) {
