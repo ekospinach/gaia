@@ -32,6 +32,14 @@ window.Evme = new function Evme_Core() {
         initObjects(data)
       }
     });
+
+    // TODO: DEMO MODE - turn off annoying keyboard features
+    var settings = navigator.mozSettings;
+    var lock = settings.createLock();
+    lock.set({
+      'keyboard.wordsuggestion': false,
+      'keyboard.autocorrect': false
+    });
   };
 
   // Gaia communication methods
