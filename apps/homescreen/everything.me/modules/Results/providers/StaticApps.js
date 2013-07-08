@@ -12,7 +12,8 @@ Evme.StaticAppResult.prototype.constructor = Evme.StaticAppResult;
 Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
   var NAME = "StaticAppsRenderer",
     DEFAULT_ICON = Evme.Utils.getDefaultAppIcon(),
-    self = this;
+    self = this,
+    containerEl;
 
 
   this.init = function init(cfg) {

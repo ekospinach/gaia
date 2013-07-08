@@ -114,6 +114,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   };
 
   this.onNewQuery = function onNewQuery(data) {
+    data.staticApps && self.renderStaticApps(data.staticApps);
     INSTALLED in providers && providers[INSTALLED].render(data);
   };
 
