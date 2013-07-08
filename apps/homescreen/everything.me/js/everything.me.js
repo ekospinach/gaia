@@ -21,6 +21,14 @@ var EverythingME = {
       page.style.display = 'block';
     });
 
+    gridPage.addEventListener('gridpageshowstart', function (){
+      document.body.classList.add('evme-displayed');
+    });
+    gridPage.addEventListener('gridpagehidestart', function (){
+      document.body.classList.remove('evme-displayed');
+    });
+
+    // TODO Evyatar - shouldn't you bind gridPage?
     page.addEventListener('gridpageshowend', function onpageshow() {
       page.removeEventListener('gridpageshowend', onpageshow);
 

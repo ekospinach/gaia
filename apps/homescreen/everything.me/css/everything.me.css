@@ -8,7 +8,7 @@
 }
 
 .evme-has-query #evmeContainer {
-    height: calc(100% - 7.5rem);
+    height: 100%;
 }
 
 .evme-keyboard-visible #evmeContainer,
@@ -29,4 +29,12 @@
 .apps > div.evmePage {
     -moz-box-sizing: border-box;
     padding-top: calc(25% + 1.3rem);
+}
+
+#footer {
+    transition: -moz-transform .1s ease;   
+}
+.evme-displayed.evme-keyboard-visible #footer,
+.evme-displayed.evme-has-query #footer{
+    transform: translateY(100%);
 }

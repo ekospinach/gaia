@@ -311,7 +311,6 @@ Evme.Brain = new function Evme_Brain() {
 
         // Searchbar focused. Keyboard shows
         this.focus = function focus(data) {
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_MENU);
             Evme.Utils.setKeyboardVisibility(true);
 
             Evme.Helper.disableCloseAnimation();
@@ -329,8 +328,6 @@ Evme.Brain = new function Evme_Brain() {
             if (data && data.e) {
                 data.e.stopPropagation();
             }
-
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.SHOW_MENU);
 
             var didClickApp = false,
                 elClicked = data && data.e && data.e.explicitOriginalTarget;
