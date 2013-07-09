@@ -175,8 +175,6 @@ Evme.Brain = new function Evme_Brain() {
 
                 if (shortcut.experienceId) {  // smartfolder shortcut
                     preinstalledFolder(shortcut, page, index);
-                } else if (shortcut.originUrl) {  // app shortcut
-                    preinstalledApp(shortcut, page, index);
                 }
             }
 
@@ -215,24 +213,6 @@ Evme.Brain = new function Evme_Brain() {
                 "page": page,
                 "index": index
             }
-        });
-    }
-
-    function preinstalledApp(shortcut, page, index) {
-        var defaultIcons = Evme.__config['_localShortcutsIcons'],
-            appIcon = Evme.Utils.formatImageData(defaultIcons[shortcut.appId]);
-
-        Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-                "originUrl": shortcut.originUrl,
-                "title": shortcut.title,
-                "icon": roundedAppIcon,
-                "useAsyncPanZoom": false,
-                "gridPosition": {
-                    "page": page,
-                    "index": index
-                }
-            });
         });
     }
 

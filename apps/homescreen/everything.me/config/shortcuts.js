@@ -6,8 +6,6 @@ Evme.__config._localShortcuts = [
 {"experienceId":"357","appIds":[917,4307,3525]}, // Utilities
 {"experienceId":"142","appIds":[319,4,5]}, // Music
 {"experienceId":"349","appIds":[90,1060,278]}, // Photography
-{"originUrl": "http://www.google.com/", "title": "Google", "appId": 14}, // Google (app), 
-{"originUrl": "http://m.youtube.com/", "title": "YouTube", "appId": 319}, // YouTube (app), 
 
 // Second page
 {"experienceId":"245","appIds":[95,96,172]}, // News
