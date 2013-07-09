@@ -351,7 +351,7 @@ const DragDropManager = (function() {
         centerX = overlapRect.width/2 + overlapRect.left;
 
     var dragRect = draggableElem.getBoundingClientRect(),
-        scale = 1.2;
+        scale = 1.0;
 
     var touchesCenter = dragRect.top*scale < centerY &&
                         dragRect.bottom/scale > centerY &&

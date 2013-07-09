@@ -10,7 +10,7 @@
   width: 100%;
 	margin-top: .4rem;
 	margin-bottom: .4rem;
-  -moz-transform: scale(1.25);
+  -moz-transform: scale(1.15);
   -moz-transition: -moz-transform .3s;
 }
 
@@ -76,26 +76,29 @@ body[data-mode = 'edit'] ol > li > div > img {
   position: relative;
   z-index: 2;
 }
-body[data-mode = 'edit'] ol > li > div::after {
+body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div > img {
+  -moz-transform: scale(0.8);
+  -moz-transition: -moz-transform .3s;
+}
+body[data-mode = 'edit'] ol > li > div::before {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 7rem;
-  height: 7rem;
-  background: black;
+  width: 6.5rem;
+  height: 6.5rem;
+  background: white;
   border-radius: 50%;
-  margin-left: -3.8rem;
-  margin-top: -5.1rem;
-  border: .3rem solid blue;
-  z-index: 1;
-  -moz-transform: scale(0.3);
-  opacity: 0;
+  margin-left: -3rem;
+  margin-top: -4.2rem;
+  opacity: 0.2;
+
+  -moz-transform: scale(0.9);
   -moz-transition: -moz-transform .3s;
 }
-body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::after {
+body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::before {
  -moz-transform: scale(1); 
- opacity: 1;
+ opacity: 0.4;
 }
 .draggable.droppedInFolder > div {
   -moz-transform: scale(0);
