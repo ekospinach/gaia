@@ -235,7 +235,7 @@ Evme.Utils = new function Evme_Utils() {
           textToDraw = [],
 
           WIDTH = context.canvas.width,
-          FONT_SIZE = self.APPS_FONT_SIZE,
+          FONT_SIZE = options.fontSize || self.APPS_FONT_SIZE,
           LINE_HEIGHT = FONT_SIZE + 1 * self.devicePixelRatio;
 
       if (!context || !text) {

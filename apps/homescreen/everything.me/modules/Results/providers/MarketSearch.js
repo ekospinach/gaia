@@ -18,7 +18,7 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
     containerEl = cfg.containerEl;
     app = {
       id: 'marketsearch',
-      name: 'MarketPlace',
+      name: 'Marketplace',
       icon: EvmeManager.getMarketplaceAppIcon(),
       appUrl: "store://?search"
     };

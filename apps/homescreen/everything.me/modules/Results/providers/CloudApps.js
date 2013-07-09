@@ -6,7 +6,7 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 	var self = this,
 			SHADOW_OFFSET = 2 * Evme.Utils.devicePixelRatio,
 			SHADOW_BLUR = 2 * Evme.Utils.devicePixelRatio,
-			SIZE = 44 * Evme.Utils.devicePixelRatio,
+			SIZE = 52 * Evme.Utils.devicePixelRatio,
 			FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR;
 
 	// manipulate the icon (clipping, shadow, resize)

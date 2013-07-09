@@ -4,7 +4,9 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
 	var self = this,
 		TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
 		TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
-		TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio;
+		TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
+
+		FONT_SIZE = 11 * Evme.Utils.devicePixelRatio;
 
 	this.type = Evme.RESULT_TYPE.MARKET;
 	this.slug = slug;
@@ -16,13 +18,14 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
 		Evme.Utils.writeTextToCanvas({
 			"text": "Download",
 			"context": this.context,
-			"offset": textOffset + TEXT_MARGIN
+			"offset": textOffset + TEXT_MARGIN,
+			"fontSize": FONT_SIZE
 		});
 
 		Evme.Utils.writeTextToCanvas({
 			"text": this.app.name,
 			"context": this.context,
-			"offset": textOffset + TEXT_MARGIN + Evme.Utils.APPS_FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
+			"offset": textOffset + TEXT_MARGIN + FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
 		});
 	};
 }
