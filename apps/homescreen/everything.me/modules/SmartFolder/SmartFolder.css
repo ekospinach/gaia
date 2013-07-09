@@ -154,7 +154,11 @@
         #evmeContainer .smart-folder .evme-apps li.installed-separator {
             width: 100%;
         }
-    
+        #evmeContainer .smart-folder .evme-apps ul.static li canvas {
+            transform: scale(1);
+        }
+
+
     #evmeContainer .smart-folder #bgimage-overlay {
         top: 0;
         bottom: 0;

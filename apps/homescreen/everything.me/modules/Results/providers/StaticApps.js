@@ -38,7 +38,7 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
     var docFrag = document.createDocumentFragment();
     for (var i = 0, app; app = apps[i++];) {
       var result = new Evme.StaticAppResult(),
-        el = result.init(app, {"animate": false});
+        el = result.init(app);
 
       result.draw(app.icon || DEFAULT_ICON);
       docFrag.appendChild(el);
