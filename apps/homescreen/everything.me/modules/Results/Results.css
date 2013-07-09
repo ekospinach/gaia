@@ -51,7 +51,7 @@
     transition: transform .2s linear;
 }
 
-#evmeContainer .evme-apps ul li.type_native_download{
+#evmeContainer .evme-apps ul.marketapps li{
     height: 9.3rem;
 }
 

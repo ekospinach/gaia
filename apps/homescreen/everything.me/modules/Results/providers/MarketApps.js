@@ -1,16 +1,32 @@
 Evme.MarketResult = function Evme_MarketResult(slug) {
 	Evme.Result.call(this);
 
-	var self = this;
+	var self = this,
+		TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
+		TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
+		TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio;
 
 	this.type = Evme.RESULT_TYPE.MARKET;
 	this.slug = slug;
 
-	// add market badge
-	this.iconPostRendering = function MarketResult_iconPostRendering(iconCanvas){
-		this.context.drawImage(this.marketBadge, 0, iconCanvas.height - this.marketBadge.height);
-	}
+	// @override
+	this.initIcon = function initIcon(baseHeight, textOffset) {
+		this.canvas.width = TEXT_WIDTH;
+		this.canvas.height = baseHeight + TEXT_MARGIN + (2 * TEXT_HEIGHT) - 1;
+		Evme.Utils.writeTextToCanvas({
+			"text": "Download",
+			"context": this.context,
+			"offset": textOffset + TEXT_MARGIN
+		});
+
+		Evme.Utils.writeTextToCanvas({
+			"text": this.app.name,
+			"context": this.context,
+			"offset": textOffset + TEXT_MARGIN + Evme.Utils.APPS_FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
+		});
+	};
 }
+
 Evme.MarketResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketResult.prototype.constructor = Evme.Evme_MarketResult;
 

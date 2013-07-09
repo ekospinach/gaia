@@ -34,6 +34,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.type = 'NOT_SET';
 	this.group = Evme.RESULT_GROUP.DYNAMIC;
 	
+	this.app = null;
 	this.canvas = null;
 	this.context = null;
 
@@ -41,6 +42,8 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
 		cfg = app;
 		extra = extra || {"animate": true};
+
+		this.app = app;
 
 		el = Evme.$create('li', {
 			'class': extra.animate ? 'new' : '',
