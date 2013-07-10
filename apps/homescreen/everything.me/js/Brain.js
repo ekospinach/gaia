@@ -60,11 +60,8 @@ Evme.Brain = new function Evme_Brain() {
         
         initL10nObserver();
         
-        // init activities
-        if ('mozSetMessageHandler' in window.navigator) {
-          window.navigator.mozSetMessageHandler('activity', onActivity);
-        }
-        
+        // init event listeners     
+        window.addEventListener('EvmeSmartFolderLaunch', onSmartFolderLaunch);
         window.addEventListener('EvmeShortcutCreate', onShortcutCreate);
         window.addEventListener('EvmeShortcutAddApp', onShortcutAddApp);
 
@@ -80,6 +77,13 @@ Evme.Brain = new function Evme_Brain() {
 
         ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
+
+    function onSmartFolderLaunch(e) {
+        var data = e.detail;
+        Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
+            Evme.SmartFolder.show(folderSettings);
+        });
+    }
 
     function onShortcutCreate(e) {
         var options = e && e.detail;
@@ -215,18 +219,6 @@ Evme.Brain = new function Evme_Brain() {
                 "index": index
             }
         });
-    }
-
-    function onActivity(activity) {
-      var activityName = activity.source.name;
-
-      if (activityName === 'smartfolder') {
-        var data = activity.source.data;
-
-        Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
-            Evme.SmartFolder.show(folderSettings);
-        });
-      }
     }
 
     // l10n: create a mutation observer to know when a node was added

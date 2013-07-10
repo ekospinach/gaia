@@ -42,10 +42,10 @@ Bookmark.prototype = {
       features.type = 'url';
       features.url = this.url;
 
-      new MozActivity({
-        name: 'smartfolder',
-        data: features
-      });
+      window.dispatchEvent(new CustomEvent('EvmeSmartFolderLaunch', {
+        "detail": features
+      }));
+    
     } else {
       // The third parameter is received in window_manager without whitespaces
       // so we decice replace them for &nbsp;
