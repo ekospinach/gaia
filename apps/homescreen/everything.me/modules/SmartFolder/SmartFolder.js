@@ -323,20 +323,22 @@ Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, 
     folderApps,
     folderSettings,
 
-    queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifest),
-    queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifest);
+    queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifestURL),
+    queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifestURL);
 
   // find a suitable name for the folder
   if (queriesA.length && queriesB.length) {
     // search for a common query
-    for (q in queriesA) {
-      if (q in queriesB) {
+    for (var i = 0, q; q = queriesA[i++]; ) {
+      if (queriesB.indexOf(q) > -1) {
         folderName = q;
         break;
       }
     }
-  } else {
-    folderName = queriesA[0] || queriesB[0] || appA.name || appB.name;
+  } 
+
+  if (folderName === undefined) {
+    folderName = queriesA[0] || queriesB[0] || appA.name || appB.name || "New Folder";
   }
 
   folderApps = Evme.InstalledAppsService.getMatchingApps({
@@ -344,11 +346,11 @@ Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, 
   });
 
   // ensure folderApps contains both apps and no duplicates
-  var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifest),
-    appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifest);
+  var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifestURL),
+    appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifestURL);
   
-  appAFromIndex && folderApps.push(appAFromIndex);
-  appBFromIndex && folderApps.push(appBFromIndex);
+  appAFromIndex && folderApps.unshift(appAFromIndex);
+  appBFromIndex && folderApps.unshift(appBFromIndex);
   
   folderApps = Evme.Utils.unique(folderApps);
 
