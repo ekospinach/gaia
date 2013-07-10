@@ -87,9 +87,10 @@ Evme.Brain = new function Evme_Brain() {
         if (options) {
             // if shortcut created by dragging apps, hide the apps that created it
             if (options.apps && options.apps.length > 1) {
-                options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
-                addFolder(options);
+                // first hide the target app, where the folder will be created
                 options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
+                addFolder(options);
+                options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
             } else {
                 addFolder(options);
             }
