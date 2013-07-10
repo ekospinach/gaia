@@ -120,7 +120,7 @@ ol:not([disabled]) li.active > div > img {
 
 /* text label */
 .apps ol > li > div > span > span {
-  font-size: 1.2rem; /* was 5pt */
+  font-size: 1.3rem; /* was 5pt */
   text-shadow: 0.1rem 0.1rem 0.3rem rgba(0,0,0,0.6);
 }
 
@@ -145,7 +145,7 @@ ol:not([disabled]) li.active > div > img {
   position: relative;
   height: 1.6rem; /* 15px in otoro */
   margin: 0 auto;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.025rem;
 }
 
