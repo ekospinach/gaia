@@ -865,51 +865,65 @@ Evme.Brain = new function Evme_Brain() {
         // app pressed and held
         this.hold = function hold(data) {
             if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
-                var isAppInstalled = Evme.Utils.sendToOS(
-                    Evme.Utils.OSMessages.IS_APP_INSTALLED, {
-                    'url': data.app.getFavLink()
-                });
-
-                if (isAppInstalled) {
-                    window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
-                        'name': data.data.name
-                    }));
-                    return;
+                var inFolder = true;
+                if (inFolder) {
+                    openCloudAppMenu(data);
+                } else {
+                    saveToHomescreen(data);
                 }
-
-                var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
-                    'name': data.data.name
-                });
-                if (!window.confirm(msg)) {
-                    return;
-                }
-
-                // get icon data
-                var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
-                // make it round
-                Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
-                    // bookmark - add to homescreen
-                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-                        'originUrl': data.app.getFavLink(),
-                        'title': data.data.name,
-                        'icon': roundedAppIcon,
-                        'useAsyncPanZoom': data.app.isExternal()
-                    });
-                    // display system banner
-                    Evme.Banner.show('app-install-success', {
-                        'name': data.data.name
-                    });
-
-                    Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
-                        "id": data.data.id,
-                        "name": data.data.name
-                    });
-                });
             } else if (data.app.group === Evme.RESULT_GROUP.STATIC) {
                 Brain.SmartFolder.staticAppHold(data);
             }
-
         };
+
+        function openCloudAppMenu(data) {
+            var menu = document.querySelector('.cloud-app-actions');
+            menu.classList.add('show');
+            //saveToHomescreen(data);
+        }
+
+        function saveToHomescreen(data) {
+            var isAppInstalled = Evme.Utils.sendToOS(
+                Evme.Utils.OSMessages.IS_APP_INSTALLED, {
+                'url': data.app.getFavLink()
+            });
+
+            if (isAppInstalled) {
+                window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
+                    'name': data.data.name
+                }));
+                return;
+            }
+
+            var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
+                'name': data.data.name
+            });
+            if (!window.confirm(msg)) {
+                return;
+            }
+
+            // get icon data
+            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
+            // make it round
+            Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+                // bookmark - add to homescreen
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+                    'originUrl': data.app.getFavLink(),
+                    'title': data.data.name,
+                    'icon': roundedAppIcon,
+                    'useAsyncPanZoom': data.app.isExternal()
+                });
+                // display system banner
+                Evme.Banner.show('app-install-success', {
+                    'name': data.data.name
+                });
+
+                Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
+                    "id": data.data.id,
+                    "name": data.data.name
+                });
+            });
+        }
 
         // app clicked
         this.click = function click(data) {
