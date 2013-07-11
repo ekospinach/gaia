@@ -29,15 +29,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
     fadeBy = 0,
     showingFullScreen = false,
     apiHasMoreCloudApps = false,
-
-    IGNORE_APP_IDS = [
-      // Google
-      3, 14, 218, 231, 1196, 1369, 1389,
-      // YouTube
-      3, 66, 106, 221, 230, 231, 319, 404, 436, 525, 710, 711, 712, 717, 968, 1196, 1274, 1304, 1334, 4054, 4193,
-      // Twitter
-      23, 162, 694, 919, 1186, 1299, 4087, 4536, 4547
-    ],
     
     // for convenience
     STATIC = Evme.PROVIDER_TYPES.STATIC,
@@ -150,9 +141,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
       // separate cloud from marketplace apps
       response.apps.forEach(function(app) {
-        // TODO DEMO MODE: dedup static apps: Google, Youtube, Twitter
-        if (IGNORE_APP_IDS.indexOf(app.id) > -1) { return; }
-
         Evme.Utils.log("App '" + app.name + "' [" + app.type + "]");
 
         if (app.type === Evme.RESULT_TYPE.MARKET) {
@@ -172,9 +160,12 @@ Evme.ResultManager = function Evme_ResultsManager() {
         self.scrollToTop();
         MARKETAPPS in providers && providers[MARKETAPPS].render(marketApps, pageNum);
         response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
+
+        // TODO: DEMO MODE - always render web search
+        CLOUD in providers && providers[CLOUD].renderWebSearch(response.query);
       }
 
-      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons, response.query);
     }
   };
 
