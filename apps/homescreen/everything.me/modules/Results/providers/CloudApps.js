@@ -68,7 +68,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 		},
 		result = new Evme.CloudAppResult(),
 		el = result.init({
-			"name": "Top Websites",
+			"name": "Firefox",
 			"icon": icon,
 			"appUrl": "http://www.google.com/search?q=" + query
 		}, {"animate": false});
