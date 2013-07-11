@@ -154,6 +154,8 @@ Evme.ResultManager = function Evme_ResultsManager() {
         }
       });
 
+      renderWebSearchParam = NAME === "SearchResults" && response.query;
+
       // first results page
       // render market apps and result for launching market search
       if (!pageNum) {
@@ -162,10 +164,10 @@ Evme.ResultManager = function Evme_ResultsManager() {
         response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
 
         // TODO: DEMO MODE - always render web search
-        CLOUD in providers && providers[CLOUD].renderWebSearch(response.query);
+        CLOUD in providers && providers[CLOUD].renderWebSearch(renderWebSearchParam);
       }
 
-      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons, response.query);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons, renderWebSearchParam);
     }
   };
 
