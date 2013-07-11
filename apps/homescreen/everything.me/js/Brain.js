@@ -857,6 +857,21 @@ Evme.Brain = new function Evme_Brain() {
 
         var STORAGE_KEY_CLOSE_WHEN_RETURNING = "needsToCloseKeyboard";
 
+        var cloudAppMenu = document.querySelector('.cloud-app-actions'),
+            actionsButtons = Evme.$('button', cloudAppMenu),
+            currentHoldData = null;
+
+        for (var i = 0, button; button = actionsButtons[i++];) {
+          button.addEventListener('click', function cloudAppAction(e){
+            if (this.dataset.action === "pin") {
+                pinToSmartFolder(currentHoldData);
+            } else if (this.dataset.action === "save") {
+                saveToHomescreen(currentHoldData);
+            }
+            closeCloudAppMenu();
+          });
+        }
+
         // Remove app clicked
         this.close = function close(data) {
             Evme.SearchResults.removeApp(data.data.id);
@@ -864,9 +879,10 @@ Evme.Brain = new function Evme_Brain() {
 
         // app pressed and held
         this.hold = function hold(data) {
+            currentHoldData = data;
+
             if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
-                var inFolder = true;
-                if (inFolder) {
+                if (Brain.SmartFolder.isOpen()) {
                     openCloudAppMenu(data);
                 } else {
                     saveToHomescreen(data);
@@ -877,9 +893,19 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         function openCloudAppMenu(data) {
-            var menu = document.querySelector('.cloud-app-actions');
-            menu.classList.add('show');
-            //saveToHomescreen(data);
+            cloudAppMenu.classList.add('show');
+        }
+        function closeCloudAppMenu(data) {
+            cloudAppMenu.classList.remove('show');
+        }
+
+        function pinToSmartFolder(data) {
+            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
+            Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+                var _app = data.app.app;
+                _app.icon = roundedAppIcon;
+                Brain.SmartFolder.cloudAppHold(_app);
+            });
         }
 
         function saveToHomescreen(data) {
@@ -892,13 +918,6 @@ Evme.Brain = new function Evme_Brain() {
                 window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
                     'name': data.data.name
                 }));
-                return;
-            }
-
-            var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
-                'name': data.data.name
-            });
-            if (!window.confirm(msg)) {
                 return;
             }
 
@@ -1120,6 +1139,10 @@ Evme.Brain = new function Evme_Brain() {
             requestSmartFolderApps = null,
             requestSmartFolderImage = null,
             timeoutShowAppsLoading = null;
+
+        this.isOpen = function isOpen(){
+            return currentFolder !== null;
+        };
 
         // a folder is shown
         this.show = function show(data) {
@@ -1346,6 +1369,9 @@ Evme.Brain = new function Evme_Brain() {
             select.load(appArray);
         };
 
+        this.cloudAppHold = function cloudAppHold(app) {
+            currentFolder && currentFolder.addApps([app]);
+        };
         this.staticAppHold = function staticAppHold(data) {
             currentFolder && currentFolder.openAppActions(data);
         };
