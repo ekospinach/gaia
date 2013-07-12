@@ -111,12 +111,8 @@ Evme.Brain = new function Evme_Brain() {
             Evme.SmartFolderStorage.get(folderId, function onGotSettings(folderSettings) {
                 var app = Evme.InstalledAppsService.getAppByManifest(appManifest);
                 if (app) {
-                    folderSettings.apps.push(app);
-                    Evme.SmartFolderStorage.update(folderSettings, {
-                        "apps": folderSettings.apps
-                    }, function onUpdateSettings() {
-                        Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, {"manifestURL": appManifest});
-                    });
+                    Evme.SmartFolder.addApps([app], folderSettings);
+                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, {"manifestURL": appManifest});
                 };
             });
         };

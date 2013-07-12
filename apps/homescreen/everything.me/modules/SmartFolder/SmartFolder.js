@@ -187,10 +187,11 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     return (folderSettings.bg && folderSettings.bg.setByUser);
   }
   
-  this.addApps = function addApps(newApps) {
+  this.addApps = function addApps(newApps, _folderSettings) {
+    var settings = _folderSettings || folderSettings;
     if (newApps && newApps.length) {
-      var allApps = folderSettings.apps.concat(newApps);
-      setStaticApps(allApps);
+      var allApps = settings.apps.concat(newApps);
+      setStaticApps(allApps, settings);
     }
   };
 
@@ -209,10 +210,13 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     elStaticAppActions.classList.add("show");
   };
 
-  function setStaticApps(apps) {
-    Evme.SmartFolderStorage.update(folderSettings, {"apps": apps}, function onUpdate(updatedSettings){
-      folderSettings = updatedSettings;
-      resultsManager.renderStaticApps(folderSettings.apps);
+  function setStaticApps(apps, _folderSettings) {
+    var settings = _folderSettings || folderSettings;
+    
+    Evme.SmartFolderStorage.update(settings, {"apps": apps}, function onUpdate(updatedSettings){
+      settings = updatedSettings;
+      resultsManager.renderStaticApps(settings.apps);
+      updateFolderIcon(updatedSettings);
     });
   }
 
@@ -406,11 +410,15 @@ function updateFolderSettings(folderSettings){
   }
   Evme.SmartFolderStorage.update(folderSettings, {"apps": folderSettings.apps});
 
-  // update icons
-  appIcons = folderSettings.apps.map(function(app) {
+  updateFolderIcon(folderSettings);
+};
+
+function updateFolderIcon(folderSettings) {
+  var appIcons = folderSettings.apps.map(function(app) {
     return {"id": app.id, "icon": app.icon};
   });
-  shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
+
+  var shortcutIcons = appIcons.concat(folderSettings.icons).slice(0,3);
   
   Evme.IconGroup.get(shortcutIcons, '', function(elCanvas){
       Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
@@ -421,7 +429,7 @@ function updateFolderSettings(folderSettings){
         "isFolder": true
       });
   });
-};
+}
 
 Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
   var NAME = "SmartFolderStorage",
