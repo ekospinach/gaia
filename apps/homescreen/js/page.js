@@ -1010,7 +1010,7 @@ Page.prototype = {
    * @param {Object} icon the icon to be added.
    */
   appendIconVisible: function pg_appendIconVisible(icon) {
-    if (this.getNumIcons() >= GridManager.pageHelper.maxIconsPerPage) {
+    if (this.getNumIcons() >= this.numberOfIcons) {
       this.insertBeforeLastIcon(icon);
     } else {
       this.appendIcon(icon);

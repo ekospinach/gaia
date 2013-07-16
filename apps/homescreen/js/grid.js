@@ -660,7 +660,7 @@ var GridManager = (function() {
    * pages with a number of apps greater that the maximum
    */
   function ensurePagesOverflow(callback) {
-    ensurePageOverflow(numberOfSpecialPages + EVME_PAGE, callback);
+    ensurePageOverflow(numberOfSpecialPages, callback);
   }
 
   function ensurePageOverflow(index, callback) {

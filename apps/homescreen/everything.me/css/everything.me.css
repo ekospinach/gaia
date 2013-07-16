@@ -31,6 +31,20 @@
     padding-top: calc(25% + 1.3rem);
 }
 
+
+/* Maximum 12 icons for page */
+.evmePage ol > li:nth-child(13) {
+  display: none;
+}
+@media all and (min-device-width: 480px) and (min-device-height: 960px ) {
+  .evmePage ol > li:nth-child(13) {
+    display: inline-block;
+  }
+  .evmePage ol > li:nth-child(17) {
+    display: none;
+  }
+}
+
 #footer {
     transition: -moz-transform .1s ease;   
 }
