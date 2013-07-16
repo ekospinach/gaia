@@ -77,6 +77,7 @@ var EverythingME = {
           'modules/Helper/Helper.js',
           'modules/Location/Location.js',
           'modules/Results/Result.js',
+          'modules/Results/providers/ContactSearch.js',
           'modules/Results/providers/StaticApps.js',
           'modules/Results/providers/CloudApps.js',
           'modules/Results/providers/InstalledApps.js',

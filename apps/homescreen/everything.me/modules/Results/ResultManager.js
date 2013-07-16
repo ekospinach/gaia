@@ -4,6 +4,7 @@ Evme.PROVIDER_TYPES = {
   MARKETAPPS: 'marketapps',
   MARKETSEARCH: 'marketsearch',
   CLOUD: 'cloud',
+  CONTACTS: 'contacts'
 };
 
 Evme.ResultManager = function Evme_ResultsManager() {
@@ -36,6 +37,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
     MARKETAPPS = Evme.PROVIDER_TYPES.MARKETAPPS,
     MARKETSEARCH = Evme.PROVIDER_TYPES.MARKETSEARCH,
     CLOUD = Evme.PROVIDER_TYPES.CLOUD,
+    CONTACTS = Evme.PROVIDER_TYPES.CONTACTS
 
     SELECTOR_CLOUD_RESULTS = 'ul.cloud>li',
     SELECTOR_ALL_RESULTS = 'div>ul>li',
@@ -116,6 +118,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   this.onNewQuery = function onNewQuery(data) {
     data.staticApps && self.renderStaticApps(data.staticApps);
     INSTALLED in providers && providers[INSTALLED].render(data);
+    CONTACTS in providers && providers[CONTACTS].render(data);
   };
 
   this.APIData = {
