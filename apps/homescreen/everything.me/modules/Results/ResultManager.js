@@ -141,8 +141,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
       // separate cloud from marketplace apps
       response.apps.forEach(function(app) {
-        Evme.Utils.log("App '" + app.name + "' [" + app.type + "]");
-
         if (app.type === Evme.RESULT_TYPE.MARKET) {
           app.slug = getSlug(app);
           // Not if app is already installed

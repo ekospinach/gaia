@@ -203,9 +203,10 @@ Evme.Utils = new function Evme_Utils() {
       return arrayOrigin;
     };
 
-    this.getRoundIcon = function getRoundIcon(imageSrc, callback) {
+    this.getRoundIcon = function getRoundIcon(imageSrc, callback, padding) {
         var size = self.sendToOS(self.OSMessages.GET_ICON_SIZE) - 2,
-            radius = size/2,
+            padding = padding || 0,
+            actualIconSize = size - padding*2,
             img = new Image();
         
         img.onload = function() {
@@ -216,10 +217,10 @@ Evme.Utils = new function Evme_Utils() {
             canvas.height = size;
             
             ctx.beginPath();
-            ctx.arc(radius, radius, radius, 0, 2 * Math.PI, false);
+            ctx.arc(size/2, size/2, actualIconSize/2, 2 * Math.PI, false);
             ctx.clip();
             
-            ctx.drawImage(img, 0, 0, size, size);
+            ctx.drawImage(img, padding, padding, actualIconSize, actualIconSize);
             
             callback(canvas.toDataURL());
         };

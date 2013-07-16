@@ -16,7 +16,6 @@ Evme.Brain = new function Evme_Brain() {
         MINIMUM_LETTERS_TO_SEARCH = 2,
         SEARCH_SOURCES = {},
         PAGEVIEW_SOURCES = {},
-        ICON_SIZE = null,
 
         TIMEOUT_BEFORE_REQUESTING_APPS_AGAIN = 500,
         TIMEOUT_BEFORE_SHOWING_DEFAULT_IMAGE = 3000,
@@ -25,6 +24,12 @@ Evme.Brain = new function Evme_Brain() {
         TIMEOUT_BEFORE_RUNNING_APPS_SEARCH = 600,
         TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH = 800,
         TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
+        
+        // all the installed apps (installed, clouds, marketplace) should be the same size
+        // however when creating icons in the same size there's still a noticable difference
+        // this is because the OS' native icons have a transparent padding around them
+        // so to make our icons look the same we add this padding artificially
+        INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
         
         CLASS_WHEN_HAS_QUERY = 'evme-has-query',
         CLASS_WHEN_SMART_FOLDER_VISIBLE = 'evme-smart-folder-visible',
@@ -74,8 +79,6 @@ Evme.Brain = new function Evme_Brain() {
         PAGEVIEW_SOURCES = _config.pageViewSources;
 
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
-
-        ICON_SIZE = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ICON_SIZE);
     };
 
     function onSmartFolderLaunch(e) {
@@ -902,7 +905,7 @@ Evme.Brain = new function Evme_Brain() {
                 _app.icon = roundedAppIcon;
                 Brain.SmartFolder.cloudAppHold(_app);
                 data.el.remove();
-            });
+            }, INSTALLED_CLOUDS_APPS_ICONS_PADDING);
         }
 
         function saveToHomescreen(data, showConfirm) {
