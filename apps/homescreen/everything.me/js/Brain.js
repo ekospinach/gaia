@@ -31,6 +31,7 @@ Evme.Brain = new function Evme_Brain() {
         // so to make our icons look the same we add this padding artificially
         INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
         
+        CLASS_WHEN_EVME_READY = 'evme-ready',
         CLASS_WHEN_HAS_QUERY = 'evme-has-query',
         CLASS_WHEN_SMART_FOLDER_VISIBLE = 'evme-smart-folder-visible',
         CLASS_WHEN_LOADING_SHORTCUTS_SUGGESTIONS = 'evme-suggest-folders-loading',
@@ -272,6 +273,8 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
             initShortcuts();
+            
+            document.body.classList.add(CLASS_WHEN_EVME_READY);
         };
     };
 

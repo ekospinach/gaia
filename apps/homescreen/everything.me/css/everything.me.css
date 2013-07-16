@@ -5,6 +5,11 @@
 .evmeScope {
     bottom: auto;
     height: calc((100% - 7.5rem)/4); /* height of footer */
+    visibility: hidden;
+}
+
+.evme-ready .evmeScope {
+    visibility: visible;
 }
 
 .evme-has-query .evmeScope {
