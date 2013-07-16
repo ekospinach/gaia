@@ -1,7 +1,4 @@
 var EverythingME = {
-
-  displayed: false,
-
   pageHideBySwipe: false,
 
   init: function EverythingME_init() {
@@ -16,51 +13,23 @@ var EverythingME = {
     gridPage.appendChild(page.parentNode.removeChild(page));
     
     EverythingME.load(function success() {
-      EverythingME.displayed = true;
       EvmeFacade.onShow();
       page.style.display = 'block';
     });
 
-    gridPage.addEventListener('gridpageshowstart', function (){
-      document.body.classList.add('evme-displayed');
+    gridPage.addEventListener('gridpageshowstart', function onPageShowStart(){
+      EvmeFacade.onShow();
     });
-    gridPage.addEventListener('gridpagehidestart', function (){
-      document.body.classList.remove('evme-displayed');
+    gridPage.addEventListener('gridpagehidestart', function onPageHideStart(){
+      EverythingME.pageHideBySwipe = true;
     });
-
-    // TODO Evyatar - shouldn't you bind gridPage?
-    page.addEventListener('gridpageshowend', function onpageshow() {
-      page.removeEventListener('gridpageshowend', onpageshow);
-
-      EverythingME.displayed = true;
-
-      page.addEventListener('gridpageshowend', function onpageshowafterload() {
-        if (EverythingME.displayed) return;
-
-        EverythingME.displayed = true;
-        EvmeFacade.onShow();
-      });
-    });
-
-    page.addEventListener('gridpagehideend', function onpagehide() {
-      if (!EverythingME.displayed) return;
-
-      EverythingME.displayed = false;
-      footerStyle.MozTransform = 'translateY(0)';
+    gridPage.addEventListener('gridpagehideend', function onPageHideEnd() {
       EvmeFacade.onHide();
       EverythingME.pageHideBySwipe = false;
     });
 
-    page.addEventListener('gridpagehidestart', function onpagehidestart() {
-      EverythingME.pageHideBySwipe = true;
-    });
-
-    page.addEventListener('contextmenu', function longPress(evt) {
-        evt.stopImmediatePropagation();
-    });
-
-    window.addEventListener('hashchange', function hasChange(evt) {
-      if (!EverythingME.displayed || document.location.hash === '#evme') {
+    window.addEventListener('hashchange', function hashChange(evt) {
+      if (document.location.hash === '#evme') {
         return;
       }
 

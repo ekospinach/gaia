@@ -28,10 +28,6 @@ suite('everything.me.js >', function() {
       assert.notEqual(loadingOverlay.style.visibility, 'visible');
     });
 
-    test('Ev.me page is not loaded >', function() {
-      assert.isFalse(EverythingME.displayed);
-    });
-
     test('PageHideBySwipe is initialized to false >', function() {
       assert.isFalse(EverythingME.pageHideBySwipe);
     });
@@ -48,10 +44,6 @@ suite('everything.me.js >', function() {
       assert.equal(loadingOverlay.style.visibility, 'visible');
     });
 
-    test('Ev.me page is loaded >', function() {
-      assert.isTrue(EverythingME.displayed);
-    });
-
     test('Footer is translated to bottom >', function() {
       assert.equal(footer.style.MozTransform, 'translateY(100%)');
     });
@@ -62,10 +54,6 @@ suite('everything.me.js >', function() {
 
     suiteSetup(function() {
       page.dispatchEvent(new CustomEvent('gridpagehideend'));
-    });
-
-    test('Ev.me page is not loaded >', function() {
-      assert.isFalse(EverythingME.displayed);
     });
 
     test('Footer is visible again >', function() {
