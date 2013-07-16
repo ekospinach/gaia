@@ -1,4 +1,5 @@
 Evme.RESULT_TYPE = {
+  CONTACT: 'contact',
   INSTALLED: 'installed',
   MARKET: 'native_download',
   MARKET_SEARCH: 'market_search',
@@ -73,7 +74,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			el.setAttribute('data-name', cfg.name);
 
 			if (Evme.Utils.isBlob(iconObj)) {
-				Evme.Utils.blobToDataURI(cfg.icon, function onDataReady(src) {
+				Evme.Utils.blobToDataURI(iconObj, function onDataReady(src) {
 					setImageSrc(src);
 				});
 
