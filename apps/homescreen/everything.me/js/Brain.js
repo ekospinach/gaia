@@ -67,7 +67,7 @@ Evme.Brain = new function Evme_Brain() {
         initL10nObserver();
         
         // init event listeners     
-        window.addEventListener('EvmeSmartFolderLaunch', onSmartFolderLaunch);
+        window.addEventListener('EvmeSmartFolderLaunch', Evme.SmartFolder.launch);
         window.addEventListener('EvmeShortcutCreate', onShortcutCreate);
         window.addEventListener('EvmeShortcutAddApp', onShortcutAddApp);
 
@@ -82,13 +82,6 @@ Evme.Brain = new function Evme_Brain() {
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
     };
 
-    function onSmartFolderLaunch(e) {
-        var data = e.detail;
-        Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
-            Evme.SmartFolder.show(folderSettings);
-        });
-    }
-
     function onShortcutCreate(e) {
         var options = e && e.detail;
         
@@ -96,11 +89,11 @@ Evme.Brain = new function Evme_Brain() {
             // if shortcut created by dragging apps, hide the apps that created it
             if (options.apps && options.apps.length > 1) {
                 // first hide the target app, where the folder will be created
-                options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
-                addFolder(options);
-                options.apps && Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
+                Evme.SmartFolder.create(options);
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
             } else {
-                addFolder(options);
+                Evme.SmartFolder.create(options);
             }
             
         }
@@ -120,105 +113,6 @@ Evme.Brain = new function Evme_Brain() {
                 };
             });
         };
-    }
-
-    // create the shortcut icon and send it to the OS
-    function addFolder(options) {
-      var query = options.query,
-          experienceId = options.experienceId,
-          apps = options.apps,  // should have "name" and "manifest"
-          shortcutIcons = options.icons || [],
-          gridPosition = options.gridPosition,
-          shortcutCanvas = null;
-
-      // create the special icon (three apps icons on top of each other)
-      Evme.IconGroup.get(shortcutIcons, '', createSmartFolder);
-
-      function createSmartFolder(elCanvas) {
-        shortcutCanvas = elCanvas;
-
-        if (experienceId) {
-          Evme.SmartFolderSettings.createByExperience(experienceId, {"icons": shortcutIcons}, addFolderToHomescreen);
-        } else if (query) {
-          Evme.SmartFolderSettings.createByQuery(query, {"icons": shortcutIcons}, addFolderToHomescreen);
-        } else if (apps.length > 1) {
-            Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {"icons": shortcutIcons}, addFolderToHomescreen);
-        }
-      }
-
-      function addFolderToHomescreen(folderSettings){
-        // install the newely created shortcut!
-        Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-          "id": folderSettings.id,
-          "originUrl": 'fldr://' + folderSettings.id,
-          "title": folderSettings.name,
-          "icon": shortcutCanvas.toDataURL(),
-          "isFolder": true,
-          "gridPosition": gridPosition
-        });
-
-        // populate installed apps and update icon
-        Evme.SmartFolderSettings.update(folderSettings);
-      }
-    }
-
-    function initShortcuts() {
-        var cacheKey = 'createdInitialShortcuts',
-            appsFirstPage = 8;
-        
-        Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-            if (didInitShortcuts) {
-                return;
-            }
-
-            var defaultShortcuts = Evme.__config['_localShortcuts'];
-
-            for (var i = 0; i < defaultShortcuts.length; i++) {
-                var page = (i < appsFirstPage) ? 0 : 1,
-                    index = (i < appsFirstPage) ? i : (i % appsFirstPage),
-                    shortcut = defaultShortcuts[i];
-
-                if (shortcut.experienceId) {  // smartfolder shortcut
-                    preinstalledFolder(shortcut, page, index);
-                }
-            }
-
-            Evme.Storage.set(cacheKey, true);
-        });
-    }
-      
-    function preinstalledFolder(shortcut, page, index) {
-        var query = shortcut.query,
-            experienceId = shortcut.experienceId,
-            appIds = shortcut.appIds,
-            shortcutIcons = [],
-            defaultIcons = Evme.__config['_localShortcutsIcons'];
-
-        if (!query && experienceId) {
-            var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-                translatedExperience = Evme.Utils.l10n('Shortcut', l10nkey);
-
-            if (translatedExperience) {
-                query = translatedExperience;
-            }
-        }
-
-        for (var j = 0, appId; appId = appIds[j++];) {
-            shortcutIcons.push({
-                'id': appId,
-                'icon': defaultIcons[appId] || defaultIcons['' + appId]
-            });
-        }
-
-        addFolder({
-            "icons": shortcutIcons.slice(0,3),
-            "experienceId": experienceId,
-            "query": query,
-            "gridPosition": {
-                "page": page,
-                "index": index
-            }
-        });
     }
 
     // l10n: create a mutation observer to know when a node was added
@@ -272,8 +166,7 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
-            initShortcuts();
-            
+            Evme.SmartFolder.initPreinstalled();
             document.body.classList.add(CLASS_WHEN_EVME_READY);
         };
     };
@@ -1574,7 +1467,6 @@ Evme.Brain = new function Evme_Brain() {
               window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
                 "detail": {
                   "icons": shortcutIcons,
-                  "experienceId": experienceId,
                   "query": query
                 }
               }));
