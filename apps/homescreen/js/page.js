@@ -456,7 +456,7 @@ Icon.prototype = {
    */
   translate: function icon_translate() {
     var descriptor = this.descriptor;
-    if (descriptor.bookmarkURL)
+    if (descriptor.bookmarkURL && !descriptor.isFolder)
       return;
 
     var app = this.app;

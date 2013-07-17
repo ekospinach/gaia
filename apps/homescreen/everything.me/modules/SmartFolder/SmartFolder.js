@@ -249,8 +249,9 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
             "experienceId": null,
             "query": newTitle,
             "name": newTitle
-          }, function onUpdate() {
+          }, function onUpdate(updatedSettings) {
             self.setTitle(newTitle);
+            updateFolderIcon(updatedSettings);
             Evme.EventHandler.trigger(NAME, "rename", {
               "id": folderSettings.id,
               "newName": newTitle
@@ -389,7 +390,6 @@ Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb
     (cb = extra) && (extra = {});
   };
 
-
   var folderSettings = new Evme.SmartFolderSettings({
     id: Evme.Utils.uuid(),
     query: query,
@@ -459,6 +459,7 @@ Evme.SmartFolderSettings.update = function update(folderSettings) {
   if (folderSettings) {
     folderIds = [folderSettings.id];
   } else {
+    // update all folders
     folderIds = Evme.SmartFolderStorage.getAllIds();
   }
   
