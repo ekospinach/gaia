@@ -211,9 +211,10 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
   };
 
   function setStaticApps(apps, _folderSettings) {
-    var settings = _folderSettings || folderSettings;
-    
-    Evme.SmartFolderStorage.update(settings, {"apps": apps}, function onUpdate(updatedSettings){
+    var settings = _folderSettings || folderSettings,
+      uniqueApps = Evme.Utils.unique(apps, 'id');
+
+    Evme.SmartFolderStorage.update(settings, {"apps": uniqueApps}, function onUpdate(updatedSettings){
       settings = updatedSettings;
       resultsManager.renderStaticApps(settings.apps);
       updateFolderIcon(updatedSettings);
@@ -268,22 +269,22 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
 Evme.SmartFolder.create = function sf_create(options) {
   var query = options.query,
     apps = options.apps,
-    shortcutIcons = options.icons || [],
+    icons = options.icons || [],
     gridPosition = options.gridPosition;
 
   // create the special icon (three apps icons on top of each other)
-  Evme.IconGroup.get(shortcutIcons, '', createSmartFolder);
+  Evme.IconGroup.get(icons, '', createSmartFolder);
 
   function createSmartFolder(elCanvas) {
     if (query) {
       Evme.SmartFolderSettings.createByQuery(query, {
-        "icons": shortcutIcons
+        "icons": icons
       }, function onSettingsCreated(folderSettings) {
         addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
       });
     } else if (apps.length > 1) {
       Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {
-        "icons": shortcutIcons
+        "icons": icons
       }, function onSettingsCreated(folderSettings) {
         addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
       });
@@ -402,7 +403,11 @@ Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb
   saveFolderSettings(folderSettings, cb);
 };
 
-Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, extra, cb) {
+/*
+  Create a folder from 2 apps.
+  When dragging an app on another, `sourceApp` is dropped on `targetApp`
+*/
+Evme.SmartFolderSettings.createByAppPair = function createByAppPair(sourceApp, targetApp, extra, cb) {
   if (extra instanceof Function) {
     (cb = extra) && (extra = {});
   };
@@ -412,8 +417,8 @@ Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, 
     folderApps,
     folderSettings,
 
-    queriesA = Evme.InstalledAppsService.getMatchingQueries(appA.manifestURL),
-    queriesB = Evme.InstalledAppsService.getMatchingQueries(appB.manifestURL);
+    queriesA = Evme.InstalledAppsService.getMatchingQueries(sourceApp.id),
+    queriesB = Evme.InstalledAppsService.getMatchingQueries(targetApp.id);
 
   // find a suitable name for the folder
   if (queriesA.length && queriesB.length) {
@@ -427,21 +432,17 @@ Evme.SmartFolderSettings.createByAppPair = function createByAppPair(appA, appB, 
   } 
 
   if (folderName === undefined) {
-    folderName = queriesA[0] || queriesB[0] || appA.name || appB.name || "New Folder";
+    folderName = queriesA[0] || queriesB[0] || sourceApp.name || targetApp.name || "New Folder";
   }
 
   folderApps = Evme.InstalledAppsService.getMatchingApps({
     'query': folderName
   });
 
-  // ensure folderApps contains both apps and no duplicates
-  var appAFromIndex = Evme.InstalledAppsService.getAppByManifest(appA.manifestURL),
-    appBFromIndex = Evme.InstalledAppsService.getAppByManifest(appB.manifestURL);
+  folderApps.unshift(targetApp);
+  folderApps.unshift(sourceApp);
   
-  appAFromIndex && folderApps.unshift(appAFromIndex);
-  appBFromIndex && folderApps.unshift(appBFromIndex);
-  
-  folderApps = Evme.Utils.unique(folderApps);
+  folderApps = Evme.Utils.unique(folderApps, 'id');
 
   folderSettings = new Evme.SmartFolderSettings({
     id: folderId,
@@ -528,10 +529,12 @@ Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
     Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds){
       ids = storedIds || [];
     });
+
+    window.addEventListener('folderUninstalled', this.remove);
   };
 
-  this.remove = function remove(folderSettingsId) {
-    // TODO
+  this.remove = function remove(gridFolder) {
+    Evme.Storage.remove(PREFIX + gridFolder.id);
   }
   
   this.add = function add(folderSettings, cb) {

@@ -36,10 +36,24 @@ var EvmeManager = (function EvmeManager() {
       GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
-    function hideFromGrid(descriptors) {
-        if (!Array.isArray(descriptors)) {
-            descriptors = [descriptors];
+    function hideFromGrid(ids) {
+        if (!Array.isArray(ids)) {
+            ids = [ids];
         }
+        
+        // we can not tell if `id` is a bookmarkURL or a manifestURL
+        // since Everything.me does not distinguish apps from bookmarks
+        // hence we send both as descriptors
+        var manifestDescriptors = ids.map(function makeManifestDescriptor(id) {
+            return { "manifestURL": id }
+        });
+
+        var bookmarkDescriptors = ids.map(function makeBookmarkDescriptor(id) {
+            return { "bookmarkURL": id }
+        });
+
+        var descriptors = manifestDescriptors.concat(bookmarkDescriptors);
+
         return GridManager.hide(descriptors);
     }
 
@@ -68,20 +82,23 @@ var EvmeManager = (function EvmeManager() {
         return document.getElementById("footer").offsetHeight;
     }
 
+    // returns all apps on grid *excluding* folders
     function getApps() {
         return GridManager.getApps();
     }
 
     function getAppInfo(app) {
-        if (!app) {
-            return {};
+        var appId = app.manifestURL || app.bookmarkURL;
+        if (appId) {
+            return {
+                'id': appId,
+                'name': getAppName(app),
+                'appUrl': app.origin,
+                'icon': getAppIcon(app)
+            }
         }
-        return {
-            'id': app.manifestURL,
-            'name': getAppName(app),
-            'appUrl': app.origin,
-            'icon': getAppIcon(app)
-        }
+
+        return undefined;
     }
 
     function getAppIcon(app) {

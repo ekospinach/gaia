@@ -582,17 +582,27 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     };
 
     this.appNativeInfo = function appNativeInfo(options, callback) {
-	var params = {
-	    "guids": options.guids || ""
-	};
+        // string together ids like so:
+        // apiurl/?guids=["guid1","guid2","guid3", ...]
 
-	return request({
-	    "methodNamespace": "App",
-	    "methodName": "nativeInfo",
-	    "params": params,
-	    "callback": callback
-	}, options._NOCACHE);
+        var guids = (options.guids || []).map(cleanGuid),
+            guidStr = JSON.stringify(guids);
+
+        var params = {
+            "guids": guidStr
+        };
+
+        return request({
+            "methodNamespace": "App",
+            "methodName": "nativeInfo",
+            "params": params,
+            "callback": callback
+        }, options._NOCACHE);
     };
+
+    function cleanGuid(str) {
+        return str.split("?")[0];
+    }
     
     function addGlobals(options) {
         var globals = options["globals"] || {};

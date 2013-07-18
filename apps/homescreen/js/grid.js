@@ -836,13 +836,16 @@ var GridManager = (function() {
     return bookmarkIcons[bookmarkURL];
   }
 
-  // Ways to enumerate installed apps & bookmarks and find out whether
+  // Ways to enumerate installed apps & bookmarks *excluding* folders and find out whether
   // a certain "origin" is available as an existing installed app or
   // bookmark. Only used by Everything.me at this point.
   function getApps() {
-    var apps = [];
+    var apps = [], app;
     for (var origin in appsByOrigin) {
-      apps.push(appsByOrigin[origin]);
+      app = appsByOrigin[origin];
+      if (!app.isFolder){
+        apps.push(app);
+      };
     }
     return apps;
   }
@@ -896,29 +899,12 @@ var GridManager = (function() {
     var appMgr = navigator.mozApps.mgmt || {getAll: function(){return {}}};
 
     appMgr.oninstall = function oninstall(event) {
-      var customEvent = new CustomEvent('onAppInstalled', {
-      	'detail': {
-      	  'application': event.application
-      	}
-      });
-      window.dispatchEvent(customEvent);
+      GridManager.install(event.application);
     };
+
     appMgr.onuninstall = function onuninstall(event) {
-      var customEvent = new CustomEvent('onAppUninstalled', {
-      	'detail': {
-      	  'application': event.application
-      	}
-      });
-      window.dispatchEvent(customEvent);
+      GridManager.uninstall(event.application);
     };
-
-    window.addEventListener('onAppInstalled', function onAppInstalled(event) {
-      GridManager.install(event.detail.application);
-    });
-
-    window.addEventListener('onAppUninstalled', function onAppUnnstalled(event) {
-      GridManager.uninstall(event.detail.application);
-    });
 
     appMgr.getAll().onsuccess = function onsuccess(event) {
       // Create a copy of all icons we know about so we can find out which icons
@@ -1283,6 +1269,20 @@ var GridManager = (function() {
      */
     install: function gm_install(app, gridPosition) {
       processApp(app, null, null, gridPosition);
+
+      if (app.isFolder){
+        window.dispatchEvent(new CustomEvent('folderInstalled', {
+          'detail': {
+            'application': app
+          }
+        }));
+      } else {
+        window.dispatchEvent(new CustomEvent('appInstalled', {
+          'detail': {
+            'folder': app
+          }
+        }));
+      }
     },
 
     /*
@@ -1354,6 +1354,20 @@ var GridManager = (function() {
           icon.remove();
         }
         delete appIcons[app.manifestURL];
+      }
+
+      if (app.isFolder){
+        window.dispatchEvent(new CustomEvent('folderUninstalled', {
+          'detail': {
+            'application': app
+          }
+        }));
+      } else {
+        window.dispatchEvent(new CustomEvent('appUninstalled', {
+          'detail': {
+            'folder': app
+          }
+        }));
       }
 
       if (updateDock)

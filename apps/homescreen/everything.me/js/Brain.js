@@ -68,8 +68,7 @@ Evme.Brain = new function Evme_Brain() {
         
         // init event listeners     
         window.addEventListener('EvmeSmartFolderLaunch', Evme.SmartFolder.launch);
-        window.addEventListener('EvmeShortcutCreate', onShortcutCreate);
-        window.addEventListener('EvmeShortcutAddApp', onShortcutAddApp);
+        window.addEventListener('EvmeDropApp', onAppDrop);
 
         _config = options;
 
@@ -82,37 +81,32 @@ Evme.Brain = new function Evme_Brain() {
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
     };
 
-    function onShortcutCreate(e) {
-        var options = e && e.detail;
-        
-        if (options) {
-            // if shortcut created by dragging apps, hide the apps that created it
-            if (options.apps && options.apps.length > 1) {
-                // first hide the target app, where the folder will be created
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[1]);
-                Evme.SmartFolder.create(options);
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, options.apps[0]);
-            } else {
-                Evme.SmartFolder.create(options);
-            }
-            
-        }
-    }
+    function onAppDrop(e) {
+        var options = e.detail;
 
-    function onShortcutAddApp(e) {
-        var options = e && e.detail,
-            appManifest = options.app && options.app.manifestURL,
-            folderId = options.folder && options.folder.id;
-
-        if (appManifest && folderId) {
-            Evme.SmartFolderStorage.get(folderId, function onGotSettings(folderSettings) {
-                var app = Evme.InstalledAppsService.getAppByManifest(appManifest);
-                if (app) {
-                    Evme.SmartFolder.addApps([app], folderSettings);
-                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, {"manifestURL": appManifest});
-                };
+        // dropping an app on another
+        if (options.apps && options.apps.length > 1) {
+            var appIds = Evme.Utils.pluck(options.apps, "id");
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appIds);
+            Evme.SmartFolder.create({
+              "apps": appIds.map(Evme.InstalledAppsService.getAppById),
+              "icons": options.apps.map(function getIcon(app) { return {"id": app.id, "icon": app.icon} }),
+              "gridPosition": options.gridPosition
             });
-        };
+        } 
+
+        // dropping an app on folder
+        else if (options.app && options.folder) {
+            var appId = options.app.id,
+                folderId = options.folder.id;
+
+            Evme.SmartFolderStorage.get(folderId, function onGotSettings(folderSettings) {
+                var app = Evme.InstalledAppsService.getAppById(appId);
+                Evme.SmartFolder.addApps([app], folderSettings); // TODO addApps
+                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appId);
+            });
+
+        }
     }
 
     // l10n: create a mutation observer to know when a node was added
@@ -719,15 +713,11 @@ Evme.Brain = new function Evme_Brain() {
     }
 
     this.InstalledAppsService = new function InstalledAppsService() {
+        // get app info from API
         this.requestAppsInfo = function getAppsInfo(data) {
-            // string together ids like so:
-            // apiurl/?guids=["guid1","guid2","guid3", ...]
-            var guidArr = Object.keys(data.appIndex || {}),
-                guidStr = JSON.stringify(guidArr);
-
-            // get app info from API
+            var guidArr = Object.keys(data.appIndex || {});
             Evme.DoATAPI.appNativeInfo({
-                "guids": guidStr
+                "guids": guidArr
             }, function onSuccess(response) {
                 var appsInfo = response && response.response;
                 if (appsInfo) {
@@ -840,6 +830,7 @@ Evme.Brain = new function Evme_Brain() {
                     'name': data.data.name
                 });
 
+                // analytics
                 Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
                     "id": data.data.id,
                     "name": data.data.name
@@ -1464,15 +1455,11 @@ Evme.Brain = new function Evme_Brain() {
                 });
               }
 
-              window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
-                "detail": {
-                  "icons": shortcutIcons,
-                  "query": query
-                }
-              }));
+              Evme.SmartFolder.create({"icons": shortcutIcons,"query": query});
             }
           });
         };
+
 
         // prepare and show
         this.showUI = function showUI() {

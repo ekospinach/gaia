@@ -554,44 +554,40 @@ Icon.prototype = {
       style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
       draggableElem.querySelector('div').style.MozTransform = 'scale(1)';  
     } else {
+      var detail;
+      
       draggableElem.classList.add('droppedInFolder');
       
+      // Everything.me references both apps and bookmarks by an 'id'
+      
       if (overlapElem.dataset.isFolder === 'true') {
-        window.dispatchEvent(new CustomEvent('EvmeShortcutAddApp', {
-          "detail": {
+        detail = {
             "app": {
-              "manifestURL": originElem.dataset.manifestURL,
-              "bookmarkURL": originElem.dataset.bookmarkURLURL
+              "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL
             },
             "folder": {
               "id": overlapElem.dataset.folderId
             }
           }
-        }));
+
       } else {
-        window.dispatchEvent(new CustomEvent('EvmeShortcutCreate', {
-          "detail": {
+        detail = {
             "apps": [{
-                "manifestURL": overlapElem.dataset.manifestURL,
-                "bookmarkURL": overlapElem.dataset.bookmarkURL,
-                "name": overlapElem.textContent
+                "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL,
+                "icon": GridManager.getIcon(originElem.dataset).descriptor.renderedIcon
               }, {
-                "manifestURL": originElem.dataset.manifestURL,
-                "bookmarkURL": originElem.dataset.bookmarkURL,
-                "name": originElem.textContent
+                "id": overlapElem.dataset.manifestURL || overlapElem.dataset.bookmarkURL,
+                "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon
               }
-            ],
-            "icons": [
-              {"id": null, "icon": GridManager.getIcon(originElem.dataset).descriptor.renderedIcon},
-              {"id": null, "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon}
             ],
             "gridPosition": {
               "page": page.getIndex(),
               "index": page.getIconIndex(overlapElem)
             }
           }
-        }));
       }
+
+      detail && window.dispatchEvent(new CustomEvent('EvmeDropApp', {"detail": detail })); 
     }
 
     draggableElem.addEventListener('transitionend', function draggableEnd(e) {
