@@ -1,8 +1,12 @@
-Evme.SmartFolder = new function Evme_SmartFolder(_options) {
+/**
+ * Main Evme object for using SmartFolders
+ * 
+ */
+Evme.SmartFolder = new function Evme_SmartFolder() {
   var self = this,
     NAME = "SmartFolder",
     
-    folderSettings = null,
+    currentSettings = null,
 
     el = null,
     elScreen = null,
@@ -56,33 +60,69 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
         elFolderActions.classList.toggle('show');
     });    
 
-    elClose.addEventListener("click", self.close);
+    elClose.addEventListener("click", self.hide);
     elAppsContainer.dataset.scrollOffset = 0;
 
+    initPreinstalled();
     Evme.EventHandler.trigger(NAME, "init");
   };
 
-  this.show = function show(_folderSettings) {
-    folderSettings = _folderSettings;
+  this.create = function create(options) {
+    var query = options.query,
+      apps = options.apps,
+      icons = options.icons || [],
+      gridPosition = options.gridPosition;
 
-    self.setTitle(folderSettings.name || folderSettings.query);
-    folderSettings.bg && self.setBackground(folderSettings.bg);
-    
-    resultsManager.renderStaticApps(folderSettings.apps);
+    // create the special icon (three apps icons on top of each other)
+    Evme.IconGroup.get(icons, '', createSmartFolder);
 
-    window.setTimeout(function onTimeout() {
-      el.classList.add(CLASS_WHEN_VISIBLE);
-      elScreen.classList.add(CLASS_WHEN_VISIBLE);
-    }, 0);
+    function createSmartFolder(elCanvas) {
+      if (query) {
+        Evme.SmartFolderSettings.createByQuery(query, {
+          "icons": icons
+        }, function onSettingsCreated(folderSettings) {
+          addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
+        });
+      } else if (apps.length > 1) {
+        Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {
+          "icons": icons
+        }, function onSettingsCreated(folderSettings) {
+          addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
+        });
+      }
+    }
+  }
 
-    Evme.EventHandler.trigger(NAME, "show", {
-      "folder": self
+  this.show = function launch(e) {
+    var data = e.detail;
+    Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
+      currentSettings = folderSettings;
+
+      self.setTitle(folderSettings.name || folderSettings.query);
+      folderSettings.bg && self.setBackground(folderSettings.bg);
+      
+      resultsManager.renderStaticApps(folderSettings.apps);
+
+      window.setTimeout(function onTimeout() {
+        el.classList.add(CLASS_WHEN_VISIBLE);
+        elScreen.classList.add(CLASS_WHEN_VISIBLE);
+      }, 0);
+
+      Evme.EventHandler.trigger(NAME, "show", {
+        "folder": self
+      });
     });
-  };
+  }
 
   this.hide = function hide() {
+    currentSettings = null;
+
     el.classList.remove(CLASS_WHEN_VISIBLE);
     elScreen.classList.remove(CLASS_WHEN_VISIBLE);
+
+    // hack for preventing the browser from saving the scroll position
+    // and restoring it when a new SmartFolder opens
+    resultsManager.scrollToTop();
 
     resultsManager.clear();
     self.clearBackground();
@@ -90,25 +130,10 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     Evme.EventHandler.trigger(NAME, "hide", {
       "folder": self
     });
-
-    return self;
   };
 
-  this.close = function close(e) {
-    // hack for preventing the browser from saving the scroll position
-    // and restoring it when a new SmartFolder opens
-    resultsManager.scrollToTop();
-
-    e && e.preventDefault();
-    e && e.stopPropagation();
-
-    self.hide();
-
-    Evme.EventHandler.trigger(NAME, "close", {
-      "folder": self
-    });
-
-    return self;
+  this.isOpen = function isOpen(){
+      return currentSettings !== null;
   };
 
   this.setTitle = function setTitle(newTitle) {
@@ -126,7 +151,7 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
     el.appendChild(elImageFullscreen);
 
-    Evme.SmartFolderStorage.update(folderSettings, {bg: newBg});
+    Evme.SmartFolderStorage.update(currentSettings, {bg: newBg});
     
     resultsManager.changeFadeOnScroll(true);
   };
@@ -171,24 +196,20 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     elAppsContainer.style.opacity = howMuch;
   };
 
-  this.getElement = function getElement() {
-    return el;
-  };
-  
   this.getExperience = function getExperience() {
-    return folderSettings.experienceId;
+    return currentSettings.experienceId;
   };
   
   this.getQuery = function getQuery() {
-    return folderSettings.query;
+    return currentSettings.query;
   };
 
   this.userSetBg = function userSetBg() {
-    return (folderSettings.bg && folderSettings.bg.setByUser);
+    return (currentSettings.bg && currentSettings.bg.setByUser);
   }
   
-  this.addApps = function addApps(newApps, _folderSettings) {
-    var settings = _folderSettings || folderSettings;
+  this.addApps = function addApps(newApps, folderSettings) {
+    var settings = folderSettings || currentSettings;
     if (newApps && newApps.length) {
       var allApps = settings.apps.concat(newApps);
       setStaticApps(allApps, settings);
@@ -196,11 +217,11 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
   };
 
   this.removeApp = function removeApp(appId) {
-    var newApps = folderSettings.apps.filter(function(app) {
+    var newApps = currentSettings.apps.filter(function(app) {
       return app.id !== appId;
     });
 
-    if (newApps.length !== folderSettings.apps.length) {
+    if (newApps.length !== currentSettings.apps.length) {
       setStaticApps(newApps);
     }
   };
@@ -210,8 +231,8 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     elStaticAppActions.classList.add("show");
   };
 
-  function setStaticApps(apps, _folderSettings) {
-    var settings = _folderSettings || folderSettings,
+  function setStaticApps(apps, folderSettings) {
+    var settings = folderSettings || currentSettings,
       uniqueApps = Evme.Utils.unique(apps, 'id');
 
     Evme.SmartFolderStorage.update(settings, {"apps": uniqueApps}, function onUpdate(updatedSettings){
@@ -239,14 +260,14 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     switch (this.dataset.action) {
       case "addApp":
         Evme.EventHandler.trigger(NAME, "actionAddApp", {
-          "staticApps": folderSettings.apps
+          "staticApps": currentSettings.apps
         });
         break;
 
       case "rename":
         var newTitle = prompt("Rename Smart Folder", title);
         if (newTitle && newTitle !== title) {
-          Evme.SmartFolderStorage.update(folderSettings, {
+          Evme.SmartFolderStorage.update(currentSettings, {
             "experienceId": null,
             "query": newTitle,
             "name": newTitle
@@ -254,7 +275,7 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
             self.setTitle(newTitle);
             updateFolderIcon(updatedSettings);
             Evme.EventHandler.trigger(NAME, "rename", {
-              "id": folderSettings.id,
+              "id": currentSettings.id,
               "newName": newTitle
             });
           });
@@ -264,115 +285,86 @@ Evme.SmartFolder = new function Evme_SmartFolder(_options) {
     }
     elFolderActions.classList.remove('show');
   }
-};
 
-Evme.SmartFolder.create = function sf_create(options) {
-  var query = options.query,
-    apps = options.apps,
-    icons = options.icons || [],
-    gridPosition = options.gridPosition;
-
-  // create the special icon (three apps icons on top of each other)
-  Evme.IconGroup.get(icons, '', createSmartFolder);
-
-  function createSmartFolder(elCanvas) {
-    if (query) {
-      Evme.SmartFolderSettings.createByQuery(query, {
-        "icons": icons
-      }, function onSettingsCreated(folderSettings) {
-        addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
-      });
-    } else if (apps.length > 1) {
-      Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], {
-        "icons": icons
-      }, function onSettingsCreated(folderSettings) {
-        addFolderToHomescreen(elCanvas, folderSettings, gridPosition)
-      });
-    }
-  }
-}
-
-Evme.SmartFolder.launch = function sf_launch(e) {
-  var data = e.detail;
-  Evme.SmartFolderStorage.get(data.id, function onGotFromStorage(folderSettings) {
-    Evme.SmartFolder.show(folderSettings);
-  });
-}
-
-Evme.SmartFolder.initPreinstalled = function sf_initPreinstalled() {
-  var cacheKey = 'createdInitialShortcuts',
-    appsFirstPage = 8;
-
-  Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-    if (didInitShortcuts) {
-      return;
-    }
-
-    var defaultShortcuts = Evme.__config['_localShortcuts'],
-      defaultIcons = Evme.__config['_localShortcutsIcons'];
-
-    for (var i = 0; i < defaultShortcuts.length; i++) {
-      var shortcut = defaultShortcuts[i],
-        gridPosition = {
-          "page": (i < appsFirstPage) ? 0 : 1,
-          "index": (i < appsFirstPage) ? i : (i % appsFirstPage)
-        };
-
-      var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
-        return {
-          'id': appId,
-          'icon': defaultIcons[appId] || defaultIcons['' + appId]
-        }
-      });
-
-      initPreinstalledFolder(shortcut.experienceId, shortcutIcons, gridPosition);
-    }
-
-    Evme.Storage.set(cacheKey, true);
-  });
-
-  function initPreinstalledFolder(expId, icons, position) {
-    // create the icon, create the folder, add it to homescreen
-    Evme.IconGroup.get(icons, '', function onIconCreated(elCanvas) {
-      createPreinstalledFolder(expId, icons, function onFolderCreated(folderSettings) {
-        addFolderToHomescreen(elCanvas, folderSettings, position);
-      });
-    });
-  }
-
-  function createPreinstalledFolder(experienceId, icons, cb) {
-    var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-      query = Evme.Utils.l10n('shortcut', l10nkey);
-
-    var folderSettings = new Evme.SmartFolderSettings({
-      id: Evme.Utils.uuid(),
-      experienceId: experienceId,
-      query: query,
-      icons: icons,
-      apps: Evme.InstalledAppsService.getMatchingApps({
-        'query': query
-      })
+  function addFolderToHomescreen(canvas, folderSettings, gridPosition) {
+    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+      "id": folderSettings.id,
+      "originUrl": 'fldr://' + folderSettings.id,
+      "title": folderSettings.name,
+      "icon": canvas.toDataURL(),
+      "isFolder": true,
+      "gridPosition": gridPosition
     });
 
-    saveFolderSettings(folderSettings, cb);
-  };
+    // populate installed apps and update icon
+    Evme.SmartFolderSettings.update(folderSettings);
+  }
+
+  function initPreinstalled() {
+    var cacheKey = 'createdInitialShortcuts',
+      appsFirstPage = 8;
+
+    Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
+      if (didInitShortcuts) {
+        return;
+      }
+
+      var defaultShortcuts = Evme.__config['_localShortcuts'],
+        defaultIcons = Evme.__config['_localShortcutsIcons'];
+
+      for (var i = 0; i < defaultShortcuts.length; i++) {
+        var shortcut = defaultShortcuts[i],
+          gridPosition = {
+            "page": (i < appsFirstPage) ? 0 : 1,
+            "index": (i < appsFirstPage) ? i : (i % appsFirstPage)
+          };
+
+        var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
+          return {
+            'id': appId,
+            'icon': defaultIcons[appId] || defaultIcons['' + appId]
+          }
+        });
+
+        initPreinstalledFolder(shortcut.experienceId, shortcutIcons, gridPosition);
+      }
+
+      Evme.Storage.set(cacheKey, true);
+    });
+
+    function initPreinstalledFolder(expId, icons, position) {
+      // create the icon, create the folder, add it to homescreen
+      Evme.IconGroup.get(icons, '', function onIconCreated(elCanvas) {
+        createPreinstalledFolder(expId, icons, function onFolderCreated(folderSettings) {
+          addFolderToHomescreen(elCanvas, folderSettings, position);
+        });
+      });
+    }
+
+    function createPreinstalledFolder(experienceId, icons, cb) {
+      var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+        query = Evme.Utils.l10n('shortcut', l10nkey);
+
+      var folderSettings = new Evme.SmartFolderSettings({
+        id: Evme.Utils.uuid(),
+        experienceId: experienceId,
+        query: query,
+        icons: icons,
+        apps: Evme.InstalledAppsService.getMatchingApps({
+          'query': query
+        })
+      });
+
+      saveFolderSettings(folderSettings, cb);
+    };
+  }
 };
 
-function addFolderToHomescreen(canvas, folderSettings, gridPosition) {
-  Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-    "id": folderSettings.id,
-    "originUrl": 'fldr://' + folderSettings.id,
-    "title": folderSettings.name,
-    "icon": canvas.toDataURL(),
-    "isFolder": true,
-    "gridPosition": gridPosition
-  });
 
-  // populate installed apps and update icon
-  Evme.SmartFolderSettings.update(folderSettings);
-}
-
-
+/**
+ * The data required for displaying a folder
+ * @param {Object} args
+ */
 Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.id = args.id;
   this.name = args.name || args.query;
@@ -386,6 +378,12 @@ Evme.SmartFolderSettings = function Evme_SmartFolderSettings(args) {
   this.icons = args.icons || [];
 };
 
+/**
+ * Create a settings object from a query
+ * @param  {String}   query
+ * @param  {Object}   extra
+ * @param  {Function} cb
+ */
 Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb) {
   if (extra instanceof Function) {
     (cb = extra) && (extra = {});
@@ -403,10 +401,13 @@ Evme.SmartFolderSettings.createByQuery = function createByQuery(query, extra, cb
   saveFolderSettings(folderSettings, cb);
 };
 
-/*
-  Create a folder from 2 apps.
-  When dragging an app on another, `sourceApp` is dropped on `targetApp`
-*/
+/**
+ * Create a settings object from 2 apps.
+ * @param  {Object}   sourceApp - the app being dragged
+ * @param  {Object}   targetApp - the app being dropped on
+ * @param  {Object}   extra
+ * @param  {Function} cb
+ */
 Evme.SmartFolderSettings.createByAppPair = function createByAppPair(sourceApp, targetApp, extra, cb) {
   if (extra instanceof Function) {
     (cb = extra) && (extra = {});
@@ -518,6 +519,10 @@ function updateFolderIcon(folderSettings) {
   });
 }
 
+
+/**
+ * Persists settings to local storage
+ */
 Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
   var NAME = "SmartFolderStorage",
     IDS_STORAGE_KEY = "evmeSmartFolders",

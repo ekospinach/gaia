@@ -67,7 +67,7 @@ Evme.Brain = new function Evme_Brain() {
         initL10nObserver();
         
         // init event listeners     
-        window.addEventListener('EvmeSmartFolderLaunch', Evme.SmartFolder.launch);
+        window.addEventListener('EvmeSmartFolderLaunch', Evme.SmartFolder.show);
         window.addEventListener('EvmeDropApp', onAppDrop);
 
         _config = options;
@@ -160,7 +160,6 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
             Evme.Searchbar.clear();
             Brain.Searchbar.setEmptyClass();
-            Evme.SmartFolder.initPreinstalled();
             document.body.classList.add(CLASS_WHEN_EVME_READY);
         };
     };
@@ -767,13 +766,13 @@ Evme.Brain = new function Evme_Brain() {
             currentHoldData = data;
 
             if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
-                if (Brain.SmartFolder.isOpen()) {
+                if (Evme.SmartFolder.isOpen()) {
                     openCloudAppMenu(data);
                 } else {
                     saveToHomescreen(data, true);
                 }
             } else if (data.app.group === Evme.RESULT_GROUP.STATIC) {
-                Brain.SmartFolder.staticAppHold(data);
+                Evme.SmartFolder.openAppActions(data);
             }
         };
 
@@ -789,7 +788,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
                 var _app = data.app.app;
                 _app.icon = roundedAppIcon;
-                Brain.SmartFolder.cloudAppHold(_app);
+                Evme.SmartFolder.addApps([_app]);
                 data.el.remove();
             }, INSTALLED_CLOUDS_APPS_ICONS_PADDING);
         }
@@ -1038,22 +1037,15 @@ Evme.Brain = new function Evme_Brain() {
     // modules/SmartFolder/
     this.SmartFolder = new function SmartFolder() {
         var self = this,
-            currentFolder = null,
+            appsPaging = null,
             requestSmartFolderApps = null,
             requestSmartFolderImage = null,
             timeoutShowAppsLoading = null;
 
-        this.isOpen = function isOpen(){
-            return currentFolder !== null;
-        };
-
         // a folder is shown
         this.show = function show(data) {
             document.body.classList.add(CLASS_WHEN_SMART_FOLDER_VISIBLE);
-
-            currentFolder = data.folder;
             window.setTimeout(loadAppsIntoFolder, 400);
-
             currentResultsManager = Evme.SmartfolderResults;
         };
 
@@ -1066,31 +1058,6 @@ Evme.Brain = new function Evme_Brain() {
             currentResultsManager = Evme.SearchResults;
         };
 
-        // close button was clicked
-        this.close = function close() {
-            currentFolder = null;
-        };
-
-        // get current folder
-        this.get = function get() {
-            return currentFolder;
-        };
-
-        // close current folder
-        this.closeCurrent = function closeCurrent() {
-            currentFolder && currentFolder.close();
-        };
-
-        // if a folder is open- close it
-        this.hideIfOpen = function hideIfOpen() {
-            if (self.get()) {
-                self.closeCurrent();
-                return true;
-            }
-
-            return false;
-        };
-
         // cancel the current outgoing smart folder requests
         this.cancelRequests = function cancelRequests() {
             Evme.SmartfolderResults.APIData.onRequestCanceled();
@@ -1100,46 +1067,18 @@ Evme.Brain = new function Evme_Brain() {
 
         // a smart folder was renamed
         this.rename = function rename(data) {
-            loadBGImage();
             loadAppsIntoFolder();
-            // TOOD: update the shortcut name
-        };
-
-        // load the folder's background image
-
-        function loadBGImage() {
-            if (!currentFolder) return;
-            if (currentFolder.userSetBg()) return;
-            
-            var query = currentFolder.getQuery();
-
-            requestSmartFolderImage = Evme.DoATAPI.bgimage({
-                "query": query,
-                "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
-                "exact": true,
-                "width": screen.width,
-                "height": screen.height
-            }, function onSuccess(data) {
-                currentFolder && currentFolder.setBackground({
-                    "image": Evme.Utils.formatImageData(data.response.image),
-                    "query": query,
-                    "source": data.response.source,
-                    "setByUser": false
-                });
-
-                requestSmartFolderImage = null;
-            });
         };
 
         // load the cloud apps into the folder
         function loadAppsIntoFolder() {
-            if (!currentFolder) return;
+            if (!Evme.SmartFolder.isOpen()) return;
 
-            var experienceId = currentFolder.getExperience(),
-                query = currentFolder.getQuery(),
+            var experienceId = Evme.SmartFolder.getExperience(),
+                query = Evme.SmartFolder.getQuery(),
                 iconsFormat = Evme.Utils.getIconsFormat();
 
-            currentFolder.appsPaging = {
+            appsPaging = {
                 "offset": 0,
                 "limit": NUMBER_OF_APPS_TO_LOAD_IN_FOLDER
             };
@@ -1153,8 +1092,8 @@ Evme.Brain = new function Evme_Brain() {
                 "exact": true,
                 "spellcheck": false,
                 "suggest": false,
-                "limit": currentFolder.appsPaging.limit,
-                "first": currentFolder.appsPaging.offset,
+                "limit": appsPaging.limit,
+                "first": appsPaging.offset,
                 "iconFormat": iconsFormat
             }, function onSuccess(data) {
                 Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
@@ -1169,9 +1108,33 @@ Evme.Brain = new function Evme_Brain() {
             loadBGImage();
         };
 
+        function loadBGImage() {
+            if (!Evme.SmartFolder.isOpen()) return;
+            if (Evme.SmartFolder.userSetBg()) return;
+            
+            var query = Evme.SmartFolder.getQuery();
+
+            requestSmartFolderImage = Evme.DoATAPI.bgimage({
+                "query": query,
+                "feature": SEARCH_SOURCES.SHORTCUT_SMART_FOLDER,
+                "exact": true,
+                "width": screen.width,
+                "height": screen.height
+            }, function onSuccess(data) {
+                Evme.SmartFolder.setBackground({
+                    "image": Evme.Utils.formatImageData(data.response.image),
+                    "query": query,
+                    "source": data.response.source,
+                    "setByUser": false
+                });
+
+                requestSmartFolderImage = null;
+            });
+        };
+
         // app list has scrolled to top
         this.scrollTop = function scrollTop() {
-            currentFolder.showFullscreen();
+            Evme.SmartFolder.showFullscreen();
 
             // TODO: FIXME This is temporary.
             // BackgroundImage should be an instance used in parallel to ResultsManager
@@ -1180,9 +1143,9 @@ Evme.Brain = new function Evme_Brain() {
 
         // load more apps in smartfolder
         this.scrollBottom = function scrollBottom() {
-            if (!currentFolder) return;
+            if (!Evme.SmartFolder.isOpen()) return;
 
-            currentFolder.appsPaging.offset += currentFolder.appsPaging.limit;
+            appsPaging.offset += appsPaging.limit;
 
             if (requestSmartFolderApps) {
                 return;
@@ -1190,8 +1153,8 @@ Evme.Brain = new function Evme_Brain() {
 
             Evme.SmartfolderResults.APIData.onRequestSent();
 
-            var experienceId = currentFolder.getExperience(),
-                query = currentFolder.getQuery(),
+            var experienceId = Evme.SmartFolder.getExperience(),
+                query = Evme.SmartFolder.getQuery(),
                 iconsFormat = Evme.Utils.getIconsFormat();
 
             requestSmartFolderApps = Evme.DoATAPI.search({
@@ -1201,8 +1164,8 @@ Evme.Brain = new function Evme_Brain() {
                 "exact": true,
                 "spellcheck": false,
                 "suggest": false,
-                "limit": currentFolder.appsPaging.limit,
-                "first": currentFolder.appsPaging.offset,
+                "limit": appsPaging.limit,
+                "first": appsPaging.offset,
                 "iconFormat": iconsFormat
             }, function onSuccess(data) {
                 Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
@@ -1242,7 +1205,7 @@ Evme.Brain = new function Evme_Brain() {
             select.init({
                 "callback": function(selectedArr) {
                     select = null;
-                    currentFolder && currentFolder.addApps(selectedArr);
+                    Evme.SmartFolder.addApps(selectedArr);
                 }
             });
 
@@ -1270,13 +1233,6 @@ Evme.Brain = new function Evme_Brain() {
             }
             // load apps into select and show
             select.load(appArray);
-        };
-
-        this.cloudAppHold = function cloudAppHold(app) {
-            currentFolder && currentFolder.addApps([app]);
-        };
-        this.staticAppHold = function staticAppHold(data) {
-            currentFolder && currentFolder.openAppActions(data);
         };
     };
 
@@ -1581,8 +1537,7 @@ Evme.Brain = new function Evme_Brain() {
     	    Searcher.cancelRequests();
 
     	    if (currentResultsManager && data.method === 'Search/apps') {
-                var folder = Brain.SmartFolder.get(),
-                    query = Evme.Searchbar.getElement().value || (folder && folder.getQuery()) || '',
+                var query = Evme.Searchbar.getElement().value || Evme.SmartFolder.getQuery() || '',
                     textKey = currentResultsManager.hasResults() ? 'apps-has-installed' : 'apps';
 
                 Evme.ConnectionMessage.show(textKey, { 'query': query });

@@ -60,11 +60,11 @@ window.Evme = new function Evme_Core() {
     document.body.classList.remove('evme-displayed');
 
     Evme.Searchbar.blur();
-    Evme.Brain.SmartFolder.closeCurrent();
+    Evme.SmartFolder.hide();
   };
 
   this.onHideStart = function onHideStart(source) {
-    Evme.Brain.SmartFolder.hideIfOpen();
+    Evme.SmartFolder.hide();
 
     Evme.Searchbar.blur();
 
