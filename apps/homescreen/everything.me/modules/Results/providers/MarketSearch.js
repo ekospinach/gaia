@@ -45,7 +45,7 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
     app = {
       id: 'marketsearch',
       name: 'Marketplace',
-      icon: EvmeManager.getMarketplaceAppIcon(),
+      icon: Evme.DEFAULT_ICONS.MARKETPLACE,
       appUrl: "store://?search"
     };
   };
