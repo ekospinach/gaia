@@ -219,7 +219,7 @@ window.Evme = new function Evme_Core() {
     Evme.IconGroup.init({});
 
     Evme.Banner.init({
-      "el": Evme.$("#evmeBanner")
+      "el": Evme.$("#homescreenStatus")
     });
 
     Evme.SearchHistory.init({
