@@ -46,8 +46,8 @@ var EverythingME = {
 
     var CB = !('ontouchstart' in window),
       js_files = [
-          'js/etmmanager.js',
           'js/Core.js',
+          'js/etmmanager.js',
           
           // TODO: remove when done testing
           'tests/fixtures/fixtures.js',
@@ -103,68 +103,56 @@ var EverythingME = {
         'modules/ShortcutsCustomize/ShortcutsCustomize.css',
         'modules/SmartFolder/SmartFolder.css'
     ];
-    var head = document.head;
 
-    var scriptLoadCount = 0;
-    var cssLoadCount = 0;
+    var head = document.head,
+        filesToLoad = js_files.length + css_files.length,
+        filesLoaded = 0;
 
-    var progressLabel = document.querySelector('#loading-overlay span');
-    var progressElement = document.querySelector('#loading-overlay progress');
-    var total = js_files.length + css_files.length,
-      counter = 0;
-
-    function updateProgress() {
-      if (!progressLabel) {
-        return;
-      }
-      var value = Math.floor(((++counter) / total) * 100);
-      progressLabel.textContent = value + '%';
-      progressElement.value = value;
-    }
-
-    function onScriptLoad(event) {
-      updateProgress();
-      event.target.removeEventListener('load', onScriptLoad);
-      if (++scriptLoadCount == js_files.length) {
+    function onFileLoaded() {
+      filesLoaded++;
+      if (filesLoaded >= filesToLoad) {
         EverythingME.start(success);
-      } else {
-        loadScript(js_files[scriptLoadCount]);
       }
     }
 
-    function onCSSLoad(event) {
-      updateProgress();
-      event.target.removeEventListener('load', onCSSLoad);
-      if (++cssLoadCount === css_files.length) {
-        loadScript(js_files[scriptLoadCount]);
-      } else {
-        loadCSS(css_files[cssLoadCount]);
-      }
+    function loadAllFiles() {
+      // substract one since we load the first JS as a blocker to everything else
+      filesToLoad -= 1;
+
+      // load the first one, and after it load everything together
+      loadScript(js_files[0], function onCoreLoaded() {
+        for (var i=1,js; js=js_files[i++];) {
+          loadScript(js);
+        }
+        for (var i=0,css; css=css_files[i++];) {
+          loadCSS(css);
+        }
+      });
     }
 
-    function loadCSS(file) {
+    function loadCSS(file, onLoad) {
       var link = document.createElement('link');
       link.type = 'text/css';
       link.rel = 'stylesheet';
       link.href = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
-      link.addEventListener('load', onCSSLoad);
-      setTimeout(function appendCSS() {
+      link.addEventListener('load', onLoad || onFileLoaded);
+      window.setTimeout(function load() {
         head.appendChild(link);
       }, 0);
     }
 
-    function loadScript(file) {
+    function loadScript(file, onLoad) {
       var script = document.createElement('script');
       script.type = 'text/javascript';
       script.src = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
       script.defer = true;
-      script.addEventListener('load', onScriptLoad);
-      setTimeout(function appendScript() {
-        head.appendChild(script)
+      script.addEventListener('load', onLoad || onFileLoaded);
+      window.setTimeout(function load() {
+        head.appendChild(script);
       }, 0);
     }
 
-    loadCSS(css_files[cssLoadCount]);
+    loadAllFiles();
   },
 
   initEvme: function EverythingME_initEvme(success) {
