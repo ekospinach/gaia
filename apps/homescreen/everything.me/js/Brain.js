@@ -90,7 +90,6 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appIds);
             Evme.SmartFolder.create({
               "apps": appIds.map(Evme.InstalledAppsService.getAppById),
-              "icons": options.apps.map(function getIcon(app) { return {"id": app.id, "icon": app.icon} }),
               "gridPosition": options.gridPosition
             });
         } 
@@ -726,7 +725,7 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.queryIndexUpdated = function queryIndexUpdated() {
-            Evme.SmartFolderSettings.update();
+            Evme.SmartFolderSettings.updateAll();
         }
     };
 
@@ -1402,14 +1401,9 @@ Evme.Brain = new function Evme_Brain() {
               query = shortcut.query;
               experienceId = shortcut.experienceId;
               appIds = shortcut.appIds;
-              shortcutIcons = [];
-
-              for (var j=0,appId; appId=appIds[j++];) {
-                shortcutIcons.push({
-                  'id': appId,
-                  'icon': icons[appId]
-                });
-              }
+              shortcutIcons = appIds.map(function getIcon(appId){
+                return icons[appId];
+              });
 
               Evme.SmartFolder.create({"icons": shortcutIcons,"query": query});
             }

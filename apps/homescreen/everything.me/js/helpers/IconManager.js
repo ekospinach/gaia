@@ -63,11 +63,10 @@ Evme.IconGroup = new function Evme_IconGroup() {
     HEIGHT = ICON_HEIGHT + TEXT_MARGIN + TEXT_HEIGHT;
   };
 
-  this.get = function get(apps, query, callback) {
+  this.get = function get(icons, callback) {
     var el = renderCanvas({
-      "apps": apps || [],  // list of objects with "id" and "icon" properties
-      "settings": Evme.Utils.getIconGroup() || [],  // the settings for the icons
-      "query": query,
+      "icons": icons || [],
+      "settings": Evme.Utils.getIconGroup() || [],
       "onReady": callback
     });
 
@@ -75,56 +74,25 @@ Evme.IconGroup = new function Evme_IconGroup() {
   };
 
   function renderCanvas(options) {
-    var apps = options.apps,
+    var icons = options.icons,
         settings = options.settings,
-        query = options.query,
         onReady = options.onReady || function() {},
         elCanvas = document.createElement('canvas'),
         context = elCanvas.getContext('2d');
 
+    // can't render more icons than we have settings for
+    icons = icons.slice(0, settings.length);
+
     elCanvas.width = WIDTH;
-    elCanvas.height = query? HEIGHT : WIDTH;
-    context.imagesToLoad = apps.length;
+    elCanvas.height = WIDTH;
+    context.imagesToLoad = icons.length;
     context.imagesLoaded = [];
 
-    if (!Array.isArray(apps)) {
-      var objectApps = apps;
-      apps = [];
-      for (var id in objectApps) {
-        apps.push({
-          "icon": objectApps[id]
-        });
-      }
-    }
-
-    for (var i = 0; i < apps.length; i++) {
+    for (var i = 0; i < icons.length; i++) {
       // render the icons from bottom to top
-      var app = apps[apps.length - 1 - i];
+      var icon = icons[icons.length - 1 - i];
 
-      if (typeof app !== "object") {
-      	app = {
-      	  "id": app,
-      	};
-      }
-
-      if (app.icon) {
-        loadIcon(app.icon, settings[(settings.length - apps.length) + i], context, i, onReady);
-      } else if (app.id) {
-        (function(app, icon, context, i, onReady) {
-          Evme.IconManager.get(app.id, function onIconFromCache(appIcon) {
-            loadIcon(Evme.Utils.formatImageData(appIcon), icon, context, i, onReady);
-          });
-        }(app, settings[i], context, i, onReady));
-      }
-    }
-    
-    // add the app name
-    if (query) {
-      Evme.Utils.writeTextToCanvas({
-        "context": context,
-        "text": query,
-        "offset": ICON_HEIGHT + TEXT_MARGIN
-      });
+      loadIcon(icon, settings[(settings.length - icons.length) + i], context, i, onReady);
     }
 
     return elCanvas;
