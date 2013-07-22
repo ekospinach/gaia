@@ -776,25 +776,30 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "CACHE_ERROR": "cache error"
         };
         
-	this.init = function init(callback) {
+       this.init = function init(callback) {
             Evme.Storage.get(_key, function storageGot(sessionFromCache) {
                 var createCause;
 
-                if (sessionFromCache) {
-                    if (!self.expired(sessionFromCache)) {
-                        _session = sessionFromCache;
-                    } else {
-                        createCause = self.INIT_CAUSE.EXPIRED;
-                    }
-                } else {
-                    createCause = self.INIT_CAUSE.NOT_IN_CACHE;
+                try {
+                  if (sessionFromCache) {
+                      if (!self.expired(sessionFromCache)) {
+                          _session = sessionFromCache;
+                      } else {
+                          createCause = self.INIT_CAUSE.EXPIRED;
+                      }
+                  } else {
+                      createCause = self.INIT_CAUSE.NOT_IN_CACHE;
+                  }
+  
+                  if (!_session) {
+                      self.create(null, null, createCause);
+                  }
+  
+                  callback && callback();
+                } catch(ex) {
+                  console.error('evme Session init error: ' + ex.message);
+                  callback && callback();
                 }
-
-                if (!_session) {
-                    self.create(null, null, createCause);
-                }
-
-		callback && callback();
             });
         };
         
