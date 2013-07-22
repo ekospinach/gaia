@@ -530,21 +530,34 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.Storage.enabled();
     };
 
-    this.unique = function unique() {
-        // concat
-        var concatArr = [];
-        for (var i = 0, arr; arr = arguments[i++];) {
-            concatArr = concatArr.concat(arr);
+    // retrieves the value of a specified property from all elements in the `collection`.
+    this.pluck = function pluck(collection, property) {
+        if (Array.isArray(collection)) {
+            return collection.map(function(item) {
+                return item[property];
+            });
+        } else {
+            return [];
         }
+    };
 
-        // unique
-        var uniqueArr = concatArr.filter(uniqueFilter);
+    // Creates a duplicate-value-free version of the `array`
+    this.unique = function unique(array, property) {
+      // array of objects, unique by `property` of the objects
+      if (property){
+        var values = Evme.Utils.pluck(array, property);
+        return array.filter(function(item, pos) { return uniqueFilter(item[property], pos, values) } );
+      } 
 
-        return uniqueArr;
+      // array of literals
+      else {
+        return array.filter(uniqueFilter);
+      }
     };
 
     function uniqueFilter(elem, pos, self) {
-        return self.indexOf(elem) == pos;
+        // if first appearance of `elem` is `pos` then it is unique
+        return self.indexOf(elem) === pos;
     }
     
     function _getIconsFormat() {

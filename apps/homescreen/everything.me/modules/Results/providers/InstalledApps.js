@@ -63,7 +63,7 @@ Evme.InstalledAppsRenderer = function Evme_InstalledAppsRenderer() {
 /*
 Responsible for maintaining app indexes
 
-App index - list of apps installed on device
+App index - list of apps installed on device, including apps and bookmarks but *excluding* folders
 [
   {app id}: {
     "name": {display name},
@@ -73,11 +73,11 @@ App index - list of apps installed on device
   ...
 ]
 
- Query index - a mapping from experience name to app ids (manifestURLs)
+ Query index - a mapping from experience name to app ids (manifestURLs or bookmarkURLs)
 {
-  "music": ["soundcloud", "mixcloud", "fm", "friends-music", ...],
-  "top apps": ["soundcloud", "fm"],
-  "radio": ["fm", "mixcloud"],
+  "music": ["manifestURL1", "bookmarkURL1"],
+  "top apps": ["manifestURL2", "bookmarkURL2"],
+  "radio": ["manifestURL3", "bookmarkURL3"],
   ...
 }
 */
@@ -102,8 +102,8 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     createQueryIndex();
 
     // listeners
-    window.addEventListener('onAppInstalled', onAppInstallChanged);
-    window.addEventListener('onAppUninstalled', onAppInstallChanged);
+    window.addEventListener('appInstalled', onAppInstallChanged);
+    window.addEventListener('appUninstalled', onAppInstallChanged);
   }
 
   this.requestAppsInfo = function requestAppsInfo() {
@@ -128,7 +128,10 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
       appIndex[idInAppIndex].slug = appInfo.nativeId;
 
       // queries is comprised of tags and experiences
-      var queries = Evme.Utils.unique(appInfo.tags, appInfo.experiences);
+      var tags = appInfo.tags || [],
+        experiences = appInfo.experiences || [],
+        queries = Evme.Utils.unique(tags.concat(experiences));
+
       // populate queryIndex
       for (var i = 0, query; query = queries[i++];) {
         query = normalizeQuery(query);
@@ -174,28 +177,27 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
       }
     }
 
-    matchingApps = Evme.Utils.unique(matchingApps);
+    matchingApps = Evme.Utils.unique(matchingApps, 'id');
 
     return matchingApps;
   };
 
-  this.getMatchingQueries = function getMatchingQueries(appManifest) {
+  this.getMatchingQueries = function getMatchingQueries(appId) {
     var queries = [];
-
-    // assume app recieved by calling EvmeManager.getAppInfo and so app.id equals the app's manifestURL
-    if (!appManifest) {
+    
+    if (!appId) {
       return queries;
     }
 
     for (query in queryIndex) {
-      (queryIndex[query].indexOf(appManifest) > -1) && queries.push(query);
+      (queryIndex[query].indexOf(appId) > -1) && queries.push(query);
     }
 
     return queries;
   };
 
-  this.getAppByManifest = function getAppByManifest(manifest) {
-    return (manifest in appIndex) && appIndex[manifest];
+  this.getAppById = function getAppById(appId) {
+    return (appId in appIndex) && appIndex[appId];
   };
 
   this.getApps = function() {
@@ -213,9 +215,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
 
   function onAppInstallChanged(e) {
     var app = e.detail.application;
-    if (app.isBookmark) {
-      return;
-    }
 
     // redo process
     createAppIndex();
@@ -223,25 +222,16 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   }
 
   function createAppIndex() {
-    // empty current index
+    // empty current index and create a new one
     appIndex = {};
 
-    // get all apps on grid
-    var allApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS);
+    var gridApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS);
 
-    for (var i = 0, app; app = allApps[i++];) {
-      if (app.isBookmark) {
-        continue; // skip bookmarks
-      }
-
+    for (var i = 0, app; app = gridApps[i++];) {
       var appInfo = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_APP_INFO, app);
-      if (!appInfo.id) {
-        appInfo.id = Evme.Utils.uuid();
+      if (appInfo) {
+        appIndex[appInfo.id] = appInfo;
       }
-
-      appInfo.id = cleanAppId(appInfo.id)
-
-      appIndex[appInfo.id] = appInfo;
     }
   }
 
@@ -254,11 +244,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
       }
     });
   }
-
-  function cleanAppId(str) {
-    return str.split("?")[0];
-  }
-
+  
   function normalizeQuery(query) {
     return query.toLowerCase();
   }

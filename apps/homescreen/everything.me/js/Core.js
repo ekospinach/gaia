@@ -35,11 +35,13 @@ window.Evme = new function Evme_Core() {
 
     // TODO: DEMO MODE - turn off annoying keyboard features
     var settings = navigator.mozSettings;
-    var lock = settings.createLock();
-    lock.set({
-      'keyboard.wordsuggestion': false,
-      'keyboard.autocorrect': false
-    });
+    if (settings) {
+      var lock = settings.createLock();
+      lock.set({
+        'keyboard.wordsuggestion': false,
+        'keyboard.autocorrect': false
+      });
+    };
   };
 
   // Gaia communication methods
@@ -58,11 +60,11 @@ window.Evme = new function Evme_Core() {
     document.body.classList.remove('evme-displayed');
 
     Evme.Searchbar.blur();
-    Evme.Brain.SmartFolder.closeCurrent();
+    Evme.SmartFolder.hide();
   };
 
   this.onHideStart = function onHideStart(source) {
-    Evme.Brain.SmartFolder.hideIfOpen();
+    Evme.SmartFolder.hide();
 
     Evme.Searchbar.blur();
 
@@ -217,7 +219,7 @@ window.Evme = new function Evme_Core() {
     Evme.IconGroup.init({});
 
     Evme.Banner.init({
-      "el": Evme.$("#evmeBanner")
+      "el": Evme.$("#homescreenStatus")
     });
 
     Evme.SearchHistory.init({

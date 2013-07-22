@@ -21,7 +21,6 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
   };
 
   this.render = function render(apps) {
-    // TODO signatures
     this.clear();
     renderDocFrag(apps);
   };

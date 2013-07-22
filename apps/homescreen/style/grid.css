@@ -147,6 +147,7 @@ ol:not([disabled]) li.active > div > img {
   margin: 0 auto;
   font-weight: 400;
   letter-spacing: -0.025rem;
+  text-transform: capitalize;
 }
 
 /* Alternative icons when an app is being installed */
