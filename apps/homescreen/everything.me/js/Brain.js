@@ -69,6 +69,11 @@ Evme.Brain = new function Evme_Brain() {
         // init event listeners     
         window.addEventListener('EvmeSmartFolderLaunch', Evme.SmartFolder.show);
         window.addEventListener('EvmeDropApp', onAppDrop);
+        
+        // prevent homescreen contextmenu
+        elContainer.addEventListener('contextmenu', function onTouchStart(e) {
+            e.stopPropagation();
+        });
 
         _config = options;
 
