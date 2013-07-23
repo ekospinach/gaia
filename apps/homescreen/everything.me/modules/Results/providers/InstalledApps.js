@@ -99,7 +99,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   this.init = function init() {
     // create indexes
     createAppIndex();
-    createQueryIndex();
+    loadQueryIndex();
 
     // listeners
     window.addEventListener('appInstalled', onAppInstallChanged);
@@ -107,9 +107,12 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   }
 
   this.requestAppsInfo = function requestAppsInfo() {
-    Evme.EventHandler.trigger(NAME, "requestAppsInfo", {
-      "appIndex": appIndex
-    });
+    var gridApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS),
+      guids = gridApps.map(function getId(gridApp){
+        return gridApp.manifestURL || gridApp.bookmarkURL;
+      });
+
+    Evme.EventHandler.trigger(NAME, "requestAppsInfo", guids);
   };
 
   this.requestAppsInfoCb = function requestAppsInfoCb(appsInfoFromAPI) {
@@ -214,9 +217,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   };
 
   function onAppInstallChanged(e) {
-    var app = e.detail.application;
-
-    // redo process
     createAppIndex();
     self.requestAppsInfo();
   }
@@ -227,15 +227,14 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
 
     var gridApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS);
 
-    for (var i = 0, app; app = gridApps[i++];) {
-      var appInfo = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_APP_INFO, app);
-      if (appInfo) {
+    for (var i = 0, gridApp; gridApp = gridApps[i++];) {
+      var appInfo = EvmeManager.getAppInfo(gridApp, function onAppInfo(appInfo){
         appIndex[appInfo.id] = appInfo;
-      }
+      });
     }
   }
 
-  function createQueryIndex() {
+  function loadQueryIndex() {
     Evme.Storage.get(QUERY_INDEX_STORAGE_KEY, function queryIndexCb(queryIndexFromStorage) {
       if (queryIndexFromStorage) {
         queryIndex = queryIndexFromStorage;

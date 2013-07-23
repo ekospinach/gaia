@@ -76,32 +76,71 @@ var EvmeManager = (function EvmeManager() {
         return document.getElementById("footer").offsetHeight;
     }
 
-    // returns all apps on grid *excluding* folders
+    /**
+     * Returns all apps on grid *excluding* folders.
+     */
     function getApps() {
         return GridManager.getApps();
     }
 
-    function getAppInfo(app) {
-        var appId = app.manifestURL || app.bookmarkURL;
-        if (appId) {
-            return {
-                'id': appId,
-                'name': getAppName(app),
-                'appUrl': app.origin,
-                'icon': getAppIcon(app)
-            }
-        }
+    function getAppInfo(gridApp, cb) {
+        cb = cb || Evme.Utils.NOOP;
 
-        return undefined;
+        var id = gridApp.manifestURL || gridApp.bookmarkURL,
+            icon = GridManager.getIcon(gridApp),
+            appInfo;
+
+        if (!id) return;
+
+        appInfo = {
+            "id": id,
+            "name": getAppName(gridApp),
+            "appUrl": gridApp.origin,
+            "icon": Icon.prototype.DEFAULT_ICON_URL
+        };
+
+        if (!icon) {
+            cb(appInfo);
+        } else {
+            retrieveIcon({
+                icon: icon,
+                done: function(blob) {
+                    if (blob) appInfo['icon'] = blob;
+                    cb(appInfo);
+                }
+            });
+        }
     }
 
-    function getAppIcon(app) {
-        var iconObject = GridManager.getIcon(app);
-        if (iconObject &&
-                'descriptor' in iconObject &&
-                'renderedIcon' in iconObject.descriptor) {
-            return iconObject.descriptor.renderedIcon;
-        }
+    function retrieveIcon(request) {
+      var xhr = new XMLHttpRequest({
+        mozAnon: true,
+        mozSystem: true
+      });
+
+      var icon = request.icon.descriptor.icon;
+
+      xhr.open('GET', icon, true);
+      xhr.responseType = 'blob';
+
+      try {
+        xhr.send(null);
+      } catch (evt) {
+        request.done();
+        return;
+      }
+
+      xhr.onload = function onload(evt) {
+        var status = xhr.status;
+        if (status !== 0 && status !== 200)
+            request.done();
+        else 
+            request.done(xhr.response);
+      };
+
+      xhr.ontimeout = xhr.onerror = function onerror(evt) {
+        request.done();
+      };
     }
 
     function getAppName(app) {

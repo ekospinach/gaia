@@ -717,10 +717,9 @@ Evme.Brain = new function Evme_Brain() {
 
     this.InstalledAppsService = new function InstalledAppsService() {
         // get app info from API
-        this.requestAppsInfo = function getAppsInfo(data) {
-            var guidArr = Object.keys(data.appIndex || {});
+        this.requestAppsInfo = function getAppsInfo(guids) {
             Evme.DoATAPI.appNativeInfo({
-                "guids": guidArr
+                "guids": guids
             }, function onSuccess(response) {
                 var appsInfo = response && response.response;
                 if (appsInfo) {
