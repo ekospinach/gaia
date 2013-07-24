@@ -55,6 +55,17 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		this.canvas = Evme.$('canvas', el)[0];
 		this.context = this.canvas.getContext('2d');
 
+		// remove button
+		if (app.removeButton) {
+			var removeButton = Evme.$create('span', {
+				'class': 'remove' 
+			});
+			removeButton.addEventListener('click', cbRemoveClick);
+			removeButton.addEventListener('touchstart', stopPropagation);
+			removeButton.addEventListener('touchend', stopPropagation);
+			el.appendChild(removeButton);
+		}
+
 		if ("ontouchstart" in window) {
 			el.addEventListener("touchstart", touchstart);
 			el.addEventListener("touchmove", touchmove);
@@ -227,6 +238,17 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			"data": cfg,
 			"index": index,
 			"isMore": isMore
+		});
+	}
+
+	// prevent app click from being triggered
+	function stopPropagation(e) {
+		e.stopPropagation();
+	}
+
+	function cbRemoveClick() {
+		Evme.EventHandler.trigger(NAME, "remove", {
+			"id": cfg.id
 		});
 	}
 }

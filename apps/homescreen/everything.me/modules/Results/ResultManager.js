@@ -139,17 +139,13 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
       var cloudApps = [],
         marketApps = [],
-        installedSlugs = Evme.InstalledAppsService.getSlugs(),
         pageNum = response.paging.first;
 
       // separate cloud from marketplace apps
       response.apps.forEach(function(app) {
         if (app.type === Evme.RESULT_TYPE.MARKET) {
           app.slug = getSlug(app);
-          // Not if app is already installed
-          if (installedSlugs.indexOf(app.slug) === -1) {
-            marketApps.push(app);
-          }
+          marketApps.push(app);
         } else if (app.type === Evme.RESULT_TYPE.CLOUD || app.type === Evme.RESULT_TYPE.WEBLINK) {
           cloudApps.push(app);
         }

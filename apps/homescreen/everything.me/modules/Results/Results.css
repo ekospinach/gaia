@@ -49,6 +49,7 @@
     display: inline-block;
     vertical-align: top;
     transition: transform .2s linear;
+    position: relative; /* for span.remove positioning */
 }
 
 .evmeScope .evme-apps ul.marketapps li{
@@ -92,6 +93,16 @@
 }
 .evmeScope .evme-apps ul li.new:not(.installed) canvas {
     transform: scale(0);
+}
+.evmeScope .evme-apps ul li > span.remove {
+  position: absolute;
+  top: .5rem;
+  left: .8rem;
+  width: calc(100% - .5rem);
+  height: 2.6rem;
+  z-index: 2;
+  background: url(/resources/images/delete.png) no-repeat left top;
+  display: none;
 }
 
 /* Notifications */

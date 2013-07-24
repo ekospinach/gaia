@@ -134,7 +134,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 				result.draw(app.icon);
 				Evme.IconManager.add(app.id, app.icon, iconFormat);
 
-			} else if (isWebLink(app)) {  // generate id
+			} else if (isWebLink(app)) {  // no id for weblinks so generate one
 				app.id = 'app-' + Evme.Utils.uuid();
 				app.icon = getDefaultIcon();
 				result.draw(app.icon);
@@ -142,6 +142,9 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 			} else {  // icon will be drawn from cache (or requested if missing)
 				noIconAppIds.push(app.id);
 			}
+
+			// used for result filtering
+			result.getElement().dataset.url = app.appUrl;
 
 			lastRenderedResults[app.id] = result;
 

@@ -759,24 +759,24 @@ Evme.Brain = new function Evme_Brain() {
           });
         }
 
-        // Remove app clicked
-        this.close = function close(data) {
-            Evme.SearchResults.removeApp(data.data.id);
-        };
-
         // app pressed and held
         this.hold = function hold(data) {
             currentHoldData = data;
 
             if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
                 if (Evme.SmartFolder.isOpen()) {
+                    Evme.SmartFolder.toggleEditMode(false);
                     openCloudAppMenu(data);
                 } else {
                     saveToHomescreen(data, true);
                 }
-            } else if (data.app.group === Evme.RESULT_GROUP.STATIC) {
-                Evme.SmartFolder.openAppActions(data);
+            } else if (data.app.group === Evme.RESULT_GROUP.STATIC && !Evme.SmartFolder.editMode) {
+                Evme.SmartFolder.toggleEditMode(true);
             }
+        };
+
+        this.remove = function remove(data) {
+            Evme.SmartFolder.removeResult(data);
         };
 
         function openCloudAppMenu(data) {
@@ -792,7 +792,6 @@ Evme.Brain = new function Evme_Brain() {
                 var _app = data.app.app;
                 _app.icon = roundedAppIcon;
                 Evme.SmartFolder.addApps([_app]);
-                data.el.remove();
             }, INSTALLED_CLOUDS_APPS_ICONS_PADDING);
         }
 
@@ -842,6 +841,8 @@ Evme.Brain = new function Evme_Brain() {
 
         // app clicked
         this.click = function click(data) {
+            Evme.SmartFolder.toggleEditMode(false);
+
             if (!Searcher.isLoadingApps() || Evme.Utils.isKeyboardVisible) {
                 data.keyboardVisible = Evme.Utils.isKeyboardVisible ? 1 : 0;
                 var query = Searcher.getDisplayedQuery();

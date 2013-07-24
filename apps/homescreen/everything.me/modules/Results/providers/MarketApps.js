@@ -89,6 +89,9 @@ Evme.MarketAppsRenderer = function Evme_MarketAppsRenderer() {
 			app.icon = app.icon || DEFAULT_ICON;
 			result.draw(app.icon);
 
+			// used for result filtering
+			result.getElement().dataset.slug = app.slug;
+
 			docFrag.appendChild(el);
 		}
 

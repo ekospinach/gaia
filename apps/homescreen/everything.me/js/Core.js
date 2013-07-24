@@ -70,9 +70,7 @@ window.Evme = new function Evme_Core() {
 
     if (source === "homeButtonClick") {
       if (
-        Evme.Brain.Shortcuts.hideIfEditing() ||
-        Evme.Brain.ShortcutsCustomize.hideIfOpen() ||
-        Evme.Brain.ShortcutsCustomize.hideIfRequesting() ||
+        // TODO: smartfolder <select> hide
         Evme.Searchbar.clearIfHasQuery()) {
         return true;
       }
@@ -160,7 +158,9 @@ window.Evme = new function Evme_Core() {
           type: Evme.PROVIDER_TYPES.INSTALLED,
           config: {
             "renderer": Evme.InstalledAppsRenderer,
-            "containerEl": Evme.$(".installed", appsEl)[0]
+            "containerEl": Evme.$(".installed", appsEl)[0],
+            "containerSelector": ".installed",
+            "filterResults": true
           }
         }, {
           type: Evme.PROVIDER_TYPES.CLOUD,
@@ -193,7 +193,9 @@ window.Evme = new function Evme_Core() {
           type: Evme.PROVIDER_TYPES.STATIC,
           config: {
             "renderer": Evme.StaticAppsRenderer,
-            "containerEl": Evme.$(".static", smartFolderEl)[0]
+            "containerEl": Evme.$(".static", smartFolderEl)[0],
+            "containerSelector": ".static",
+            "filterResults": true
           }
         }, {
           type: Evme.PROVIDER_TYPES.CLOUD,

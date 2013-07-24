@@ -156,6 +156,16 @@
         .evmeScope .smart-folder .evme-apps ul.static li canvas {
             transform: scale(1);
         }
+        .evmeScope .smart-folder[data-mode='edit'] .evme-apps ul.static li canvas {
+          -moz-animation-name: shake;
+          -moz-animation-duration: .8s;
+          -moz-transform-origin: 50% 50%;
+          -moz-animation-iteration-count: infinite;
+          -moz-animation-timing-function: ease-out;
+        }
+        .evmeScope .smart-folder[data-mode='edit'] .evme-apps ul.static li span.remove {
+          display: block;
+        }
 
 
     .evmeScope .smart-folder #bgimage-overlay {
