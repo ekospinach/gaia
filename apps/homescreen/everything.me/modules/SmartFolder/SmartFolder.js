@@ -19,6 +19,7 @@
       elImageFullscreen = null,
       resultsManager = null,
       elFolderActions = null,
+      isFullScreenVisible = false,
 
       title = '',
 
@@ -104,6 +105,10 @@
     }
 
     this.hide = function hide() {
+      if (!currentSettings) {
+        return false;
+      }
+
       currentSettings = null;
 
       el.classList.remove(CLASS_WHEN_VISIBLE);
@@ -121,6 +126,8 @@
       Evme.EventHandler.trigger(NAME, "hide", {
         "folder": self
       });
+
+      return true;
     };
 
     this.isOpen = function isOpen(){
@@ -157,21 +164,32 @@
     };
 
     this.showFullscreen = function showFullScreen(e) {
+      if (isFullScreenVisible) {
+        return false;
+      }
+
       e && e.preventDefault();
       e && e.stopPropagation();
 
+      isFullScreenVisible = true;
       el.classList.add(CLASS_WHEN_ANIMATING);
       window.setTimeout(function onTimeout() {
         self.fadeImage(0);
         el.classList.add(CLASS_WHEN_IMAGE_FULLSCREEN);
-
       }, 10);
+
+      return true;
     };
 
     this.hideFullscreen = function hideFullscreen(e) {
+      if (!isFullScreenVisible) {
+        return false;
+      }
+
       e && e.preventDefault();
       e && e.stopPropagation();
 
+      isFullScreenVisible = false;
       el.classList.add(CLASS_WHEN_ANIMATING);
       window.setTimeout(function onTimeout() {
         self.fadeImage(1);
@@ -181,6 +199,8 @@
           el.classList.remove(CLASS_WHEN_ANIMATING);
         }, TRANSITION_DURATION);
       }, 10);
+
+      return true;
     };
 
     this.fadeImage = function fadeImage(howMuch) {
@@ -218,12 +238,18 @@
     };
 
     this.toggleEditMode = function toggleEditMode(bool) {
+      if (self.editMode === bool) {
+        return false;
+      }
+
       self.editMode = bool;
       if (bool) {
         el.dataset.mode = 'edit';
       } else {
         delete el.dataset.mode;
       }
+
+      return true;
     };
 
     function setStaticApps(apps, folderSettings) {

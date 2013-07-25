@@ -20,25 +20,8 @@ var EverythingME = {
     gridPage.addEventListener('gridpageshowstart', function onPageShowStart(){
       EvmeFacade.onShow();
     });
-    gridPage.addEventListener('gridpagehidestart', function onPageHideStart(){
-      EverythingME.pageHideBySwipe = true;
-    });
     gridPage.addEventListener('gridpagehideend', function onPageHideEnd() {
       EvmeFacade.onHide();
-      EverythingME.pageHideBySwipe = false;
-    });
-
-    window.addEventListener('hashchange', function hashChange(evt) {
-      if (document.location.hash === '#evme') {
-        return;
-      }
-
-      var captured = EvmeFacade.onHideStart(EverythingME.pageHideBySwipe ?
-                                            'pageSwipe' : 'homeButtonClick');
-      if (captured) {
-        evt.stopImmediatePropagation();
-        document.location.hash = '#evme';
-      }
     });
   },
 

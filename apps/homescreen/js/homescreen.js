@@ -20,7 +20,7 @@ var Homescreen = (function() {
       return;
     }
     
-    lPage = -1;
+    lPage = 0;
     
     PaginationBar.init('.paginationScroller');
 
@@ -40,16 +40,19 @@ var Homescreen = (function() {
     };
 
     GridManager.init(options, function gm_init() {
-      window.addEventListener('hashchange', function() {
-        if (document.location.hash != '#root')
+      window.addEventListener('hashchange', function onHashChange() {
+        if (!window.location.hash.replace('#', '')) {
           return;
+        }
 
-        // this happens when the user presses the 'home' button
-        if (Homescreen.isInEditMode()) {
+        if (Homescreen.didEvmePreventHomeButton()) {
+          // nothing to do here, just prevent any other actions
+        } else if (Homescreen.isInEditMode()) {
           exitFromEditMode();
         } else {
           GridManager.goToPage(landingPage);
         }
+
         GridManager.ensurePanning();
       });
 
@@ -236,6 +239,10 @@ var Homescreen = (function() {
 
     isInEditMode: function() {
       return mode === 'edit';
+    },
+
+    didEvmePreventHomeButton: function() {
+      return ("EvmeFacade" in window) && EvmeFacade.onHomeButtonPress();
     },
 
     init: initialize,

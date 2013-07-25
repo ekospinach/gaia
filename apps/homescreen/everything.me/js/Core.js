@@ -63,17 +63,22 @@ window.Evme = new function Evme_Core() {
     Evme.SmartFolder.hide();
   };
 
-  this.onHideStart = function onHideStart(source) {
-    Evme.SmartFolder.hide();
-
+  this.onHomeButtonPress = function onHomeButtonPress() {
     Evme.Searchbar.blur();
 
-    if (source === "homeButtonClick") {
-      if (
-        // TODO: smartfolder <select> hide
-        Evme.Searchbar.clearIfHasQuery()) {
-        return true;
-      }
+    if (
+      // hide suggested folders list if open
+      Evme.ShortcutsCustomize.hide() || 
+      // stop editing if active
+      Evme.SmartFolder.toggleEditMode(false) || 
+      // close full screen background image if visible
+      Evme.SmartFolder.hideFullscreen() || 
+      // hide the smart folder if visible
+      Evme.SmartFolder.hide() ||
+      // clear the searchbar and apps
+      (Evme.Searchbar.clearIfHasQuery() && document.body.classList.contains('evme-displayed'))
+    ) {
+      return true;
     }
 
     return false;

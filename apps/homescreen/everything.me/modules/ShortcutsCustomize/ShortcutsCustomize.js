@@ -1,6 +1,6 @@
 Evme.ShortcutsCustomize = new function Evme_ShortcutsCustomize() {
     var NAME = 'ShortcutsCustomize', self = this,
-        elList = null, elParent = null,
+        elList = null, elParent = null, active = false,
         savedIcons = null;
 
     this.init = function init(options) {
@@ -15,14 +15,27 @@ Evme.ShortcutsCustomize = new function Evme_ShortcutsCustomize() {
     };
 
     this.show = function show() {
-        elList.focus();
+      if (active) {
+        return false;
+      }
 
-        Evme.EventHandler.trigger(NAME, 'show');
+      active = true;
+      elList.focus();
+      Evme.EventHandler.trigger(NAME, 'show');
+
+      return true;
     };
 
     this.hide = function hide() {
-        window.focus();
-        elList.blur();
+      if (!active) {
+        return false;
+      }
+
+      active = false;
+      window.focus();
+      elList.blur();
+
+      return true;
     };
 
     this.newCustom = function newCustom() {
