@@ -529,7 +529,6 @@ Evme.Brain = new function Evme_Brain() {
     this.Tasker = new function Tasker() {
         var self = this;
 
-        this.TASK_UPDATE_SHORTCUT_ICONS = "updateShortcutIcons";
         this.TASK_UPDATE_INSTALLED_QUERY_INDEX = "installedQueryIndexUpdate";
 
         // module init
@@ -537,17 +536,6 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Tasker.add({
                 "id": self.TASK_UPDATE_INSTALLED_QUERY_INDEX
             });
-
-            Evme.Tasker.add({
-                "id": self.TASK_UPDATE_SHORTCUT_ICONS
-            });
-
-            // trigger when language changes. pass "true" to force the trigger
-            if (navigator.mozSettings) {
-                navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
-                    Evme.Tasker.trigger(self.TASK_UPDATE_SHORTCUT_ICONS);
-                });
-            }
         };
 
         // when a new task is added to the queue
@@ -570,84 +558,6 @@ Evme.Brain = new function Evme_Brain() {
 
         this['callback_' + this.TASK_UPDATE_INSTALLED_QUERY_INDEX] = function updateInstalledQueryIndex(taskData) {
             Evme.InstalledAppsService.requestAppsInfo();
-        };
-
-        this['callback_' + this.TASK_UPDATE_SHORTCUT_ICONS] = function updateShortcutIcons(taskData) {
-            if (Evme.Brain.ShortcutsCustomize.isOpen()) {
-                return false;
-            }
-
-            Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data) {
-                var appsKey = [],
-                    currentShortcuts = data && data.response && data.response.shortcuts || [],
-                    shortcutsToSend = {};
-
-                for (var i = 0, shortcut, query; shortcut = currentShortcuts[i++];) {
-                    query = shortcut.query;
-
-                    if (shortcut.experienceId && !query) {
-                        query = Evme.Utils.l10n('shortcut', 'id-' + Evme.Utils.shortcutIdToKey(shortcut.experienceId));
-                    }
-
-                    if (query) {
-                        shortcutsToSend[query.toLowerCase()] = shortcut.experienceId;
-                    }
-
-                    // the appsKey will be used later on to determine change
-                    appsKey = appsKey.concat(shortcut.appIds);
-                }
-
-                // re-request all the user's shortcuts to upadte them from the API
-                // otherwise the shortcut icons will remain static and will never change, even if
-                // the apps inside them have
-                Evme.DoATAPI.shortcutsGet({
-                    "queries": JSON.stringify(Object.keys(shortcutsToSend)),
-                    "_NOCACHE": true
-                }, function onShortcutsGet(response) {
-                    var shortcuts = response.response.shortcuts,
-                        icons = response.response.icons,
-                        newAppsKey = [];
-
-                    if (!shortcuts || !icons) {
-                        return;
-                    }
-
-                    // create a key from the new shortcuts' icons to determine change
-                    for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
-                        newAppsKey = newAppsKey.concat(shortcut.appIds);
-                    }
-
-                    // if the icons haven't changed- no need to update everything and cause a UI refresh
-                    if (appsKey.join(',') === newAppsKey.join(',')) {
-                        Evme.Utils.log('Shortcuts keys are the same- no need to refresh')
-                        return;
-                    }
-
-                    // experience is more "important" than the query, so if we got it
-                    // we reomve the query
-                    for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
-                        if (!shortcut.experienceId) {
-                            shortcut.experienceId = shortcutsToSend[shortcut.query];
-                        }
-                        if (shortcut.experienceId) {
-                            delete shortcut.query;
-                        }
-                    }
-
-                    Evme.Utils.log('Updating shortcuts: ' + JSON.stringify(shortcuts));
-
-                    Evme.DoATAPI.Shortcuts.clear(function onShortcuteCleared() {
-                        Evme.DoATAPI.Shortcuts.add({
-                            "shortcuts": shortcuts,
-                            "icons": icons
-                        }, function onSuccess() {
-                            Brain.Shortcuts.loadFromAPI();
-                        });
-                    });
-                });
-
-                return true;
-            });
         };
     };
 
@@ -1102,8 +1012,6 @@ Evme.Brain = new function Evme_Brain() {
             }, function onSuccess(data) {
                 Evme.SmartfolderResults.APIData.onResponseRecieved(data.response);
 
-                updateShortcutIcons(experienceId || query, data.response.apps);
-
                 requestSmartFolderApps = null;
 
                 Evme.Location.updateIfNeeded();
@@ -1178,31 +1086,6 @@ Evme.Brain = new function Evme_Brain() {
             });
         };
 
-        function updateShortcutIcons(key, apps) {
-            var shortcutsToUpdate = {},
-                icons = {},
-                numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
-
-            shortcutsToUpdate[key] = [];
-            for (var i = 0, app; i < numberOfIconsInShortcut; i++) {
-                app = apps[i];
-                icons[app.id] = app.icon;
-                shortcutsToUpdate[key].push(app.id);
-            }
-
-            Evme.DoATAPI.Shortcuts.update({
-                "shortcuts": shortcutsToUpdate,
-                "icons": icons
-            }, function onShortcutsUpdated() {
-                for (var key in shortcutsToUpdate) {
-                    var shortcut = Evme.Shortcuts.getShortcutByKey(key);
-                    if (shortcut) {
-                        shortcut.setImage(shortcutsToUpdate[key]);
-                    }
-                }
-            });
-        }
-
         this.actionAddApp = function actionAddApp(data) {
             // create <select multiple>
             var select = new Evme.SelectBox();
@@ -1237,86 +1120,6 @@ Evme.Brain = new function Evme_Brain() {
             }
             // load apps into select and show
             select.load(appArray);
-        };
-    };
-
-    // modules/Shortcuts/
-    this.Shortcuts = new function Shortcuts() {
-        var self = this,
-            customizeInited = false,
-            timeoutShowLoading = null,
-            clickedCustomizeHandle = false,
-            loadingCustomization = false;
-        
-        // module was inited
-        this.init = function init() {
-            //elContainer.addEventListener('click', checkCustomizeDone);
-        };
-
-        // show
-        this.show = function show() {
-            //self.loadFromAPI();
-        };
-
-        /// load items from API (as opposed to persistent storage)
-        this.loadFromAPI = function loadFromAPI() {
-            //Evme.DoATAPI.Shortcuts.get(null, function onSuccess(data) {
-            //    Evme.Shortcuts.load(data.response);
-            //});
-        };
-
-        // return to normal shortcut mode
-        this.doneEdit = function doneEdit() {
-            if (!Evme.Shortcuts.isEditing) return;
-
-            Evme.Shortcuts.isEditing = false;
-            elContainer.classList.remove("shortcuts-customizing");
-        };
-
-        // returns edit status
-        this.isEditing = function isEditing() {
-            return Evme.Shortcuts.isEditing;
-        };
-
-        // checks all clicks inside our app, and stops the customizing mode
-        function checkCustomizeDone(e) {
-            if (e.target.tagName === 'DIV' || e.target.tagName === 'UL') {
-                if (!e.target.classList.contains('apps-group')) {
-                    Brain.Shortcuts.doneEdit();
-                }
-            }
-        }
-
-        // stops editing (if active)
-        this.hideIfEditing = function hideIfEditing() {
-            if (self.isEditing()) {
-                self.doneEdit();
-                return true;
-            }
-
-            return false;
-        };
-    };
-
-    // modules/Shortcuts/
-    this.Shortcut = new function Shortcut() {
-        // item clicked and held, remove item mode
-        this.hold = function hold() {
-            Evme.Shortcuts.isEditing = true;
-            elContainer.classList.add("shortcuts-customizing");
-        };
-
-        // item clicked
-        this.click = function click(data) {
-            // TOOD remove
-        };
-
-        // item remove
-        this.remove = function remove(data) {
-            Evme.Utils.log('Remove shortcut: ' + JSON.stringify(data));
-
-            Evme.Shortcuts.remove(data.shortcut);
-            Evme.DoATAPI.Shortcuts.remove(data.data);
         };
     };
 

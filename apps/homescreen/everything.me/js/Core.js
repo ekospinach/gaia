@@ -109,13 +109,6 @@ window.Evme = new function Evme_Core() {
       "requestTimeout": data.locationRequestTimeout
     });
 
-    Evme.Shortcuts.init({
-      "el": Evme.$("#shortcuts"),
-      "elLoading": Evme.$("#shortcuts-loading"),
-      "design": data.design.shortcuts,
-      "defaultShortcuts": data._defaultShortcuts
-    });
-
     Evme.ShortcutsCustomize.init({
       "elParent": Evme.Utils.getContainer()
     });

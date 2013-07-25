@@ -19,9 +19,7 @@ var Homescreen = (function() {
     if (initialized) {
       return;
     }
-    
-    lPage = 0;
-    
+
     PaginationBar.init('.paginationScroller');
 
     initialized = true;

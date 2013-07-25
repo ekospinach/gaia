@@ -875,7 +875,6 @@ var GridManager = (function() {
     // not backed by the app database. Note that this creates an
     // offset between these indexes here and the ones in the DB.
     // See also pageHelper.saveAll().
-    // TODOEVME: fix this to be dynamic
     numberOfSpecialPages = container.children.length;
     landingPage = numberOfSpecialPages - 1;
     prevLandingPage = landingPage - 1;

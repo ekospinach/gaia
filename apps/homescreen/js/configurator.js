@@ -3,17 +3,16 @@
 
 var Configurator = (function() {
   var conf = {},
-      NO_LANDING = true; // TODOEVME
 
-  var dummyProvider = {
-    init: function() {
-      // Do nothing
-    },
+      dummyProvider = {
+        init: function() {
+          // Do nothing
+        },
 
-    destroy: function() {
-      // Do nothing
-    }
-  };
+        destroy: function() {
+          // Do nothing
+        }
+      };
 
   function load(file) {
     var xhr = new XMLHttpRequest();
@@ -29,7 +28,7 @@ var Configurator = (function() {
         if (searchPage) {
           var provider = window[searchPage.provider] || dummyProvider;
           if (searchPage.enabled) {
-            Homescreen.init(NO_LANDING? -1 : 1, function onInit() {
+            Homescreen.init(0, function onInit() {
               provider.init();
             });
           } else {
@@ -60,8 +59,7 @@ var Configurator = (function() {
     }
 
     if (Homescreen) {
-      // TODO passing hard-coded -1 (no landing page), should come from config
-      Homescreen.init(NO_LANDING? -1 : 0);
+      Homescreen.init(0);
     }
   }
 
