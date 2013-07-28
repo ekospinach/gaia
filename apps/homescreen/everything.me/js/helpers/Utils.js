@@ -746,6 +746,10 @@ Evme.$create = function Evme_$create(tagName, attributes, html) {
     return el;
 };
 
+Evme.$isVisible = function Evme_$isVisible(el){
+    return !!el.offsetWidth && getComputedStyle(el).visibility === "visible";
+};
+
 Evme.htmlRegex = /</g;
 Evme.html = function Evme_html(html) {
   return (html || '').replace(Evme.htmlRegex, '&lt;');

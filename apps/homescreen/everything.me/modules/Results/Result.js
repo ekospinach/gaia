@@ -95,9 +95,13 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			}
 		}
 
-		function setImageSrc(src) {
+		function setImageSrc(src) {		
 			image.onload = self.onAppIconLoad;
 			image.src = src;
+
+			// save reference to the raw, unmaniputaled icon
+			// used when closing a folder to update it's homescreen icon
+			el.dataset.iconSrc = src;
 		}
 	};
 
