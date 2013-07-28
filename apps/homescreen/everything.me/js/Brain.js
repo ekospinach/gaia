@@ -1237,19 +1237,16 @@ Evme.Brain = new function Evme_Brain() {
 
                 Evme.SmartFolderSuggest.Loading.show();
 
-                var gridFolders = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_SMART_FOLDERS),
-                    existingShortcuts = [];
+                Evme.SmartFolderStorage.getAllFolders(function onFolders(folders) {
+                  var existingFoldersQueries = [];
+                  for (var i=0,folder; folder=folders[i++];) {
+                    existingFoldersQueries.push(folder.query);
+                  }
 
-                for (var i=0,folder; folder=gridFolders[i++];) {
-                  // TODOEVME: need to get all folders' queries
-                  // do we need to call SmartFolderStorage with each folder?
-                  // is it possible to just get all the folders from the storage, instead of using the grid?
-                }
-
-                // load suggested shortcuts from API
-                requestSuggest = Evme.DoATAPI.Shortcuts.suggest({
-                    "existing": existingShortcuts
-                }, function onSuccess(data) {
+                  // load suggested shortcuts from API
+                  requestSuggest = Evme.DoATAPI.Shortcuts.suggest({
+                      "existing": existingFoldersQueries
+                  }, function onSuccess(data) {
                     var suggestedShortcuts = data.response.shortcuts || [],
                         icons = data.response.icons || {};
 
@@ -1265,8 +1262,8 @@ Evme.Brain = new function Evme_Brain() {
                       Evme.SmartFolderSuggest.Loading.hide();
                     } else {
                       Evme.SmartFolderSuggest.load({
-                          "shortcuts": suggestedShortcuts,
-                          "icons": icons
+                        "shortcuts": suggestedShortcuts,
+                        "icons": icons
                       });
   
                       Evme.SmartFolderSuggest.show();
@@ -1274,6 +1271,7 @@ Evme.Brain = new function Evme_Brain() {
                       // otherwise there's visible flickering
                       window.setTimeout(Evme.SmartFolderSuggest.Loading.hide, 300);
                     }
+                  });
                 });
             });
         };

@@ -549,6 +549,22 @@
       return ids;
     };
 
+    this.getAllFolders = function getAllFolders(callback) {
+      var ids = self.getAllIds(),
+          folders = [];
+
+      for (var i = 0, id; id = ids[i++];) {
+        self.get(id, onGotFolderSettings);
+      }
+
+      function onGotFolderSettings(folderSettings) {
+        folders.push(folderSettings);
+        if (folders.length === ids.length) {
+          callback(folders);
+        }
+      }
+    };
+
     // TODO handle sync. issues (read/write)
     function addId(id) {
       if (ids === null) {
