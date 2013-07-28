@@ -537,7 +537,8 @@
       IDS_STORAGE_KEY = "evmeSmartFolders",
       PREFIX = "fldrsttngs_",
       self = this,
-      ids = null;
+      ids = null,
+      locked = false;  // locks the ids list
 
     this.init = function init() {
       Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds){
@@ -547,8 +548,9 @@
       window.addEventListener('folderUninstalled', this.remove);
     };
 
-    this.remove = function remove(gridFolder) {
-      Evme.Storage.remove(PREFIX + gridFolder.id);
+    this.remove = function remove(e) {
+      var folderId = e.detail.folder.id;
+      removeId(folderId);
     }
     
     this.add = function add(folderSettings, cb) {
@@ -596,17 +598,45 @@
       }
     };
 
-    // TODO handle sync. issues (read/write)
     function addId(id) {
-      if (ids === null) {
-        setTimeout(function retry() {
-          Evme.Utils.warn("SmartFolderStorage: addId called but storage is not ready. Will retry.");
-          addId(id);
-        }, 100);
-      } else {
-        ids.push(id);
-        Evme.Storage.set(IDS_STORAGE_KEY, ids);
+      if (ids === null || locked) {
+        setTimeout(function retry() {addId(id); }, 100);
+        return;
       }
+
+      try {
+        lock();
+        ids.push(id);
+        Evme.Storage.set(IDS_STORAGE_KEY, ids, unlock);
+      } catch (ex) {
+        unlock();
+      }
+    }
+
+    function removeId(id) {
+      if (ids === null || locked) {
+        setTimeout(function retry() {removeId(id); }, 100);
+        return;     
+      }
+
+      try {
+        lock();
+        ids = ids.filter(function neqId(storedId) {return storedId !== id }); 
+        Evme.SmartFolderStorage.set(IDS_STORAGE_KEY, ids, function onRemoved(){
+          unlock();
+          Evme.Storage.remove(PREFIX + folderId);
+        });
+      } catch (ex) {
+        unlock();
+      }
+    }
+
+    function lock(){
+      locked = true;
+    }
+
+    function unlock(){
+      locked = false;
     }
   };
 }();
