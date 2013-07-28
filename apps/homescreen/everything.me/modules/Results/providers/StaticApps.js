@@ -44,7 +44,7 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
         appUrls = [];
 
     for (var i = 0, app; app = apps[i++];) {
-      app.removeButton = true;
+      app.isRemovable = true;
       
       var result = new Evme.StaticAppResult(),
           el = result.init(app);

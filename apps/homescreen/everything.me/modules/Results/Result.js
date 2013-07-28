@@ -56,7 +56,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		this.context = this.canvas.getContext('2d');
 
 		// remove button
-		if (app.removeButton) {
+		if (app.isRemovable) {
 			var removeButton = Evme.$create('span', {
 				'class': 'remove' 
 			});
