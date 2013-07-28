@@ -758,10 +758,10 @@ Evme.Analytics = new function Evme_Analytics() {
         };
     };
     
-    this.ShortcutsCustomize = new function ShortcutsCustomize() {
+    this.SmartFolderSuggest = new function SmartFolderSuggest() {
         this.show = function show(data) {
             queue({
-                "class": "ShortcutsCustomize",
+                "class": "SmartFolderSuggest",
                 "event": "show",
                 "data": data
             });
@@ -769,7 +769,7 @@ Evme.Analytics = new function Evme_Analytics() {
         
         this.done = function done(data) {
             queue({
-                "class": "ShortcutsCustomize",
+                "class": "SmartFolderSuggest",
                 "event": "done",
                 "data": data
             });

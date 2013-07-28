@@ -1,5 +1,5 @@
-Evme.ShortcutsCustomize = new function Evme_ShortcutsCustomize() {
-  var NAME = 'ShortcutsCustomize', self = this,
+Evme.SmartFolderSuggest = new function Evme_SmartFolderSuggest() {
+  var NAME = 'SmartFolderSuggest', self = this,
       elList = null, elParent = null, active = false,
       savedIcons = null;
 

@@ -35,7 +35,7 @@
         };
 
         var ProgressIndicator = new function ProgressIndicator() {
-            var NAME = 'shortcutscustomize',
+            var NAME = 'SmartFolderSuggest',
                 active = false,
                 el;
 

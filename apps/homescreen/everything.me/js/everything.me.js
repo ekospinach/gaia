@@ -69,7 +69,7 @@ var EverythingME = {
           'modules/Results/ResultManager.js',
           'modules/Searchbar/Searchbar.js',
           'modules/SearchHistory/SearchHistory.js',
-          'modules/ShortcutsCustomize/ShortcutsCustomize.js',
+          'modules/SmartFolderSuggest/SmartFolderSuggest.js',
           'modules/SmartFolder/SmartFolder.js',
           'modules/Tasker/Tasker.js'
       ];
@@ -81,7 +81,7 @@ var EverythingME = {
         'modules/Helper/Helper.css',
         'modules/Results/Results.css',
         'modules/Searchbar/Searchbar.css',
-        'modules/ShortcutsCustomize/ShortcutsCustomize.css',
+        'modules/SmartFolderSuggest/SmartFolderSuggest.css',
         'modules/SmartFolder/SmartFolder.css'
     ];
 

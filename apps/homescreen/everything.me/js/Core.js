@@ -68,7 +68,7 @@ window.Evme = new function Evme_Core() {
 
     if (
       // hide suggested folders list if open
-      Evme.ShortcutsCustomize.hide() || 
+      Evme.SmartFolderSuggest.hide() || 
       // stop editing if active
       Evme.SmartFolder.toggleEditMode(false) || 
       // close full screen background image if visible
@@ -85,11 +85,11 @@ window.Evme = new function Evme_Core() {
   };
 
   this.onSmartfolderSuggest = function onSmartfolderSuggest() {
-    Evme.Brain.ShortcutsCustomize.showUI();
+    Evme.Brain.SmartFolderSuggest.showUI();
   };
   
   this.onSmartfolderCustom = function onSmartfolderCustom() {
-    Evme.ShortcutsCustomize.newCustom();
+    Evme.SmartFolderSuggest.newCustom();
   };
 
   function initObjects(data) {
@@ -109,7 +109,7 @@ window.Evme = new function Evme_Core() {
       "requestTimeout": data.locationRequestTimeout
     });
 
-    Evme.ShortcutsCustomize.init({
+    Evme.SmartFolderSuggest.init({
       "elParent": Evme.Utils.getContainer()
     });
 

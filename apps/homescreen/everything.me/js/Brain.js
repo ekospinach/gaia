@@ -1123,8 +1123,8 @@ Evme.Brain = new function Evme_Brain() {
         };
     };
 
-    // modules/ShortcutsCustomize/
-    this.ShortcutsCustomize = new function ShortcutsCustomize() {
+    // modules/SmartFolderSuggest/
+    this.SmartFolderSuggest = new function SmartFolderSuggest() {
         var self = this,
             isRequesting = false,
             isFirstShow = true,
@@ -1136,7 +1136,7 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.hide = function hide() {
-            Evme.ShortcutsCustomize.Loading.hide();
+            Evme.SmartFolderSuggest.Loading.hide();
             isOpen = false;
         };
         
@@ -1150,7 +1150,7 @@ Evme.Brain = new function Evme_Brain() {
 
         this.hideIfOpen = function hideIfOpen() {
             if (isOpen) {
-                Evme.ShortcutsCustomize.hide();
+                Evme.SmartFolderSuggest.hide();
                 return true;
             }
             
@@ -1235,7 +1235,7 @@ Evme.Brain = new function Evme_Brain() {
                     return;
                 }
 
-                Evme.ShortcutsCustomize.Loading.show();
+                Evme.SmartFolderSuggest.Loading.show();
 
                 var gridFolders = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_SMART_FOLDERS),
                     existingShortcuts = [];
@@ -1262,17 +1262,17 @@ Evme.Brain = new function Evme_Brain() {
 
                     if (suggestedShortcuts.length === 0) {
                       window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'no-more-shortcuts'));
-                      Evme.ShortcutsCustomize.Loading.hide();
+                      Evme.SmartFolderSuggest.Loading.hide();
                     } else {
-                      Evme.ShortcutsCustomize.load({
+                      Evme.SmartFolderSuggest.load({
                           "shortcuts": suggestedShortcuts,
                           "icons": icons
                       });
   
-                      Evme.ShortcutsCustomize.show();
+                      Evme.SmartFolderSuggest.show();
                       // setting timeout to give the select box enough time to show
                       // otherwise there's visible flickering
-                      window.setTimeout(Evme.ShortcutsCustomize.Loading.hide, 300);
+                      window.setTimeout(Evme.SmartFolderSuggest.Loading.hide, 300);
                     }
                 });
             });
@@ -1284,7 +1284,7 @@ Evme.Brain = new function Evme_Brain() {
             data && data.e.stopPropagation();
 
             requestSuggest && requestSuggest.abort && requestSuggest.abort();
-            window.setTimeout(Evme.ShortcutsCustomize.Loading.hide, 50);
+            window.setTimeout(Evme.SmartFolderSuggest.Loading.hide, 50);
             isRequesting = false;
         };
     };

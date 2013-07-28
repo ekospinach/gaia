@@ -719,8 +719,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         
         if (useCache) {
             cacheKey = getCacheKey(methodNamespace, methodName, params);
-            Evme.Utils.log('evyatar cacheKey: ' + cacheKey);
-            
+
             if (!ignoreCache) {
                 Evme.Storage.get(cacheKey, function storageGot(responseFromCache) {
                     if (responseFromCache) {
