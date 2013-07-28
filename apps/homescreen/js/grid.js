@@ -850,6 +850,17 @@ var GridManager = (function() {
     return apps;
   }
 
+  function getFolders() {
+    var apps = [], app;
+    for (var origin in appsByOrigin) {
+      app = appsByOrigin[origin];
+      if (app.isFolder){
+        apps.push(app);
+      }
+    }
+    return apps;
+  }
+
   function getAppByOrigin(url) {
     return appsByOrigin[url];
   }
@@ -1385,6 +1396,8 @@ var GridManager = (function() {
     getIconForBookmark: getIconForBookmark,
 
     getApps: getApps,
+
+    getFolders: getFolders,
 
     getAppByOrigin: getAppByOrigin,
 

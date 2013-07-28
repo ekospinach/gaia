@@ -21,6 +21,7 @@ Evme.Utils = new function Evme_Utils() {
             "HIDE_MENU": "hide-menu",
             "MENU_HEIGHT": "menu-height",
             "GET_ALL_APPS": "get-all-apps",
+            "GET_SMART_FOLDERS": "get-folders",
       	    "GET_APP_INFO": "get-app-info",
       	    "GET_ICON_SIZE": "get-icon-size",
       	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
@@ -172,6 +173,8 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.getMenuHeight();
             case OSMessages.GET_ALL_APPS:
                 return EvmeManager.getApps();
+            case OSMessages.GET_SMART_FOLDERS:
+                return EvmeManager.getFolders();
       	    case OSMessages.GET_APP_INFO:
                 return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:

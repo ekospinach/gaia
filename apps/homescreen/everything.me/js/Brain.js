@@ -1197,7 +1197,7 @@ Evme.Brain = new function Evme_Brain() {
           }
 
           // get the query's apps (icons)
-          Evme.DoATAPI.shortcutsGet({
+          Evme.DoATAPI.Shortcuts.get({
             "queries": JSON.stringify(queries),
             "_NOCACHE": true
           }, function onShortcutsGet(response) {
@@ -1234,11 +1234,17 @@ Evme.Brain = new function Evme_Brain() {
                     
                     return;
                 }
-                
+
                 Evme.ShortcutsCustomize.Loading.show();
-                
-                // need to get from the GridManager
-                var existingShortcuts = [];
+
+                var gridFolders = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_SMART_FOLDERS),
+                    existingShortcuts = [];
+
+                for (var i=0,folder; folder=gridFolders[i++];) {
+                  // TODOEVME: need to get all folders' queries
+                  // do we need to call SmartFolderStorage with each folder?
+                  // is it possible to just get all the folders from the storage, instead of using the grid?
+                }
 
                 // load suggested shortcuts from API
                 requestSuggest = Evme.DoATAPI.Shortcuts.suggest({
@@ -1247,7 +1253,7 @@ Evme.Brain = new function Evme_Brain() {
                     var suggestedShortcuts = data.response.shortcuts || [],
                         icons = data.response.icons || {};
 
-                    if(!isRequesting) {
+                    if (!isRequesting) {
                       return;
                     }
 

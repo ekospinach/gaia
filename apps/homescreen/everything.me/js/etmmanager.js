@@ -82,6 +82,13 @@ var EvmeManager = (function EvmeManager() {
     function getApps() {
         return GridManager.getApps();
     }
+    
+    /**
+     * Returns only the smart folders on the user's phone
+     */
+    function getFolders() {
+        return GridManager.getFolders();
+    }
 
     function getAppInfo(gridApp, cb) {
         cb = cb || Evme.Utils.NOOP;
@@ -178,27 +185,28 @@ var EvmeManager = (function EvmeManager() {
     }
 
     return {
-        openApp: openApp,
+      openApp: openApp,
 
-        addBookmark: addBookmark,
-        hideFromGrid: hideFromGrid,
+      addBookmark: addBookmark,
+      hideFromGrid: hideFromGrid,
 
-        isAppInstalled: function isAppInstalled(url) {
-            return GridManager.getIconForBookmark(url) ||
-                   GridManager.getAppByOrigin(url);
-        },
-        getApps: getApps,
-    	getAppInfo: getAppInfo,
+      isAppInstalled: function isAppInstalled(url) {
+          return GridManager.getIconForBookmark(url) ||
+                 GridManager.getAppByOrigin(url);
+      },
+      getApps: getApps,
+      getFolders: getFolders,
+  	  getAppInfo: getAppInfo,
 
-        openUrl: openUrl,
-    	openMarketplaceApp: openMarketplaceApp,
-    	openMarketplaceSearch: openMarketplaceSearch,
+      openUrl: openUrl,
+  	  openMarketplaceApp: openMarketplaceApp,
+  	  openMarketplaceSearch: openMarketplaceSearch,
 
-        menuShow: menuShow,
-        menuHide: menuHide,
-        getMenuHeight: getMenuHeight,
+      menuShow: menuShow,
+      menuHide: menuHide,
+      getMenuHeight: getMenuHeight,
 
-        getIconSize: getIconSize
+      getIconSize: getIconSize
     };
 }());
 

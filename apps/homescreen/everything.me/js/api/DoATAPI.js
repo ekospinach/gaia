@@ -39,7 +39,8 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         requestsToCache = {
             "Search.apps": true,
             "Search.bgimage": true,
-            "Shortcuts.get": 60*24*2,
+            "Shortcuts.get": 2 * 24 * 60,
+            "Shortcuts.suggestions": 2 * 24 * 60,
             "Search.trending": true
         },
         requestsThatDontNeedConnection = {
@@ -265,6 +266,10 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     };
     
     this.shortcutsGet = function shortcutsGet(options, callback) {
+    };
+    
+    this.Shortcuts = new function Shortcuts() {
+      this.get = function get(options, callback) {
         !options && (options = {});
 
         var params = {
@@ -272,262 +277,27 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         };
 
         return request({
-            "methodNamespace": "Shortcuts",
-            "methodName": "get",
-            "params": params,
-            "callback": callback
+          "methodNamespace": "Shortcuts",
+          "methodName": "get",
+          "params": params,
+          "callback": callback
         }, options._NOCACHE);
-    };
-    
-    this.Shortcuts = new function Shortcuts() {
-        var self = this,
-            STORAGE_KEY_SHORTCUTS = "localShortcuts",
-            STORAGE_KEY_ICONS = "localShortcutsIcons",
-            queriesToAppIds = {},
-            didClear = false;
-        
-        this.get = function get(options, callback) {
-            Evme.Storage.get(STORAGE_KEY_SHORTCUTS, function storageShortcuts(shortcuts) {
-                Evme.Storage.get(STORAGE_KEY_ICONS, function storageIcons(icons) {
-                    if (!didClear && (!shortcuts || shortcuts.length === 0)) {
-                        Evme.Utils.log('No shortcuts, use default ones');
+      };
 
-                        shortcuts = Evme.__config['_' + STORAGE_KEY_SHORTCUTS];
-                        icons = Evme.__config['_' + STORAGE_KEY_ICONS];
-                    }
+      this.suggest = function suggest(options, callback) {
+        !options && (options = {});
 
-                    didClear = false;
-
-                    saveAppIds(shortcuts);
-
-                    callback && callback(createResponse(shortcuts, icons));
-                });
-            });
+        var params = {
+          "existing": JSON.stringify(options.existing || [])
         };
-        
-        this.clear = function clear(callback) {
-            queriesToAppIds = {};
-            didClear = true;
 
-            Evme.Storage.remove(STORAGE_KEY_SHORTCUTS, function onShortcutsRemoved() {
-              Evme.Storage.remove(STORAGE_KEY_ICONS, function onIconsRemoved() {
-                callback && callback();
-              });
-            });
-        };
-        
-        this.set = function set(options, callback) {
-            !options && (options = {});
-            
-            var shortcuts = options.shortcuts || [],
-                icons = options.icons || {};
-  
-            for (var i=0,shortcut; shortcut=shortcuts[i++];) {
-                if (typeof shortcut === "string") {
-                    shortcut = {
-                        "query": shortcut
-                    };
-                }
-                
-                shortcut.appIds = getAppIds(shortcut);
-                
-                shortcuts[i-1] = shortcut;
-            }
-
-            Evme.Utils.log('Saving ' + shortcuts.length + ' shortcuts');
-
-            Evme.Storage.set(STORAGE_KEY_SHORTCUTS, shortcuts, function onShortcutsSet() {
-              Evme.Storage.set(STORAGE_KEY_ICONS, icons, function onIconsSet() {
-                callback && callback();
-              });
-            });
-        };
-        
-        this.add = function add(options, callback) {
-            var shortcuts = options.shortcuts || [],
-                icons = options.icons || {};
-
-            if (!Array.isArray(shortcuts)) {
-              shortcuts = [shortcuts];
-            }
-
-            self.get(null, function onGetSuccess(data) {
-                var currentShortcuts = data.response.shortcuts || [],
-                    currentIcons = data.response.icons || {};
-                
-                Evme.Utils.log('Got ' + currentShortcuts.length + ' current shortcut, adding ' + shortcuts.length + ' new ones');
-                
-                for (var i=0,shortcut; shortcut=shortcuts[i++];) {
-                    if (contains(currentShortcuts, shortcut) === false) {
-                        currentShortcuts.push(shortcut);
-                    }
-                }
-                
-                for (var appId in icons) {
-                    currentIcons[appId] = icons[appId];
-                }
-                
-                self.set({
-                    "shortcuts": currentShortcuts,
-                    "icons": currentIcons
-                }, callback);
-            });
-            
-        }
-        
-        // this method gets icons or shortcuts and updates the single items in the DB
-        // options.icons should be a map of appId : icon
-        // options.shortcuts should be a map of experienceId/query : appIds
-        this.update = function update(options, callback) {
-          var icons = options.icons || {},
-              shortcuts = options.shortcuts || {};
-          
-          self.get(null, function onGetSuccess(data) {
-              var currentShortcuts = data.response.shortcuts || [],
-                  currentIcons = data.response.icons || {};
-              
-              for (var appId in icons) {
-                currentIcons[appId] = icons[appId];
-              }
-              
-              for (var i=0,shortcut,newShortcutData; i<currentShortcuts.length; i++) {
-                shortcut = currentShortcuts[i];
-                newShortcutData = shortcuts[shortcut.query] || shortcuts[shortcut.experienceId];
-                
-                if (newShortcutData) {
-                  currentShortcuts[i].appIds = newShortcutData;
-                  saveAppIds(currentShortcuts[i]);
-                }
-              }
-              
-              self.set({
-                  "shortcuts": currentShortcuts,
-                  "icons": currentIcons
-              }, callback);
-          });
-        };
-        
-        this.remove = function remove(shortcutToRemove) {
-            self.get({}, function onGetSuccess(data){
-                var shortcuts = data.response.shortcuts || [],
-                    icons = data.response.icons || {},
-                    allAppIds = {},
-                    shortcutIndex = contains(shortcuts, shortcutToRemove);
-                    
-                if (shortcutIndex === false) {
-                    Evme.Utils.log('Warning: didn\'t find shortcut to remove');
-                    return;
-                }
-                
-                Evme.Utils.log('Found shortcut at: ' + shortcutIndex);
-                
-                for (var i=0,shortcut; shortcut=shortcuts[i++];) {
-                    var needToRemoveIcons = false;
-                    
-                    if (i-1 === shortcutIndex) {
-                        Evme.Utils.log('Found shortcut to remove at ' + (i-1));
-                        shortcuts.splice(i-1, 1);
-                        needToRemoveIcons = true;
-                    }
-                    
-                    for (var j=0,app,appId; app=shortcut.appIds[j++];) {
-                        appId = app.id || app;
-                        
-                        if (!allAppIds[appId]) {
-                            allAppIds[appId] = {
-                                "num": 0,
-                                "needToRemove": needToRemoveIcons
-                            };
-                        }
-                        allAppIds[appId].num++;
-                    }   
-                }
-                
-                // after the shortcut itself was removed,
-                // we check if its icons are associated with other shortcuts
-                for (var appId in allAppIds) {
-                    if (allAppIds[appId].needToRemove && allAppIds[appId].num < 2) {
-                        delete icons[appId];
-                    }
-                }
-                
-                Evme.Utils.log('Left with ' + shortcuts.length + ' shortcuts');
-                
-                self.set({
-                    "shortcuts": shortcuts,
-                    "icons": icons
-                });
-            });
-        };
-        
-        this.suggest = function suggest(options, callback) {
-            !options && (options = {});
-            
-            var params = {
-                "existing": JSON.stringify(options.existing || [])
-            };
-            
-            return request({
-                "methodNamespace": "Shortcuts",
-                "methodName": "suggestions",
-                "params": params,
-                "callback": function onRequestSuccess(data) {
-                    saveAppIds(data.response.shortcuts);
-                    callback && callback(data);
-                }
-            }, options._NOCACHE);
-        };
-        
-        // check if a list of shortcuts contain the given shortcut
-        // not a simple indexOf since a shortcut is either a query or an experienceId
-        function contains(shortcuts, shortcut) {
-            if (!shortcuts) {
-              return false;
-            }
-
-            for (var i=0,shortcutToCheck; shortcutToCheck=shortcuts[i++];) {
-                var experienceId1 = shortcutToCheck.experienceId,
-                    experienceId2 = shortcut.experienceId,
-                    query1 = shortcutToCheck.query,
-                    query2 = shortcut.query;
-                    
-                if ((experienceId1 && experienceId2 && experienceId1 === experienceId2) ||
-                    (query1 && query2 && query1 === query2)) {
-                    return i-1;
-                }
-            }
-            
-            return false;
-        }
-        
-        function saveAppIds(shortcuts) {
-            if (!shortcuts) {
-              return;
-            }
-            
-            if (!Array.isArray(shortcuts)) {
-              shortcuts = [shortcuts];
-            }
-            
-            for (var i=0,shortcut,value; shortcut=shortcuts[i++];) {
-                value = (shortcut.experienceId || shortcut.query).toString().toLowerCase();
-                queriesToAppIds[value] = shortcut.appIds;
-            }
-        }
-        
-        function getAppIds(shortcut) {
-            var value = (shortcut.experienceId || shortcut.query).toString().toLowerCase();
-            return shortcut.appIds || queriesToAppIds[value]  || [];
-        }
-        
-        function createResponse(shortcuts, icons) {
-            return {
-                "response": {
-                    "shortcuts": Evme.Utils.cloneObject(shortcuts),
-                    "icons": icons
-                }
-            };
-        }
+        return request({
+          "methodNamespace": "Shortcuts",
+          "methodName": "suggestions",
+          "params": params,
+          "callback": callback
+        });
+      };
     };
     
     this.trending = function trending(options, callback) {
@@ -949,6 +719,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         
         if (useCache) {
             cacheKey = getCacheKey(methodNamespace, methodName, params);
+            Evme.Utils.log('evyatar cacheKey: ' + cacheKey);
             
             if (!ignoreCache) {
                 Evme.Storage.get(cacheKey, function storageGot(responseFromCache) {
