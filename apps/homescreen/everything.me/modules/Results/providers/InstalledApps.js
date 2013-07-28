@@ -247,7 +247,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     return ids;
   };
 
-  function onAppInstallChanged(e) {
+  function onAppInstallChanged() {
     createAppIndex();
     self.requestAppsInfo();
   }

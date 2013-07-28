@@ -1283,13 +1283,13 @@ var GridManager = (function() {
       if (app.isFolder){
         window.dispatchEvent(new CustomEvent('folderInstalled', {
           'detail': {
-            'application': app
+            'folder': app
           }
         }));
       } else {
         window.dispatchEvent(new CustomEvent('appInstalled', {
           'detail': {
-            'folder': app
+            'app': app
           }
         }));
       }
@@ -1369,13 +1369,13 @@ var GridManager = (function() {
       if (app.isFolder){
         window.dispatchEvent(new CustomEvent('folderUninstalled', {
           'detail': {
-            'application': app
+            'folder': app
           }
         }));
       } else {
         window.dispatchEvent(new CustomEvent('appUninstalled', {
           'detail': {
-            'folder': app
+            'app': app
           }
         }));
       }
