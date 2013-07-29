@@ -4,6 +4,8 @@
  * 
  */
  void function() {
+  var NUM_APPS_IN_FOLDER_ICON = 3; // how many icons appear in a folder icon
+
   Evme.SmartFolder = new function Evme_SmartFolder() {
     var self = this,
       NAME = "SmartFolder",
@@ -26,7 +28,10 @@
       CLASS_WHEN_VISIBLE = 'visible',
       CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
       CLASS_WHEN_ANIMATING = 'animate',
-      TRANSITION_DURATION = 400;
+      TRANSITION_DURATION = 400,
+
+      // number of preinstalled folders to create on the first page
+      NUM_FOLDERS_FIRST_PAGE = 6;
 
     this.init = function init(options) {
       var actionsButtons;
@@ -265,7 +270,7 @@
       for (var i = 0, item; item = items[i++];) {
         if (Evme.$isVisible(item)) icons.push(item.dataset.iconSrc);
 
-        if (icons.length === 3) break;
+        if (icons.length === NUM_APPS_IN_FOLDER_ICON) break;
       }
 
       if (icons.length){
@@ -317,8 +322,7 @@
     }
 
     function initPreinstalled() {
-      var cacheKey = 'createdInitialShortcuts',
-        appsFirstPage = 8;
+      var cacheKey = 'createdInitialShortcuts';
 
       Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
         if (didInitShortcuts) {
@@ -331,8 +335,8 @@
         for (var i = 0; i < defaultShortcuts.length; i++) {
           var shortcut = defaultShortcuts[i],
             gridPosition = {
-              "page": (i < appsFirstPage) ? 0 : 1,
-              "index": (i < appsFirstPage) ? i : (i % appsFirstPage)
+              "page": (i < NUM_FOLDERS_FIRST_PAGE) ? 0 : 1,
+              "index": (i < NUM_FOLDERS_FIRST_PAGE) ? i : (i % NUM_FOLDERS_FIRST_PAGE)
             };
 
           var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
@@ -524,7 +528,7 @@
 
   function mergeAppIcons(apps, icons) {
     if (!apps || !apps.length) return icons;
-    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, 3);
+    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, NUM_APPS_IN_FOLDER_ICON);
   }
 
 
