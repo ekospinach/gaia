@@ -33,6 +33,8 @@
       // number of preinstalled folders to create on the first page
       NUM_FOLDERS_FIRST_PAGE = 6;
 
+    this.editMode = false;
+
     this.init = function init(options) {
       var actionsButtons;
 

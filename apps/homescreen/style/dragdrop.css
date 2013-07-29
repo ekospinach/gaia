@@ -8,8 +8,8 @@
 
 .draggable > div {
   width: 100%;
-	margin-top: .4rem;
-	margin-bottom: .4rem;
+  margin-top: .4rem;
+  margin-bottom: .4rem;
   -moz-transform: scale(1.15);
   -moz-transition: -moz-transform .3s;
 }
@@ -29,15 +29,15 @@
 }
 
 .overDock > div > *:not(img) {
-	opacity: 0;
+  opacity: 0;
 }
 
 @-moz-keyframes shake {
   0% { -moz-transform: scale(1); }
-	25% { -moz-transform: scale(1.05); }
+  25% { -moz-transform: scale(1.05); }
   50% { -moz-transform: scale(1); }
   75% { -moz-transform: scale(0.95); }
-	100% { -moz-transform: scale(1); }
+  100% { -moz-transform: scale(1); }
 }
 
 @-moz-keyframes none {}
@@ -69,7 +69,7 @@ body[data-mode = 'edit'] ol > li[data-dragging] {
 }
 
 body[data-dragging] ol > li {
-	opacity: 0.7;
+  opacity: 0.7;
 }
 
 body[data-mode = 'edit'] ol > li > div > img {
@@ -83,17 +83,16 @@ body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div > img {
 body[data-mode = 'edit'] ol > li > div::before {
   content: "";
   position: absolute;
+  top: 0;
   left: 50%;
-  top: 50%;
-  width: 6.5rem;
-  height: 6.5rem;
+  width: 8rem;
+  height: 8rem;
   background: white;
   border-radius: 50%;
-  margin-left: -3rem;
-  margin-top: -4.2rem;
+  margin: -0.5rem 0 0 -4rem;
   opacity: 0.2;
 
-  -moz-transform: scale(0.9);
+  -moz-transform: scale(0.8);
   -moz-transition: -moz-transform .3s;
 }
 body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::before {

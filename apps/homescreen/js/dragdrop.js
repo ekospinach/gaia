@@ -11,7 +11,7 @@ const DragDropManager = (function() {
   /*
    * It defines the time (in ms) between consecutive rearranges
    */
-  var REARRANGE_DELAY = 300;
+  var REARRANGE_DELAY = 80;
 
   /*
    * Drop feature is disabled (in the borders of the icongrid)
@@ -35,7 +35,7 @@ const DragDropManager = (function() {
    */
   var disabledCheckingLimitsTimeout = null;
 
-  var draggableIcon, previousOverlapIcon, overlapingTimeout, overlapElem,
+  var draggableIcon, previousOverlapIcon, overlapingTimeout, overlapElem, currentDragIntoElem,
       originElem, draggableElemStyle;
 
   var pageHelper;
@@ -186,6 +186,8 @@ const DragDropManager = (function() {
     } else if (DockManager.isFull()) {
       isDockDisabled = true;
     }
+
+    window.mozRequestAnimationFrame(move);
   }
 
   /*
@@ -198,13 +200,14 @@ const DragDropManager = (function() {
     isDisabledCheckingLimits = false;
     isDisabledDrop = false;
     transitioning = false;
+    draggableElemStyle = null;
     var page = getPage();
     var dropIntoFolder = false;
 
-    if (overlapElem && overlapElem.dataset.draggedon == "true"){
-      overlapElem.dataset.draggedon = "false";
+    if (overlapElem && overlapElem.dataset.draggedon){
       dropIntoFolder = true;
     }
+    disableCurrentDraggedOn();
 
     DragLeaveEventManager.send(page, function(done) {
       draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem, originElem, page);
@@ -238,8 +241,11 @@ const DragDropManager = (function() {
   }
 
   function move() {
-    draggableElemStyle.MozTransform =
-                          'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
+    if (draggableElemStyle) {
+      draggableElemStyle.MozTransform =
+                            'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
+      window.mozRequestAnimationFrame(move);
+    }
   }
 
   /*
@@ -250,8 +256,6 @@ const DragDropManager = (function() {
   function onMove(evt) {
     var x = cx = getTouch(evt).pageX;
     var y = cy = getTouch(evt).pageY;
-
-    window.mozRequestAnimationFrame(move);
 
     var page = getPage();
     if (isDisabledDrag || !page.ready) {
@@ -273,8 +277,7 @@ const DragDropManager = (function() {
     } else {
       // Avoid calling document.elementFromPoint if we are over the same icon
       var rectObject = overlapElem.getBoundingClientRect();
-      if (overlapElem.classList.contains('page') ||
-          x < rectObject.left || x > rectObject.right ||
+      if (x < rectObject.left || x > rectObject.right ||
           y < rectObject.top || y > rectObject.bottom) {
         newOverlapElem = document.elementFromPoint(x, y);
       }
@@ -307,23 +310,30 @@ const DragDropManager = (function() {
       return;
     }
 
-    if (!letHoverOver(overlapElem, draggableIcon.draggableElem)) {
-      clearTimeout(overlapingTimeout);
-      if (classList.contains('page')) {
-        var lastIcon = page.getLastIcon();
-        if (lastIcon && y > lastIcon.getTop() && draggableIcon !== lastIcon) {
-          overlapingTimeout = setTimeout(function() {
+    clearTimeout(overlapingTimeout);
+    overlapingTimeout = setTimeout(function overlayTimeout() {
+      if (!letHoverOver(overlapElem, draggableIcon.draggableElem)) {
+        disableCurrentDraggedOn();
+
+        if (classList.contains('page')) {
+          var lastIcon = page.getLastIcon();
+          if (lastIcon && y > lastIcon.getTop() && draggableIcon !== lastIcon) {
             page.drop(draggableIcon, lastIcon);
-          }, REARRANGE_DELAY);
+          }
+        } else {
+          drop(page);
         }
-      } else {
-        overlapingTimeout = setTimeout(drop, REARRANGE_DELAY, page);
       }
-    } else {
-      clearTimeout(overlapingTimeout);
-    }
+    }, REARRANGE_DELAY);
 
     previousOverlapIcon = overlapElem;
+  }
+
+  function disableCurrentDraggedOn() {
+    if (currentDragIntoElem) {
+      delete currentDragIntoElem.dataset.draggedon;
+      currentDragIntoElem = null;
+    }
   }
 
   function onEnd(evt) {
@@ -347,25 +357,28 @@ const DragDropManager = (function() {
     }
 
     var overlapRect = overlapElem.getBoundingClientRect(),
-        centerY = overlapRect.height/2 + overlapRect.top,
-        centerX = overlapRect.width/2 + overlapRect.left;
+        centerY = overlapRect.top + overlapRect.height/2,
+        centerX = overlapRect.left + overlapRect.width/2,
 
-    var dragRect = draggableElem.getBoundingClientRect(),
-        scale = 1.0;
+        dragRect = draggableElem.getBoundingClientRect(),
+        scale = 1.0,
 
-    var touchesCenter = dragRect.top*scale < centerY &&
+        touchesCenter = dragRect.top*scale < centerY &&
                         dragRect.bottom/scale > centerY &&
                         dragRect.left*scale < centerX &&
                         dragRect.right/scale > centerX;
 
+    disableCurrentDraggedOn();
     overlapElem.dataset.draggedon = touchesCenter;
-    
+    currentDragIntoElem = overlapElem;
+
     return touchesCenter;
   }
 
   function isInOriginalPosition(elem) {
-    return !overlapElem.style.MozTransform ||
-            overlapElem.style.MozTransform === 'translate(0%, 0%)';
+    var style = overlapElem.style;
+    return !style.MozTransform ||
+            style.MozTransform === 'translate(0%, 0%)';
   }
 
   // It implements a stack of re-arrange operations in order to avoid
