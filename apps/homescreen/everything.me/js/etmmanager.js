@@ -171,17 +171,25 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function openMarketplaceApp(data) {
-	var activity = new MozActivity({
-	    name: "marketplace-app",
-	    data: {slug: data.slug}
-	});
+      var activity = new MozActivity({
+        name: "marketplace-app",
+        data: {slug: data.slug}
+      });
+
+      activity.onerror = function(){
+        window.open('https://marketplace.firefox.com/app/'+data.slug, 'e.me');
+      }
     }
 
     function openMarketplaceSearch(data) {
-	var activity = new MozActivity({
-	    name: "marketplace-search",
-	    data: {query: data.query}
-	});
+      var activity = new MozActivity({
+          name: "marketplace-search",
+          data: {query: data.query}
+      });
+
+      activity.onerror = function(){
+        window.open('https://marketplace.firefox.com/search/?q='+data.query, 'e.me'); 
+      }
     }
 
     return {
