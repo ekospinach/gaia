@@ -81,6 +81,8 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	};
 
 	this.draw = function draw(iconObj) {
+		cfg.icon = iconObj;
+		
 		if (el) {
 			el.setAttribute('data-name', cfg.name);
 
