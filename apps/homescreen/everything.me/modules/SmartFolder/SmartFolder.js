@@ -230,6 +230,10 @@
     }
     
     this.addApps = function addApps(newApps, folderSettings) {
+      if (!Array.isArray(newApps)){
+        newApps = [newApps];
+      }
+
       var settings = folderSettings || currentSettings;
       if (newApps && newApps.length) {
         var allApps = settings.apps.concat(newApps);
@@ -296,9 +300,10 @@
 
     function setStaticApps(apps, folderSettings) {
       var settings = folderSettings || currentSettings,
-        uniqueApps = Evme.Utils.unique(apps, 'id');
+        uniqueApps = Evme.Utils.unique(apps, 'id'),
+        icons = mergeAppIcons(apps, settings.icons);
 
-      Evme.SmartFolderStorage.update(settings, {"apps": uniqueApps}, function onUpdate(updatedSettings){
+      Evme.SmartFolderStorage.update(settings, {"apps": uniqueApps, "icons": icons}, function onUpdate(updatedSettings){
         resultsManager.renderStaticApps(updatedSettings.apps);
         addFolderToHomescreen(updatedSettings);
       });
