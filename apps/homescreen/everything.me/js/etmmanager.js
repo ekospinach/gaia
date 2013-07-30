@@ -30,7 +30,7 @@ var EvmeManager = (function EvmeManager() {
       GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
-    function hideFromGrid(ids) {
+    function toggleOnGrid(ids, hide) {
         if (!Array.isArray(ids)) {
             ids = [ids];
         }
@@ -48,7 +48,11 @@ var EvmeManager = (function EvmeManager() {
 
         var descriptors = manifestDescriptors.concat(bookmarkDescriptors);
 
-        return GridManager.hide(descriptors);
+        if (hide) {
+          return GridManager.hide(descriptors);
+        } else {
+          return GridManager.unhide(descriptors);
+        }
     }
 
     function openUrl(url) {
@@ -196,7 +200,12 @@ var EvmeManager = (function EvmeManager() {
       openApp: openApp,
 
       addBookmark: addBookmark,
-      hideFromGrid: hideFromGrid,
+      hideFromGrid: function hideFromGrid(ids) {
+        return toggleOnGrid(ids, true)
+      },
+      unhideFromGrid: function unhideFromGrid(ids) {
+        return toggleOnGrid(ids, false)
+      },
 
       isAppInstalled: function isAppInstalled(url) {
           return GridManager.getIconForBookmark(url) ||

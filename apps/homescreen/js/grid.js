@@ -1320,7 +1320,7 @@ var GridManager = (function() {
     unhide: function gm_unhide(descriptors) {
       for (var i = 0, descriptor, icon; descriptor = descriptors[i++];) {
         icon = getIcon(descriptor);
-        if (icon) {
+        if (icon && icon.isHidden()) {
           icon.remove();
           icon.unhideFromGrid();
 

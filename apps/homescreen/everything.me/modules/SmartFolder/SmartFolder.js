@@ -150,6 +150,8 @@
     };
 
     this.setBackground = function setBackground(newBg) {
+      if (!currentSettings) return;
+
       self.clearBackground();
 
       elImage.style.backgroundImage = 'url(' + newBg.image + ')';
@@ -236,13 +238,24 @@
     };
 
     this.removeResult = function removeResult(data) {
-      var newApps = currentSettings.apps.filter(function(app) {
-        return app.id !== data.id;
-      });
+      var id = data.id; // the id of the app to remove
+      
+      Evme.SmartFolderStorage.getFoldersWithApp(id, function onAllFolders(folders){
+        var newApps = currentSettings.apps.filter(function filterApp(app) {
+          return app.id !== id;
+        });
 
-      if (newApps.length !== currentSettings.apps.length) {
-        setStaticApps(newApps);
-      }
+        if (newApps.length < currentSettings.apps.length) {
+          // remove the app
+          setStaticApps(newApps);
+
+          // if not in other folders, put app back on the homescreen
+          if (folders.length === 1) {
+            EvmeManager.unhideFromGrid(id);
+          }
+        }
+
+      });
     };
 
     this.toggleEditMode = function toggleEditMode(bool) {
@@ -535,8 +548,8 @@
 
 
   /**
-   * SmartFolderStorage - Persists settings to local storage
-   * 
+   * SmartFolderStorage
+   * Persists settings to local storage
    */
   Evme.SmartFolderStorage = new function Evme_SmartFolderStorage() {
     var NAME = "SmartFolderStorage",
@@ -555,8 +568,33 @@
     };
 
     this.remove = function remove(e) {
-      var folderId = e.detail.folder.id;
-      removeId(folderId);
+      var rmFolderId = e.detail.folder.id;
+
+      // for apps only in the removed folder - add back to homescreen
+      self.getAllFolders(function onFolders(folders) {
+        var idsRemoved = [], // ids of apps in the removed folder
+          appFolderCount = {}; // mapping app_id -> number of folders it appears in
+
+        for (var i = 0, folder; folder = folders[i++];) {
+          for (var j = 0, app; app = folder.apps[j++];) {
+            appFolderCount[app.id] = appFolderCount[app.id] ? (appFolderCount[app.id] + 1) : 1;
+          }
+
+          if (folder.id === rmFolderId) {
+            idsRemoved = Evme.Utils.pluck(folder.apps, 'id');
+          }
+        }
+
+        for (var i = 0, id; id = idsRemoved[i++];) {
+          if (appFolderCount[id] === 1) {
+            EvmeManager.unhideFromGrid(id);
+          }
+        }
+
+        // delete reference to removed folder
+        removeId(rmFolderId);
+      });
+
     }
     
     this.add = function add(folderSettings, cb) {
@@ -604,7 +642,19 @@
       }
     };
 
+    this.getFoldersWithApp = function getFoldersWithApp(appId, callback) {
+      self.getAllFolders(function onFolders(folders) {
+        callback(folders.filter(isAppInFolder));
+      });
+
+      function isAppInFolder(folder) {
+        return Evme.Utils.pluck(folder.apps, 'id').indexOf(appId) > -1;
+      }
+    }
+
     function addId(id) {
+      if (ids && ids.indexOf(id) > -1) return;
+
       if (ids === null || locked) {
         setTimeout(function retry() {addId(id); }, 100);
         return;
@@ -645,4 +695,5 @@
       locked = false;
     }
   };
+ 
 }();

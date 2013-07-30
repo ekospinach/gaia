@@ -442,6 +442,9 @@ Icon.prototype = {
     this.container.parentNode.removeChild(this.container);
   },
 
+  isHidden: function icon_isHidden() {
+    return this.descriptor.hideFromGrid;
+  },
   hideFromGrid: function icon_hideFromGrid() {
     this.descriptor.hideFromGrid = true;
     this.container.dataset.hide = true;
