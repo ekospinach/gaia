@@ -40,6 +40,10 @@ Evme.Utils = new function Evme_Utils() {
     	"Large": 20
     };
 
+    this.REGEX = {
+        URL: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
+    };
+
     this.devicePixelRatio =  window.innerWidth / 320;
 
     this.isKeyboardVisible = false;

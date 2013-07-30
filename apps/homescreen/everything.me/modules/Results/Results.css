@@ -89,7 +89,7 @@
   display: inline;
 }
 .evmeScope .evme-apps ul.cloud {
-  display: block;
+  min-height: 0.1rem; /* meant for when there's no content */
 }
 .evmeScope .evme-apps ul li.new:not(.installed) canvas {
     transform: scale(0);
@@ -179,21 +179,16 @@
 .evmeScope.loading-app .evme-apps > div {
     min-height: 100%;
 }
-/* always show a divider if installed or marketplace apps appear */
-.evmeScope ul:not(:empty) ~ ul.cloud{
-    margin-top: 1.2rem !important;
-    padding-top: 0.7rem;
-    min-height: 0.1rem; /* meant for when there's no content */
-    position: relative;
+.evmeScope .evme-apps hr{
+    height: 0.2rem;
+    border: 0;
+    background-color: rgba(255,255,255,.3);
+    margin: 1.2rem 2rem 0 1rem;
+    display: none;
 }
-.evmeScope ul:not(:empty) ~ ul.cloud::before{
-    position: absolute;
-    top: -1rem;
-    left: 0;
-    right: 2rem;
-    content: "";
-    border-top: 0.2rem solid rgba(255,255,255,.3);
+.evmeScope #search hr{
+    margin-right: 3rem;
 }
-.evmeScope #search ul:not(:empty) ~ ul.cloud::before{
-    left: 1rem;
+.evmeScope ul:not(:empty) ~ hr{
+    display: block;
 }

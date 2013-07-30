@@ -1,10 +1,11 @@
 Evme.PROVIDER_TYPES = {
-  STATIC: 'static',
+  BROWSER: 'browser',
+  CLOUD: 'cloud',
+  CONTACTS: 'contacts',
   INSTALLED: 'installed',
   MARKETAPPS: 'marketapps',
   MARKETSEARCH: 'marketsearch',
-  CLOUD: 'cloud',
-  CONTACTS: 'contacts'
+  STATIC: 'static'
 };
 
 Evme.ResultManager = function Evme_ResultsManager() {
@@ -32,12 +33,13 @@ Evme.ResultManager = function Evme_ResultsManager() {
     apiHasMoreCloudApps = false,
     
     // for convenience
-    STATIC = Evme.PROVIDER_TYPES.STATIC,
+    BROWSER = Evme.PROVIDER_TYPES.BROWSER,
+    CLOUD = Evme.PROVIDER_TYPES.CLOUD,
+    CONTACTS = Evme.PROVIDER_TYPES.CONTACTS,
     INSTALLED = Evme.PROVIDER_TYPES.INSTALLED,
     MARKETAPPS = Evme.PROVIDER_TYPES.MARKETAPPS,
     MARKETSEARCH = Evme.PROVIDER_TYPES.MARKETSEARCH,
-    CLOUD = Evme.PROVIDER_TYPES.CLOUD,
-    CONTACTS = Evme.PROVIDER_TYPES.CONTACTS
+    STATIC = Evme.PROVIDER_TYPES.STATIC,
 
     SELECTOR_CLOUD_RESULTS = 'ul.cloud>li',
     SELECTOR_ALL_RESULTS = 'div>ul>li',
@@ -116,9 +118,9 @@ Evme.ResultManager = function Evme_ResultsManager() {
   };
 
   this.onNewQuery = function onNewQuery(data) {
-    data.staticApps && self.renderStaticApps(data.staticApps);
-    INSTALLED in providers && providers[INSTALLED].render(data);
+    BROWSER in providers && providers[BROWSER].render(data);
     CONTACTS in providers && providers[CONTACTS].render(data);
+    INSTALLED in providers && providers[INSTALLED].render(data);
   };
 
   this.APIData = {
@@ -151,20 +153,15 @@ Evme.ResultManager = function Evme_ResultsManager() {
         }
       });
 
-      renderWebSearchParam = NAME === "SearchResults" && response.query;
-
       // first results page
       // render market apps and result for launching market search
       if (!pageNum) {
         self.scrollToTop();
         MARKETAPPS in providers && providers[MARKETAPPS].render(marketApps, pageNum);
         response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
-
-        // TODO: DEMO MODE - always render web search
-        CLOUD in providers && providers[CLOUD].renderWebSearch(renderWebSearchParam);
       }
 
-      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons, renderWebSearchParam);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons);
     }
   };
 
