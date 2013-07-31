@@ -32,10 +32,6 @@ var EverythingME = {
           'js/Core.js',
           'js/etmmanager.js',
           
-          // TODO: remove when done testing
-          'tests/fixtures/fixtures.js',
-          'tests/fixtures/appIndex.js',
-
           'config/config.js',
           'config/shortcuts.js',
           'js/developer/utils.1.3.js',

@@ -32,16 +32,6 @@ window.Evme = new function Evme_Core() {
         initObjects(data)
       }
     });
-
-    // TODO: DEMO MODE - turn off annoying keyboard features
-    var settings = navigator.mozSettings;
-    if (settings) {
-      var lock = settings.createLock();
-      lock.set({
-        'keyboard.wordsuggestion': false,
-        'keyboard.autocorrect': false
-      });
-    };
   };
 
   // Gaia communication methods
@@ -219,8 +209,6 @@ window.Evme = new function Evme_Core() {
     });
 
     Evme.InstalledAppsService.init();
-    // TODO: this is some testing data
-    // Evme.InstalledAppsService._loadFixtures();
 
     Evme.IconGroup.init({});
 

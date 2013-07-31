@@ -109,15 +109,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     appIndex = {}, APP_INDEX_STORAGE_KEY = NAME + "-app-index",
     queryIndex = {}, QUERY_INDEX_STORAGE_KEY = NAME + "-query-index";
 
-  // TODO: only for testing
-  this._loadFixtures = function _loadFixtures() {
-    appIndex = Evme.Fixtures.appIndex;
-    self.requestAppsInfo();
-  }
-  this._getIndexes = function debug_getIndexes() {
-    return {appIndex: appIndex, queryIndex: queryIndex}
-  }
-
   this.init = function init() {
     // create indexes
     createAppIndex();

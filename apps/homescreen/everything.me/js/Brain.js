@@ -674,7 +674,7 @@ Evme.Brain = new function Evme_Brain() {
                 } else {
                     saveToHomescreen(data, true);
                 }
-            } else if (data.app.group === Evme.RESULT_GROUP.STATIC && !Evme.SmartFolder.editMode) {
+            } else if (data.app.type === Evme.RESULT_TYPE.INSTALLED && !Evme.SmartFolder.editMode) {
                 Evme.SmartFolder.toggleEditMode(true);
             }
         };
@@ -822,22 +822,14 @@ Evme.Brain = new function Evme_Brain() {
 
             var resultType = data.app.type;
             if (resultType === Evme.RESULT_TYPE.INSTALLED) {
-                
-                // TODO: DEMO MODE
-                // we currently don't have support for STATIC cloud apps that are displayed above the separator
-                var installedApp = GridManager.getAppByOrigin(data.app.getLink());
-                if (installedApp) {
-                    installedApp.launch();
-                } else {  // this is a cloud result that is not really installed on the device
-                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
-                        "url": data.app.getLink(),
-                        "originUrl": data.app.getFavLink(),
-                        "title": data.data.name,
-                        "icon": data.app.icon,
-                        "urlTitle": Evme.Searchbar.getValue(),
-                        "useAsyncPanZoom": data.app.isExternal()
-                    });
-                }
+                EvmeManager.openApp({
+                    "url": data.app.getLink(),
+                    "originUrl": data.app.getFavLink(),
+                    "title": data.data.name,
+                    "icon": data.app.icon,
+                    "urlTitle": Evme.Searchbar.getValue(),
+                    "useAsyncPanZoom": data.app.isExternal()
+                });
 
             } else if (resultType === Evme.RESULT_TYPE.MARKET) {
                 if (data.app.slug) {
@@ -849,7 +841,7 @@ Evme.Brain = new function Evme_Brain() {
             } else if (resultType === Evme.RESULT_TYPE.CLOUD) {
                 var appIcon = Evme.Utils.formatImageData(data.data.icon);
                 Evme.Utils.getRoundIcon({"src": appIcon}, function onIconReady(roundedAppIcon) {
-                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
+                    EvmeManager.openApp({
                         "url": data.app.getLink(),
                         "originUrl": data.app.getFavLink(),
                         "title": data.data.name,

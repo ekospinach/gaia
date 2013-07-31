@@ -7,11 +7,6 @@ Evme.RESULT_TYPE = {
   WEBLINK: 'weblink'
 };
 
-Evme.RESULT_GROUP = {
-  STATIC: 'static',
-  DYNAMIC: 'dynamic'
-};
-
 Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	var NAME = "Result",
 		self = this,
@@ -33,7 +28,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		image = new Image();
 
 	this.type = 'NOT_SET';
-	this.group = Evme.RESULT_GROUP.DYNAMIC;
 	
 	this.app = null;
 	this.canvas = null;
