@@ -181,7 +181,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
 
     // search appIndex
     // search query within first letters of app name words
-    // TODO FIXME throws SyntaxError if query contains '/'
     var regex = new RegExp('\\b' + query, 'i');
     for (var appId in appIndex) {
       // if there's a match, add to matchingApps
@@ -267,6 +266,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   }
   
   function normalizeQuery(query) {
-    return query.toLowerCase();
+    return Evme.Utils.escapeRegexp(query.toLowerCase());
   }
 };

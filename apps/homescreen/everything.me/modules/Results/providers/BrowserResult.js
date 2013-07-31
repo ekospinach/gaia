@@ -22,8 +22,8 @@ Evme.BrowserResultsRenderer = function Evme_BrowserResultsRenderer() {
     
     // if query is a valid url open it
     // else run a web search
-    if (Evme.Utils.REGEX.URL.test(query)) {
-      url = query;
+    if (Evme.Utils.REGEXP.URL.test(query)) {
+      url = 'http://' + query.replace('http://', '');  // make absolute URL
     } else {
       url = BROWSER_SEARCH_URL.replace('{query}', query);
     }
