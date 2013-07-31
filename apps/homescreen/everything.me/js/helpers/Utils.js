@@ -11,6 +11,12 @@ Evme.Utils = new function Evme_Utils() {
         COOKIE_NAME_CREDENTIALS = "credentials",
         
         CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
+
+        // all the installed apps (installed, clouds, marketplace) should be the same size
+        // however when creating icons in the same size there's still a noticable difference
+        // this is because the OS' native icons have a transparent padding around them
+        // so to make our icons look the same we add this padding artificially
+        INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
         
         OSMessages = this.OSMessages = {
             "APP_CLICK": "open-in-app",
@@ -28,8 +34,7 @@ Evme.Utils = new function Evme_Utils() {
             "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search",
             "HIDE_APP_FROM_GRID": "hide-from-grid"
         };
-    
-    
+
     this.PIXEL_RATIO_NAMES = {
     	NORMAL: 'normal',
     	HIGH: 'high'
@@ -263,9 +268,9 @@ Evme.Utils = new function Evme_Utils() {
       return arrayOrigin;
     };
 
-    this.getRoundIcon = function getRoundIcon(imageSrc, callback, padding) {
+    this.getRoundIcon = function getRoundIcon(options, callback) {
         var size = self.sendToOS(self.OSMessages.GET_ICON_SIZE) - 2,
-            padding = padding || 0,
+            padding = options.padding ? INSTALLED_CLOUDS_APPS_ICONS_PADDING : 0,
             actualIconSize = size - padding*2,
             img = new Image();
         
@@ -284,7 +289,7 @@ Evme.Utils = new function Evme_Utils() {
             
             callback(canvas.toDataURL());
         };
-        img.src = imageSrc;
+        img.src = options.src;
     };
     
     this.writeTextToCanvas = function writeTextToCanvas(options) {

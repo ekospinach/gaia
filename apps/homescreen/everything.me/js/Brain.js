@@ -24,13 +24,7 @@ Evme.Brain = new function Evme_Brain() {
         TIMEOUT_BEFORE_RUNNING_APPS_SEARCH = 600,
         TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH = 800,
         TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
-        
-        // all the installed apps (installed, clouds, marketplace) should be the same size
-        // however when creating icons in the same size there's still a noticable difference
-        // this is because the OS' native icons have a transparent padding around them
-        // so to make our icons look the same we add this padding artificially
-        INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
-        
+               
         CLASS_WHEN_EVME_READY = 'evme-ready',
         CLASS_WHEN_HAS_QUERY = 'evme-has-query',
         CLASS_WHEN_SMART_FOLDER_VISIBLE = 'evme-smart-folder-visible',
@@ -697,12 +691,12 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         function pinToSmartFolder(data) {
-            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
-            Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());           
+            Evme.Utils.getRoundIcon({"src": appIcon, "padding": true}, function onIconReady(roundedAppIcon) {
                 var _app = data.app.app;
                 _app.icon = roundedAppIcon;
                 Evme.SmartFolder.addApps([_app]);
-            }, INSTALLED_CLOUDS_APPS_ICONS_PADDING);
+            });
         }
 
         function saveToHomescreen(data, showConfirm) {
@@ -728,7 +722,7 @@ Evme.Brain = new function Evme_Brain() {
             // get icon data
             var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
             // make it round
-            Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+            Evme.Utils.getRoundIcon({"src": appIcon}, function onIconReady(roundedAppIcon) {
                 // bookmark - add to homescreen
                 Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
                     'originUrl': data.app.getFavLink(),
@@ -854,7 +848,7 @@ Evme.Brain = new function Evme_Brain() {
 
             } else if (resultType === Evme.RESULT_TYPE.CLOUD) {
                 var appIcon = Evme.Utils.formatImageData(data.data.icon);
-                Evme.Utils.getRoundIcon(appIcon, function onIconReady(roundedAppIcon) {
+                Evme.Utils.getRoundIcon({"src": appIcon}, function onIconReady(roundedAppIcon) {
                     Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_CLICK, {
                         "url": data.app.getLink(),
                         "originUrl": data.app.getFavLink(),
