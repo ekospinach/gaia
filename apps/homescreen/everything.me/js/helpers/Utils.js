@@ -45,7 +45,7 @@ Evme.Utils = new function Evme_Utils() {
     	"Large": 20
     };
 
-    this.REGEX = {
+    this.REGEXP = {
         URL: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
     };
 
@@ -593,6 +593,14 @@ Evme.Utils = new function Evme_Utils() {
     // check that localStorage is enabled by setting and getting a temp value
     this.bLocalStorageEnabled = function bLocalStorageEnabled(){
         return Evme.Storage.enabled();
+    };
+
+    /**
+     * Escape special characters in `s` so it can be used for creating a RegExp
+     * source: http://stackoverflow.com/a/3561711/1559840
+     */
+    this.escapeRegexp = function escapeRegexp(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
 
     // retrieves the value of a specified property from all elements in the `collection`.
