@@ -271,12 +271,21 @@
       self.editMode = bool;
       if (bool) {
         el.dataset.mode = 'edit';
+        document.addEventListener('mozvisibilitychange', onVisibilityChange);
       } else {
         delete el.dataset.mode;
       }
 
       return true;
     };
+    
+    function onVisibilityChange() {
+      document.removeEventListener('mozvisibilitychange', onVisibilityChange);
+
+      if (document.mozHidden) {
+        self.toggleEditMode(false);
+      }
+    }
 
     /**
      * Get the icons of first three *visible* results
