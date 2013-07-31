@@ -745,7 +745,10 @@ Evme.Brain = new function Evme_Brain() {
 
         // app clicked
         this.click = function click(data) {
-            Evme.SmartFolder.toggleEditMode(false);
+            if (Evme.SmartFolder.editMode) {
+              Evme.SmartFolder.toggleEditMode(false);
+              return;
+            }
 
             if (!Searcher.isLoadingApps() || Evme.Utils.isKeyboardVisible) {
                 data.keyboardVisible = Evme.Utils.isKeyboardVisible ? 1 : 0;

@@ -59,6 +59,7 @@
 
       elOpenActions = Evme.$('.open-actions', el)[0];
       elOpenActions.addEventListener('click', function onClick() {
+          Evme.SmartFolder.toggleEditMode(false);
           elFolderActions.classList.toggle('show');
       });    
 
@@ -96,7 +97,7 @@
         self.setTitle(folderSettings.name || folderSettings.query);
         folderSettings.bg && self.setBackground(folderSettings.bg);
 
-        this.editMode = false;
+        self.editMode = false;
         
         resultsManager.renderStaticApps(folderSettings.apps);
 
