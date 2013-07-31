@@ -274,14 +274,13 @@
         document.addEventListener('mozvisibilitychange', onVisibilityChange);
       } else {
         delete el.dataset.mode;
+        document.removeEventListener('mozvisibilitychange', onVisibilityChange);
       }
 
       return true;
     };
     
     function onVisibilityChange() {
-      document.removeEventListener('mozvisibilitychange', onVisibilityChange);
-
       if (document.mozHidden) {
         self.toggleEditMode(false);
       }
