@@ -99,8 +99,12 @@ Evme.Brain = new function Evme_Brain() {
                 folderId = options.folder.id;
 
             Evme.SmartFolderStorage.get(folderId, function onGotSettings(folderSettings) {
-                var app = Evme.InstalledAppsService.getAppById(appId);
-                Evme.SmartFolder.addApps(app, folderSettings);
+                // check app not already in folder
+                if (Evme.Utils.pluck(folderSettings.apps, 'id').indexOf(appId) < 0){
+                    var app = Evme.InstalledAppsService.getAppById(appId);
+                    Evme.SmartFolder.addApps(app, folderSettings);                   
+                }
+                
                 Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appId);
             });
 
