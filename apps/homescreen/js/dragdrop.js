@@ -460,8 +460,8 @@ const DragDropManager = (function() {
       window.addEventListener(touchmove, onMove);
       GridManager.onDragStart();
       DockManager.onDragStart();
-      sx = initCoords.x;
-      sy = initCoords.y;
+      sx = cx = initCoords.x;
+      sy = cy = initCoords.y;
       isDockDisabled = false;
       overlapingDock = (initCoords.y >= limitY) ? true : false;
       originElem = evt.target;
