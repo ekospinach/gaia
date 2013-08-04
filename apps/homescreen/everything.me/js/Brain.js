@@ -1236,13 +1236,18 @@ Evme.Brain = new function Evme_Brain() {
         // item clicked
         this.click = function click(data) {
             if(!Evme.Shortcuts.isEditing && !Evme.Shortcuts.isSwiping()) {
-                new Evme.SmartFolder({
-                    "query": data.shortcut.getQuery(),
-                    "experienceId": data.shortcut.getExperience(),
-                    "bgImage": (Evme.BackgroundImage.get() || {}).image,
-                    "elParent": elContainer,
-                    "onScrollEnd": Evme.Brain.SmartFolder.loadMoreApps
-                }).show();
+              // get the shortcut's query
+              var query = data.shortcut.getQuery(),
+                  experienceId = data.shortcut.getExperience();
+
+              // if there isn't a query - translate the experienceId to a query
+              if (!query) {
+                query = Evme.Utils.l10n('shortcut', 'id-' + Evme.Utils.shortcutIdToKey(experienceId));
+              }
+
+              // now set the query in the searchbar and perform the exact search
+              Evme.Searchbar.setValue(query, false);
+              Searcher.searchExactFromOutside(query, SEARCH_SOURCES.SHORTCUT_SMART_FOLDER);
             }
         };
 
