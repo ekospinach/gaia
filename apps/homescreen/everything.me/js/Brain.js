@@ -1169,7 +1169,6 @@ Evme.Brain = new function Evme_Brain() {
               }
 
               // now set the query in the searchbar and perform the exact search
-              Evme.Searchbar.setValue(query, false);
               Searcher.searchExactFromOutside(query, SEARCH_SOURCES.SHORTCUT_SMART_FOLDER);
             }
         };
@@ -1992,6 +1991,7 @@ Evme.Brain = new function Evme_Brain() {
         this.empty = function empty(){
             Searcher.cancelRequests();
             Evme.Apps.clear();
+            Evme.BackgroundImage.loadDefault();
             resetLastSearch();
             lastQueryForImage = "";
 
