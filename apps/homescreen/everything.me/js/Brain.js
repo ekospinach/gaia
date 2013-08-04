@@ -104,8 +104,6 @@ Evme.Brain = new function Evme_Brain() {
                     var app = Evme.InstalledAppsService.getAppById(appId);
                     Evme.SmartFolder.addApps(app, folderSettings);                   
                 }
-                
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appId);
             });
 
         }
