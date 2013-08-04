@@ -155,10 +155,6 @@ Evme.Brain = new function Evme_Brain() {
             } else {
                 Brain.Helper.showDefault();
             }
-
-            if (!tipKeyboard) {
-                tipKeyboard = new Evme.Tip(TIPS.SEARCHBAR_FOCUS);
-            }
         };
 
         // Searchbar blurred. Keyboard hides.
@@ -1094,10 +1090,6 @@ Evme.Brain = new function Evme_Brain() {
 
         // show
         this.show = function show() {
-            new Evme.Tip(TIPS.APP_EXPLAIN, function onShow(tip) {
-                elContainer.addEventListener("touchstart", tip.hide);
-            });
-
             Brain.Searchbar.hideKeyboardTip();
 
             self.loadFromAPI();
@@ -1835,8 +1827,6 @@ Evme.Brain = new function Evme_Brain() {
                 tip._data = {
                     "query": lastSearch.query
                 };
-                
-                new Evme.Tip(tip);
             }
 
             Evme.Searchbar.endRequest();
