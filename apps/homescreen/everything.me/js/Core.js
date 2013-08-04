@@ -151,12 +151,6 @@ window.Evme = new function Evme_Core() {
             "filterResults": true
           }
         }, {
-          type: Evme.PROVIDER_TYPES.BROWSER,
-          config: {
-            "renderer": Evme.BrowserResultsRenderer,
-            "containerEl": Evme.$(".browser", appsEl)[0]
-          }
-        }, {
           type: Evme.PROVIDER_TYPES.CLOUD,
           config: {
             "renderer": Evme.CloudAppsRenderer,

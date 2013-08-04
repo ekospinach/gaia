@@ -1,5 +1,4 @@
 Evme.PROVIDER_TYPES = {
-  BROWSER: 'browser',
   CLOUD: 'cloud',
   CONTACTS: 'contacts',
   INSTALLED: 'installed',
@@ -33,7 +32,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
     apiHasMoreCloudApps = false,
     
     // for convenience
-    BROWSER = Evme.PROVIDER_TYPES.BROWSER,
     CLOUD = Evme.PROVIDER_TYPES.CLOUD,
     CONTACTS = Evme.PROVIDER_TYPES.CONTACTS,
     INSTALLED = Evme.PROVIDER_TYPES.INSTALLED,
@@ -118,7 +116,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
   };
 
   this.onNewQuery = function onNewQuery(data) {
-    BROWSER in providers && providers[BROWSER].render(data);
     CONTACTS in providers && providers[CONTACTS].render(data);
     INSTALLED in providers && providers[INSTALLED].render(data);
   };
