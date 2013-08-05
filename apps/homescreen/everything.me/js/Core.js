@@ -3,7 +3,9 @@ window.Evme = new function Evme_Core() {
         recalculateHeightRetries = 1,
         TIMEOUT_BEFORE_INIT_SESSION = "FROM CONFIG",
         OPACITY_CHANGE_DURATION = 300,
-        head_ts = new Date().getTime();
+        head_ts = new Date().getTime(),
+
+        CLASS_WHEN_SHOWING_SHORTCUTS = 'evme-display-shortcuts';
 
     this.shouldSearchOnInputBlur = true;
 
@@ -14,6 +16,8 @@ window.Evme = new function Evme_Core() {
         apiHost && Evme.api.setHost(apiHost);
 
         TIMEOUT_BEFORE_INIT_SESSION = data.timeoutBeforeSessionInit;
+        
+        window.addEventListener('contextmenu', onContextMenu, true);
 
         Evme.Brain.init({
             "numberOfAppsToLoad": data.numberOfAppsToLoad+(Evme.Utils.devicePixelRatio>1? data.apps.appsPerRow: 0),
@@ -48,7 +52,7 @@ window.Evme = new function Evme_Core() {
     this.onHomeButtonPress = function onHomeButtonPress() {
         Evme.Searchbar.clearIfHasQuery();
         Evme.Searchbar.blur();
-        document.body.classList.remove('evme-display-shortcuts');
+        document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
 
         if (
           Evme.BackgroundImage.closeFullScreen()
@@ -88,6 +92,13 @@ window.Evme = new function Evme_Core() {
         Evme.Searchbar.blur();
         return false; // allow navigation to homescreen
     };
+    
+    function onContextMenu(e) {
+      if (Evme.Searchbar.getValue() ||
+          document.body.classList.contains(CLASS_WHEN_SHOWING_SHORTCUTS)) {
+        e.stopImmediatePropagation();
+      }
+    }
 
     function initObjects(data) {
         Evme.Features.init({
