@@ -91,6 +91,8 @@ Evme.SearchHistory = new function Evme_SearchHistory() {
             } else {
                 history = [];
             }
+
+            Evme.EventHandler.trigger(NAME, "populate");
         });
     }
 }

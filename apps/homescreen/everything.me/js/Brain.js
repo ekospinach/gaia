@@ -281,6 +281,15 @@ Evme.Brain = new function Evme_Brain() {
         };
     };
     
+    // modules/SearchHistory/
+    this.SearchHistory = new function SearchHistory() {
+      
+        // items were loaded from the cache
+        this.populate = function populate() {
+            Evme.Brain.Helper.showDefault();
+        };
+    };
+    
     // modules/Helper/
     this.Helper = new function Helper() {
         var self = this,
