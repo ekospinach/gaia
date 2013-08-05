@@ -8,7 +8,6 @@
     <link rel="stylesheet" type="text/css" href="style/grid.css">
     <link rel="stylesheet" type="text/css" href="style/dragdrop.css">
     <link rel="stylesheet" type="text/css" href="style/dock.css">
-    <link rel="stylesheet" type="text/css" href="style/landing.css">
     <link rel="stylesheet" type="text/css" href="everything.me/css/everything.me.css">
 
     <!-- Shared code -->
@@ -27,7 +26,6 @@
 
     <!-- Specific code -->
     <script type="text/javascript" defer src="js/message.js"></script>
-    <script type="text/javascript" defer src="js/landing.js"></script>
     <script type="text/javascript" defer src="js/request.js"></script>
     <script type="text/javascript" defer src="js/bookmark.js"></script>
     <script type="text/javascript" defer src="js/state.js"></script>
@@ -77,41 +75,34 @@
     <div id="icongrid" class="apps" role="main">
       <div id="landing-page" data-current-page="true">
         <div id="evme-activation-icon"></div>
-        <div id="landing-time">
-          <p id="landing-clock">
-            <span class="numbers"></span>
-            <span class="meridiem"></span>
-          </p>
-          <p id="landing-date"></p>
-        </div>
         
           <div id="evmeContainer">
             <div id="search" class="active">
-                <div id="search-header">
-                    <form action="/#!/search" id="search-rapper">
-                        <fieldset>
-                            <div id="search-q-bg">
-                                <input type="text" id="search-q" name="search-q" maxlength="128" autocorrect="off" autocapitalize="off" x-inputmode="verbatim" />
-                                <span id="default-text" data-l10n-id="evme-searchbar-default"></span>
-                            </div>
-                            <div id="helper-tip"><b></b></div>
-                        </fieldset>
-                    </form>
-                    <b id="button-clear" data-l10n-id="evme-searchbar-clear"></b>
-                </div>
-                <div id="header">
-                    <div id="helper-header">
-                        <h1 id="search-title"></h1>
-                        <div id="helper-rapper">
-                            <div id="helper">
-                                <ul></ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="evmeApps" class="evme-apps">
-                    <ul id="evmeAppsList"></ul>
-                </div>
+              <div id="search-header">
+                  <form action="/#!/search" id="search-rapper">
+                      <fieldset>
+                          <div id="search-q-bg">
+                              <input type="text" id="search-q" name="search-q" maxlength="128" autocorrect="off" autocapitalize="off" x-inputmode="verbatim" />
+                              <span id="default-text" data-l10n-id="evme-searchbar-default"></span>
+                          </div>
+                          <div id="helper-tip"><b></b></div>
+                      </fieldset>
+                  </form>
+                  <b id="button-clear" data-l10n-id="evme-searchbar-clear"></b>
+              </div>
+              <div id="header">
+                  <div id="helper-header">
+                      <h1 id="search-title"></h1>
+                      <div id="helper-rapper">
+                          <div id="helper">
+                              <ul></ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div id="evmeApps" class="evme-apps">
+                  <ul id="evmeAppsList"></ul>
+              </div>
             </div>
 
             <div id="shortcuts">
