@@ -46,8 +46,9 @@ window.Evme = new function Evme_Core() {
     };
 
     this.onHomeButtonPress = function onHomeButtonPress() {
-        Evme.Searchbar.blur();
         Evme.Searchbar.clearIfHasQuery();
+        Evme.Searchbar.blur();
+        document.body.classList.remove('evme-display-shortcuts');
 
         if (
           Evme.BackgroundImage.closeFullScreen()

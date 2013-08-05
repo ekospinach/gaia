@@ -118,8 +118,11 @@
             transform: scale(.7) !important;
         }
 
-#evmeContainer.keyboard-visible.empty-query #shortcuts {
+.evme-display-shortcuts #evmeContainer #shortcuts {
     display: block;
+}
+.evme-display-shortcuts:not(.evme-keyboard-visible) #evmeContainer #shortcuts {
+    bottom: 7.5rem;
 }
 
 #evmeContainer #shortcuts-customize {

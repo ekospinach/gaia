@@ -40,7 +40,8 @@
 .evme-has-results #footer,
 .evme-loading #landing-time,
 .evme-keyboard-visible #landing-time,
-.evme-has-results #landing-time {
+.evme-has-results #landing-time,
+.evme-display-shortcuts #landing-time {
   display: none;
 }
 body:not(.evme-displayed) #footer {

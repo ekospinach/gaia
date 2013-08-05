@@ -29,6 +29,7 @@ Evme.Brain = new function Evme_Brain() {
         
         CLASS_WHEN_LOADED = 'evme-loaded',
         CLASS_WHEN_HAS_RESULTS = 'evme-has-results',
+        CLASS_WHEN_SHOWING_SHORTCUTS = 'evme-display-shortcuts',
 
         L10N_SYSTEM_ALERT="alert",
 
@@ -155,16 +156,16 @@ Evme.Brain = new function Evme_Brain() {
                 Evme.Helper.showSuggestions();
             } else {
                 Brain.Helper.showDefault();
+                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
         };
 
         // Searchbar blurred. Keyboard hides.
         this.blur = function blur(data) {
             // Gaia bug workaround because of this http://b2g.everything.me/tests/input-blur.html
-            if (data && data.e) {
+            if (data && data.e && data.e.stopPropagation) {
                 data.e.stopPropagation();
             }
-
 
             var didClickApp = false,
                 elClicked = data && data.e && data.e.explicitOriginalTarget;
@@ -217,6 +218,7 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Apps.clear();
             Evme.Helper.setTitle();
             Brain.Helper.showDefault();
+            document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
         };
 
         // Keyboard action key ("search") pressed
@@ -235,6 +237,7 @@ Evme.Brain = new function Evme_Brain() {
             } else {
                 elContainer.classList.remove("empty-query");
                 document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
+                document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
         };
 

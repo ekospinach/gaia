@@ -1,7 +1,7 @@
 Evme.__config._localShortcuts = [
 {"experienceId":"289","appIds":[693,694,588]}, // Social
 {"experienceId":"207","appIds":[1251,494,5180]}, // Games
-{"experienceId":"296","appIds":[1048,226,458]}, // Local\
+{"experienceId":"296","appIds":[1048,226,458]}, // Local
 {"experienceId":"357","appIds":[917,4307,3525]}, // Utilities
 {"experienceId":"142","appIds":[5,319,12]}, // Music
 {"experienceId":"349","appIds":[921,692,922]} // Photography

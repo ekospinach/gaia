@@ -45,10 +45,10 @@ var EverythingME = {
       input = document.getElementById('search-q');
       if (input) {
         if (existingQuery) {
-          console.log('evyatar had a query - search [' + existingQuery + ']');
           EvmeFacade.searchFromOutside(existingQuery);
         }
-        input.focus();
+        
+        EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
       }
 
       document.body.classList.remove('evme-loading');
