@@ -40,7 +40,7 @@
         right: 0;
     }
     #evmeContainer #shortcuts #shortcuts-list ul {
-        padding: 0;
+        padding: 0.5rem 0 0 0;
         overflow: hidden;
     }
     #evmeContainer .shortcut {
@@ -50,7 +50,7 @@
         z-index: 10;
         padding: 0.5rem 0 0.8rem 0;
         width: 25%;
-        height: 6.4rem;
+        height: 8rem;
         text-align: center;
     }
         #evmeContainer .shortcut .remove {

@@ -7,65 +7,43 @@ var EverythingME = {
   init: function EverythingME_init() {
     var footerStyle = document.querySelector('#footer').style;
     footerStyle.MozTransition = '-moz-transform .3s ease';
+    
+    var self = this,
+        _ = navigator.mozL10n.get,
+        activationIcon = document.getElementById('evme-activation-icon');
 
-    var page = document.getElementById('evmePage');
-    page.addEventListener('gridpageshowend', function onpageshow() {
-      page.removeEventListener('gridpageshowend', onpageshow);
+    activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
 
-      document.querySelector('#loading-overlay > section').style.visibility =
-                                                                      'visible';
-
-      EverythingME.displayed = true;
-      footerStyle.MozTransform = "translateY(100%)";
-
-      page.addEventListener('gridpageshowend', function onpageshowafterload() {
-        if (EverythingME.displayed) return;
-
-        EverythingME.displayed = true;
-        footerStyle.MozTransform = "translateY(100%)";
-        EvmeFacade.onShow();
-      });
-
-      EverythingME.load(function success() {
-        if (EverythingME.displayed)
-          EvmeFacade.onShow();
-        var loadingOverlay = document.querySelector('#loading-overlay');
-        loadingOverlay.style.opacity = 0;
-        setTimeout(function starting() {
-          document.querySelector('#evmeContainer').style.opacity = 1;
-          loadingOverlay.parentNode.removeChild(loadingOverlay);
-        }, 0);
-      });
+    activationIcon.addEventListener('click', function onClick(e) {
+      this.removeEventListener('click', onClick);
+      self.activate();
     });
+  },
+  
+  activate: function EverythingME_activate(e) {
+    document.body.classList.add('evme-loading');
 
-    page.addEventListener('gridpagehideend', function onpagehide() {
-      if (!EverythingME.displayed) return;
+    this.load(function onEvmeLoaded() {
+      var page = document.getElementById('evmeContainer'),
+          landingPage = document.getElementById('landing-page'),
+          activationIcon = document.getElementById('evme-activation-icon'),
+          input = activationIcon.querySelector('input'),
+          existingQuery = input && input.value;
+      
+      landingPage.appendChild(page.parentNode.removeChild(page));
+      EvmeFacade.onShow();
 
-      EverythingME.displayed = false;
-      footerStyle.MozTransform = 'translateY(0)';
-      EvmeFacade.onHide();
-      EverythingME.pageHideBySwipe = false;
-    });
-
-    page.addEventListener('gridpagehidestart', function onpagehidestart() {
-      EverythingME.pageHideBySwipe = true;
-    });
-
-    page.addEventListener('contextmenu', function longPress(evt) {
-        evt.stopImmediatePropagation();
-    });
-
-    window.addEventListener('hashchange', function hasChange(evt) {
-      if (!EverythingME.displayed || document.location.hash === '#evme') {
-        return;
+      // set the query the user entered before loaded
+      input = document.getElementById('search-q');
+      if (input) {
+        if (existingQuery) {
+          console.log('evyatar had a query - search [' + existingQuery + ']');
+          EvmeFacade.searchFromOutside(existingQuery);
+        }
+        input.focus();
       }
 
-      var captured = EvmeFacade.onHideStart(EverythingME.pageHideBySwipe ?
-                                            'pageSwipe' : 'homeButtonClick');
-      if (captured) {
-        evt.stopImmediatePropagation();
-        document.location.hash = '#evme';
-      }
+      document.body.classList.remove('evme-loading');
     });
   },
 
@@ -121,6 +99,7 @@ var EverythingME = {
     var total = js_files.length + css_files.length, counter = 0;
 
     function updateProgress() {
+      return;
       var value = Math.floor(((++counter) / total) * 100);
       progressLabel.textContent = value + '%';
       progressElement.value = value;
@@ -195,6 +174,9 @@ var EverythingME = {
 };
 
 var EvmeFacade = {
+  onShow: function onShow() {
+    return false;
+  },
   onHideStart: function onHideStart() {
     return false;
   }

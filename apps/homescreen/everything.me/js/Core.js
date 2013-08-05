@@ -40,7 +40,29 @@ window.Evme = new function Evme_Core() {
     this.pageMove = function pageMove(value) {
         Evme.BackgroundImage.changeOpacity(Math.floor(value*100)/100);
     };
+    
+    this.onSwipeFromPage = function onSwipeFromPage() {
+      
+    };
 
+    this.onHomeButtonPress = function onHomeButtonPress() {
+        Evme.Searchbar.blur();
+        Evme.Searchbar.clearIfHasQuery();
+
+        if (
+          Evme.BackgroundImage.closeFullScreen()
+        ) {
+          // return true to prevent homescreen from performing its own home button actions
+          return true;
+        }
+
+        // return false to allow homescreen to perform its own home button actions
+        return false;
+    };
+
+    this.searchFromOutside = function searchFromOutside(query) {
+        Evme.Brain.Searcher.searchExactFromOutside(query);
+    };
     this.onShow = function onShow() {
         document.body.classList.add('evme-displayed');
     };

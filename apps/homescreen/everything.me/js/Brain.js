@@ -26,6 +26,9 @@ Evme.Brain = new function Evme_Brain() {
         TIMEOUT_BEFORE_RUNNING_IMAGE_SEARCH = 800,
         TIMEOUT_BEFORE_AUTO_RENDERING_MORE_APPS = 200,
         TIMEOUT_BEFORE_SHOWING_APPS_LOADING = 800,
+        
+        CLASS_WHEN_LOADED = 'evme-loaded',
+        CLASS_WHEN_HAS_RESULTS = 'evme-has-results',
 
         L10N_SYSTEM_ALERT="alert",
 
@@ -131,6 +134,8 @@ Evme.Brain = new function Evme_Brain() {
             Brain.Searchbar.setEmptyClass();
 
             Evme.Shortcuts.show();
+            
+            document.body.classList.add(CLASS_WHEN_LOADED);
         };
     };
 
@@ -226,8 +231,10 @@ Evme.Brain = new function Evme_Brain() {
 
             if (!query) {
                 elContainer.classList.add("empty-query");
+                document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
             } else {
                 elContainer.classList.remove("empty-query");
+                document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
             }
         };
 
