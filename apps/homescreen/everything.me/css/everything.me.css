@@ -43,3 +43,6 @@
 .evme-has-results #landing-time {
   display: none;
 }
+body:not(.evme-displayed) #footer {
+  display: block;
+}

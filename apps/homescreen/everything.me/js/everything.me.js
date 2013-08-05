@@ -10,6 +10,7 @@ var EverythingME = {
     
     var self = this,
         _ = navigator.mozL10n.get,
+        page = document.getElementById('landing-page'),
         activationIcon = document.getElementById('evme-activation-icon');
 
     activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
@@ -17,6 +18,13 @@ var EverythingME = {
     activationIcon.addEventListener('click', function onClick(e) {
       this.removeEventListener('click', onClick);
       self.activate();
+    });
+    
+    page.addEventListener('gridpageshowend', function onPageShow() {
+      EvmeFacade.onShow();
+    });
+    page.addEventListener('gridpagehideend', function onPageHide() {
+      EvmeFacade.onHide();
     });
   },
   
@@ -44,6 +52,7 @@ var EverythingME = {
       }
 
       document.body.classList.remove('evme-loading');
+      EvmeFacade.onShow();
     });
   },
 
