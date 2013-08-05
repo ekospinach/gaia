@@ -187,7 +187,7 @@ var GridManager = (function() {
   function handleEvent(evt) {
     switch (evt.type) {
       case touchstart:
-        if (currentPage || numberOfSpecialPages === 1)
+        if (currentPage)
           evt.stopPropagation();
         touchStartTimestamp = evt.timeStamp;
         startEvent = isTouch ? evt.touches[0] : evt;
@@ -523,13 +523,13 @@ var GridManager = (function() {
     if (index < 0 || index >= pages.length)
       return;
 
-    if (index === landingPage) {
+    /*if (index === landingPage) {
       // Homescreen won't call to this method due to stop the propagation
       captureHashchange = true;
       document.location.hash = 'root';
     } else {
       document.location.hash = '';
-    }
+    }*/
 
     var delay = touchEndTimestamp - lastGoingPageTimestamp ||
                 kPageTransitionDuration;
