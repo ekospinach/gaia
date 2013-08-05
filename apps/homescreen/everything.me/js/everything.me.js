@@ -9,11 +9,16 @@ var EverythingME = {
     footerStyle.MozTransition = '-moz-transform .3s ease';
     
     var self = this,
-        _ = navigator.mozL10n.get,
         page = document.getElementById('landing-page'),
         activationIcon = document.getElementById('evme-activation-icon');
 
     activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
+    navigator.mozL10n.ready(function loadSearchbarValue() {
+      var input = activationIcon.querySelector('input'),
+          defaultText = navigator.mozL10n.get('evme-searchbar-default') || '';
+
+      input.setAttribute('placeholder', defaultText);
+    });
 
     activationIcon.addEventListener('click', function onClick(e) {
       this.removeEventListener('click', onClick);
