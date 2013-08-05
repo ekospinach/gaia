@@ -52,14 +52,18 @@ window.Evme = new function Evme_Core() {
     this.onHomeButtonPress = function onHomeButtonPress() {
         Evme.Searchbar.clearIfHasQuery();
         Evme.Searchbar.blur();
-        document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
 
         if (
-          Evme.BackgroundImage.closeFullScreen()
+          Evme.BackgroundImage.closeFullScreen() ||
+          Evme.Brain.Shortcuts.hideIfEditing() ||
+          Evme.Brain.ShortcutsCustomize.hideIfOpen() ||
+          Evme.Brain.ShortcutsCustomize.hideIfRequesting()
         ) {
           // return true to prevent homescreen from performing its own home button actions
           return true;
         }
+
+        document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
 
         // return false to allow homescreen to perform its own home button actions
         return false;
