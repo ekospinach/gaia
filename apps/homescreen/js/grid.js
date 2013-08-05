@@ -308,6 +308,9 @@ var GridManager = (function() {
             };
           } else if (currentPage === landingPage) {
             setOpacityToOverlay = function() {
+              if (!forward)
+                return;
+
               var opacity = (Math.abs(deltaX) / windowWidth) *
                             opacityOnAppGridPageMax;
               overlayStyle.opacity = opacityStepFunction(opacity);
