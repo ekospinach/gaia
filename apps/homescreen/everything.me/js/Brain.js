@@ -227,7 +227,8 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Apps.clear();
             Evme.Helper.setTitle();
             Brain.Helper.showDefault();
-            document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
+            document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
+            document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
         };
 
         // Keyboard action key ("search") pressed
@@ -243,6 +244,7 @@ Evme.Brain = new function Evme_Brain() {
             if (!query) {
                 elContainer.classList.add("empty-query");
                 document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
+                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
             } else {
                 elContainer.classList.remove("empty-query");
                 document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
