@@ -73,9 +73,11 @@ window.Evme = new function Evme_Core() {
         Evme.Brain.Searcher.searchExactFromOutside(query);
     };
     this.onShow = function onShow() {
+        self.displayed = true;
         document.body.classList.add('evme-displayed');
     };
     this.onHide = function onHide() {
+        self.displayed = false;
         document.body.classList.remove('evme-displayed');
     };
 
@@ -98,8 +100,10 @@ window.Evme = new function Evme_Core() {
     };
     
     function onContextMenu(e) {
-      if (Evme.Searchbar.getValue() ||
-          document.body.classList.contains(CLASS_WHEN_SHOWING_SHORTCUTS)) {
+      if (self.displayed && 
+          (Evme.Searchbar.getValue() ||
+          document.body.classList.contains(CLASS_WHEN_SHOWING_SHORTCUTS))
+          ) {
         e.stopImmediatePropagation();
       }
     }
