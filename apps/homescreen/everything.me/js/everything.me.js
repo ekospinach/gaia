@@ -15,7 +15,7 @@ var EverythingME = {
     activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
     navigator.mozL10n.ready(function loadSearchbarValue() {
       var input = activationIcon.querySelector('input'),
-          defaultText = navigator.mozL10n.get('evme-searchbar-default') || '';
+          defaultText = navigator.mozL10n.get('evme-searchbar-default2') || '';
 
       input.setAttribute('placeholder', defaultText);
     });
