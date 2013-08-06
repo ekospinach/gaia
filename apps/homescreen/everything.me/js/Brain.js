@@ -202,7 +202,9 @@ Evme.Brain = new function Evme_Brain() {
 
             if (!didClickApp && Evme.shouldSearchOnInputBlur){
                 window.clearTimeout(timeoutBlur);
-                timeoutBlur = window.setTimeout(self.returnPressed, TIMEOUT_BEFORE_RUNNING_BLUR);
+                timeoutBlur = window.setTimeout(function autoReturn() {
+                  self.returnPressed(true);
+                }, TIMEOUT_BEFORE_RUNNING_BLUR);
             }
         };
 
@@ -216,6 +218,9 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
 
             self.setEmptyClass();
+            if (Evme.Searchbar.isFocused()) {
+              document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
+            }
 
             Evme.DoATAPI.cancelQueue();
             Evme.ConnectionMessage.hide();
@@ -227,28 +232,31 @@ Evme.Brain = new function Evme_Brain() {
             Evme.Apps.clear();
             Evme.Helper.setTitle();
             Brain.Helper.showDefault();
-            document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
-            document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
+            document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
         };
 
         // Keyboard action key ("search") pressed
-        this.returnPressed = function returnPressed(data) {
-            var query = Evme.Searchbar.getValue();
-            Searcher.searchExactFromOutside(query, SEARCH_SOURCES.RETURN_KEY);
+        this.returnPressed = function returnPressed(isFromBlur) {
+            var isFromBlur = isFromBlur === true,
+                query = Evme.Searchbar.getValue();
+            
+            if (query) {
+              Searcher.searchExactFromOutside(query, SEARCH_SOURCES.RETURN_KEY);
+            } else if (!isFromBlur) {
+              document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
+            }
         };
 
         // toggle classname when searchbar is empty
         this.setEmptyClass = function setEmptyClass() {
             var query = Evme.Searchbar.getValue();
 
-            if (!query) {
-                elContainer.classList.add("empty-query");
-                document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
-                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
-            } else {
+            if (query) {
                 elContainer.classList.remove("empty-query");
                 document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
-                document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
+            } else {
+                elContainer.classList.add("empty-query");
+                document.body.classList.remove(CLASS_WHEN_HAS_RESULTS);
             }
         };
 
@@ -267,6 +275,7 @@ Evme.Brain = new function Evme_Brain() {
         this.valueChanged = function valueChanged(data) {
             if (data.value) {
                 Searcher.searchAsYouType(data.value, SEARCH_SOURCES.TYPING);
+                document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
 
             self.setEmptyClass();
@@ -2069,6 +2078,8 @@ Evme.Brain = new function Evme_Brain() {
                 "offset": offset,
                 "automaticSearch": automaticSearch
             };
+
+            document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
             
             Evme.Features.startTimingFeature('typingApps', Evme.Features.ENABLE);
             Searcher.getApps(options);
