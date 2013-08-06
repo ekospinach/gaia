@@ -52,12 +52,12 @@ var EverythingME = {
         if (existingQuery) {
           EvmeFacade.searchFromOutside(existingQuery);
         }
-        
+
         EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
+        input.setSelectionRange(existingQuery.length, existingQuery.length);
       }
 
       document.body.classList.remove('evme-loading');
-      EvmeFacade.onShow();
     });
   },
 
@@ -68,7 +68,6 @@ var EverythingME = {
                     'js/Core.js',
                     'config/config.js',
                     'config/shortcuts.js',
-                    'js/developer/utils.1.3.js',
                     'js/helpers/Utils.js',
                     'js/Brain.js',
                     'modules/Apps/Apps.js',
@@ -81,28 +80,13 @@ var EverythingME = {
                     'modules/SearchHistory/SearchHistory.js',
                     'modules/Helper/Helper.js',
                     'modules/ConnectionMessage/ConnectionMessage.js',
-                    'modules/SmartFolder/SmartFolder.js',
                     'modules/Tasker/Tasker.js',
                     'modules/Features/Features.js',
-                    'js/helpers/Storage.js',
                     'js/plugins/Scroll.js',
                     'js/external/uuid.js',
-                    'js/api/apiv2.js',
                     'js/api/DoATAPI.js',
-                    'js/helpers/EventHandler.js',
-                    'js/helpers/Idle.js',
-                    'js/plugins/Analytics.js',
-                    'js/plugins/APIStatsEvents.js'];
-    var css_files = ['css/common.css',
-                     'modules/Apps/Apps.css',
-                     'modules/BackgroundImage/BackgroundImage.css',
-                     'modules/Banner/Banner.css',
-                     'modules/Shortcuts/Shortcuts.css',
-                     'modules/ShortcutsCustomize/ShortcutsCustomize.css',
-                     'modules/Searchbar/Searchbar.css',
-                     'modules/Helper/Helper.css',
-                     'modules/ConnectionMessage/ConnectionMessage.css',
-                     'modules/SmartFolder/SmartFolder.css'];
+                    'js/plugins/Analytics.js'];
+    var css_files = ['css/common.css'];
     var head = document.head;
 
     var scriptLoadCount = 0;
@@ -113,14 +97,12 @@ var EverythingME = {
     var total = js_files.length + css_files.length, counter = 0;
 
     function updateProgress() {
-      return;
       var value = Math.floor(((++counter) / total) * 100);
       progressLabel.textContent = value + '%';
       progressElement.value = value;
     }
 
     function onScriptLoad(event) {
-      updateProgress();
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount == js_files.length) {
         EverythingME.start(success);
@@ -130,7 +112,6 @@ var EverythingME = {
     }
 
     function onCSSLoad(event) {
-      updateProgress();
       event.target.removeEventListener('load', onCSSLoad);
       if (++cssLoadCount === css_files.length) {
         loadScript(js_files[scriptLoadCount]);
