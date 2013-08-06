@@ -30,7 +30,7 @@ Evme.Utils = new function Evme_Utils() {
 
     this.EMPTY_IMAGE = "../../images/empty.gif";
 
-    this.APPS_FONT_SIZE = 13 * self.devicePixelRatio;
+    this.APPS_FONT_SIZE = 12 * self.devicePixelRatio;
 
     this.ICONS_FORMATS = {
         "Small": 10,
@@ -225,7 +225,7 @@ Evme.Utils = new function Evme_Utils() {
       context.shadowOffsetY = 1;
       context.shadowBlur = 3;
       context.shadowColor = 'rgba(0, 0, 0, 0.6)';
-      context.font = '300 ' + FONT_SIZE + 'px Feura Sans';
+      context.font = '600 ' + FONT_SIZE + 'px Feura Sans';
 
       for (var i=0,word; word=text[i++];) {
         // add 1 to the word with because of the space between words
