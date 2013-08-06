@@ -67,8 +67,7 @@ var EverythingME = {
 
       document.body.classList.remove('evme-loading');
       
-      var activationIcon = document.getElementById('evme-activation-icon');
-      activationIcon && activationIcon.parentNode.removeChild(activationIcon);
+      activationIcon.parentNode.removeChild(activationIcon);
     });
   },
 
@@ -123,15 +122,7 @@ var EverythingME = {
     var progressElement = document.querySelector('#loading-overlay progress');
     var total = js_files.length + css_files.length, counter = 0;
 
-    function updateProgress() {
-      return;
-      var value = Math.floor(((++counter) / total) * 100);
-      progressLabel.textContent = value + '%';
-      progressElement.value = value;
-    }
-
     function onScriptLoad(event) {
-      updateProgress();
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount == js_files.length) {
         EverythingME.start(success);
@@ -141,7 +132,6 @@ var EverythingME = {
     }
 
     function onCSSLoad(event) {
-      updateProgress();
       event.target.removeEventListener('load', onCSSLoad);
       if (++cssLoadCount === css_files.length) {
         loadScript(js_files[scriptLoadCount]);
