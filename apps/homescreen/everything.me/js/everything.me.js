@@ -20,17 +20,25 @@ var EverythingME = {
       input.setAttribute('placeholder', defaultText);
     });
 
-    activationIcon.addEventListener('click', function onClick(e) {
-      this.removeEventListener('click', onClick);
-      self.activate();
-    });
-    
+    activationIcon.addEventListener('click', onClick);
+    activationIcon.addEventListener('contextmenu', onContextMenu);
+
     page.addEventListener('gridpageshowend', function onPageShow() {
       EvmeFacade.onShow();
     });
     page.addEventListener('gridpagehideend', function onPageHide() {
       EvmeFacade.onHide();
     });
+
+    function onClick(e) {
+      this.removeEventListener('click', onClick);
+      this.removeEventListener('contextmenu', onContextMenu);
+      self.activate();
+    }
+
+    function onContextMenu(e) {
+      e.stopPropagation();
+    }
   },
   
   activate: function EverythingME_activate(e) {
@@ -45,7 +53,7 @@ var EverythingME = {
       
       landingPage.appendChild(page.parentNode.removeChild(page));
       EvmeFacade.onShow();
-
+      
       // set the query the user entered before loaded
       input = document.getElementById('search-q');
       if (input) {
@@ -58,6 +66,9 @@ var EverythingME = {
       }
 
       document.body.classList.remove('evme-loading');
+      
+      var activationIcon = document.getElementById('evme-activation-icon');
+      activationIcon && activationIcon.parentNode.removeChild(activationIcon);
     });
   },
 
