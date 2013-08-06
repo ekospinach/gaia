@@ -191,7 +191,7 @@ var EvmeFacade = {
   onShow: function onShow() {
     return false;
   },
-  onHideStart: function onHideStart() {
+  onHide: function onHide() {
     return false;
   }
 };

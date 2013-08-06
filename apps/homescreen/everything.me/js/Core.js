@@ -79,6 +79,8 @@ window.Evme = new function Evme_Core() {
     this.onHide = function onHide() {
         self.displayed = false;
         document.body.classList.remove('evme-displayed');
+        Evme.Searchbar.blur();
+        document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
     };
 
     this.onHideStart = function onHideStart(source) {
