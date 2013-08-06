@@ -12,22 +12,19 @@ Evme.Tasker = new function Evme_Tasker() {
 
     triggerInterval = options.triggerInterval;
 
-    // setting a timeout to not hold the entire thread
-    window.setTimeout(function async() {
-        // when the tasks should be triggered, we first verify the screen is even on
-        powerSettings = window.navigator.mozPower || {'screenEnabled': true};
+    // when the tasks should be triggered, we first verify the screen is even on
+    powerSettings = window.navigator.mozPower || {'screenEnabled': true};
 
-        // handle the alarm callback
-        navigator.mozSetMessageHandler("alarm", handleAlarm);
+    // handle the alarm callback
+    navigator.mozSetMessageHandler("alarm", handleAlarm);
 
-        // trigger when language changes. pass "true" to force the trigger
-        navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
-          self.trigger(true);
-        });
+    // trigger when language changes. pass "true" to force the trigger
+    navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
+      self.trigger(true);
+    });
 
-        // set the alarm
-        addAlarm();
-    }, 0);
+    // set the alarm
+    addAlarm();
 
     Evme.EventHandler.trigger(NAME, 'init');
   };
