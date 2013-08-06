@@ -46,15 +46,15 @@ Evme.Brain = new function Evme_Brain() {
 
         INSTALLED_APPS_TO_TYPE = {
             "productivity": ["Calendar", "Clock"],
-            "utilities": ["Calendar", "Clock", "Browser", "Settings", "Marketplace"],
+            "utilities": ["Calendar", "Clock", "Browser", "Settings", "Marketplace", "Usage", "Notes", "Calculator"],
             "email": ["E-mail"],
             "internet": ["Browser", "Settings"],
             "photography": ["Gallery", "Camera"],
             "images": ["Gallery", "Camera"],
             "music": ["FM Radio", "Music", "Video"],
-            "radio": ["FM Radio", "Music"],
+            "radio": ["Music", "FM Radio"],
             "video": ["Video", "Camera"],
-            "social": ["Messages"],
+            "social": ["E-mail", "Messages", "Facebook"],
             "personal communication": ["Messages"],
             "tv": ["Video"],
             "funny": ["Video"],
