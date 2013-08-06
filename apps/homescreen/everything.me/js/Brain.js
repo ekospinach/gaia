@@ -45,13 +45,22 @@ Evme.Brain = new function Evme_Brain() {
         DISPLAY_INSTALLED_APPS = "FROM_CONFIG",
 
         INSTALLED_APPS_TO_TYPE = {
-            "music": ["FM Radio", "Music", "Video"],
-            "games": ["Marketplace", "CrystalSkull", "PenguinPop", "TowerJelly"],
-            "maps": ["Maps"],
+            "productivity": ["Calendar", "Clock"],
+            "utilities": ["Calendar", "Clock", "Browser", "Settings", "Marketplace"],
             "email": ["E-mail"],
+            "internet": ["Browser", "Settings"],
+            "photography": ["Gallery", "Camera"],
             "images": ["Gallery", "Camera"],
+            "music": ["FM Radio", "Music", "Video"],
+            "radio": ["FM Radio", "Music"],
             "video": ["Video", "Camera"],
-            "local": ["Maps", "FM Radio"]
+            "social": ["Messages"],
+            "personal communication": ["Messages"],
+            "tv": ["Video"],
+            "funny": ["Video"],
+            "games": ["Marketplace", "CrystalSkull", "PenguinPop", "TowerJelly"],
+            "maps": ["Here Maps"],
+            "local": ["Here Maps"]
         },
 
         timeoutSetUrlAsActive = null,
