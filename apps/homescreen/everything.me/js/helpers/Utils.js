@@ -204,7 +204,7 @@ Evme.Utils = new function Evme_Utils() {
     
     this.writeTextToCanvas = function writeTextToCanvas(options) {
       var context = options.context,
-          text = options.text.split(' '),
+          text = options.text ? options.text.split(' ') : [],
           offset = options.offset || 0,
           lineWidth = 0,
           currentLine = 0,
