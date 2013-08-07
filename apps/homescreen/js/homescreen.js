@@ -25,6 +25,7 @@ const Homescreen = (function() {
     initialized = true;
     landingPage = lPage;
 
+<<<<<<< HEAD
     window.addEventListener('hashchange', function() {
       if (document.location.hash != '#root')
         return;
@@ -37,6 +38,36 @@ const Homescreen = (function() {
       }
       GridManager.ensurePanning();
     });
+=======
+    var swipeSection = Configurator.getSection('swipe');
+    var options = {
+      gridSelector: '.apps',
+      dockSelector: '.dockWrapper',
+      tapThreshold: Configurator.getSection('tap_threshold'),
+      // It defines the threshold to consider a gesture like a swipe. Number
+      // in the range 0.0 to 1.0, both included, representing the screen width
+      swipeThreshold: swipeSection.threshold,
+      swipeFriction: swipeSection.friction,
+      swipeTransitionDuration: swipeSection.transition_duration
+    };
+
+    GridManager.init(options, function gm_init() {
+      window.addEventListener('hashchange', function() {
+        if (!window.location.hash.replace('#', '')) {
+          return;
+        }
+
+        // this happens when the user presses the 'home' button
+        if (Homescreen.didEvmePreventHomeButton()) {
+          // nothing to do here, just prevent any other actions
+        } else if (Homescreen.isInEditMode()) {
+          exitFromEditMode();
+        } else {
+          GridManager.goToPage(landingPage);
+        }
+        GridManager.ensurePanning();
+      });
+>>>>>>> 1424b32... [Bug 838634] Move Evme to landing page [r=21]
 
     var tapThreshold = Configurator.getSection('tap_threshold');
     if (typeof(tapThreshold) === 'undefined') {
@@ -138,6 +169,11 @@ const Homescreen = (function() {
 
     isInEditMode: function() {
       return mode === 'edit';
+    },
+
+    didEvmePreventHomeButton: function() {
+      var evme = ("EvmeFacade" in window) && window.EvmeFacade;
+      return evme.onHomeButtonPress && evme.onHomeButtonPress();
     },
 
     init: initialize,

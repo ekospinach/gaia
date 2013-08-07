@@ -156,7 +156,7 @@ var GridManager = (function() {
   function handleEvent(evt) {
     switch (evt.type) {
       case touchstart:
-        if (currentPage || numberOfSpecialPages === 1)
+        if (currentPage)
           evt.stopPropagation();
         touchStartTimestamp = evt.timeStamp;
         startEvent = isTouch ? evt.touches[0] : evt;
@@ -276,6 +276,9 @@ var GridManager = (function() {
             };
           } else if (currentPage === landingPage) {
             setOpacityToOverlay = function() {
+              if (!forward)
+                return;
+
               var opacity = (Math.abs(deltaX) / windowWidth) *
                             opacityOnAppGridPageMax;
               overlayStyle.opacity = opacityStepFunction(opacity);
@@ -366,9 +369,7 @@ var GridManager = (function() {
       var forward = dirCtrl.goesForward(deltaX);
       if (forward && currentPage < pages.length - 1) {
         page = page + 1;
-      } else if (!forward && page > 0 &&
-                 (page === landingPage || page >= nextLandingPage + 1 ||
-                    (page === nextLandingPage && !Homescreen.isInEditMode()))) {
+      } else if (!forward && page > 0) {
         page = page - 1;
       }
     } else if (!isPanning && evt) {
@@ -819,6 +820,7 @@ var GridManager = (function() {
     // See also pageHelper.saveAll().
     numberOfSpecialPages = container.children.length;
     landingPage = numberOfSpecialPages - 1;
+    currentPage = numberOfSpecialPages - 1;
     prevLandingPage = landingPage - 1;
     nextLandingPage = landingPage + 1;
     for (var i = 0; i < container.children.length; i++) {
@@ -1090,6 +1092,55 @@ var GridManager = (function() {
     defaultBookmarkIcon.loadDefaultIcon();
   }
 
+<<<<<<< HEAD
+=======
+  var defaults = {
+    gridSelector: '.apps',
+    dockSelector: '.dockWrapper'
+  };
+
+  function doInit(options, callback) {
+    calculateDefaultIcons();
+    pages = [];
+    bookmarkIcons = Object.create(null);
+    appIcons = Object.create(null);
+    appsByOrigin = Object.create(null);
+    bookmarksByOrigin = Object.create(null);
+
+    initUI(options.gridSelector);
+
+    tapThreshold = options.tapThreshold;
+    swipeThreshold = windowWidth * options.swipeThreshold;
+    swipeFriction = options.swipeFriction || defaults.swipeFriction; // Not zero
+    kPageTransitionDuration = options.swipeTransitionDuration;
+    overlayTransition = 'opacity ' + kPageTransitionDuration + 'ms ease';
+
+    IconRetriever.init();
+
+    // Initialize the grid from the state saved in IndexedDB.
+    HomeState.init(function eachPage(pageState) {
+      // First 'page' is the dock.
+      if (pageState.index == 0) {
+        var dockContainer = document.querySelector(options.dockSelector);
+        var dock = new Dock(dockContainer,
+          convertDescriptorsToIcons(pageState));
+        DockManager.init(dockContainer, dock, tapThreshold);
+        return;
+      }
+      pageHelper.addPage(convertDescriptorsToIcons(pageState));
+    }, function onState() {
+      initApps();
+      callback();
+    }, function onError(error) {
+      var dockContainer = document.querySelector(options.dockSelector);
+      var dock = new Dock(dockContainer, []);
+      DockManager.init(dockContainer, dock, tapThreshold);
+      initApps();
+      callback();
+    });
+  }
+
+>>>>>>> 1424b32... [Bug 838634] Move Evme to landing page [r=21]
   return {
     /*
      * Initializes the grid manager

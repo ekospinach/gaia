@@ -128,7 +128,8 @@ customize = JSON.parse(getDistributionFileContent('homescreens', customize));
 let content = {
   search_page: {
     provider: 'EverythingME',
-    enabled: true
+    enabled: true,
+    separate_page: false
   },
 
   // It defines the threshold in pixels to consider a gesture like a tap event
