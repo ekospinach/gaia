@@ -8,6 +8,7 @@ Evme.Brain = new function Evme_Brain() {
         Brain = this,
         _config = {},
         elContainer = null,
+        isActive = false,
         QUERIES_TO_NOT_CACHE = "",
         DEFAULT_NUMBER_OF_APPS_TO_LOAD = 16,
         NUMBER_OF_APPS_TO_LOAD_IN_FOLDER = 16,
@@ -77,6 +78,7 @@ Evme.Brain = new function Evme_Brain() {
         elContainer = Evme.Utils.getContainer();
         
         initL10nObserver();
+        initActiveObserver();
 
         _config = options;
 
@@ -114,6 +116,30 @@ Evme.Brain = new function Evme_Brain() {
             }
         }
     }
+
+    function initActiveObserver() {
+        new MutationObserver(Evme.Brain.activeMutationObserver)
+            .observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class'],
+                childList: false
+            });
+    }
+
+    this.activeMutationObserver = function onBodyAttributeChanges(mutations) {
+
+        var classes = document.body.classList;
+            newIsActive = Evme.Utils.isKeyboardVisible ||
+                            classes.contains(CLASS_WHEN_SHOWING_SHORTCUTS) ||
+                            classes.contains(CLASS_WHEN_HAS_RESULTS);
+                            
+        if (newIsActive !== isActive) {
+            isActive = newIsActive;
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.EVME_OPEN, {
+                isVisible: isActive
+            });
+        }
+    };
 
     /**
      * main event handling method that catches all the events from the different modules,

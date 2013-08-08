@@ -5,15 +5,14 @@
     right: 0;
     bottom: 0;
     z-index: 1;
-    opacity: 0;
+    background-color: #000000;
     transition: opacity .3s linear;
 }
-.evme-keyboard-visible #search-overlay,
-.evme-has-results #search-overlay,
-.evme-display-shortcuts #search-overlay {
+body.evme-displayed #search-overlay{
     opacity: 1;
 }
-body:not(.evme-displayed) #search-overlay {
+body.evme-displayed #search-overlay:empty,
+body.evme-displayed #search-overlay.default {
   opacity: 0;
 }
 #evmeContainer #search-header.animate,
@@ -37,16 +36,7 @@ body:not(.evme-displayed) #search-overlay {
         transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
     }
     #search-overlay .img.visible {
-        opacity: 0.4;
-    }
-    #search-overlay .img.default-image {
-        background: #000;
-    }
-    #search-overlay .img.default-image.visible {
-        opacity: 1;
-    }
-    #search-overlay.default .img.default-image.visible {
-        opacity: .4;
+        opacity: 0.6;
     }
 
 #bgimage-overlay {
