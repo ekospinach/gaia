@@ -64,19 +64,55 @@ Evme.IconGroup = new function Evme_IconGroup() {
   };
 
   this.get = function get(icons, callback) {
-    var el = renderCanvas({
-      "icons": icons || [],
-      "settings": Evme.Utils.getIconGroup() || [],
-      "onReady": callback
-    });
+    var el;
+
+    callback = callback || Evme.Utils.NOOP;
+
+    if (icons && icons.length){
+      el = renderCanvas({
+        "icons": icons,
+        "settings": Evme.Utils.getIconGroup(icons.length),
+        "onReady": callback
+      });     
+    }
+
+    else {
+      el = renderEmptyIcon({
+        "onReady": callback
+      });
+    }
 
     return el;
   };
 
+  /**
+   * Draw icon for folder with no apps.
+   */
+  function renderEmptyIcon(options){
+    var icon = Evme.Utils.getEmptyFolderIcon(),
+      onReady = options.onReady,
+      elCanvas = document.createElement('canvas'),
+      context = elCanvas.getContext('2d')
+      img = new Image();
+
+    elCanvas.width = WIDTH;
+    elCanvas.height = WIDTH;
+
+    img.onload = function onload(){
+      // TODO: Ask @evyatron why does passing 60,60 renders too small?
+      context.drawImage(img, 0, 0, 72, 72);
+      onReady(elCanvas);
+    }
+
+    img.src = Evme.Utils.formatImageData(icon);
+
+    return elCanvas;
+  }
+
   function renderCanvas(options) {
     var icons = options.icons,
         settings = options.settings,
-        onReady = options.onReady || function() {},
+        onReady = options.onReady,
         elCanvas = document.createElement('canvas'),
         context = elCanvas.getContext('2d');
 

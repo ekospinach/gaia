@@ -1050,6 +1050,7 @@ var GridManager = (function() {
       isBookmark: app.isBookmark,
       id: app.id,
       isFolder: !!app.isFolder,
+      isEmpty: !!app.isEmpty,
       hideFromGrid: !!app.hideFromGrid
     };
     

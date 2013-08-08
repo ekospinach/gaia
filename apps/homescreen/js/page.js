@@ -106,6 +106,7 @@ Icon.prototype = {
     // Smart Folders (as bookmarks)
     if (descriptor.isFolder) {
       container.dataset.isFolder = true;
+      container.dataset.isEmpty = descriptor.isEmpty;
       container.dataset.folderId = descriptor.id;
       container.dataset.folderName = descriptor.name;
     }
@@ -408,8 +409,9 @@ Icon.prototype = {
     this.descriptor = descriptor;
     descriptor.removable === true ? this.appendOptions() : this.removeOptions();
 
-    // Update offline availability
+    // Update dataset properties
     this.container.dataset.offlineReady = this.isOfflineReady();
+    this.container.dataset.isEmpty = descriptor.isEmpty;
 
     if (descriptor.updateTime == oldDescriptor.updateTime &&
         descriptor.icon == oldDescriptor.icon) {

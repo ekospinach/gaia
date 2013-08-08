@@ -61,8 +61,35 @@ Evme.Config = Evme.__config = {
         }
     },
     "maxHistoryEntries": "10",
-    "iconsGroupSettings": [
+    "emptyFolderIcon": "/everything.me/images/empty-folder.png",
+    "iconsGroupSettings": {
+        "1": [{
+            "x": 10,
+            "y": 6,
+            "size": 54,
+            "shadowOffset": 2,
+            "shadowBlur": 1,
+            "shadowOpacity": 0.1
+        }],
+        "2": [{
+            "x": 20,
+            "y": 10,
+            "size": 54,
+            "darken": 0.25,
+            "shadowOffset": 2,
+            "shadowBlur": 2,
+            "shadowOpacity": 0.1
+        },
         {
+            "x": 0,
+            "y": 6,
+            "size": 54,
+            "shadowOffset": 4,
+            "shadowOffsetX": 2,
+            "shadowBlur": 4,
+            "shadowOpacity": 0.2
+        }],
+        "3": [{
             "x": 26,
             "y": 20,
             "size": 46,
@@ -88,8 +115,8 @@ Evme.Config = Evme.__config = {
             "shadowOffsetX": 2,
             "shadowBlur": 4,
             "shadowOpacity": 0.2
-        }
-    ],
+        }]
+    },
     "design": {
         "apps": {
             "defaultIconUrl": {

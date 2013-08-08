@@ -407,8 +407,15 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.Config.design.apps.marketBadgeUrl[quality];
     }
 
-    this.getIconGroup = function getIconGroup() {
-        return self.cloneObject(Evme.__config.iconsGroupSettings);
+    this.getEmptyFolderIcon = function getEmptyFolderIcon(){
+        return Evme.__config.emptyFolderIcon;
+    };
+
+    this.getIconGroup = function getIconGroup(numIcons) {
+        // valid values are 1,2,3
+        numIcons = Math.max(numIcons, 1);
+        numIcons = Math.min(numIcons, 3);
+        return self.cloneObject(Evme.__config.iconsGroupSettings[numIcons]);
     };
 
     this.getIconsFormat = function getIconsFormat() {

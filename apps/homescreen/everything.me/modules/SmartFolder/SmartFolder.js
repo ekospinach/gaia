@@ -301,6 +301,7 @@
         if (icons.length === NUM_APPS_IN_FOLDER_ICON) break;
       }
 
+      // we may get 0 icons (no connection)
       if (icons.length){
         Evme.SmartFolderStorage.update(folderSettings, {'icons': icons});
         addFolderToHomescreen(folderSettings);
@@ -538,18 +539,22 @@
     Evme.SmartFolderStorage.update(folderSettings, {"apps": folderApps, "icons": icons}, addFolderToHomescreen);
   };
 
+  /**
+   * Add a new folder to the homescreen.
+   * If folder exists will update the icon.
+   */
   function addFolderToHomescreen(folderSettings, gridPosition) {
     var homescreenIcons = (folderSettings.icons.length) ?
       folderSettings.icons : Evme.Utils.pluck(folderSettings.apps, 'icon');
       
     Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas){
-      
-      Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+      EvmeManager.addBookmark({
         "id": folderSettings.id,
         "originUrl": 'fldr://' + folderSettings.id,
         "title": folderSettings.name,
         "icon": canvas.toDataURL(),
         "isFolder": true,
+        "isEmpty": !(homescreenIcons.length),
         "gridPosition": gridPosition
       });
     });

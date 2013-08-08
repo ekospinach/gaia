@@ -44,7 +44,7 @@
   position: relative;
   z-index: 10;
 }
-.apps ol > li[data-is-folder="true"] div::before {
+.apps ol > li[data-is-folder="true"]:not([data-is-empty="true"]) div::before {
   content: "";
   position: absolute;
   left: 50%;
