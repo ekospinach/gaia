@@ -1136,7 +1136,7 @@ Evme.Brain = new function Evme_Brain() {
                         "offset": currentFolder.appsPaging.offset
                     });
                     
-                    updateShortcutIcons(experienceId || query, apps);
+                    self.updateShortcutIcons(experienceId || query, apps);
 
                     requestSmartFolderApps = null;
                     
@@ -1197,7 +1197,9 @@ Evme.Brain = new function Evme_Brain() {
             });
         };
         
-        function updateShortcutIcons(key, apps) {
+        this.updateShortcutIcons = function updateShortcutIcons(key, apps) {
+          !apps && (apps = []);
+
           var shortcutsToUpdate = {},
               icons = {},
               numberOfIconsInShortcut = (Evme.Utils.getIconGroup() || []).length;
@@ -1205,8 +1207,10 @@ Evme.Brain = new function Evme_Brain() {
           shortcutsToUpdate[key] = [];
           for (var i=0,app; i<numberOfIconsInShortcut; i++) {
             app = apps[i];
-            icons[app.id] = app.icon;
-            shortcutsToUpdate[key].push(app.id);
+            if (app) {
+              icons[app.id] = app.icon;
+              shortcutsToUpdate[key].push(app.id);
+            }
           }
 
           Evme.DoATAPI.Shortcuts.update({
@@ -1299,7 +1303,8 @@ Evme.Brain = new function Evme_Brain() {
             if(!Evme.Shortcuts.isEditing && !Evme.Shortcuts.isSwiping()) {
               // get the shortcut's query
               var query = data.shortcut.getQuery(),
-                  experienceId = data.shortcut.getExperience();
+                  experienceId = data.shortcut.getExperience(),
+                  feature = SEARCH_SOURCES.SHORTCUT_SMART_FOLDER;
 
               // if there isn't a query - translate the experienceId to a query
               if (!query) {
@@ -1307,7 +1312,9 @@ Evme.Brain = new function Evme_Brain() {
               }
 
               // now set the query in the searchbar and perform the exact search
-              Searcher.searchExactFromOutside(query, SEARCH_SOURCES.SHORTCUT_SMART_FOLDER);
+              Searcher.searchExactFromOutside(query, feature, null, null, function onComplete(apps) {
+                Evme.Brain.SmartFolder.updateShortcutIcons(experienceId || query, apps);
+              });
             }
         };
 
@@ -1610,7 +1617,8 @@ Evme.Brain = new function Evme_Brain() {
                 exact = options.exact || false,
                 iconsFormat = options.iconsFormat,
                 offset = options.offset,
-                onlyDidYouMean = options.onlyDidYouMean;
+                onlyDidYouMean = options.onlyDidYouMean,
+                callback = options.callback || function(){};
 
             Evme.Searchbar.startRequest();
 
@@ -1702,7 +1710,7 @@ Evme.Brain = new function Evme_Brain() {
                         window.clearTimeout(timeoutShowAppsLoading);
                         Evme.Apps.hideLoading();
                         
-                        getAppsComplete(data, options, installedApps);
+                        getAppsComplete(data, options, installedApps, callback);
                         requestSearch = null;
                         
                         // only try to refresh location of it's a "real" search- with keyboard down
@@ -1759,7 +1767,7 @@ Evme.Brain = new function Evme_Brain() {
             return apps;
         };
 
-        function getAppsComplete(data, options, installedApps) {
+        function getAppsComplete(data, options, installedApps, callback) {
             if (data.errorCode !== Evme.DoATAPI.ERROR_CODES.SUCCESS) {
                 return false;
             }
@@ -1787,7 +1795,9 @@ Evme.Brain = new function Evme_Brain() {
                 apps = searchResults.apps || [],
                 spelling = searchResults.spellingCorrection || [],
                 isMore = (appsCurrentOffset > 0),
-                bSameQuery = (lastSearch.query === query);
+                bSameQuery = (lastSearch.query === query),
+                
+                onComplete = callback || function() {};
             
             // searching after a timeout while user it typing
             if (onlyDidYouMean || options.automaticSearch) {
@@ -1839,6 +1849,8 @@ Evme.Brain = new function Evme_Brain() {
                         "iconsFormat": iconsFormat,
                         "clear": !hasInstalledApps && appsCurrentOffset == 0
                     });
+                    
+                    onComplete(apps);
 
                     if (iconsResponse) {
                         iconsCachedFromLastRequest = iconsResponse.cached;
@@ -2049,9 +2061,8 @@ Evme.Brain = new function Evme_Brain() {
             }
         };
 
-        this.searchExactFromOutside = function searchExactFromOutside(query, source, index, type, offset, isGetAllAppsForPage) {
-            !type && (type = "");
-            !offset && (offset = 0);
+        this.searchExactFromOutside = function searchExactFromOutside(query, source, index, type, callback) {
+            !type && (type = '');
 
             if (query) {
                 Evme.Helper.reset();
@@ -2060,12 +2071,7 @@ Evme.Brain = new function Evme_Brain() {
                 if (lastSearch.query != query || lastSearch.type != type || !lastSearch.exact) {
                     resetLastSearch();
 
-                    if (isGetAllAppsForPage && offset) {
-                        NUMBER_OF_APPS_TO_LOAD = offset*1;
-                        offset = 0;
-                    }
-
-                    Searcher.searchExact(query, source, index, type, offset);
+                    Searcher.searchExact(query, source, index, type, 0, false, callback);
                 } else {
                     Evme.Helper.enableCloseAnimation();
 
@@ -2082,7 +2088,7 @@ Evme.Brain = new function Evme_Brain() {
             Brain.Searchbar.setEmptyClass();
         };
 
-        this.searchExact = function searchExact(query, source, index, type, offset, automaticSearch) {
+        this.searchExact = function searchExact(query, source, index, type, offset, automaticSearch, callback) {
             Searcher.cancelRequests();
             appsCurrentOffset = 0;
 
@@ -2098,7 +2104,8 @@ Evme.Brain = new function Evme_Brain() {
                 "index": index,
                 "exact": true,
                 "offset": offset,
-                "automaticSearch": automaticSearch
+                "automaticSearch": automaticSearch,
+                "callback": callback
             };
 
             document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
