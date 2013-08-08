@@ -127,12 +127,15 @@ Evme.Brain = new function Evme_Brain() {
     }
 
     this.activeMutationObserver = function onBodyAttributeChanges(mutations) {
+        var newIsActive = Evme.Utils.isKeyboardVisible;
 
-        var classes = document.body.classList;
-            newIsActive = Evme.Utils.isKeyboardVisible ||
-                            classes.contains(CLASS_WHEN_SHOWING_SHORTCUTS) ||
+        // separate condition for perf optimization (classList)
+        if (!newIsActive) {
+            var classes = document.body.classList;
+            newIsActive = classes.contains(CLASS_WHEN_SHOWING_SHORTCUTS) ||
                             classes.contains(CLASS_WHEN_HAS_RESULTS);
-                            
+        }
+        
         if (newIsActive !== isActive) {
             isActive = newIsActive;
             Evme.Utils.sendToOS(Evme.Utils.OSMessages.EVME_OPEN, {
