@@ -94,15 +94,23 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		function setImageSrc(src) {		
 			image.onload = self.onAppIconLoad;
 			image.src = src;
-
-			// save reference to the raw, unmaniputaled icon
-			// used when closing a folder to update it's homescreen icon
-			el.dataset.iconSrc = src;
 		}
 	};
 
+	/**
+	 * Save reference to the raw, unmaniputaled icon
+	 * Used when closing a folder to update it's homescreen icon
+	 */
+	this.setIconSrc = function(src) {
+		el.dataset.iconSrc = src;
+	};
+
+	/**
+	 * Default implementation of Result icon rendering.
+	 * Currently only Evme.CloudAppResult implements different rendering.
+	 */
 	this.onAppIconLoad = function onAppIconLoad() {
-		// deafult implementation: use OS icon rendering
+		// use OS icon rendering
 		var iconCanvas = Icon.prototype.createCanvas(image),
 				canvasSize = iconCanvas.width;
 
@@ -110,6 +118,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		self.context.drawImage(iconCanvas, (TEXT_WIDTH - canvasSize) / 2, 0);
 		self.iconPostRendering(iconCanvas);
 		self.finalizeIcon();
+		self.setIconSrc(image.src);
 	};
 
 	this.initIcon = function initIcon(baseHeight, textOffset) {

@@ -292,6 +292,21 @@ Evme.Utils = new function Evme_Utils() {
         img.src = options.src;
     };
     
+    this.getRoundIcons = function getRoundIcons(options, callback) {
+        var sources = options.sources,
+            rounded = [];
+        
+        for (var i = 0, src; src = sources[i++];) {
+            Evme.Utils.getRoundIcon({"src": src}, function onRoundIcon(icon){
+                rounded.push(icon);
+                
+                if (rounded.length === sources.length) {
+                    callback(rounded);
+                }
+            });
+        };
+    };
+
     this.writeTextToCanvas = function writeTextToCanvas(options) {
       var context = options.context,
           text = options.text.split(' '),

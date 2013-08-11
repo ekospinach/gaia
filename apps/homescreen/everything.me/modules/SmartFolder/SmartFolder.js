@@ -370,10 +370,14 @@
             };
 
           var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
-            return defaultIcons[appId];
+            return Evme.Utils.formatImageData(defaultIcons[appId]);
           });
 
-          createPreinstalledFolder(shortcut.experienceId, shortcutIcons, gridPosition);
+          (function initFolder(experienceId, shortcutIcons, gridPosition) {
+            Evme.Utils.getRoundIcons({"sources": shortcutIcons }, function onRoundIcons(roundIcons) {
+              createPreinstalledFolder(experienceId, roundIcons, gridPosition);
+            });
+          })(shortcut.experienceId, shortcutIcons, gridPosition);
         }
 
         Evme.Storage.set(cacheKey, true);

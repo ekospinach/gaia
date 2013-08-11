@@ -9,6 +9,8 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 			SIZE = 52 * Evme.Utils.devicePixelRatio,
 			FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR;
 
+	
+	// @override
 	// manipulate the icon (clipping, shadow, resize)
 	this.onAppIconLoad = function CloudResult_onAppIconLoad() {
 		self.initIcon(FULL_SIZE, SIZE);
@@ -18,14 +20,15 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 		    fixedImage = new Image();
 
 		elImageCanvas.width = elImageCanvas.height = FULL_SIZE;
-
+		
 		imageContext.beginPath();
 		imageContext.arc(FULL_SIZE / 2, FULL_SIZE / 2, SIZE / 2, 0, Math.PI * 2, false);
 		imageContext.closePath();
 		imageContext.clip();
-
-		// first we draw the image resized and clipped (to be rounded)
 		imageContext.drawImage(this, (FULL_SIZE - SIZE) / 2, (FULL_SIZE - SIZE) / 2, SIZE, SIZE);
+
+		// save a reference to the clipped icon
+		self.setIconSrc(elImageCanvas.toDataURL());
 
 		fixedImage.onload = function onImageLoad() {
 		    // shadow

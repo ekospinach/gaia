@@ -150,11 +150,6 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
       elImageCanvas.width = elImageCanvas.height = size;
 
-      imageContext.beginPath();
-      imageContext.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, false);
-      imageContext.closePath();
-      imageContext.clip();
-
       //first we draw the image resized and clipped (to be rounded)
       imageContext.drawImage(this, 0, 0, size, size);
 
