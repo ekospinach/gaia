@@ -307,7 +307,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
   }
 
   function touchMove(e) {
-    var y = scroll.y;
     if (shouldFadeBG) {
       var _fadeBy = scroll.distY / MAX_SCROLL_FADE;
 

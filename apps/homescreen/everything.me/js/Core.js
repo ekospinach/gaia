@@ -131,7 +131,6 @@ window.Evme = new function Evme_Core() {
 
     Evme.BackgroundImage.init({
       "el": Evme.$("#search-overlay"),
-      "elementsToFade": [Evme.$(".smart-folder .evme-apps")[0], Evme.$("#evmeApps"), Evme.$("#header"), Evme.$("#search-header")],
       "defaultImage": data.defaultBGImage
     });
 
