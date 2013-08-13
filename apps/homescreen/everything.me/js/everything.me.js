@@ -7,19 +7,13 @@ var EverythingME = {
     
     var self = this,
         page = document.getElementById('evmePage'),
-        gridPage = document.querySelector('#icongrid > div:first-child'),
-        activationIcon = document.getElementById('evme-activation-icon');
+        gridPage = document.querySelector('#icongrid > div:first-child');
 
-    activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
-    navigator.mozL10n.ready(function loadSearchbarValue() {
-      var input = activationIcon.querySelector('input'),
-          defaultText = navigator.mozL10n.get('evme-searchbar-default2') || '';
-
-      input.setAttribute('placeholder', defaultText);
-    });
-
-    activationIcon.addEventListener('click', onClick);
-    activationIcon.addEventListener('contextmenu', onContextMenu);
+    // TODO
+    // We need to re-think how to lazy-load E.me
+    // it is required for interacting with folders:
+    // create initial folders, open folders, create folders etc.
+    self.activate();
 
     gridPage.addEventListener('gridpageshowend', function onPageShow() {
       EvmeFacade.onShow();
@@ -30,17 +24,7 @@ var EverythingME = {
 
     // add evme into the first grid page
     gridPage.classList.add('evmePage');
-    gridPage.appendChild(page.parentNode.removeChild(page));
-    
-    function onClick(e) {
-      this.removeEventListener('click', onClick);
-      this.removeEventListener('contextmenu', onContextMenu);
-      self.activate();
-    }
-
-    function onContextMenu(e) {
-      e.stopPropagation();
-    }
+    gridPage.appendChild(page.parentNode.removeChild(page));  
   },
   
   activate: function EverythingME_activate(e) {
@@ -49,32 +33,7 @@ var EverythingME = {
     this.load();
   },
 
-  onEvmeLoaded: function onEvmeLoaded() {
-    var page = document.getElementById('evmeContainer'),
-      activationIcon = document.getElementById('evme-activation-icon'),
-      input = activationIcon.querySelector('input'),
-      existingQuery = input && input.value;
-
-    EvmeFacade.onShow();
-
-    // set the query the user entered before loaded
-    input = document.getElementById('search-q');
-    if (input) {
-      if (existingQuery) {
-        EvmeFacade.searchFromOutside(existingQuery);
-      }
-
-      EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
-      input.setSelectionRange(existingQuery.length, existingQuery.length);
-    }
-
-    document.body.classList.remove('evme-loading');
-
-    activationIcon.parentNode.removeChild(activationIcon);
-  },
-
   load: function EverythingME_load() {
-
     var CB = !('ontouchstart' in window),
         js_files = [
           'js/Core.js',
@@ -134,10 +93,6 @@ var EverythingME = {
     var scriptLoadCount = 0;
     var cssLoadCount = 0;
 
-    var progressLabel = document.querySelector('#loading-overlay span');
-    var progressElement = document.querySelector('#loading-overlay progress');
-    var total = js_files.length + css_files.length, counter = 0;
-
     function onScriptLoad(event) {
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount == js_files.length) {
@@ -178,12 +133,7 @@ var EverythingME = {
       }, 0);
     }
 
-    loadCSS(css_files[cssLoadCount]);
-  },
-
-  initEvme: function EverythingME_initEvme() {
-    Evme.init(EverythingME.onEvmeLoaded);
-    EvmeFacade = Evme;
+    loadCSS(css_files[0]);
   },
 
   start: function EverythingME_start() {
@@ -195,6 +145,17 @@ var EverythingME = {
         EverythingME.initEvme();
       });
     }
+  },
+
+  initEvme: function EverythingME_initEvme() {
+    Evme.init(EverythingME.onEvmeLoaded);
+    EvmeFacade = Evme;
+  },
+
+  onEvmeLoaded: function onEvmeLoaded() {
+    var page = document.getElementById('evmeContainer');
+    EvmeFacade.onShow();
+    document.body.classList.remove('evme-loading');
   },
 
   destroy: function EverythingME_destroy() {
