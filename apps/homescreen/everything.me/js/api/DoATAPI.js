@@ -144,7 +144,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "params": params,
             "callback": callback,
             "noSession": noSession
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     // icons in cache, to be reported to server
@@ -208,7 +208,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "suggestions",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     this.icons = function icons(options, callback) {
@@ -224,7 +224,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "icons",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     this.bgimage = function bgimage(options, callback) {
@@ -247,7 +247,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "bgimage",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     this.getDisambiguations = function getDisambiguations(options, callback) {
@@ -262,7 +262,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "disambiguate",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     this.shortcutsGet = function shortcutsGet(options, callback) {
@@ -281,7 +281,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
           "methodName": "get",
           "params": params,
           "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
       };
 
       this.suggest = function suggest(options, callback) {
@@ -317,7 +317,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "trending",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     }
     
     this.Logger = new function Logger(){
@@ -348,7 +348,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "report",
             "params": options,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
 
     this.appNativeInfo = function appNativeInfo(options, callback) {
@@ -367,7 +367,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "nativeInfo",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
 
     function cleanGuid(str) {
@@ -440,7 +440,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "methodName": "search",
             "params": params,
             "callback": callback
-        }, options._NOCACHE);
+        }, options._NOCACHE || false);
     };
     
     this.setLocation = function setLocation(lat, lon) {

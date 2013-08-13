@@ -21,6 +21,7 @@
       elImageFullscreen = null,
       resultsManager = null,
       elFolderActions = null,
+      elOpenActions = null,
       isFullScreenVisible = false,
 
       title = '',

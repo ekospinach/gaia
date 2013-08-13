@@ -243,7 +243,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   };
 
   this.hasResults = function hasResults() {
-    forEachProvider(function() {
+    forEachProvider(function providerHasResults() {
       if (this.getResultCount()) {
         return true;
       }

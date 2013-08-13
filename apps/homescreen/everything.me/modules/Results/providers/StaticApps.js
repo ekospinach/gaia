@@ -10,7 +10,7 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
     DEFAULT_ICON = Evme.Utils.getDefaultAppIcon(),
     self = this,
     containerEl,
-    containerName,
+    containerSelector,
     filterResults;
 
   this.init = function init(cfg) {

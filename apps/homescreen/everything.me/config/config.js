@@ -190,10 +190,8 @@ Evme.Config = Evme.__config = {
         "352": "top-apps",
         "306": "travel",
         "213": "tv",
-        "357": "utilities",
         "211": "video",
         "249": "weather",
-        "357": "utilities",
-        "349": "photography"
+        "357": "utilities"
     }
 };

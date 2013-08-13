@@ -251,8 +251,8 @@ Evme.Brain = new function Evme_Brain() {
 
         // Keyboard action key ("search") pressed
         this.returnPressed = function returnPressed(isFromBlur) {
-            var isFromBlur = isFromBlur === true,
-                query = Evme.Searchbar.getValue();
+            var query = Evme.Searchbar.getValue();
+            isFromBlur = isFromBlur === true;
 
             if (query) {
                 Searcher.searchExactFromOutside(query, SEARCH_SOURCES.RETURN_KEY);
@@ -1394,8 +1394,6 @@ Evme.Brain = new function Evme_Brain() {
             // TODO in the future, we might want to refresh results
             // to reflect accurate location.
             // but for now only the next request will use the location
-
-            Evme.Tasker.trigger(Brain.Tasker.TASK_UPDATE_SHORTCUT_ICONS);
         };
 
         // construct a valid API url- for debugging purposes

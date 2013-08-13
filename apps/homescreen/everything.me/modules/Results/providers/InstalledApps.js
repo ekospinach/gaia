@@ -129,8 +129,9 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   };
 
   this.requestAppsInfoCb = function requestAppsInfoCb(appsInfoFromAPI) {
+    var slugs = [];
+
     queryIndex = {};
-    slugs = [];
 
     for (var k in appsInfoFromAPI) {
       var appInfo = appsInfoFromAPI[k];

@@ -312,8 +312,10 @@ Evme.Analytics = new function Evme_Analytics() {
         
         // not used anymore, remove on next pull-request
         this.isNewSearchQuery = function isNewSearchQuery(newQuery){
-            var lastSearchQuery = Evme.Storage.get(STORAGE_QUERY),
-                newQuery = newQuery.toLowerCase();
+            var lastSearchQuery = Evme.Storage.get(STORAGE_QUERY);
+
+            newQuery = newQuery.toLowerCase();
+                
             if (newQuery !== lastSearchQuery){
                 Evme.Storage.set(STORAGE_QUERY, newQuery);
                 return true;

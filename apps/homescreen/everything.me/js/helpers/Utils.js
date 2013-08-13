@@ -370,9 +370,11 @@ Evme.Utils = new function Evme_Utils() {
       }
       
       function drawText(text, x, y) {
-        var isSingleWord = text.length === 1,
-            text = text.join(' '),
-            size = context.measureText(text).width;
+        var isSingleWord, size;
+        
+        isSingleWord = text.length === 1;
+        text = text.join(' ');
+        size = context.measureText(text).width;
         
         if (isSingleWord && size >= WIDTH) {
           while (size >= WIDTH) {
@@ -539,18 +541,6 @@ Evme.Utils = new function Evme_Utils() {
         }
 
         return true;
-    };
-
-    this.for = function for(items, callback) {
-    	if (items instanceof Array) {
-    	    for (var i=0,item;item=items[i++];) {
-    		callback(item);
-    	    }
-    	} else if (arr instanceof Object) {
-    	    for (var i in items) {
-    		callback(items[i]);
-    	    }
-    	}
     };
 
     this.User = new function User() {

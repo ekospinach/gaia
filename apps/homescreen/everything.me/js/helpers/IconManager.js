@@ -197,9 +197,10 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
       // finally we're ready to draw the icons!
       for (var i = 0, obj; obj = context.imagesLoaded[i++];) {
-      	var image = obj.image,
-        	  settings = obj.settings,
-        	  size = settings.size * Evme.Utils.devicePixelRatio;
+        image = obj.image;
+        settings = obj.settings;
+        	  
+        var size = settings.size * Evme.Utils.devicePixelRatio;
 
       	if (!image) {
       	  continue;
