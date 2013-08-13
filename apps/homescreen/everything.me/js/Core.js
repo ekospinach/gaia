@@ -69,6 +69,8 @@ window.Evme = new function Evme_Core() {
         Evme.SmartFolder.hideFullscreen() || 
         // hide the smart folder if visible
         Evme.SmartFolder.hide() ||
+        // close search results full screen background image if visible
+        Evme.BackgroundImage.closeFullScreen() ||
         // clear the searchbar and apps
         (Evme.Searchbar.clearIfHasQuery() && document.body.classList.contains('evme-displayed'))
       ) {
