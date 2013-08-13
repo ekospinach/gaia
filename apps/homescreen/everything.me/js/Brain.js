@@ -183,7 +183,6 @@ Evme.Brain = new function Evme_Brain() {
                 Evme.Helper.showSuggestions();
             } else {
                 Brain.Helper.showDefault();
-                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
         };
 
@@ -236,9 +235,6 @@ Evme.Brain = new function Evme_Brain() {
             Searcher.empty();
 
             self.setEmptyClass();
-            if (Evme.Searchbar.isFocused()) {
-                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
-            }
 
             Evme.DoATAPI.cancelQueue();
             Evme.ConnectionMessage.hide();
@@ -260,8 +256,6 @@ Evme.Brain = new function Evme_Brain() {
 
             if (query) {
                 Searcher.searchExactFromOutside(query, SEARCH_SOURCES.RETURN_KEY);
-            } else if (!isFromBlur) {
-                document.body.classList.add(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
         };
 
@@ -292,7 +286,6 @@ Evme.Brain = new function Evme_Brain() {
         this.valueChanged = function valueChanged(data) {
             if (data.value) {
                 Searcher.searchAsYouType(data.value, SEARCH_SOURCES.TYPING);
-                document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
             }
 
             self.setEmptyClass();
@@ -1829,8 +1822,6 @@ Evme.Brain = new function Evme_Brain() {
                 "automaticSearch": automaticSearch,
                 "callback": callback
             };
-
-            document.body.classList.remove(CLASS_WHEN_SHOWING_SHORTCUTS);
 
             Evme.Features.startTimingFeature('typingApps', Evme.Features.ENABLE);
             Searcher.getApps(options);
