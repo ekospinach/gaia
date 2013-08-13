@@ -859,8 +859,11 @@ var GridManager = (function() {
    * @param {Boolean} disallows hidden apps
    */
   function getApps(suppressHiddenRoles) {
-    var apps = [];
+    var apps = [],
+        app;
     for (var origin in appsByOrigin) {
+      app = appsByOrigin[origin];
+
       if (app.isFolder || (suppressHiddenRoles &&
         HIDDEN_ROLES.indexOf(appsByOrigin[origin].manifest.role) !== -1)) {
         continue;
@@ -909,7 +912,6 @@ var GridManager = (function() {
     // See also pageHelper.saveAll().
     numberOfSpecialPages = container.children.length;
     landingPage = numberOfSpecialPages - 1;
-    currentPage = numberOfSpecialPages - 1;
     prevLandingPage = landingPage - 1;
     nextLandingPage = landingPage + 1;
     for (var i = 0; i < container.children.length; i++) {
@@ -927,6 +929,10 @@ var GridManager = (function() {
    */
   function initApps(apps) {
     var appMgr = navigator.mozApps.mgmt;
+
+    if (!appMgr) {
+      return;
+    }
 
     appMgr.oninstall = function oninstall(event) {
       GridManager.install(event.application);
