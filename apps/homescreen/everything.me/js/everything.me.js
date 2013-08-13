@@ -46,34 +46,34 @@ var EverythingME = {
   activate: function EverythingME_activate(e) {
     document.body.classList.add('evme-loading');
 
-    this.load(function onEvmeLoaded() {
-      var page = document.getElementById('evmeContainer'),
-          landingPage = document.getElementById('landing-page'),
-          activationIcon = document.getElementById('evme-activation-icon'),
-          input = activationIcon.querySelector('input'),
-          existingQuery = input && input.value;
-      
-      landingPage.appendChild(page.parentNode.removeChild(page));
-      EvmeFacade.onShow();
-      
-      // set the query the user entered before loaded
-      input = document.getElementById('search-q');
-      if (input) {
-        if (existingQuery) {
-          EvmeFacade.searchFromOutside(existingQuery);
-        }
-
-        EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
-        input.setSelectionRange(existingQuery.length, existingQuery.length);
-      }
-
-      document.body.classList.remove('evme-loading');
-      
-      activationIcon.parentNode.removeChild(activationIcon);
-    });
+    this.load();
   },
 
-  load: function EverythingME_load(success) {
+  onEvmeLoaded: function onEvmeLoaded() {
+    var page = document.getElementById('evmeContainer'),
+      activationIcon = document.getElementById('evme-activation-icon'),
+      input = activationIcon.querySelector('input'),
+      existingQuery = input && input.value;
+
+    EvmeFacade.onShow();
+
+    // set the query the user entered before loaded
+    input = document.getElementById('search-q');
+    if (input) {
+      if (existingQuery) {
+        EvmeFacade.searchFromOutside(existingQuery);
+      }
+
+      EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
+      input.setSelectionRange(existingQuery.length, existingQuery.length);
+    }
+
+    document.body.classList.remove('evme-loading');
+
+    activationIcon.parentNode.removeChild(activationIcon);
+  },
+
+  load: function EverythingME_load() {
 
     var CB = !('ontouchstart' in window),
         js_files = [
@@ -141,7 +141,7 @@ var EverythingME = {
     function onScriptLoad(event) {
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount == js_files.length) {
-        EverythingME.start(success);
+        EverythingME.start();
       } else {
         loadScript(js_files[scriptLoadCount]);
       }
@@ -181,20 +181,18 @@ var EverythingME = {
     loadCSS(css_files[cssLoadCount]);
   },
 
-  initEvme: function EverythingME_initEvme(success) {
-    Evme.init();
+  initEvme: function EverythingME_initEvme() {
+    Evme.init(EverythingME.onEvmeLoaded);
     EvmeFacade = Evme;
-    // TODO move success to core.init as callback
-    success && success();
   },
 
-  start: function EverythingME_start(success) {
+  start: function EverythingME_start() {
     if (document.readyState === 'complete') {
-      EverythingME.initEvme(success);
+      EverythingME.initEvme();
     } else {
       window.addEventListener('load', function onload() {
         window.removeEventListener('load', onload);
-        EverythingME.initEvme(success);
+        EverythingME.initEvme();
       });
     }
   },
