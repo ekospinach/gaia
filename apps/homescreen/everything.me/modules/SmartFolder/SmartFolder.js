@@ -13,7 +13,6 @@
       currentSettings = null,
 
       el = null,
-      elScreen = null,
       elTitle = null,
       elClose = null,
       elAppsContainer = null,
@@ -44,7 +43,6 @@
       resultsManager = options.resultsManager;
 
       el = document.getElementsByClassName("smart-folder")[0];
-      elScreen = document.getElementsByClassName("smart-folder-screen")[0];
 
       elAppsContainer = resultsManager.getElement();
 
@@ -100,7 +98,6 @@
 
         window.setTimeout(function onTimeout() {
           el.classList.add(CLASS_WHEN_VISIBLE);
-          elScreen.classList.add(CLASS_WHEN_VISIBLE);
         }, 0);
 
         Evme.EventHandler.trigger(NAME, "show", {
@@ -118,7 +115,6 @@
       currentSettings = null;
 
       el.classList.remove(CLASS_WHEN_VISIBLE);
-      elScreen.classList.remove(CLASS_WHEN_VISIBLE);
 
       // hack for preventing the browser from saving the scroll position
       // and restoring it when a new SmartFolder opens
