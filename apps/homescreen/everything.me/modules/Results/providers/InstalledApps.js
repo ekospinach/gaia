@@ -207,19 +207,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     return matchingApps;
   };
 
-  this.getMatchingQueries = function getMatchingQueries(appId) {
-    var queries = [];
-    
-    if (!appId) {
-      return queries;
-    }
-
-    for (query in queryIndex) {
-      (queryIndex[query].indexOf(appId) > -1) && queries.push(query);
-    }
-
-    return queries;
-  };
 
   this.getAppById = function getAppById(appId) {
     return (appId in appIndex) && appIndex[appId];

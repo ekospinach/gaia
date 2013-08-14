@@ -84,18 +84,8 @@ Evme.Brain = new function Evme_Brain() {
     function onAppDrop(e) {
         var options = e.detail;
 
-        // dropping an app on another
-        if (options.apps && options.apps.length > 1) {
-            var appIds = Evme.Utils.pluck(options.apps, "id");
-            Evme.Utils.sendToOS(Evme.Utils.OSMessages.HIDE_APP_FROM_GRID, appIds);
-            Evme.SmartFolder.create({
-                "apps": appIds.map(Evme.InstalledAppsService.getAppById),
-                "gridPosition": options.gridPosition
-            });
-        }
-
-        // dropping an app on folder
-        else if (options.app && options.folder) {
+        // dropping app on folder
+        if (options.app && options.folder) {
             var appId = options.app.id,
                 folderId = options.folder.id;
 
@@ -106,7 +96,6 @@ Evme.Brain = new function Evme_Brain() {
                     Evme.SmartFolder.addApps(app, folderSettings);
                 }
             });
-
         }
     }
 

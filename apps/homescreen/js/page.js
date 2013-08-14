@@ -565,15 +565,13 @@ Icon.prototype = {
     if (!dropIntoFolder) {
       style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
       draggableElem.querySelector('div').style.MozTransform = 'scale(1)';  
+
     } else {
-      var detail;
-      
       draggableElem.classList.add('droppedInFolder');
       
-      // Everything.me references both apps and bookmarks by an 'id'
-      
       if (overlapElem.dataset.isFolder === 'true') {
-        detail = {
+        // E.me references both apps and bookmarks by an 'id'
+        var detail = {
             "app": {
               "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL
             },
@@ -581,25 +579,8 @@ Icon.prototype = {
               "id": overlapElem.dataset.folderId
             }
           }
-
-      } else {
-        detail = {
-            "apps": [{
-                "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL,
-                "icon": GridManager.getIcon(originElem.dataset).descriptor.renderedIcon
-              }, {
-                "id": overlapElem.dataset.manifestURL || overlapElem.dataset.bookmarkURL,
-                "icon": GridManager.getIcon(overlapElem.dataset).descriptor.renderedIcon
-              }
-            ],
-            "gridPosition": {
-              "page": page.getIndex(),
-              "index": page.getIconIndex(overlapElem)
-            }
-          }
+          window.dispatchEvent(new CustomEvent('EvmeDropApp', {"detail": detail })); 
       }
-
-      detail && window.dispatchEvent(new CustomEvent('EvmeDropApp', {"detail": detail })); 
     }
 
     var finishDrag = function() {

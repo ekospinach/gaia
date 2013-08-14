@@ -82,10 +82,6 @@
         Evme.SmartFolderSettings.createByQuery(query, extra, function onCreate(folderSettings) {
           addFolderToHomescreen(folderSettings, gridPosition)
         });
-      } else if (apps.length > 1) {
-        Evme.SmartFolderSettings.createByAppPair(apps[0], apps[1], extra, function onCreate(folderSettings) {
-          addFolderToHomescreen(folderSettings, gridPosition)
-        });
       }
     }
 
@@ -453,60 +449,6 @@
       apps: installedApps
     });
 
-    saveFolderSettings(folderSettings, cb);
-  };
-
-  /**
-   * Create a settings object from 2 apps.
-   * @param  {Object}   sourceApp - the app being dragged
-   * @param  {Object}   targetApp - the app being dropped on
-   * @param  {Object}   extra
-   * @param  {Function} cb
-   */
-  Evme.SmartFolderSettings.createByAppPair = function createByAppPair(sourceApp, targetApp, extra, cb) {
-    if (extra instanceof Function) {
-      (cb = extra) && (extra = {});
-    };
-
-    var folderId = Evme.Utils.uuid(),
-      folderName,
-      folderApps,
-      folderSettings,
-
-      queriesA = Evme.InstalledAppsService.getMatchingQueries(sourceApp.id),
-      queriesB = Evme.InstalledAppsService.getMatchingQueries(targetApp.id);
-
-    // find a suitable name for the folder
-    if (queriesA.length && queriesB.length) {
-      // search for a common query
-      for (var i = 0, q; q = queriesA[i++]; ) {
-        if (queriesB.indexOf(q) > -1) {
-          folderName = q;
-          break;
-        }
-      }
-    } 
-
-    if (folderName === undefined) {
-      folderName = queriesA[0] || queriesB[0] || sourceApp.name || targetApp.name || "New Folder";
-    }
-
-    folderApps = Evme.InstalledAppsService.getMatchingApps({
-      'query': folderName
-    });
-
-    folderApps.unshift(targetApp);
-    folderApps.unshift(sourceApp);
-    
-    folderApps = Evme.Utils.unique(folderApps, 'id');
-
-    folderSettings = new Evme.SmartFolderSettings({
-      id: folderId,
-      name: folderName,
-      apps: folderApps,
-      icons: Evme.Utils.pluck(folderApps, 'icon')
-    });
-    
     saveFolderSettings(folderSettings, cb);
   };
 
