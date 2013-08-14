@@ -371,7 +371,7 @@
             };
 
           var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
-            return Evme.Utils.formatImageData(defaultIcons[appId]);
+            return defaultIcons[appId];
           });
 
           (function initFolder(experienceId, shortcutIcons, gridPosition) {
