@@ -5,7 +5,7 @@ window.Evme = new function Evme_Core() {
         OPACITY_CHANGE_DURATION = 300,
         head_ts = new Date().getTime();
 
-    this.shouldSearchOnInputBlur = true;
+    this.shouldSearchOnInputBlur = false;
 
     this.init = function init(callback) {
         var data = Evme.__config,
