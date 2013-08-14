@@ -31,31 +31,6 @@ var EvmeManager = (function EvmeManager() {
       GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
-    function toggleOnGrid(ids, hide) {
-        if (!Array.isArray(ids)) {
-            ids = [ids];
-        }
-        
-        // we can not tell if `id` is a bookmarkURL or a manifestURL
-        // since Everything.me does not distinguish apps from bookmarks
-        // hence we send both as descriptors
-        var manifestDescriptors = ids.map(function makeManifestDescriptor(id) {
-            return { "manifestURL": id }
-        });
-
-        var bookmarkDescriptors = ids.map(function makeBookmarkDescriptor(id) {
-            return { "bookmarkURL": id }
-        });
-
-        var descriptors = manifestDescriptors.concat(bookmarkDescriptors);
-
-        if (hide) {
-          return GridManager.hide(descriptors);
-        } else {
-          return GridManager.unhide(descriptors);
-        }
-    }
-
     function openUrl(url) {
         new MozActivity({
            name: "view",
@@ -205,12 +180,6 @@ var EvmeManager = (function EvmeManager() {
       openApp: openApp,
 
       addBookmark: addBookmark,
-      hideFromGrid: function hideFromGrid(ids) {
-        return toggleOnGrid(ids, true)
-      },
-      unhideFromGrid: function unhideFromGrid(ids) {
-        return toggleOnGrid(ids, false)
-      },
 
       isAppInstalled: function isAppInstalled(url) {
           return GridManager.getIconForBookmark(url) ||

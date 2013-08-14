@@ -1074,8 +1074,7 @@ var GridManager = (function() {
       isBookmark: app.isBookmark,
       id: app.id,
       isFolder: !!app.isFolder,
-      isEmpty: !!app.isEmpty,
-      hideFromGrid: !!app.hideFromGrid
+      isEmpty: !!app.isEmpty
     };
     
     if (haveLocale && !app.isBookmark) {
@@ -1318,47 +1317,6 @@ var GridManager = (function() {
           }
         }));
       }
-    },
-
-    /*
-     * Hides an app from the grid, but leaving it installed
-     *
-     * @param {Array} descriptors
-     */
-    hide: function gm_hide(descriptors) {
-      for (var i = 0, descriptor, icon; descriptor = descriptors[i++];) {
-        icon = getIcon(descriptor);
-        if (icon) {
-          icon.hideFromGrid();
-        }
-      }
-
-      removeEmptyPages();
-      markDirtyState();
-    },
-
-    /*
-     * Return an app to be viewable on the grid
-     *
-     * @param {Array} descriptors
-     */
-    unhide: function gm_unhide(descriptors) {
-      for (var i = 0, descriptor, icon; descriptor = descriptors[i++];) {
-        icon = getIcon(descriptor);
-        if (icon && icon.isHidden()) {
-          icon.remove();
-          icon.unhideFromGrid();
-
-          var index = getFirstPageWithEmptySpace();
-          if (index < pages.length) {
-            pages[index].appendIcon(icon);
-          } else {
-            pageHelper.addPage([icon]);
-          }
-        }
-      }
-
-      ensurePagesOverflow(markDirtyState);
     },
 
     /*

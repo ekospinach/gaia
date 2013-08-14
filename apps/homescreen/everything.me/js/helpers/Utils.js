@@ -32,8 +32,7 @@ Evme.Utils = new function Evme_Utils() {
       	    "GET_APP_INFO": "get-app-info",
       	    "GET_ICON_SIZE": "get-icon-size",
       	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
-            "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search",
-            "HIDE_APP_FROM_GRID": "hide-from-grid"
+            "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
         };
 
     this.PIXEL_RATIO_NAMES = {
@@ -219,8 +218,6 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.openMarketplaceApp(data);
             case OSMessages.OPEN_MARKETPLACE_SEARCH:
                 return EvmeManager.openMarketplaceSearch(data);
-            case OSMessages.HIDE_APP_FROM_GRID:
-                return EvmeManager.hideFromGrid(data);
         }
     };
 
