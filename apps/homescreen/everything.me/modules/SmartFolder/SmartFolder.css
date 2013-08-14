@@ -153,10 +153,10 @@
 	.evmeScope .smart-folder .evme-apps li.installed-separator {
             width: 100%;
         }
-        .evmeScope .smart-folder .evme-apps ul.static li canvas {
+        .evmeScope .smart-folder .evme-apps ul.static li img {
             transform: scale(1);
         }
-        .evmeScope .smart-folder[data-mode='edit'] .evme-apps ul.static li canvas {
+        .evmeScope .smart-folder[data-mode='edit'] .evme-apps ul.static li img {
           -moz-animation-name: shake;
           -moz-animation-duration: .8s;
           -moz-transform-origin: 50% 50%;

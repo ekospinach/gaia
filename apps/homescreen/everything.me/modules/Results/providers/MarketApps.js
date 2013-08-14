@@ -2,31 +2,37 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
 	Evme.Result.call(this);
 
 	var self = this,
-		TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
-		TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
-		TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
-
-		FONT_SIZE = 11 * Evme.Utils.devicePixelRatio;
+  		TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
+  		TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
+  		TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
+  
+  		FONT_SIZE = 11 * Evme.Utils.devicePixelRatio;
 
 	this.type = Evme.RESULT_TYPE.MARKET;
 	this.slug = slug;
 
 	// @override
 	this.initIcon = function initIcon(baseHeight, textOffset) {
-		this.canvas.width = TEXT_WIDTH;
-		this.canvas.height = baseHeight + TEXT_MARGIN + (2 * TEXT_HEIGHT) - 1;
+    var canvas = document.createElement('canvas'),
+        context = canvas.getContext('2d');
+
+		canvas.width = TEXT_WIDTH;
+		canvas.height = baseHeight + TEXT_MARGIN + (2 * TEXT_HEIGHT) - 1;
+
 		Evme.Utils.writeTextToCanvas({
 			"text": "Download",
-			"context": this.context,
+			"context": context,
 			"offset": textOffset + TEXT_MARGIN,
 			"fontSize": FONT_SIZE
 		});
 
 		Evme.Utils.writeTextToCanvas({
 			"text": this.app.name,
-			"context": this.context,
+			"context": context,
 			"offset": textOffset + TEXT_MARGIN + FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
 		});
+
+		return canvas;
 	};
 }
 

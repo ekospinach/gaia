@@ -30,8 +30,8 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.type = 'NOT_SET';
 	
 	this.app = null;
-	this.canvas = null;
-	this.context = null;
+	this.icon = null;
+	this.elIcon = null;
 
 	this.init = function init(app, extra) {
 
@@ -44,10 +44,9 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			'class': extra.animate ? 'new' : '',
 			'id': 'app_' + cfg.id,
 			'data-name': cfg.name
-		}, '<canvas></canvas>');
+		}, '<img />');
 
-		this.canvas = Evme.$('canvas', el)[0];
-		this.context = this.canvas.getContext('2d');
+		this.elIcon = el.querySelector('img');
 
 		// remove button
 		if (app.isRemovable) {
@@ -112,32 +111,40 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.onAppIconLoad = function onAppIconLoad() {
 		// use OS icon rendering
 		var iconCanvas = Icon.prototype.createCanvas(image),
-				canvasSize = iconCanvas.width;
+				canvasSize = iconCanvas.width,
 
-		self.initIcon(canvasSize, canvasSize);
-		self.context.drawImage(iconCanvas, (TEXT_WIDTH - canvasSize) / 2, 0);
+				canvas = self.initIcon(canvasSize, canvasSize),
+		    context = canvas.getContext('2d');
+
+		context.drawImage(iconCanvas, (TEXT_WIDTH - canvasSize) / 2, 0);
 		self.iconPostRendering(iconCanvas);
-		self.finalizeIcon();
+		self.finalizeIcon(canvas);
 		self.setIconSrc(image.src);
 	};
 
 	this.initIcon = function initIcon(baseHeight, textOffset) {
-		this.canvas.width = TEXT_WIDTH;
-		this.canvas.height = baseHeight + TEXT_MARGIN + TEXT_HEIGHT - 1;
+	  var canvas = document.createElement('canvas'),
+	      context = canvas.getContext('2d');
+
+		canvas.width = TEXT_WIDTH;
+		canvas.height = baseHeight + TEXT_MARGIN + TEXT_HEIGHT - 1;
 
 		Evme.Utils.writeTextToCanvas({
 			"text": cfg.name,
-			"context": this.context,
+			"context": context,
 			"offset": textOffset + TEXT_MARGIN
 		});
+
+		return canvas;
 	};
 
 	this.iconPostRendering = function iconPostRendering(iconCanvas) {
 		// default: do nothing
 	};
 
-	this.finalizeIcon = function finalizeIcon() {
-		el.classList.remove('new');
+	this.finalizeIcon = function finalizeIcon(canvas) {
+	  self.elIcon.src = canvas.toDataURL();
+    el.classList.remove('new');
 	};
 
 	this.remove = function remove() {
@@ -150,10 +157,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
 	this.getLink = function getLink() {
 		return cfg.appUrl;
-	};
-
-	this.getIconCanvas = function getIconData() {
-		return Evme.$('canvas', el)[0];
 	};
 
 	this.getElement = function getElement() {

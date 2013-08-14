@@ -13,9 +13,10 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 	// @override
 	// manipulate the icon (clipping, shadow, resize)
 	this.onAppIconLoad = function CloudResult_onAppIconLoad() {
-		self.initIcon(FULL_SIZE, SIZE);
+		var canvas = self.initIcon(FULL_SIZE, SIZE),
+		    context = canvas.getContext('2d'),
 
-		var elImageCanvas = document.createElement('canvas'),
+		    elImageCanvas = document.createElement('canvas'),
 		    imageContext = elImageCanvas.getContext('2d'),
 		    fixedImage = new Image();
 
@@ -32,12 +33,12 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 
 		fixedImage.onload = function onImageLoad() {
 		    // shadow
-			self.context.shadowOffsetX = 0;
-			self.context.shadowOffsetY = SHADOW_OFFSET;
-			self.context.shadowBlur = SHADOW_BLUR;
-			self.context.shadowColor = 'rgba(0, 0, 0, 0.6)';
-		    self.context.drawImage(fixedImage, (self.canvas.width - FULL_SIZE) / 2, 0);
-		    self.finalizeIcon();
+			context.shadowOffsetX = 0;
+			context.shadowOffsetY = SHADOW_OFFSET;
+			context.shadowBlur = SHADOW_BLUR;
+			context.shadowColor = 'rgba(0, 0, 0, 0.6)';
+	    context.drawImage(fixedImage, (canvas.width - FULL_SIZE) / 2, 0);
+	    self.finalizeIcon(canvas);
 		};
 
 		fixedImage.src = elImageCanvas.toDataURL('image/png');
@@ -152,10 +153,12 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 			Evme.IconManager.get(appId, function onIconFromCache(iconFromCache) {
 				// make sure app still appears in results
 				var app = lastRenderedResults[appId];
-				if (!app) { return }
+				if (!app) {
+				  return;
+			  }
 
 				if (iconFromCache) {
-					app.icon = iconFromCache;
+          app.icon = iconFromCache;
 					app.draw(iconFromCache);
 				} else {
 					idsMissing.push(appId);
