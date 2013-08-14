@@ -1233,14 +1233,19 @@ Evme.Brain = new function Evme_Brain() {
                     query = shortcut.query;
                     experienceId = shortcut.experienceId;
                     appIds = shortcut.appIds;
+                    
                     shortcutIcons = appIds.map(function getIcon(appId) {
                         return icons[appId];
                     });
 
-                    Evme.SmartFolder.create({
-                        "icons": shortcutIcons,
-                        "query": query
-                    });
+                    (function createShortcut(icons, query) {
+                        Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
+                            Evme.SmartFolder.create({
+                                "icons": roundIcons,
+                                "query": query
+                            });
+                        });
+                    })(shortcutIcons, query);
                 }
             });
         };

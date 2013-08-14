@@ -301,6 +301,7 @@ Evme.Utils = new function Evme_Utils() {
             rounded = [];
         
         for (var i = 0, src; src = sources[i++];) {
+            src = Evme.Utils.formatImageData(src);
             Evme.Utils.getRoundIcon({"src": src}, function onRoundIcon(icon){
                 rounded.push(icon);
                 
