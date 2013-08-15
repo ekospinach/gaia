@@ -11,20 +11,26 @@ Evme.MarketSearchResult = function Evme_MarketSearch() {
 
   // @override
   this.initIcon = function initIcon(baseHeight, textOffset) {
-    this.canvas.width = TEXT_WIDTH;
-    this.canvas.height = baseHeight + TEXT_MARGIN + (2 * TEXT_HEIGHT) - 1;
+    var canvas = document.createElement('canvas'),
+        context = canvas.getContext('2d');
+
+    canvas.width = TEXT_WIDTH;
+    canvas.height = baseHeight + TEXT_MARGIN + (2 * TEXT_HEIGHT) - 1;
+
     Evme.Utils.writeTextToCanvas({
       "text": "Download",
-      "context": this.context,
+      "context": context,
       "offset": textOffset + TEXT_MARGIN,
       "fontSize": FONT_SIZE
     });
 
     Evme.Utils.writeTextToCanvas({
       "text": "More Apps",
-      "context": this.context,
+      "context": context,
       "offset": textOffset + TEXT_MARGIN + FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
     });
+
+    return canvas;
   };
 
 }
