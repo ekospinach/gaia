@@ -121,15 +121,20 @@ Evme.api = new function Evme_api() {
         !options && (options = {});
         
         var url = BASE_URL + method,
+            finalUrl = url,
             params = "",
-            httpRequest = new XMLHttpRequest();
-        
+            httpRequest = new XMLHttpRequest(),
+            value;
+
         for (var k in options) {
-            if (typeof options[k] !== "undefined") {
-                params += k + "=" + encodeURIComponent(options[k]) + "&";
-            }
+          value = options[k];
+          if (value !== null && value !== undefined && value !== '') {
+            params += k + "=" + encodeURIComponent(options[k]) + "&";
+          }
         }
-        
+
+        finalUrl += '?' + params;
+
         httpRequest.open("POST", url, true);
         httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         httpRequest.onreadystatechange = function onReadyStateChange(e) {
@@ -141,14 +146,17 @@ Evme.api = new function Evme_api() {
                 } catch(ex){}
                 
                 if (response) {
-                    callback(response, url + "?" + params);
+                    callback(response, finalUrl);
                 }
             }
         };
         httpRequest.withCredentials = true;
         httpRequest.send(params);
         
-        return httpRequest;
+        return {
+          "request": httpRequest,
+          "url": finalUrl
+        };
     }
     
     self.init();

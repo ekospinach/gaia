@@ -1357,7 +1357,7 @@ Evme.Brain = new function Evme_Brain() {
     this.DoATAPI = new function DoATAPI() {
         // a request was made to the API
         this.request = function request(data) {
-            Evme.Utils.log("DoATAPI.request " + getRequestUrl(data));
+            Evme.Utils.log("DoATAPI.request " + data.url);
         };
 
         this.cantSendRequest = function cantSendRequest(data) {
@@ -1389,20 +1389,6 @@ Evme.Brain = new function Evme_Brain() {
             // to reflect accurate location.
             // but for now only the next request will use the location
         };
-
-        // construct a valid API url- for debugging purposes
-
-        function getRequestUrl(eventData) {
-            var params = eventData.params || {},
-                urlParams = [];
-
-            for (var p in params) {
-                urlParams.push(p + '=' + encodeURIComponent(params[p]));
-            }
-            urlParams = urlParams.join('&');
-
-            return Evme.api.getBaseURL() + eventData.method + '?' + urlParams;
-        }
     };
 
     // Searcher object to handle all search events

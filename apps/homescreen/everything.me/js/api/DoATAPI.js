@@ -914,11 +914,12 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         return queryString['did'] || 'fxos-' + Evme.Utils.uuid();
     }
 
-    function cbRequest(methodNamespace, method, params, retryNumber) {
+    function cbRequest(methodNamespace, method, params, retryNumber, completeURL) {
         Evme.EventHandler.trigger(NAME, "request", {
             "method": methodNamespace + "/" + method,
             "params": params,
-            "retryNumber": retryNumber
+            "retryNumber": retryNumber,
+            "url": completeURL
         });
     }
     
@@ -1036,8 +1037,6 @@ Evme.Request = function Evme_Request() {
         
         requestSentTime = (new Date()).getTime();
         
-        cbRequest(methodNamespace, methodName, params, retryNumber);
-        
         // stats params to add to all API calls
         (!params["stats"]) && (params["stats"] = {});
         params.stats.retryNum = retryNumber;
@@ -1046,6 +1045,9 @@ Evme.Request = function Evme_Request() {
         params.stats = JSON.stringify(params.stats);
         
         httpRequest = Evme.api[methodNamespace][methodName](params, apiCallback);
+
+        cbRequest(methodNamespace, methodName, params, retryNumber, httpRequest.url);
+        httpRequest = httpRequest.request;
         
         requestTimeout = window.setTimeout(requestTimeoutCallback, maxRequestTime);
         
