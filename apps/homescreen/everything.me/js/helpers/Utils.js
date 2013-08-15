@@ -7,7 +7,9 @@ Evme.Utils = new function Evme_Utils() {
         headEl = document.querySelector('html>head'),
         filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
         
-        CONTAINER_ID = "evmeContainer",
+        CONTAINER_ID = "evmeContainer", // main E.me container
+        SCOPE_CLASS = "evmeScope",      // elements with E.me content
+
         COOKIE_NAME_CREDENTIALS = "credentials",
         
         CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
@@ -227,6 +229,10 @@ Evme.Utils = new function Evme_Utils() {
     
     this.getContainer = function getContainer() {
         return elContainer;
+    };
+
+    this.getScopeElements = function getScopeClass() {
+        return document.querySelectorAll("." + SCOPE_CLASS);
     };
     
     this.cloneObject = function cloneObject(obj) {

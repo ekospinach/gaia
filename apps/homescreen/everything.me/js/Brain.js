@@ -101,13 +101,14 @@ Evme.Brain = new function Evme_Brain() {
 
     // l10n: create a mutation observer to know when a node was added
     // and check if it needs to be translated
-
     function initL10nObserver() {
-        new MutationObserver(Evme.Brain.l10nMutationObserver)
-            .observe(elContainer, {
-                childList: true,
-                subtree: true
-            });
+        Array.prototype.forEach.call(Evme.Utils.getScopeElements(), function createObserver(elScope) {
+            new MutationObserver(Evme.Brain.l10nMutationObserver)
+                .observe(elScope, {
+                    childList: true,
+                    subtree: true
+                });
+        });
     }
 
     // callback for "node added" mutation observer

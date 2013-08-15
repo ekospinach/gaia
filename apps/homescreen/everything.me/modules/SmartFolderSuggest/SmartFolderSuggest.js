@@ -42,7 +42,7 @@ Evme.SmartFolderSuggest = new function Evme_SmartFolderSuggest() {
   };
 
   this.newCustom = function newCustom() {
-    var customQuery = prompt('Create your own smartfolder');
+    var customQuery = prompt(Evme.Utils.l10n(NAME, "prompt-create"));
 
     if (!customQuery) {
       return;

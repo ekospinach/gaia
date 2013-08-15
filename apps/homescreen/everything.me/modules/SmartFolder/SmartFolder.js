@@ -140,7 +140,7 @@
       title = newTitle;
       
       elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
-        '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '>Phone</span>';
+        '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
     };
 
     this.setBackground = function setBackground(newBg) {
@@ -323,7 +323,7 @@
           break;
 
         case "rename":
-          var newTitle = prompt("Rename Smart Folder", title);
+          var newTitle = prompt(Evme.Utils.l10n(NAME, "prompt-rename"), title);
           if (newTitle && newTitle !== title) {
             Evme.SmartFolderStorage.update(currentSettings, {
               "experienceId": null,
