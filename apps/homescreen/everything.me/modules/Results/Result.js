@@ -167,10 +167,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		return cfg;
 	};
 
-	this.goTo = function goTo() {
-		cbClick();
-	};
-
 	function onClick(e) {
 		e.stopPropagation();
 
