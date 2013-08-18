@@ -175,6 +175,17 @@ var EvmeManager = (function EvmeManager() {
         window.open('https://marketplace.firefox.com/search/?q='+data.query, 'e.me'); 
       }
     }
+    
+    function getApp(appId) {
+      return GridManager.getIcon({
+        "manifestURL": appId
+      });
+    }
+
+    function isOfflineReady(appId) {
+      var app = getApp(appId);
+      return app.isOfflineReady();
+    }
 
     return {
       openApp: openApp,
@@ -188,6 +199,7 @@ var EvmeManager = (function EvmeManager() {
       getApps: getApps,
       getFolders: getFolders,
   	  getAppInfo: getAppInfo,
+  	  isOfflineReady: isOfflineReady,
 
       openUrl: openUrl,
   	  openMarketplaceApp: openMarketplaceApp,

@@ -35,6 +35,10 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			'id': 'app_' + cfg.id,
 			'data-name': cfg.name
 		}, '<img />');
+		
+		if (this.type === Evme.RESULT_TYPE.INSTALLED) {
+		  el.dataset.offlineReady = EvmeManager.isOfflineReady(cfg.id);
+		}
 
 		this.elIcon = el.querySelector('img');
 

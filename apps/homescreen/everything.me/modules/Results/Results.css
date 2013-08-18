@@ -105,6 +105,11 @@
   display: none;
 }
 
+body[data-online = 'offline'] .evmeScope .evme-apps ul li[data-offline-ready = 'false'] {
+  filter: url('/style/app_offline_filter.svg#grayscale');
+  opacity: 0.3;
+}
+
 /* Notifications */
 
 .evmeScope .evme-apps section[role="notification"] {
