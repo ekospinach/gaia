@@ -13,13 +13,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		cfg = {}, el = null,
 		index = __index,
 		isMore = __isMore,
-		timeTouchStart = 0,
-		touchStartPos = null,
-		firedHold = false,
-		tapIgnored = false,
-		timeoutHold,
-
-		DISTANCE_TO_IGNORE_AS_MOVE = 3,
 
 		TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
 		TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
@@ -34,7 +27,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.elIcon = null;
 
 	this.init = function init(app, extra) {
-
 		cfg = app;
 		extra = extra || {"animate": true};
 
@@ -59,16 +51,8 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 			el.appendChild(removeButton);
 		}
 
-		if ("ontouchstart" in window) {
-			el.addEventListener("touchstart", touchstart);
-			el.addEventListener("touchmove", touchmove);
-			el.addEventListener("touchend", touchend);
-		} else {
-			el.addEventListener("click", function onClick(e) {
-				firedHold = tapIgnored = false;
-				touchend(e);
-			});
-		}
+    el.addEventListener("click", onClick);
+    el.addEventListener("contextmenu", onContextMenu);
 
 		return el;
 	};
@@ -187,70 +171,32 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		cbClick();
 	};
 
-	function touchstart(e) {
-		firedHold = tapIgnored = false;
-		timeTouchStart = new Date().getTime();
-		timeoutHold = window.setTimeout(cbHold, Evme.SearchResults.getAppTapAndHoldTime());
-		touchStartPos = getEventPoint(e);
-	}
-
-	function touchmove(e) {
-		if (!touchStartPos) {
-			return;
-		}
-
-		var point = getEventPoint(e),
-			distance = [point[0] - touchStartPos[0], point[1] - touchStartPos[1]];
-
-		if (Math.abs(distance[0]) > DISTANCE_TO_IGNORE_AS_MOVE ||
-			Math.abs(distance[1]) > DISTANCE_TO_IGNORE_AS_MOVE) {
-			window.clearTimeout(timeoutHold);
-			tapIgnored = true;
-		}
-	}
-
-	function touchend(e) {
-		if (firedHold || tapIgnored) {
-			return;
-		}
-
-		window.clearTimeout(timeoutHold);
-		e.preventDefault();
+	function onClick(e) {
 		e.stopPropagation();
 
-		cbClick(e);
+    Evme.EventHandler.trigger(NAME, "click", {
+      "app": self,
+      "appId": cfg.id,
+      "el": el,
+      "data": cfg,
+      "index": index,
+      "isMore": isMore,
+      "e": e
+    });
 	}
 
-	function getEventPoint(e) {
-		var touch = e.touches && e.touches[0] ? e.touches[0] : e,
-			point = touch && [touch.pageX || touch.clientX, touch.pageY || touch.clientY];
+	function onContextMenu(e) {
+    e.stopPropagation();
+    e.preventDefault();
 
-		return point;
-	}
-
-	function cbClick(e) {
-		Evme.EventHandler.trigger(NAME, "click", {
-			"app": self,
-			"appId": cfg.id,
-			"el": el,
-			"data": cfg,
-			"index": index,
-			"isMore": isMore,
-			"e": e
-		});
-	}
-
-	function cbHold() {
-		firedHold = true;
-
-		Evme.EventHandler.trigger(NAME, "hold", {
-			"app": self,
-			"appId": cfg.id,
-			"el": el,
-			"data": cfg,
-			"index": index,
-			"isMore": isMore
-		});
+    Evme.EventHandler.trigger(NAME, "hold", {
+      "app": self,
+      "appId": cfg.id,
+      "el": el,
+      "data": cfg,
+      "index": index,
+      "isMore": isMore
+    });
 	}
 
 	// prevent app click from being triggered
