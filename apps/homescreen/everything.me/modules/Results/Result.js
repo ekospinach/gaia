@@ -26,14 +26,12 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 	this.icon = null;
 	this.elIcon = null;
 
-	this.init = function init(app, extra) {
+	this.init = function init(app) {
 		cfg = app;
-		extra = extra || {"animate": true};
 
 		this.app = app;
 
 		el = Evme.$create('li', {
-			'class': extra.animate ? 'new' : '',
 			'id': 'app_' + cfg.id,
 			'data-name': cfg.name
 		}, '<img />');
@@ -128,7 +126,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
 	this.finalizeIcon = function finalizeIcon(canvas) {
 	  self.elIcon.src = canvas.toDataURL();
-    el.classList.remove('new');
 	};
 
 	this.remove = function remove() {
