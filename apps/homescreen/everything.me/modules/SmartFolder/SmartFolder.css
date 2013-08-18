@@ -77,7 +77,7 @@
             z-index: 20;
             background: rgba(0, 0, 0, .55);
         }
-    .evmeScope .smart-folder .close {
+    .evmeScope .smart-folder .header .close {
         background: rgba(0, 0, 0, .1) url('/everything.me/images/imageclose.png') no-repeat 50% 50%/1.7rem;
         position: absolute;
         top: 0;
@@ -87,7 +87,7 @@
         cursor: pointer;
         z-index: 100;
     }
-	.evmeScope .smart-folder .close:after {
+	.evmeScope .smart-folder .header .close:after {
             content: "";
             position: absolute;
             top: 0.4rem;
@@ -164,7 +164,7 @@
     
 }
     .evmeScope .smart-folder.full-image .evme-apps,
-    .evmeScope .smart-folder.full-image .close,
+    .evmeScope .smart-folder.full-image .header .close,
     .evmeScope .smart-folder.full-image .image-overlay {
         pointer-events: none;
     }
@@ -173,8 +173,8 @@
         pointer-events: inherit;
     }
 
-.evmeScope.loading-app .smart-folder .title,
-.evmeScope.loading-app .smart-folder .close,
+.evmeScope.loading-app .smart-folder .header .title,
+.evmeScope.loading-app .smart-folder .header .close,
 .evmeScope.loading-app .smart-folder .evme-apps li,
 .evmeScope.loading-app.empty-query:not(.keyboard-visible) #shortcuts
 {
