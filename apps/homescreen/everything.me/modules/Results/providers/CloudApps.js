@@ -111,6 +111,8 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 			noIconAppIds = [];  // ids of apps received without an icon
 
 		for (var i = 0, app; app = apps[i++];) {
+			app.isOfflineReady = false;
+			
 			var result = new Evme.CloudAppResult(),
 					el = result.init(app);
 

@@ -648,6 +648,14 @@ Evme.Utils = new function Evme_Utils() {
       }
     };
 
+    this.aug = function aug(){
+        var main = arguments[0];
+        for (var i=1, len=arguments.length; i<len; i++){
+            for (var k in arguments[i]){ main[k] = arguments[i][k] }
+        };
+        return main;
+    };
+
     function uniqueFilter(elem, pos, self) {
         // if first appearance of `elem` is `pos` then it is unique
         return self.indexOf(elem) === pos;
