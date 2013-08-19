@@ -83,7 +83,8 @@ var EvmeManager = (function EvmeManager() {
             "id": id,
             "name": getAppName(gridApp),
             "appUrl": gridApp.origin,
-            "icon": Icon.prototype.DEFAULT_ICON_URL
+            "icon": Icon.prototype.DEFAULT_ICON_URL,
+            "isOfflineReady": icon && 'isOfflineReady' in icon && icon.isOfflineReady()
         };
 
         if (!icon) {
@@ -182,11 +183,6 @@ var EvmeManager = (function EvmeManager() {
       });
     }
 
-    function isOfflineReady(appId) {
-      var app = getApp(appId);
-      return app.isOfflineReady();
-    }
-
     return {
       openApp: openApp,
 
@@ -199,7 +195,6 @@ var EvmeManager = (function EvmeManager() {
       getApps: getApps,
       getCollections: getCollections,
       getAppInfo: getAppInfo,
-      isOfflineReady: isOfflineReady,
 
       openUrl: openUrl,
       openMarketplaceApp: openMarketplaceApp,

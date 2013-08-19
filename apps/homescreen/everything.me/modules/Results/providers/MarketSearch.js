@@ -42,18 +42,25 @@ Evme.MarketSearchResult.prototype.constructor = Evme.MarketSearchResult;
 */
 Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
   var NAME = 'MarketSearchRenderer',
-    self = this,
-    containerEl,
-    app;
+      self = this,
+      containerEl,
+      app = {
+        id: 'marketsearch',
+        icon: Evme.DEFAULT_ICONS.MARKETPLACE,
+        appUrl: 'store://?search',
+        name: 'Makertplace', // overwriten in this.update()
+        isOfflineReady: true // overwriten in this.update()
+      };
 
   this.init = function init(cfg) {
     containerEl = cfg.containerEl;
-    app = {
-      id: 'marketsearch',
-      name: 'Marketplace',
-      icon: Evme.DEFAULT_ICONS.MARKETPLACE,
-      appUrl: "store://?search"
-    };
+  };
+
+  this.update = function update(newAppInfo) {
+    Evme.Utils.aug(app, {
+      name: newAppInfo.name,
+      isOfflineReady: newAppInfo.isOfflineReady
+    });
   };
 
   this.render = function render() {
