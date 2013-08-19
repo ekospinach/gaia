@@ -12,8 +12,8 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
     position: absolute;
     top: 0;
     left: 0.6rem;
-    right: 0.6rem;
-    color: #fff;
+    right: 3.6rem;
+    color: #b4dae7;
     z-index: 50;
     height: 3.8rem;
     line-height: 3.8rem;
@@ -28,6 +28,7 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
     text-overflow: ellipsis;
 }
     #search-title b {
+        color: #fff;
         font-weight: inherit;
     }
 #search-title.close {
@@ -36,11 +37,10 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
     #search-title .query {
         position: relative;
         margin-left: 0.5rem;
-        color: #b4dae7;
+        
         text-transform: lowercase;
     }
         #search-title .type {
-            color: #b4dae7;
             font-style: normal;
             font-weight: normal;
             margin-left: 0.5rem;
@@ -212,3 +212,18 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
         #helper ul li.link.strong {
             font-weight: 600 !important;
         }
+
+#save-search {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    width: 30px;
+    height: 30px;
+    background: url('/everything.me/images/iconaction_bookmark_30x30.png') left top no-repeat;
+}
+#save-search.visible {
+    display: block;
+}
+#save-search[data-saved="true"] {
+    background-image: url('/everything.me/images/bookmarked.png');
+}

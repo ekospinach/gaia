@@ -236,7 +236,6 @@ Evme.Brain = new function Evme_Brain() {
             Evme.SearchResults.clear();
             Evme.Helper.setTitle();
             Brain.Helper.showDefault();
-            document.body.classList.add(CLASS_WHEN_HAS_RESULTS);
         };
 
         // Keyboard action key ("search") pressed
@@ -359,6 +358,21 @@ Evme.Brain = new function Evme_Brain() {
                 cleared = true;
                 self.showDefault();
             }
+        };
+
+        // Save (bookmark) a search as a collection on home screen
+        this.saveSearch = function saveSearch() {
+            var icons = Evme.SearchResults.getIcons(),
+                query = Evme.Searchbar.getValue();
+            
+            Evme.SmartFolder.create({
+                "icons": icons,
+                "query": query
+            });
+
+            Evme.Banner.show('app-install-success', {
+                'name': query
+            });
         };
 
         // slide items in

@@ -13,6 +13,10 @@ Evme.Config = Evme.__config = {
         "widthForFiveApps": 400,
         "displayInstalledApps": true
     },
+    
+    // how many app icons in a folder icon
+    "numberOfAppInFolderIcon": 3,
+
     "numberOfAppsToLoad": 16,
     "minHeightForMoreButton": 470,
     "minimumLettersForSearch": 1,

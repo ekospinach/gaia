@@ -166,6 +166,23 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return el;
   };
 
+  this.getIcons = function getIcons(numToGet) {
+    var icons = [],
+      items = Evme.$("li", el);
+    
+    if (numToGet === undefined) {
+      numToGet = Evme.Config.numberOfAppInFolderIcon;
+    }
+
+    for (var i = 0, item; item = items[i++];) {
+      if (Evme.$isVisible(item)) icons.push(item.dataset.iconSrc);
+
+      if (icons.length === numToGet) break;
+    }
+
+    return icons;
+  }
+
   this.getAppTapAndHoldTime = function getAppTapAndHoldTime() {
     return TIMEOUT_BEFORE_REPORTING_APP_HOLD;
   };
@@ -175,27 +192,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
   };
   this.enableScroll = function enableScroll() {
     scroll.enable();
-  };
-
-  /* Not called. Do we need it? */
-  this.setAppsClasses = function setAppsClasses(iFrom, bAnimate) {
-    (!iFrom || !bAnimate) && (iFrom = 0);
-
-    var elApps = elList.childNodes,
-      index = 0;
-
-    for (var i = iFrom, elApp = elApps[i]; elApp; elApp = elApps[++i]) {
-      if (bAnimate) {
-        elApp.style.cssText += "; -moz-transition-duration: " + (200 - ((iFrom - i) * 20)) + 'ms';
-      }
-
-      var cls = elApp.className;
-      if (elApp.id.indexOf("app_") !== -1) {
-        cls = cls.replace(/pos\d+/g, "");
-        elApp.className = cls + " pos" + index;
-        index++;
-      }
-    }
   };
 
   this.getScrollPosition = function getScrollPosition() {

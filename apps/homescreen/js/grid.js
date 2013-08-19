@@ -873,7 +873,7 @@ var GridManager = (function() {
     return apps;
   }
 
-  function getFolders() {
+  function getCollections() {
     var apps = [], app;
     for (var origin in appsByOrigin) {
       app = appsByOrigin[origin];
@@ -1380,7 +1380,7 @@ var GridManager = (function() {
 
     getApps: getApps,
 
-    getFolders: getFolders,
+    getCollections: getCollections,
 
     getAppByOrigin: getAppByOrigin,
 

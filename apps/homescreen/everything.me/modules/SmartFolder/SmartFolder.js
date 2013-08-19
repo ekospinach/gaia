@@ -4,8 +4,6 @@
  * 
  */
  void function() {
-  var NUM_APPS_IN_FOLDER_ICON = 3; // how many icons appear in a folder icon
-
   Evme.SmartFolder = new function Evme_SmartFolder() {
     var self = this,
       NAME = "SmartFolder",
@@ -284,15 +282,8 @@
      */
     function updateIcons(folderSettings){
       if (!folderSettings) return;
-
-      var icons = [],
-        items = Evme.$("li", el);
       
-      for (var i = 0, item; item = items[i++];) {
-        if (Evme.$isVisible(item)) icons.push(item.dataset.iconSrc);
-
-        if (icons.length === NUM_APPS_IN_FOLDER_ICON) break;
-      }
+      var icons = resultsManager.getIcons();
 
       // we may get 0 icons (no connection)
       if (icons.length){
@@ -505,7 +496,7 @@
 
   function mergeAppIcons(apps, icons) {
     if (!apps || !apps.length) return icons;
-    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, NUM_APPS_IN_FOLDER_ICON);
+    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, Evme.Config.numberOfAppInFolderIcon);
   }
 
 

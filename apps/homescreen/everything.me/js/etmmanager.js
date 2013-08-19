@@ -57,17 +57,17 @@ var EvmeManager = (function EvmeManager() {
     }
 
     /**
-     * Returns all apps on grid *excluding* folders.
+     * Returns all apps on grid *excluding* collections.
      */
     function getApps() {
         return GridManager.getApps(true);
     }
     
     /**
-     * Returns only the smart folders on the user's phone
+     * Returns only the smart collections on the user's phone
      */
-    function getFolders() {
-        return GridManager.getFolders();
+    function getCollections() {
+        return GridManager.getCollections();
     }
 
     function getAppInfo(gridApp, cb) {
@@ -197,13 +197,13 @@ var EvmeManager = (function EvmeManager() {
                  GridManager.getAppByOrigin(url);
       },
       getApps: getApps,
-      getFolders: getFolders,
-  	  getAppInfo: getAppInfo,
-  	  isOfflineReady: isOfflineReady,
+      getCollections: getCollections,
+      getAppInfo: getAppInfo,
+      isOfflineReady: isOfflineReady,
 
       openUrl: openUrl,
-  	  openMarketplaceApp: openMarketplaceApp,
-  	  openMarketplaceSearch: openMarketplaceSearch,
+      openMarketplaceApp: openMarketplaceApp,
+      openMarketplaceSearch: openMarketplaceSearch,
 
       isEvmeVisible: isEvmeVisible,
 
