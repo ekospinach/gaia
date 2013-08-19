@@ -54,13 +54,12 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
 
   this.init = function init(cfg) {
     containerEl = cfg.containerEl;
-  };
-
-  this.update = function update(newAppInfo) {
-    Evme.Utils.aug(app, {
-      name: newAppInfo.name,
-      isOfflineReady: newAppInfo.isOfflineReady
-    });
+    
+    EvmeManager.getAppInfo({
+      manifestURL: Evme.__config.marketplaceAppId
+    }, function(appInfo) {
+      app.isOfflineReady = appInfo.isOfflineReady;
+    });    
   };
 
   this.render = function render() {

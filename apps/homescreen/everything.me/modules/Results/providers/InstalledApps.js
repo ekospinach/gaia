@@ -239,10 +239,6 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     for (var i = 0, gridApp; gridApp = gridApps[i++];) {
       var appInfo = EvmeManager.getAppInfo(gridApp, function onAppInfo(appInfo){
         appIndex[appInfo.id] = appInfo;
-
-        if (appInfo.id === Evme.__config.marketplaceAppId) {
-          Evme.EventHandler.trigger(NAME, 'onMarketplaceAppInfo', appInfo);
-        }
       });
     }
   }

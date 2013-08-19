@@ -662,14 +662,6 @@ Evme.Brain = new function Evme_Brain() {
         this.queryIndexUpdated = function queryIndexUpdated() {
             Evme.SmartFolderSettings.updateAll();
         };
-
-
-        // get marketsearch provider from Evme.SearchResults
-        // update the provider with the app info
-        this.onMarketplaceAppInfo = function onMarketplaceAppInfo(info) {
-            var marketSearchProvider = Evme.SearchResults.providers[Evme.PROVIDER_TYPES.MARKETSEARCH];
-            marketSearchProvider.update(info);
-        };
     };
 
     // modules/Apps/

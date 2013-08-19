@@ -58,8 +58,6 @@ Evme.ResultManager = function Evme_ResultsManager() {
 
   MAX_SCROLL_FADE *= Evme.Utils.devicePixelRatio;
 
-  this.providers = providers;
-
   this.init = function init(options) {
     !options && (options = {});
 
