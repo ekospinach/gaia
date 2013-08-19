@@ -39,9 +39,6 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
 Evme.MarketResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketResult.prototype.constructor = Evme.Evme_MarketResult;
 
-Evme.MarketResult.prototype.marketBadge = new Image();
-Evme.MarketResult.prototype.marketBadge.src = Evme.Utils.getMarketBadgeIcon();
-
 
 Evme.MarketAppsRenderer = function Evme_MarketAppsRenderer() {
 	var NAME = 'MarketAppsRenderer',

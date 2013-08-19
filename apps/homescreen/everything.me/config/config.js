@@ -131,11 +131,7 @@ Evme.Config = Evme.__config = {
                         "/everything.me/images/icn/default3.png?cb=1346169250"
                 ]
             },
-            "marketBadgeUrl": {
-                "normal": "/everything.me/images/market/badge.png",
-                "high": "/everything.me/images/market/badge@2x.png"
-            },
-            "defaultMarketAppIcon": {
+            "defaultAppIcon": {
                 "normal": "/style/images/default.png",
                 "high": "/style/images/default@2x.png"
             }

@@ -410,30 +410,25 @@ Evme.Utils = new function Evme_Utils() {
     };
     
     this.formatImageData = function formatImageData(image) {
-        if (!image || typeof image !== "object") {
-            return image;
-        }
-	if (image.MIMEType === "image/url") {
-	    return image.data;
-        }
-        if (!image.MIMEType || image.data.length < 10) {
-            return null;
-        }
-	if (self.isBlob(image)) {
-	    return self.EMPTY_IMAGE;
-	}
+      if (!image || typeof image !== "object") {
+        return image;
+      }
+      if (image.MIMEType === "image/url") {
+        return image.data;
+      }
+      if (!image.MIMEType || image.data.length < 10) {
+        return null;
+      }
+      if (self.isBlob(image)) {
+        return self.EMPTY_IMAGE;
+      }
 
-        return "data:" + image.MIMEType + ";base64," + image.data;
+      return "data:" + image.MIMEType + ";base64," + image.data;
     };
 
     this.getDefaultAppIcon = function getDefaultAppIcon() {
-        return Evme.Config.design.apps.defaultMarketAppIcon[this.PIXEL_RATIO_NAME];
+        return Evme.Config.design.apps.defaultAppIcon[this.PIXEL_RATIO_NAME];
     };
-
-    this.getMarketBadgeIcon = function getMarketBadgeIcon() {
-        var quality = (Evme.Utils.devicePixelRatio > 1) ? 'high' : 'normal';
-        return Evme.Config.design.apps.marketBadgeUrl[quality];
-    }
 
     this.getEmptyFolderIcon = function getEmptyFolderIcon(){
         return Evme.__config.emptyFolderIcon;
