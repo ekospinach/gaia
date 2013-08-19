@@ -37,9 +37,7 @@ var Configurator = (function() {
           }
         }
       } catch (e) {
-        // TODOEVME: setting this to en empty object causes error in the homescreen init
-        // need to understand why it's done in the first place
-        //conf = {};
+        conf = {};
         console.error('Failed parsing homescreen configuration file: ' + e);
         startHomescreenByDefault();
       }
