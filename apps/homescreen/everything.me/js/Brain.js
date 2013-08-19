@@ -1208,9 +1208,23 @@ Evme.Brain = new function Evme_Brain() {
                 return;
             }
 
-            self.addShortcuts({
-                'query': data.query
-            });
+	    // create the collection (even if offline), then update with icons
+	    var query = data.query;
+	    Evme.SmartFolder.create({"query": query, "callback": updateShortcutIcons});
+
+	    function updateShortcutIcons(folderSettings) {
+		Evme.DoATAPI.Shortcuts.get({
+		    "queries": JSON.stringify([query]),
+		    "_NOCACHE": true
+		}, function onShortcutsGet(response) {
+		    var icons = Evme.Utils.valuesOf(response.response.icons);
+		    if (icons) {
+			Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
+			    Evme.SmartFolder.updateIcons(folderSettings, roundIcons, true);
+			});
+		    }
+		});
+	    }
         };
 
         // this gets a list of queries and creates shortcuts

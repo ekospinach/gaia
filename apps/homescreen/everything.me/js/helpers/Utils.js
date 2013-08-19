@@ -235,6 +235,12 @@ Evme.Utils = new function Evme_Utils() {
     this.cloneObject = function cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
     };
+
+    this.valuesOf = function values(obj) {
+	return Object.keys(obj).map(function getValue(key) {
+	    return obj[key];
+	});
+    };
     
     // remove installed apps from clouds apps
     this.dedupInstalledApps = function dedupInstalledApps(apps, installedApps) {

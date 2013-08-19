@@ -92,7 +92,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
     var icon = Evme.Utils.getEmptyFolderIcon(),
       onReady = options.onReady,
       elCanvas = document.createElement('canvas'),
-      context = elCanvas.getContext('2d')
+      context = elCanvas.getContext('2d'),
       img = new Image();
 
     elCanvas.width = WIDTH;

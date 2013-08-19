@@ -72,11 +72,13 @@
         apps = options.apps,
         icons = options.icons || [],
         gridPosition = options.gridPosition,
+	callback = options.callback || Evme.Utils.NOOP,
         extra = {"icons": icons};
       
       if (query) {
         Evme.SmartFolderSettings.createByQuery(query, extra, function onCreate(folderSettings) {
-          addFolderToHomescreen(folderSettings, gridPosition)
+	  addFolderToHomescreen(folderSettings, gridPosition);
+	  callback(folderSettings);
         });
       }
     }
@@ -109,7 +111,10 @@
         return false;
       }
 
-      updateIcons(currentSettings);
+      // update homescreen icon with first three visible icons
+      var icons = resultsManager.getIcons();
+      self.updateIcons(currentSettings, icons);
+
       currentSettings = null;
 
       el.classList.remove(CLASS_WHEN_VISIBLE);
@@ -271,26 +276,22 @@
       return true;
     };
     
+    this.updateIcons = function updateIcons(folderSettings, icons, merge){
+      if (folderSettings && icons && icons.length) {
+	if (merge) {
+	  icons = mergeAppIcons(folderSettings.apps, icons);
+	}
+
+	Evme.SmartFolderStorage.update(folderSettings, {'icons': icons});
+	addFolderToHomescreen(folderSettings);
+      }
+    };
+
     function onVisibilityChange() {
       if (document.mozHidden) {
         self.toggleEditMode(false);
       }
     }
-
-    /**
-     * Get the icons of first three *visible* results
-     */
-    function updateIcons(folderSettings){
-      if (!folderSettings) return;
-      
-      var icons = resultsManager.getIcons();
-
-      // we may get 0 icons (no connection)
-      if (icons.length){
-        Evme.SmartFolderStorage.update(folderSettings, {'icons': icons});
-        addFolderToHomescreen(folderSettings);
-      }
-    };
 
     function setStaticApps(apps, folderSettings) {
       var settings = folderSettings || currentSettings,
