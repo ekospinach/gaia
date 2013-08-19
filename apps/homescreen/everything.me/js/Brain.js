@@ -1114,37 +1114,26 @@ Evme.Brain = new function Evme_Brain() {
             // create <select multiple>
             var select = new Evme.SelectBox();
             select.init({
-                "callback": function(selectedArr) {
+                callback: function onInit(selectedArr) {
                     select = null;
                     Evme.SmartFolder.addApps(selectedArr);
                 }
             });
 
-            // get all apps
-            var appIndex = Evme.InstalledAppsService.getApps(),
-                appArray = [],
-                staticAppIds = [];
-
-            // convert static apps to ids for later filtering
-            for (var i = 0, app; app = data.staticApps[i++];) {
-                staticAppIds.push(app.id);
-            }
-
-            // normalize to selectbox format
-            for (var k in appIndex) {
-                var app = appIndex[k];
-
-                // filter out already displayed static apps
-                if (staticAppIds.indexOf(app.id) !== -1) {
-                    continue;
-                }
-
-                appArray.push({
-                    "text": app.name,
-                    "return": app
+            // generate options
+            var staticAppIds = Evme.Utils.pluck(data.staticApps, 'id'),
+                appIndex = Evme.InstalledAppsService.getApps(),
+                installedApps = Evme.Utils.valuesOf(appIndex),
+                appArray = installedApps.filter(function notAdded(app) {
+                    return staticAppIds.indexOf(app.id) === -1;
+                }).map(function toSelectBoxFormat(app) {
+                        return {
+                            "text": app.name,
+                            "return": app
+                        }
                 });
-            }
-            // load apps into select and show
+
+            Evme.Utils.sortBy("text", appArray);
             select.load(appArray);
         };
     };
