@@ -1197,23 +1197,29 @@ Evme.Brain = new function Evme_Brain() {
                 return;
             }
 
-	    // create the collection (even if offline), then update with icons
-	    var query = data.query;
-	    Evme.SmartFolder.create({"query": query, "callback": updateShortcutIcons});
+            // create the collection (even if offline), then update with icons
+            var query = data.query;
+            Evme.SmartFolder.create({
+                "query": query,
+                "callback": updateShortcutIcons
+            });
 
-	    function updateShortcutIcons(folderSettings) {
-		Evme.DoATAPI.Shortcuts.get({
-		    "queries": JSON.stringify([query]),
-		    "_NOCACHE": true
-		}, function onShortcutsGet(response) {
-		    var icons = Evme.Utils.valuesOf(response.response.icons);
-		    if (icons) {
-			Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
-			    Evme.SmartFolder.updateIcons(folderSettings, roundIcons, true);
-			});
-		    }
-		});
-	    }
+            function updateShortcutIcons(folderSettings) {
+                Evme.DoATAPI.Shortcuts.get({
+                    "queries": JSON.stringify([query]),
+                    "_NOCACHE": true
+                }, function onShortcutsGet(response) {
+                    var shortcut = response.response.shortcuts[0],
+                        icons = shortcut.appIds.map(function getIcon(appId) {
+                            return response.response.icons[appId];
+                        });
+                    if (icons) {
+                        Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
+                            Evme.SmartFolder.updateIcons(folderSettings, roundIcons, true);
+                        });
+                    }
+                });
+            }
         };
 
         // this gets a list of queries and creates shortcuts
