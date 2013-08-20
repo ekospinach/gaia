@@ -9,7 +9,6 @@
     font-size: 1.2rem;
     text-align: left;
     height: calc((100% - 7.5rem)/4); /* height of footer */
-    visibility: hidden;
     z-index: 10001;
 }
 

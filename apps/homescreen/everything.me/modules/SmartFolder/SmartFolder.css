@@ -8,7 +8,7 @@
     color: #fff;
     -moz-box-sizing: border-box;
     pointer-events: none;
-    animation: folder-hide 400ms ease-out 1;
+    animation: folder-hide 450ms ease-out 1;
     animation-fill-mode: forwards;
 }
 
@@ -209,11 +209,11 @@
 
 .evme-smart-folder-visible .evmeScope #search-header {
     transform-origin: 0 0;
-    transition: transform 250ms linear 200ms;
+    transition: transform 200ms linear 200ms;
     transform: scale(1, 0);
 }
 .evme-smart-folder-visible .apps {
-    transition: transform 250ms linear 100ms, opacity 0ms linear 350ms;
+    transition: transform 250ms linear 100ms, opacity 0ms linear 400ms;
     transform: translateY(-4rem);
     opacity: 0;
 }

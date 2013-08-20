@@ -1,3 +1,6 @@
+.evmeScope {
+    visibility: hidden;
+}
 .evme-ready .evmeScope {
     visibility: visible;
 }
