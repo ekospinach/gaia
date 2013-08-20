@@ -3,12 +3,14 @@
     margin: 0;
     padding: 0;
     top: 0;
-    bottom: 0;
     left: 0;
     width: 100%;
     font-weight: normal;
     font-size: 1.2rem;
     text-align: left;
+    height: calc((100% - 7.5rem)/4); /* height of footer */
+    visibility: hidden;
+    z-index: 10001;
 }
 
 .evmeScope div, .evmeScope p:not(.noreset), .evmeScope span,

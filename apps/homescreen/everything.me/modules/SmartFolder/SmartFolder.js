@@ -23,7 +23,6 @@
 
       title = '',
 
-      CLASS_WHEN_VISIBLE = 'visible',
       CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
       CLASS_WHEN_ANIMATING = 'animate',
       TRANSITION_DURATION = 400,
@@ -72,13 +71,13 @@
         apps = options.apps,
         icons = options.icons || [],
         gridPosition = options.gridPosition,
-	callback = options.callback || Evme.Utils.NOOP,
+        callback = options.callback || Evme.Utils.NOOP,
         extra = {"icons": icons};
       
       if (query) {
         Evme.SmartFolderSettings.createByQuery(query, extra, function onCreate(folderSettings) {
-	  addFolderToHomescreen(folderSettings, gridPosition);
-	  callback(folderSettings);
+          addFolderToHomescreen(folderSettings, gridPosition);
+          callback(folderSettings);
         });
       }
     }
@@ -93,15 +92,11 @@
         folderSettings.bg && self.setBackground(folderSettings.bg);
 
         self.editMode = false;
-        
+
         resultsManager.renderStaticApps(folderSettings.apps);
 
-        window.setTimeout(function onTimeout() {
-          el.classList.add(CLASS_WHEN_VISIBLE);
-        }, 0);
-
-        Evme.EventHandler.trigger(NAME, "show", {
-          "folder": self
+        window.mozRequestAnimationFrame(function() {
+          Evme.EventHandler.trigger(NAME, 'show');
         });
       });
     }
@@ -117,8 +112,6 @@
 
       currentSettings = null;
 
-      el.classList.remove(CLASS_WHEN_VISIBLE);
-
       // hack for preventing the browser from saving the scroll position
       // and restoring it when a new SmartFolder opens
       resultsManager.scrollToTop();
@@ -128,9 +121,7 @@
 
       self.toggleEditMode(false);
 
-      Evme.EventHandler.trigger(NAME, "hide", {
-        "folder": self
-      });
+      Evme.EventHandler.trigger(NAME, 'hide');
 
       return true;
     };

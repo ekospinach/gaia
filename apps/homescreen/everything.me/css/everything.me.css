@@ -1,9 +1,3 @@
-.evmeScope {
-    bottom: auto;
-    height: calc((100% - 7.5rem)/4); /* height of footer */
-    visibility: hidden;
-}
-
 .evme-ready .evmeScope {
     visibility: visible;
 }
@@ -13,7 +7,6 @@
 }
 
 .evme-keyboard-visible .evmeScope,
-.evme-smart-folder-visible .evmeScope,
 .evme-suggest-folders-loading .evmeScope {
     height: 100%;
 }
@@ -43,13 +36,12 @@
 }
 
 .evme-has-results #footer,
-.evme-smart-folder-visible #footer,
 .evme-suggest-folders-loading #footer {
   display: none;
 }
 
 #footer {
-    transition: -moz-transform .1s ease;   
+    transition: transform 100ms ease;   
 }
 .evme-displayed.evme-keyboard-visible #footer,
 .evme-displayed.evme-has-query #footer{

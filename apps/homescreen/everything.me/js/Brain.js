@@ -982,7 +982,7 @@ Evme.Brain = new function Evme_Brain() {
         // a folder is shown
         this.show = function show(data) {
             document.body.classList.add(CLASS_WHEN_SMART_FOLDER_VISIBLE);
-            window.setTimeout(loadAppsIntoFolder, 400);
+            window.setTimeout(loadAppsIntoFolder, 600);
             currentResultsManager = Evme.SmartfolderResults;
         };
 
