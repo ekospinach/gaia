@@ -719,7 +719,8 @@ var GridManager = (function() {
      */
     addPage: function(icons, numberOficons) {
       var pageElement = document.createElement('div');
-      var page = new Page(pageElement, icons, numberOficons || MAX_ICONS_PER_PAGE);
+      var page = new Page(pageElement, icons, numberOficons ||
+                          MAX_ICONS_PER_PAGE);
       pages.push(page);
 
       pageElement.className = 'page';
@@ -760,13 +761,13 @@ var GridManager = (function() {
       }
       HomeState.saveGrid(state);
     },
-  
+
     render: function() {
-      for (var i=0, page; page=pages[i++];) {
+      for (var i = 0, page; page = pages[i++];) {
         page.render();
       }
     },
-    
+
     getNext: function() {
       return pages[currentPage + 1];
     },
@@ -853,10 +854,10 @@ var GridManager = (function() {
   }
 
   /**
-   * Ways to enumerate installed apps & bookmarks *excluding* folders and find out whether
-   * a certain "origin" is available as an existing installed app or
+   * Ways to enumerate installed apps & bookmarks *excluding* folders and find
+   * out whether a certain "origin" is available as an existing installed app or
    * bookmark. Only used by Everything.me at this point.
-   * @param {Boolean} disallows hidden apps
+   * @param {Boolean} disallows hidden apps.
    */
   function getApps(suppressHiddenRoles) {
     var apps = [],
@@ -864,8 +865,9 @@ var GridManager = (function() {
     for (var origin in appsByOrigin) {
       app = appsByOrigin[origin];
 
-      if (app.isFolder || (suppressHiddenRoles &&
-        HIDDEN_ROLES.indexOf(appsByOrigin[origin].manifest.role) !== -1)) {
+      if (app.type === GridItemsFactory.TYPE.COLLECTION ||
+          (suppressHiddenRoles &&
+            HIDDEN_ROLES.indexOf(appsByOrigin[origin].manifest.role) !== -1)) {
         continue;
       }
       apps.push(appsByOrigin[origin]);
@@ -877,7 +879,7 @@ var GridManager = (function() {
     var apps = [], app;
     for (var origin in appsByOrigin) {
       app = appsByOrigin[origin];
-      if (app.isFolder){
+      if (app.type === GridItemsFactory.TYPE.COLLECTION) {
         apps.push(app);
       }
     }
@@ -988,8 +990,8 @@ var GridManager = (function() {
       // navigator.mozApps backed app will objects will be handled
       // asynchronously and therefore at a later time.
       var app = null;
-      if (descriptor.bookmarkURL) {
-        app = new Bookmark(descriptor);
+      if (descriptor.type !== GridItemsFactory.TYPE.APP) {
+        app = GridItemsFactory.create(descriptor);
         bookmarksByOrigin[app.origin] = app;
       }
 
@@ -1034,15 +1036,18 @@ var GridManager = (function() {
   }
 
   function hasOfflineCache(app) {
-    return app.isFolder || app.manifest.appcache_path != null;
+    return app.type === GridItemsFactory.TYPE.COLLECTION ||
+           app.manifest.appcache_path != null;
   }
 
   /*
    * Create or update a single icon for an Application (or Bookmark) object.
    */
-  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset, gridPosition) {
+  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset,
+                                    gridPosition) {
     // Make sure we update the icon/label when the app is updated.
-    if (!app.isBookmark) {
+    if (app.type !== GridItemsFactory.TYPE.COLLECTION &&
+        app.type !== GridItemsFactory.TYPE.BOOKMARK) {
       app.ondownloadapplied = function ondownloadapplied(event) {
         createOrUpdateIconForApp(event.application, entryPoint);
         app.ondownloadapplied = null;
@@ -1071,13 +1076,13 @@ var GridManager = (function() {
       useAsyncPanZoom: app.useAsyncPanZoom,
       isHosted: isHosted(app),
       hasOfflineCache: hasOfflineCache(app),
-      isBookmark: app.isBookmark,
+      type: app.type,
       id: app.id,
-      isFolder: !!app.isFolder,
       isEmpty: !!app.isEmpty
     };
-    
-    if (haveLocale && !app.isBookmark) {
+
+    if (haveLocale && app.type !== GridItemsFactory.TYPE.COLLECTION &&
+                      app.type !== GridItemsFactory.TYPE.BOOKMARK) {
       descriptor.localizedName = iconsAndNameHolder.name;
     }
 
@@ -1092,10 +1097,10 @@ var GridManager = (function() {
 
     var icon = new Icon(descriptor, app);
     rememberIcon(icon);
-    
+
     if (gridPosition) {
       var index = gridPosition.page || 0;
-      pages[index].appendIconAt(icon, gridPosition.index || 0); 
+      pages[index].appendIconAt(icon, gridPosition.index || 0);
     } else {
       var index = getFirstPageWithEmptySpace(gridPageOffset);
 
@@ -1229,7 +1234,7 @@ var GridManager = (function() {
     overlayTransition = 'opacity ' + kPageTransitionDuration + 'ms ease';
 
     IconRetriever.init();
-    
+
     // Initialize the grid from the state saved in IndexedDB.
     HomeState.init(function eachPage(pageState) {
       // First 'page' is the dock.
@@ -1240,10 +1245,11 @@ var GridManager = (function() {
         DockManager.init(dockContainer, dock, tapThreshold);
         return;
       }
-      
+
       var pageIcons = convertDescriptorsToIcons(pageState),
-          numberOfIcons = pageState.index === EVME_PAGE? MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
-      
+          numberOfIcons = pageState.index === EVME_PAGE ?
+          MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
+
       pageHelper.addPage(pageIcons, numberOfIcons);
     }, function onSuccess() {
       initApps();
@@ -1304,7 +1310,7 @@ var GridManager = (function() {
     install: function gm_install(app, gridPosition) {
       processApp(app, null, null, gridPosition);
 
-      if (app.isFolder){
+      if (app.type === GridItemsFactory.TYPE.COLLECTION) {
         window.dispatchEvent(new CustomEvent('folderInstalled', {
           'detail': {
             'folder': app
@@ -1331,7 +1337,8 @@ var GridManager = (function() {
 
       delete appsByOrigin[app.origin];
 
-      if (app.isBookmark) {
+      if (app.type === GridItemsFactory.TYPE.COLLECTION ||
+          app.type === GridItemsFactory.TYPE.BOOKMARK) {
         var icon = bookmarkIcons[app.bookmarkURL];
         updateDock = dock.containsIcon(icon);
         icon.remove();
@@ -1349,7 +1356,7 @@ var GridManager = (function() {
         delete appIcons[app.manifestURL];
       }
 
-      if (app.isFolder){
+      if (app.type === GridItemsFactory.TYPE.COLLECTION) {
         window.dispatchEvent(new CustomEvent('folderUninstalled', {
           'detail': {
             'folder': app
@@ -1423,7 +1430,7 @@ var GridManager = (function() {
         return defaultAppIcon.descriptor.renderedIcon;
       }
     },
-    
+
     get container() {
       return container;
     }

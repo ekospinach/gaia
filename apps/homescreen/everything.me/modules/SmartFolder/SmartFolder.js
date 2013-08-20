@@ -1,13 +1,13 @@
 /**
  * SmartFolder.js
  * Main Evme object for using SmartFolders
- * 
+ *
  */
  void function() {
   Evme.SmartFolder = new function Evme_SmartFolder() {
     var self = this,
       NAME = "SmartFolder",
-      
+
       currentSettings = null,
 
       el = null,
@@ -57,7 +57,7 @@
       elOpenActions.addEventListener('click', function onClick() {
           Evme.SmartFolder.toggleEditMode(false);
           elFolderActions.classList.toggle('show');
-      });    
+      });
 
       elClose.addEventListener("click", self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
@@ -73,7 +73,7 @@
         gridPosition = options.gridPosition,
         callback = options.callback || Evme.Utils.NOOP,
         extra = {"icons": icons};
-      
+
       if (query) {
         Evme.SmartFolderSettings.createByQuery(query, extra, function onCreate(folderSettings) {
           addFolderToHomescreen(folderSettings, gridPosition);
@@ -132,7 +132,7 @@
 
     this.setTitle = function setTitle(newTitle) {
       title = newTitle;
-      
+
       elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
         '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
     };
@@ -148,7 +148,7 @@
       el.appendChild(elImageFullscreen);
 
       Evme.SmartFolderStorage.update(currentSettings, {bg: newBg});
-      
+
       resultsManager.changeFadeOnScroll(true);
     };
 
@@ -208,7 +208,7 @@
     this.getExperience = function getExperience() {
       return currentSettings.experienceId;
     };
-    
+
     this.getQuery = function getQuery() {
       return currentSettings.query;
     };
@@ -216,7 +216,7 @@
     this.userSetBg = function userSetBg() {
       return (currentSettings.bg && currentSettings.bg.setByUser);
     }
-    
+
     this.addApps = function addApps(newApps, folderSettings) {
       if (!Array.isArray(newApps)){
         newApps = [newApps];
@@ -231,7 +231,7 @@
 
     this.removeResult = function removeResult(data) {
       var id = data.id; // the id of the app to remove
-      
+
       Evme.SmartFolderStorage.getFoldersWithApp(id, function onAllFolders(folders){
         var newApps = currentSettings.apps.filter(function filterApp(app) {
           return app.id !== id;
@@ -266,7 +266,7 @@
 
       return true;
     };
-    
+
     this.updateIcons = function updateIcons(folderSettings, icons, merge){
       if (folderSettings && icons && icons.length) {
 	if (merge) {
@@ -395,11 +395,11 @@
     this.id = args.id;
     this.name = args.name || args.query;
     this.bg = args.bg || null;  // object containing backgound information (image, query, source, setByUser)
-    
+
     // folder performs search by query or by experience
     this.query = args.query || args.name;
     this.experienceId = args.experienceId;
-    
+
     this.apps = args.apps || [];
     this.icons = args.icons || [];
   };
@@ -446,7 +446,7 @@
     });
   }
 
-  function populateFolder(folderSettings){ 
+  function populateFolder(folderSettings){
     var existingIds = Evme.Utils.pluck(folderSettings.apps, 'id');
 
     var newApps = Evme.InstalledAppsService.getMatchingApps({
@@ -461,7 +461,7 @@
 
     var folderApps = folderSettings.apps.concat(newApps),
       icons = mergeAppIcons(folderApps, folderSettings.icons);
-    
+
     Evme.SmartFolderStorage.update(folderSettings, {"apps": folderApps, "icons": icons}, addFolderToHomescreen);
   };
 
@@ -472,9 +472,9 @@
   function addFolderToHomescreen(folderSettings, gridPosition) {
     var homescreenIcons = (folderSettings.icons.length) ?
       folderSettings.icons : Evme.Utils.pluck(folderSettings.apps, 'icon');
-      
+
     Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas){
-      EvmeManager.addBookmark({
+      EvmeManager.addGridItem({
         "id": folderSettings.id,
         "originUrl": 'fldr://' + folderSettings.id,
         "title": folderSettings.name,
@@ -541,10 +541,10 @@
       });
 
     }
-    
+
     this.add = function add(folderSettings, cb) {
       if (!folderSettings.id) return;
-      
+
       Evme.Storage.set(PREFIX + folderSettings.id, folderSettings, function onSet() {
         addId(folderSettings.id);
         cb instanceof Function && cb(folderSettings);
@@ -617,12 +617,12 @@
     function removeId(id) {
       if (ids === null || locked) {
         setTimeout(function retry() {removeId(id); }, 100);
-        return;     
+        return;
       }
 
       try {
         lock();
-        ids = ids.filter(function neqId(storedId) {return storedId !== id }); 
+        ids = ids.filter(function neqId(storedId) {return storedId !== id });
         Evme.SmartFolderStorage.set(IDS_STORAGE_KEY, ids, function onRemoved(){
           unlock();
           Evme.Storage.remove(PREFIX + folderId);
@@ -640,5 +640,5 @@
       locked = false;
     }
   };
- 
+
 }();

@@ -67,10 +67,10 @@ Icon.prototype = {
   },
 
   isOfflineReady: function icon_isOfflineReady() {
-    return this.descriptor.isFolder ||
+    return this.descriptor.type === GridItemsFactory.TYPE.COLLECTION ||
             !(this.descriptor.isHosted &&
             !this.descriptor.hasOfflineCache ||
-            this.descriptor.isBookmark);
+            this.descriptor.type === GridItemsFactory.TYPE.BOOKMARK);
   },
 
   /*
@@ -109,7 +109,7 @@ Icon.prototype = {
 
 
     // Smart Folders (as bookmarks)
-    if (descriptor.isFolder) {
+    if (descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
       container.dataset.isFolder = true;
       container.dataset.isEmpty = descriptor.isEmpty;
       container.dataset.folderId = descriptor.id;
@@ -320,7 +320,7 @@ Icon.prototype = {
     canvas.toBlob(this.renderBlob.bind(this));
   },
 
-  createCanvas: function icon_createCanvas(img){
+  createCanvas: function icon_createCanvas(img) {
     var canvas = document.createElement('canvas');
     canvas.width = (MAX_ICON_SIZE + ICON_PADDING_IN_CANVAS) * SCALE_RATIO;
     canvas.height = (MAX_ICON_SIZE + ICON_PADDING_IN_CANVAS) * SCALE_RATIO;
@@ -451,7 +451,8 @@ Icon.prototype = {
    */
   translate: function icon_translate() {
     var descriptor = this.descriptor;
-    if (descriptor.bookmarkURL && !descriptor.isFolder)
+    if (descriptor.type === GridItemsFactory.TYPE.COLLECTION ||
+        descriptor.type === GridItemsFactory.TYPE.BOOKMARK)
       return;
 
     var app = this.app;
@@ -530,7 +531,8 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem, originElem, page) {
+  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem,
+                                       originElem, page) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -547,22 +549,25 @@ Icon.prototype = {
 
     if (!dropIntoFolder) {
       style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
-      draggableElem.querySelector('div').style.MozTransform = 'scale(1)';  
+      draggableElem.querySelector('div').style.MozTransform = 'scale(1)';
 
     } else {
       draggableElem.classList.add('droppedInFolder');
-      
+
       if (overlapElem.dataset.isFolder === 'true') {
         // E.me references both apps and bookmarks by an 'id'
         var detail = {
-            "app": {
-              "id": originElem.dataset.manifestURL || originElem.dataset.bookmarkURL
+            'app': {
+              'id': originElem.dataset.manifestURL ||
+                    originElem.dataset.bookmarkURL
             },
-            "folder": {
-              "id": overlapElem.dataset.folderId
+            'folder': {
+              'id': overlapElem.dataset.folderId
             }
-          }
-          window.dispatchEvent(new CustomEvent('EvmeDropApp', {"detail": detail })); 
+          };
+          window.dispatchEvent(new CustomEvent('EvmeDropApp', {
+            'detail': detail
+          }));
       }
     }
 
@@ -606,7 +611,7 @@ Icon.prototype = {
   }
 };
 
-function TemplateIcon(isBookmark) {
+function TemplateIcon(iconable) {
   var descriptor = {
     name: 'templateIcon',
     hidden: true,
@@ -614,7 +619,7 @@ function TemplateIcon(isBookmark) {
   };
 
   var app = {};
-  if (isBookmark) {
+  if (iconable) {
     app.iconable = true;
   }
 
@@ -748,8 +753,8 @@ Page.prototype = {
       return;
     }
 
-    // remove 
-    targetNode.dataset.draggedon = "false";
+    // remove
+    targetNode.dataset.draggedon = 'false';
 
     var upward = draggableIndex < targetIndex;
     this.draggableNode = draggableNode;
@@ -767,12 +772,12 @@ Page.prototype = {
     });
 
     if (upward) {
-      for (var i = draggableIndex + 1; i <= targetIndex; i++){
+      for (var i = draggableIndex + 1; i <= targetIndex; i++) {
         this.placeIcon(children[i], i, i - 1, DRAGGING_TRANSITION);
         // r+= "; "+i+"->"+(i-1);
       }
     } else {
-      for (var i = targetIndex; i < draggableIndex; i++){
+      for (var i = targetIndex; i < draggableIndex; i++) {
         this.placeIcon(children[i], i, i + 1, DRAGGING_TRANSITION);
         // r+= "; "+i+"->"+(i+1);
       }
@@ -904,7 +909,7 @@ Page.prototype = {
 
     var olist = this.olist,
         children = this.olist.children;
-    
+
     if (children[index]) {
       olist.insertBefore(icon.container, children[index]);
     } else {
@@ -1034,13 +1039,13 @@ Page.prototype = {
 
   getIndex: function pg_getIndex() {
     var pages = this.container.parentNode.children;
-    pages = Array.prototype.slice.call(pages, 0,pages.length);
+    pages = Array.prototype.slice.call(pages, 0, pages.length);
     return pages.indexOf(this.container);
   },
 
   getIconIndex: function pg_getIconIndex(icon) {
     var icons = this.olist.children;
-    icons = Array.prototype.slice.call(icons, 0,icons.length);
+    icons = Array.prototype.slice.call(icons, 0, icons.length);
     return icons.indexOf(icon);
   }
 };

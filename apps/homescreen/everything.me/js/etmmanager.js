@@ -4,7 +4,7 @@
 var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
         currentURL = null;
-        
+
     function openApp(params) {
         var evmeApp = new EvmeApp({
             bookmarkURL: params.originUrl,
@@ -16,18 +16,20 @@ var EvmeManager = (function EvmeManager() {
         currentURL = params.url;
     }
 
-    function addBookmark(params) {
-      GridManager.install(new Bookmark({
+    function addGridItem(params) {
+      var item = GridItemsFactory.create({
         "id": params.id || Evme.Utils.uuid(),
         "bookmarkURL": params.originUrl,
         "name": params.title,
         "icon": params.icon,
         "iconable": false,
         "useAsyncPanZoom": params.useAsyncPanZoom,
-        "isFolder": !!params.isFolder,
+        "type": !!params.isFolder ? GridItemsFactory.TYPE.COLLECTION :
+                                    GridItemsFactory.TYPE.BOOKMARK,
         "isEmpty": !!params.isEmpty
-      }), params.gridPosition);
+      });
 
+      GridManager.install(item, params.gridPosition);
       GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
@@ -62,7 +64,7 @@ var EvmeManager = (function EvmeManager() {
     function getApps() {
         return GridManager.getApps(true);
     }
-    
+
     /**
      * Returns only the smart collections on the user's phone
      */
@@ -122,7 +124,7 @@ var EvmeManager = (function EvmeManager() {
         var status = xhr.status;
         if (status !== 0 && status !== 200)
             request.done();
-        else 
+        else
             request.done(xhr.response);
       };
 
@@ -173,10 +175,10 @@ var EvmeManager = (function EvmeManager() {
       });
 
       activity.onerror = function(){
-        window.open('https://marketplace.firefox.com/search/?q='+data.query, 'e.me'); 
+        window.open('https://marketplace.firefox.com/search/?q='+data.query, 'e.me');
       }
     }
-    
+
     function getApp(appId) {
       return GridManager.getIcon({
         "manifestURL": appId
@@ -186,7 +188,7 @@ var EvmeManager = (function EvmeManager() {
     return {
       openApp: openApp,
 
-      addBookmark: addBookmark,
+      addGridItem: addGridItem,
 
       isAppInstalled: function isAppInstalled(url) {
           return GridManager.getIconForBookmark(url) ||

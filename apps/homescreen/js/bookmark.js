@@ -1,61 +1,20 @@
 'use strict';
 
 var Bookmark = function Bookmark(params) {
-  this.removable = true;
+  GridItem.call(this, params);
 
-  if ('iconable' in params) {
-    this.iconable = params.iconable;
-  } else {
-    this.iconable = true;
-  }
-
-  this.id = params.id || '';
-  this.isFolder = !!params.isFolder;
-  this.isEmpty = this.isFolder && params.isEmpty; // only a folder can be empty
-  this.hideFromGrid = !!params.hideFromGrid;
-  this.isBookmark = true;
-  this.url = this.bookmarkURL = this.origin = params.bookmarkURL;
-
-  this.manifest = {
-    name: params.name,
-    icons: {
-      60: params.icon
-    },
-    default_locale: 'en-US'
-  };
-
-  this.useAsyncPanZoom = 'useAsyncPanZoom' in params && params.useAsyncPanZoom;
+  this.type = GridItemsFactory.TYPE.BOOKMARK;
 };
 
 Bookmark.prototype = {
-  regexSmartFolder: /fldr:\/\//,
+  __proto__: GridItem.prototype,
 
   launch: function bookmark_launch() {
-    var features = {
-      id: this.id || '',
-      name: this.manifest.name.replace(/\s/g, '&nbsp;'),
-      icon: this.manifest.icons['60'],
-      remote: true,
-      useAsyncPanZoom: this.useAsyncPanZoom
-    };
+    var features = this.getFeatures();
 
-    if (this.isFolder) {
-      features.type = 'url';
-      features.url = this.url;
-
-      window.dispatchEvent(new CustomEvent('EvmeSmartFolderLaunch', {
-        "detail": features
-      }));
-    
-    } else {
-      // The third parameter is received in window_manager without whitespaces
-      // so we decice replace them for &nbsp;
-      window.open(this.url, '_blank', JSON.stringify(features));
-    }
-  },
-
-  uninstall: function bookmark_uninstall() {
-    GridManager.uninstall(this);
+    // The third parameter is received in window_manager without whitespaces
+    // so we decice replace them for &nbsp;
+    window.open(this.url, '_blank', JSON.stringify(features));
   }
 };
 

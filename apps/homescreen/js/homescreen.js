@@ -63,10 +63,10 @@ var Homescreen = (function() {
       }
       DragDropManager.init();
       Wallpaper.init();
-      
+
       // add tap-and-hold menu
       GridManager.container.addEventListener('contextmenu', onTapAndHold);
-      
+
       if (onInit instanceof Function) {
         onInit();
       }
@@ -82,21 +82,19 @@ var Homescreen = (function() {
     elDialog.setAttribute('data-type', 'action');
     elDialog.style.zIndex = '10005'; // to be on top of dock
     elDialog.innerHTML = '<menu>' +
-                            ('Wallpaper' in window?
-                            '<button id="buttonWallpaper">Change Wallpaper...</button>'
-                            : '') +
-                            ('EverythingME' in window?
-                            '<button id="buttonAddSmartfolders">Add Smartfolders</button>' +
-                            '<button id="buttonCustomSmartfolder">Custom Smartfolder</button>'
-                            : '') +
-                            '<button id="btnCancel">Cancel</button>' +
-                          '</menu>' +
-                        '</form>';
+      ('Wallpaper' in window ?
+      '<button id="buttonWallpaper">Change Wallpaper...</button>' : '') +
+      ('EverythingME' in window ?
+      '<button id="buttonAddSmartfolders">Add Smartfolders</button>' +
+      '<button id="buttonCustomSmartfolder">Custom Smartfolder</button>' : '') +
+      '<button id="btnCancel">Cancel</button>' +
+    '</menu>' +
+  '</form>';
 
     document.body.appendChild(elDialog);
-    
+
     attachEvents();
-    
+
     function attachEvents() {
       attachEvent('buttonWallpaper', onClickWallpaper);
       attachEvent('buttonAddSmartfolders', onClickAdd);
@@ -209,7 +207,8 @@ var Homescreen = (function() {
       var confirm = {
         callback: function onAccept() {
           ConfirmDialog.hide();
-          if (app.isBookmark) {
+          if (app.type === GridItemsFactory.TYPE.COLLECTION ||
+              app.type === GridItemsFactory.TYPE.BOOKMARK) {
             app.uninstall();
           } else {
             navigator.mozApps.mgmt.uninstall(app);
@@ -221,7 +220,8 @@ var Homescreen = (function() {
       // Show a different prompt if the user is trying to remove
       // a bookmark shortcut instead of an app.
       var manifest = app.manifest || app.updateManifest;
-      if (app.isBookmark) {
+      if (app.type === GridItemsFactory.TYPE.COLLECTION ||
+          app.type === GridItemsFactory.TYPE.BOOKMARK) {
         title = _('remove-title-2', { name: manifest.name });
         body = _('remove-body', { name: manifest.name });
         confirm.title = _('remove');
