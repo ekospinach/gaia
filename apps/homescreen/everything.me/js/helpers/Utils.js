@@ -237,9 +237,9 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.valuesOf = function values(obj) {
-	return Object.keys(obj).map(function getValue(key) {
-	    return obj[key];
-	});
+        return Object.keys(obj).map(function getValue(key) {
+          return obj[key];
+        });
     };
     
     // remove installed apps from clouds apps
@@ -476,6 +476,39 @@ Evme.Utils = new function Evme_Utils() {
         } else {
             document.body.classList.remove(CLASS_WHEN_KEYBOARD_IS_VISIBLE);
         }
+    };
+
+    this.systemXHR = function systemXHR(options) {
+      var url = options.url,
+          responseType = options.responseType || "",
+          onSuccess = options.onSuccess || self.NOOP,
+          onError = options.onError || self.NOOP;
+
+      var xhr = new XMLHttpRequest({
+        mozAnon: true,
+        mozSystem: true
+      });
+
+      xhr.open('GET', url, true);
+      xhr.responseType = responseType;
+
+      try {
+        xhr.send(null);
+      } catch (e) {
+        onError(e);
+        return;
+      }
+
+      xhr.onerror = onError;
+
+      xhr.onload = function onload() {
+        var status = xhr.status;
+        if (status !== 0 && status !== 200) {
+            onError();
+        } else {
+            onSuccess(xhr.response);
+        }
+      };
     };
 
     this.connection = function _connection(){
