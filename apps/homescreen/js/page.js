@@ -531,8 +531,7 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback, dropIntoCollection, 
-                                       overlapElem, originElem, page) {
+  onDragStop: function icon_onDragStop(callback) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -546,30 +545,7 @@ Icon.prototype = {
     var draggableElem = this.draggableElem;
     var style = draggableElem.style;
     style.MozTransition = '-moz-transform .4s';
-
-    if (!dropIntoCollection) {
-      style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
-      draggableElem.querySelector('div').style.MozTransform = 'scale(1)';
-
-    } else {
-      draggableElem.classList.add('droppedInCollection');
-
-      if (overlapElem.dataset.isCollection === 'true') {
-        // E.me references both apps and bookmarks by an 'id'
-        var detail = {
-            'app': {
-              'id': originElem.dataset.manifestURL ||
-                    originElem.dataset.bookmarkURL
-            },
-            'collection': {
-              'id': overlapElem.dataset.collectionId
-            }
-          };
-          window.dispatchEvent(new CustomEvent('EvmeDropApp', {
-            'detail': detail
-          }));
-      }
-    }
+    style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
 
     var finishDrag = function() {
       delete container.dataset.dragging;
@@ -753,14 +729,10 @@ Page.prototype = {
       return;
     }
 
-    // remove
-    targetNode.dataset.draggedon = 'false';
-
     var upward = draggableIndex < targetIndex;
     this.draggableNode = draggableNode;
     this.beforeNode = upward ? targetNode.nextSibling : targetNode;
     this.placeIcon(draggableNode, draggableIndex, targetIndex);
-    // var r = draggableIndex+"->"+targetIndex;
 
 
     var self = this;
@@ -772,17 +744,12 @@ Page.prototype = {
     });
 
     if (upward) {
-      for (var i = draggableIndex + 1; i <= targetIndex; i++) {
+      for (var i = draggableIndex + 1; i <= targetIndex; i++)
         this.placeIcon(children[i], i, i - 1, DRAGGING_TRANSITION);
-        // r+= "; "+i+"->"+(i-1);
-      }
     } else {
-      for (var i = targetIndex; i < draggableIndex; i++) {
+      for (var i = targetIndex; i < draggableIndex; i++)
         this.placeIcon(children[i], i, i + 1, DRAGGING_TRANSITION);
-        // r+= "; "+i+"->"+(i+1);
-      }
     }
-    // console.log(r);
   },
 
   doDragLeave: function pg_doReArrange(callback, reflow) {

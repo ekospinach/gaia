@@ -11,7 +11,7 @@ const DragDropManager = (function() {
   /*
    * It defines the time (in ms) between consecutive rearranges
    */
-  var REARRANGE_DELAY = 80;
+  var REARRANGE_DELAY = 50;
 
   /*
    * It defines the time (in ms) to ensure that the dragend event is performed
@@ -41,7 +41,7 @@ const DragDropManager = (function() {
   var disabledCheckingLimitsTimeout = null;
 
   var draggableIcon, previousOverlapIcon, overlapingTimeout, overlapElem,
-      currentDragIntoElem, originElem, draggableElemStyle;
+      originElem, draggableElemStyle;
 
   var pageHelper;
 
@@ -191,8 +191,6 @@ const DragDropManager = (function() {
     } else if (DockManager.isFull()) {
       isDockDisabled = true;
     }
-
-    window.mozRequestAnimationFrame(move);
   }
 
   /*
@@ -205,22 +203,13 @@ const DragDropManager = (function() {
     isDisabledCheckingLimits = false;
     isDisabledDrop = false;
     transitioning = false;
-    draggableElemStyle = null;
     var page = getPage();
     var ensureCallbackID = null;
-
-    var dropIntoCollection = false;
-
-    if (overlapElem && overlapElem.dataset.draggedon) {
-      dropIntoCollection = true;
-    }
-    disableCurrentDraggedOn();
 
     DragLeaveEventManager.send(page, function(done) {
       if (ensureCallbackID !== null) {
         window.clearTimeout(ensureCallbackID);
-        draggableIcon.onDragStop(callback, dropIntoCollection,
-                                 overlapElem, originElem, page);
+        draggableIcon.onDragStop(callback);
       }
       done();
     }, true);
@@ -263,11 +252,8 @@ const DragDropManager = (function() {
   }
 
   function move() {
-    if (draggableElemStyle) {
-      draggableElemStyle.MozTransform =
+    draggableElemStyle.MozTransform =
                          'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
-      window.mozRequestAnimationFrame(move);
-    }
   }
 
   /*
@@ -278,6 +264,8 @@ const DragDropManager = (function() {
   function onMove(evt) {
     var x = cx = getTouch(evt).pageX;
     var y = cy = getTouch(evt).pageY;
+
+    window.mozRequestAnimationFrame(move);
 
     var page = getPage();
     if (isDisabledDrag || !page.ready) {
@@ -299,7 +287,8 @@ const DragDropManager = (function() {
     } else {
       // Avoid calling document.elementFromPoint if we are over the same icon
       var rectObject = overlapElem.getBoundingClientRect();
-      if (x < rectObject.left || x > rectObject.right ||
+      if (overlapElem.classList.contains('page') ||
+          x < rectObject.left || x > rectObject.right ||
           y < rectObject.top || y > rectObject.bottom) {
         newOverlapElem = document.elementFromPoint(x, y);
       }
@@ -332,32 +321,21 @@ const DragDropManager = (function() {
       return;
     }
 
-    clearTimeout(overlapingTimeout);
-    overlapingTimeout = setTimeout(function overlayTimeout() {
-      if (!letHoverOver(overlapElem, draggableIcon.draggableElem)) {
-        disableCurrentDraggedOn();
-
-        if (classList.contains('page')) {
-          var lastIcon = page.getLastIcon();
-          if (lastIcon && y > lastIcon.getTop() && draggableIcon !== lastIcon) {
+    if (previousOverlapIcon !== overlapElem) {
+      clearTimeout(overlapingTimeout);
+      if (classList.contains('page')) {
+        var lastIcon = page.getLastIcon();
+        if (lastIcon && y > lastIcon.getTop() && draggableIcon !== lastIcon) {
+          overlapingTimeout = setTimeout(function() {
             page.drop(draggableIcon, lastIcon);
-          }
-        } else {
-          drop(page);
+          }, REARRANGE_DELAY);
         }
       } else {
         overlapingTimeout = setTimeout(doDrop, REARRANGE_DELAY, page);
       }
-    }, REARRANGE_DELAY);
+    }
 
     previousOverlapIcon = overlapElem;
-  }
-
-  function disableCurrentDraggedOn() {
-    if (currentDragIntoElem) {
-      delete currentDragIntoElem.dataset.draggedon;
-      currentDragIntoElem = null;
-    }
   }
 
   function onEnd(evt) {
@@ -374,35 +352,6 @@ const DragDropManager = (function() {
 
   function getPage() {
     return overlapingDock ? DockManager.page : pageHelper.getCurrent();
-  }
-
-  function letHoverOver(overlapElem, draggableElem) {
-    // if not dragging over the same icon
-    // and not dragging a collection
-    // add the dragged upon element is in it's original position (like android)
-    if (overlapElem == originElem ||
-        originElem.dataset.isCollection === 'true' ||
-        !isInOriginalPosition(overlapElem)) {
-      return false;
-    }
-
-    var overlapRect = overlapElem.getBoundingClientRect(),
-        centerY = overlapRect.top + overlapRect.height / 2,
-        centerX = overlapRect.left + overlapRect.width / 2,
-
-        dragRect = draggableElem.getBoundingClientRect(),
-        scale = 1.0,
-
-        touchesCenter = dragRect.top * scale < centerY &&
-                        dragRect.bottom / scale > centerY &&
-                        dragRect.left * scale < centerX &&
-                        dragRect.right / scale > centerX;
-
-    disableCurrentDraggedOn();
-    overlapElem.dataset.draggedon = touchesCenter;
-    currentDragIntoElem = overlapElem;
-
-    return touchesCenter;
   }
 
   function isInOriginalPosition(elem) {
@@ -499,8 +448,8 @@ const DragDropManager = (function() {
       DragLeaveEventManager.init();
       GridManager.onDragStart();
       DockManager.onDragStart();
-      sx = cx = initCoords.x;
-      sy = cy = initCoords.y;
+      sx = initCoords.x;
+      sy = initCoords.y;
       isDockDisabled = isDisabledDrag = isDisabledDrop = false;
       overlapingDock = (initCoords.y >= limitY) ? true : false;
       originElem = evt.target;

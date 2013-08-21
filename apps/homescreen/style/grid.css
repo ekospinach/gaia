@@ -51,7 +51,7 @@ body[data-transitioning] .apps > div {
   float: left;
   text-align: center;
 }
-.apps ol > li div img {
+/*.apps ol > li div img {
   position: relative;
   z-index: 10;
 }
@@ -67,7 +67,7 @@ body[data-transitioning] .apps > div {
   margin-left: -2.8rem;
   margin-top: -4rem;
   opacity: 0.2;
-}
+}*/
 
 /* Maximum 16 icons for page */
 .apps ol > li:nth-child(17) {
