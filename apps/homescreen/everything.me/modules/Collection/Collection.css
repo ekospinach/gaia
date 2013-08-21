@@ -210,10 +210,10 @@
 }
 
 .apps.evme-collection-visible div[data-current-page] ol {
-    transform: translateY(30rem);
+    transform: translateY(6rem);
 }
 .apps.evme-collection-visible div[data-current-page] .evmeScope #search-header {
-    transform: scale(1, 0);
+    transform: translateY(-7rem);
 }
 .evmeScope .collection form {
     display: none;
