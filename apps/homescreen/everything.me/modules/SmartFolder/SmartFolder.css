@@ -52,13 +52,15 @@
         left: 0;
         right: 0;
         height: 5.4rem;
+        /*
+         * TODO: whdoesn't work, probably performace issue
         transform: translateY(100%);
-        /* TODO: why doesn't this transition work?? */
-        transition: all 1000ms linear 4000ms;
+        transition: all 100ms linear 350ms;
+        */
       }
-      .evme-smart-folder-visible .evmeScope .smart-folder .header .header-content {
+      /*.evme-smart-folder-visible .evmeScope .smart-folder .header .header-content {
         transform: translateY(0%);
-      }
+      }*/
     .evmeScope .smart-folder .title {
         position: relative;
         z-index: 50;
