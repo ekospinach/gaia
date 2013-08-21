@@ -96,6 +96,7 @@
         resultsManager.renderStaticApps(collectionSettings.apps);
 
         window.mozRequestAnimationFrame(function() {
+          el.classList.add('visible');
           Evme.EventHandler.trigger(NAME, 'show');
         });
       });
@@ -121,7 +122,10 @@
 
       self.toggleEditMode(false);
 
-      Evme.EventHandler.trigger(NAME, 'hide');
+      window.mozRequestAnimationFrame(function() {
+        el.classList.remove('visible');
+        Evme.EventHandler.trigger(NAME, 'hide');
+      });
 
       return true;
     };

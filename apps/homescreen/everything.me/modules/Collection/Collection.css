@@ -12,7 +12,7 @@
     animation-fill-mode: forwards;
 }
 
-.evme-collection-visible .evmeScope .collection {
+.evmeScope .collection.visible {
     pointer-events: inherit;
     display: block;
     animation-name: collection-show;
@@ -209,15 +209,11 @@
     opacity: 1;
 }
 
-.evme-collection-visible .evmeScope #search-header {
-    transform-origin: 0 0;
-    transition: transform 300ms linear 150ms;
-    transform: scale(1, 0);
+.apps.evme-collection-visible div[data-current-page] ol {
+    transform: translateY(30rem);
 }
-.evme-collection-visible .apps {
-    transition: transform 250ms linear 100ms, opacity 0ms linear 400ms;
-    transform: translateY(-4rem);
-    opacity: 0;
+.apps.evme-collection-visible div[data-current-page] .evmeScope #search-header {
+    transform: scale(1, 0);
 }
 .evmeScope .collection form {
     display: none;

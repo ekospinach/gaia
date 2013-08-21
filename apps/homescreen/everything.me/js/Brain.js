@@ -981,14 +981,14 @@ Evme.Brain = new function Evme_Brain() {
 
         // a collection is shown
         this.show = function show(data) {
-            document.body.classList.add(CLASS_WHEN_COLLECTION_VISIBLE);
+            document.getElementById('icongrid').classList.add(CLASS_WHEN_COLLECTION_VISIBLE);
             window.setTimeout(loadAppsIntoCollection, 600);
             currentResultsManager = Evme.CollectionResults;
         };
 
         // hiding the collection
         this.hide = function hide() {
-            document.body.classList.remove(CLASS_WHEN_COLLECTION_VISIBLE);
+            document.getElementById('icongrid').classList.remove(CLASS_WHEN_COLLECTION_VISIBLE);
             Evme.Brain.Collection.cancelRequests();
             Evme.ConnectionMessage.hide();
 

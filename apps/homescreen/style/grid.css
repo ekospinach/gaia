@@ -42,6 +42,7 @@ body[data-transitioning] .apps > div {
   display: block;
   margin: 0 auto;
 	margin-top: .3rem;
+  transition: all 400ms ease-in;
 }
 
 .apps ol > li {
