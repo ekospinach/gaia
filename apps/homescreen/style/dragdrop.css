@@ -71,7 +71,7 @@ body[data-mode = 'edit'] ol > li[data-dragging] {
 body[data-dragging] ol > li {
   opacity: 0.7;
 }
-
+/*
 body[data-mode = 'edit'] ol > li > div > img {
   position: relative;
   z-index: 2;
@@ -102,4 +102,4 @@ body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::before {
 .draggable.droppedInCollection > div {
   -moz-transform: scale(0);
   opacity: 0;
-}
+}*/
