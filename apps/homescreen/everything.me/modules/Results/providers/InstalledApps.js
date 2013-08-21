@@ -85,7 +85,7 @@ Evme.InstalledAppsRenderer = function Evme_InstalledAppsRenderer() {
 /*
 Responsible for maintaining app indexes
 
-App index - list of apps installed on device, including apps and bookmarks but *excluding* folders
+App index - list of apps installed on device, including apps and bookmarks but *excluding* collections
 [
   {app id}: {
     "name": {display name},

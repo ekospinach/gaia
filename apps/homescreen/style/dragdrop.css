@@ -99,7 +99,7 @@ body[data-mode = 'edit'] ol > li[data-draggedon = 'true'] > div::before {
  -moz-transform: scale(1); 
  opacity: 0.4;
 }
-.draggable.droppedInFolder > div {
+.draggable.droppedInCollection > div {
   -moz-transform: scale(0);
   opacity: 0;
 }

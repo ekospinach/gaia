@@ -10,7 +10,7 @@
 }
 
 .evme-keyboard-visible .evmeScope,
-.evme-suggest-folders-loading .evmeScope {
+.evme-suggest-collections-loading .evmeScope {
     height: 100%;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .evme-has-results #footer,
-.evme-suggest-folders-loading #footer {
+.evme-suggest-collections-loading #footer {
   display: none;
 }
 

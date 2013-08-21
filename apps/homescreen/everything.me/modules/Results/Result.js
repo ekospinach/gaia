@@ -84,7 +84,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
 	/**
 	 * Save reference to the raw, unmaniputaled icon
-	 * Used when closing a folder to update it's homescreen icon
+	 * Used when closing a collection to update its homescreen icon
 	 */
 	this.setIconSrc = function(src) {
 		el.dataset.iconSrc = src;

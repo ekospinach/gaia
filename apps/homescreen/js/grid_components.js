@@ -9,7 +9,7 @@ var GridItemsFactory = {
   create: function gif_create(params) {
     var item = Bookmark;
     if (params.type === GridItemsFactory.TYPE.COLLECTION) {
-      item = SmartCollection;
+      item = Collection;
     }
 
     return new item(params);
@@ -58,18 +58,18 @@ GridItem.prototype = {
   }
 };
 
-var SmartCollection = function SmartCollection(params) {
+var Collection = function Collection(params) {
   GridItem.call(this, params);
 
   this.type = GridItemsFactory.TYPE.COLLECTION;
-  this.isEmpty = params.isEmpty; // only a folder can be empty
+  this.isEmpty = params.isEmpty; // only a collection can be empty
   this.hideFromGrid = !!params.hideFromGrid;
 };
 
-SmartCollection.prototype = {
+Collection.prototype = {
   __proto__: GridItem.prototype,
 
-  regexSmartFolder: /fldr:\/\//,
+  regexCollection: /fldr:\/\//,
 
   launch: function sc_launch() {
     var features = this.getFeatures();
@@ -78,7 +78,7 @@ SmartCollection.prototype = {
     features.type = 'url';
     features.url = this.url;
 
-    window.dispatchEvent(new CustomEvent('EvmeSmartFolderLaunch', {
+    window.dispatchEvent(new CustomEvent('EvmeCollectionLaunch', {
       'detail': features
     }));
   }

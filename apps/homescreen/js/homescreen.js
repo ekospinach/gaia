@@ -85,8 +85,8 @@ var Homescreen = (function() {
       ('Wallpaper' in window ?
       '<button id="buttonWallpaper">Change Wallpaper...</button>' : '') +
       ('EverythingME' in window ?
-      '<button id="buttonAddSmartfolders">Add Smartfolders</button>' +
-      '<button id="buttonCustomSmartfolder">Custom Smartfolder</button>' : '') +
+      '<button id="buttonAddCollection">Add Collections</button>' +
+      '<button id="buttonCustomCollection">Custom Collection</button>' : '') +
       '<button id="btnCancel">Cancel</button>' +
     '</menu>' +
   '</form>';
@@ -97,15 +97,15 @@ var Homescreen = (function() {
 
     function attachEvents() {
       attachEvent('buttonWallpaper', onClickWallpaper);
-      attachEvent('buttonAddSmartfolders', onClickAdd);
-      attachEvent('buttonCustomSmartfolder', onClickCustom);
+      attachEvent('buttonAddCollections', onClickAdd);
+      attachEvent('buttonCustomCollection', onClickCustom);
       attachEvent('btnCancel', onClickCancel);
     }
 
     function removeEvents() {
       removeEvent('buttonWallpaper', onClickWallpaper);
-      removeEvent('buttonAddSmartfolders', onClickAdd);
-      removeEvent('buttonCustomSmartfolder', onClickCustom);
+      removeEvent('buttonAddCollections', onClickAdd);
+      removeEvent('buttonCustomCollection', onClickCustom);
       removeEvent('btnCancel', onClickCancel);
     }
 
@@ -123,11 +123,11 @@ var Homescreen = (function() {
       window.setTimeout(hide, 50);
     }
     function onClickAdd() {
-      EverythingME.SmartFolder.suggest();
+      EverythingME.Collection.suggest();
       hide();
     }
     function onClickCustom() {
-      EverythingME.SmartFolder.custom();
+      EverythingME.Collection.custom();
       hide();
     }
     function onClickCancel() {

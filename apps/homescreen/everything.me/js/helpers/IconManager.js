@@ -86,10 +86,10 @@ Evme.IconGroup = new function Evme_IconGroup() {
   };
 
   /**
-   * Draw icon for folder with no apps.
+   * Draw icon for Collection with no apps.
    */
   function renderEmptyIcon(options){
-    var icon = Evme.Utils.getEmptyFolderIcon(),
+    var icon = Evme.Utils.getEmptyCollectionIcon(),
       onReady = options.onReady,
       elCanvas = document.createElement('canvas'),
       context = elCanvas.getContext('2d'),

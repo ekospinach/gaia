@@ -40,8 +40,8 @@ const DragDropManager = (function() {
    */
   var disabledCheckingLimitsTimeout = null;
 
-  var draggableIcon, previousOverlapIcon, overlapingTimeout, overlapElem, currentDragIntoElem,
-      originElem, draggableElemStyle;
+  var draggableIcon, previousOverlapIcon, overlapingTimeout, overlapElem,
+      currentDragIntoElem, originElem, draggableElemStyle;
 
   var pageHelper;
 
@@ -209,17 +209,18 @@ const DragDropManager = (function() {
     var page = getPage();
     var ensureCallbackID = null;
 
-    var dropIntoFolder = false;
+    var dropIntoCollection = false;
 
-    if (overlapElem && overlapElem.dataset.draggedon){
-      dropIntoFolder = true;
+    if (overlapElem && overlapElem.dataset.draggedon) {
+      dropIntoCollection = true;
     }
     disableCurrentDraggedOn();
 
     DragLeaveEventManager.send(page, function(done) {
       if (ensureCallbackID !== null) {
         window.clearTimeout(ensureCallbackID);
-        draggableIcon.onDragStop(callback, dropIntoFolder, overlapElem, originElem, page);
+        draggableIcon.onDragStop(callback, dropIntoCollection,
+                                 overlapElem, originElem, page);
       }
       done();
     }, true);
@@ -264,7 +265,7 @@ const DragDropManager = (function() {
   function move() {
     if (draggableElemStyle) {
       draggableElemStyle.MozTransform =
-                            'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
+                         'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
       window.mozRequestAnimationFrame(move);
     }
   }
@@ -376,23 +377,26 @@ const DragDropManager = (function() {
   }
 
   function letHoverOver(overlapElem, draggableElem) {
-    if (overlapElem == originElem || // if not dragging over the same icon
-        originElem.dataset.isFolder === 'true' || // and not dragging a smartfolder
-        !isInOriginalPosition(overlapElem)) { // add the dragged upon element is in it's original position (like android)
+    // if not dragging over the same icon
+    // and not dragging a collection
+    // add the dragged upon element is in it's original position (like android)
+    if (overlapElem == originElem ||
+        originElem.dataset.isCollection === 'true' ||
+        !isInOriginalPosition(overlapElem)) {
       return false;
     }
 
     var overlapRect = overlapElem.getBoundingClientRect(),
-        centerY = overlapRect.top + overlapRect.height/2,
-        centerX = overlapRect.left + overlapRect.width/2,
+        centerY = overlapRect.top + overlapRect.height / 2,
+        centerX = overlapRect.left + overlapRect.width / 2,
 
         dragRect = draggableElem.getBoundingClientRect(),
         scale = 1.0,
 
-        touchesCenter = dragRect.top*scale < centerY &&
-                        dragRect.bottom/scale > centerY &&
-                        dragRect.left*scale < centerX &&
-                        dragRect.right/scale > centerX;
+        touchesCenter = dragRect.top * scale < centerY &&
+                        dragRect.bottom / scale > centerY &&
+                        dragRect.left * scale < centerX &&
+                        dragRect.right / scale > centerX;
 
     disableCurrentDraggedOn();
     overlapElem.dataset.draggedon = touchesCenter;

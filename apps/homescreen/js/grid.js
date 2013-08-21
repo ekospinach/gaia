@@ -854,7 +854,7 @@ var GridManager = (function() {
   }
 
   /**
-   * Ways to enumerate installed apps & bookmarks *excluding* folders and find
+   * Ways to enumerate installed apps & bookmarks and find
    * out whether a certain "origin" is available as an existing installed app or
    * bookmark. Only used by Everything.me at this point.
    * @param {Boolean} disallows hidden apps.
@@ -1311,9 +1311,9 @@ var GridManager = (function() {
       processApp(app, null, null, gridPosition);
 
       if (app.type === GridItemsFactory.TYPE.COLLECTION) {
-        window.dispatchEvent(new CustomEvent('folderInstalled', {
+        window.dispatchEvent(new CustomEvent('collectionInstalled', {
           'detail': {
-            'folder': app
+            'collection': app
           }
         }));
       } else {
@@ -1357,9 +1357,9 @@ var GridManager = (function() {
       }
 
       if (app.type === GridItemsFactory.TYPE.COLLECTION) {
-        window.dispatchEvent(new CustomEvent('folderUninstalled', {
+        window.dispatchEvent(new CustomEvent('collectionUninstalled', {
           'detail': {
-            'folder': app
+            'collection': app
           }
         }));
       } else {

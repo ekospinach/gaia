@@ -35,7 +35,7 @@
         };
 
         var ProgressIndicator = new function ProgressIndicator() {
-            var NAME = 'SmartFolderSuggest',
+            var NAME = 'CollectionSuggest',
                 active = false,
                 el;
 

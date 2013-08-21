@@ -15,8 +15,8 @@ Evme.Config = Evme.__config = {
         "displayInstalledApps": true
     },
     
-    // how many app icons in a folder icon
-    "numberOfAppInFolderIcon": 3,
+    // how many app icons in a Collection icon
+    "numberOfAppInCollectionIcon": 3,
 
     "numberOfAppsToLoad": 16,
     "minHeightForMoreButton": 470,
@@ -35,7 +35,7 @@ Evme.Config = Evme.__config = {
         "SHORTCUT": "shrt",
         "SHORTCUT_ENTITY": "enty",
         "SHORTCUT_CONTINUE_BUTTON": "shrb",
-        "SHORTCUT_SMART_FOLDER": "fldr",
+        "SHORTCUT_COLLECTION": "fldr",
         "RETURN_KEY": "rtrn",
         "SUGGESTION": "sugg",
         "SPELLING": "spel",
@@ -66,7 +66,7 @@ Evme.Config = Evme.__config = {
         }
     },
     "maxHistoryEntries": "10",
-    "emptyFolderIcon": "/everything.me/images/empty-folder.png",
+    "emptyCollectionIcon": "/everything.me/images/empty-collection.png",
     "iconsGroupSettings": {
         "1": [{
             "x": 10,

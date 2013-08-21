@@ -11,8 +11,8 @@ var EverythingME = {
 
     // TODO
     // We need to re-think how to lazy-load E.me
-    // it is required for interacting with folders:
-    // create initial folders, open folders, create folders etc.
+    // it is required for interacting with Collections:
+    // create initial collections, open collections, create collections etc.
     self.activate();
 
     gridPage.addEventListener('gridpageshowend', function onPageShow() {
@@ -72,8 +72,8 @@ var EverythingME = {
           'modules/Results/ResultManager.js',
           'modules/Searchbar/Searchbar.js',
           'modules/SearchHistory/SearchHistory.js',
-          'modules/SmartFolderSuggest/SmartFolderSuggest.js',
-          'modules/SmartFolder/SmartFolder.js',
+          'modules/CollectionsSuggest/CollectionsSuggest.js',
+          'modules/Collection/Collection.js',
           'modules/Tasker/Tasker.js'
         ],
         css_files = [
@@ -84,8 +84,8 @@ var EverythingME = {
           'modules/Helper/Helper.css',
           'modules/Results/Results.css',
           'modules/Searchbar/Searchbar.css',
-          'modules/SmartFolderSuggest/SmartFolderSuggest.css',
-          'modules/SmartFolder/SmartFolder.css'
+          'modules/CollectionsSuggest/CollectionsSuggest.css',
+          'modules/Collection/Collection.css'
         ];
 
     var head = document.head;
@@ -167,12 +167,12 @@ var EverythingME = {
     }
   },
 
-  SmartFolder: {
-    suggest: function EverythingME_SmartFolder_suggest() {
-      EvmeFacade.onSmartfolderSuggest();
+  Collection: {
+    suggest: function EverythingME_Collection_suggest() {
+      EvmeFacade.onCollectionSuggest();
     },
-    custom: function EverythingME_SmartFolder_custom() {
-      EvmeFacade.onSmartfolderCustom();
+    custom: function EverythingME_Collection_custom() {
+      EvmeFacade.onCollectionCustom();
     }
   }
 };

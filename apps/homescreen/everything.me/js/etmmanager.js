@@ -24,7 +24,7 @@ var EvmeManager = (function EvmeManager() {
         "icon": params.icon,
         "iconable": false,
         "useAsyncPanZoom": params.useAsyncPanZoom,
-        "type": !!params.isFolder ? GridItemsFactory.TYPE.COLLECTION :
+        "type": !!params.isCollection ? GridItemsFactory.TYPE.COLLECTION :
                                     GridItemsFactory.TYPE.BOOKMARK,
         "isEmpty": !!params.isEmpty
       });
@@ -66,7 +66,7 @@ var EvmeManager = (function EvmeManager() {
     }
 
     /**
-     * Returns only the smart collections on the user's phone
+     * Returns only the collections on the user's phone
      */
     function getCollections() {
         return GridManager.getCollections();

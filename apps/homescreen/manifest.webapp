@@ -52,12 +52,6 @@
       "disposition": "inline",
       "href": "/save-bookmark.html",
       "returnValue": true
-    },
-    "smartfolder": {
-      "filters": {
-        "type": "url",
-        "url": { "required":true, "regexp":"/^fldr:/" }
-      }
     }
   },
   "messages": [

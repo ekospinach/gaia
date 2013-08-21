@@ -108,12 +108,12 @@ Icon.prototype = {
     });
 
 
-    // Smart Folders (as bookmarks)
+    // Collection (as bookmarks)
     if (descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
-      container.dataset.isFolder = true;
+      container.dataset.isCollection = true;
       container.dataset.isEmpty = descriptor.isEmpty;
-      container.dataset.folderId = descriptor.id;
-      container.dataset.folderName = descriptor.name;
+      container.dataset.collectionId = descriptor.id;
+      container.dataset.collectionName = descriptor.name;
     }
 
     var localizedName = descriptor.localizedName || descriptor.name;
@@ -531,8 +531,8 @@ Icon.prototype = {
   /*
    * This method is invoked when the drag gesture finishes
    */
-  onDragStop: function icon_onDragStop(callback, dropIntoFolder, overlapElem,
-                                       originElem, page) {
+  onDragStop: function icon_onDragStop(callback, dropIntoCollection, 
+                                       overlapElem, originElem, page) {
     var container = this.container;
 
     var rect = container.getBoundingClientRect();
@@ -547,22 +547,22 @@ Icon.prototype = {
     var style = draggableElem.style;
     style.MozTransition = '-moz-transform .4s';
 
-    if (!dropIntoFolder) {
+    if (!dropIntoCollection) {
       style.MozTransform = 'translate(' + x + 'px,' + y + 'px)';
       draggableElem.querySelector('div').style.MozTransform = 'scale(1)';
 
     } else {
-      draggableElem.classList.add('droppedInFolder');
+      draggableElem.classList.add('droppedInCollection');
 
-      if (overlapElem.dataset.isFolder === 'true') {
+      if (overlapElem.dataset.isCollection === 'true') {
         // E.me references both apps and bookmarks by an 'id'
         var detail = {
             'app': {
               'id': originElem.dataset.manifestURL ||
                     originElem.dataset.bookmarkURL
             },
-            'folder': {
-              'id': overlapElem.dataset.folderId
+            'collection': {
+              'id': overlapElem.dataset.collectionId
             }
           };
           window.dispatchEvent(new CustomEvent('EvmeDropApp', {

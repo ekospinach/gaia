@@ -371,7 +371,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     };
 
     function cleanGuid(str) {
-        return str.split("?")[0];
+        return str && str.split("?")[0];
     }
     
     function addGlobals(options) {

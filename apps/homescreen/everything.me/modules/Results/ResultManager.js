@@ -9,7 +9,7 @@ Evme.PROVIDER_TYPES = {
 
 Evme.ResultManager = function Evme_ResultsManager() {
 
-  var NAME = "NOT_SET", // SearchResults or SmartfolderResults
+  var NAME = "NOT_SET", // SearchResults or CollectionResults
     self = this,
     progressIndicator,
     DEFAULT_NUMBER_OF_APPS_TO_LOAD = Evme.Config.numberOfAppsToLoad,
@@ -170,7 +170,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
       items = Evme.$("li", el);
     
     if (numToGet === undefined) {
-      numToGet = Evme.Config.numberOfAppInFolderIcon;
+      numToGet = Evme.Config.numberOfAppInCollectionIcon;
     }
 
     for (var i = 0, item; item = items[i++];) {

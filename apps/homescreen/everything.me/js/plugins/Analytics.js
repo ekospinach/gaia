@@ -760,10 +760,10 @@ Evme.Analytics = new function Evme_Analytics() {
         };
     };
     
-    this.SmartFolderSuggest = new function SmartFolderSuggest() {
+    this.CollectionsSuggest = new function CollectionsSuggest() {
         this.show = function show(data) {
             queue({
-                "class": "SmartFolderSuggest",
+                "class": "CollectionsSuggest",
                 "event": "show",
                 "data": data
             });
@@ -771,7 +771,7 @@ Evme.Analytics = new function Evme_Analytics() {
         
         this.done = function done(data) {
             queue({
-                "class": "SmartFolderSuggest",
+                "class": "CollectionsSuggest",
                 "event": "done",
                 "data": data
             });

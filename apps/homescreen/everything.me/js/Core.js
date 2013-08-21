@@ -50,7 +50,7 @@ window.Evme = new function Evme_Core() {
       document.body.classList.remove('evme-displayed');
 
       Evme.Searchbar.blur();
-      Evme.SmartFolder.hide();
+      Evme.Collection.hide();
     };
 
     this.onSwipeFromPage = function onSwipeFromPage() {
@@ -61,14 +61,14 @@ window.Evme = new function Evme_Core() {
       Evme.Searchbar.blur();
 
       if (
-        // hide suggested folders list if open
-        Evme.SmartFolderSuggest.hide() || 
+        // hide suggested collections list if open
+        Evme.CollectionsSuggest.hide() || 
         // stop editing if active
-        Evme.SmartFolder.toggleEditMode(false) || 
+        Evme.Collection.toggleEditMode(false) || 
         // close full screen background image if visible
-        Evme.SmartFolder.hideFullscreen() || 
-        // hide the smart folder if visible
-        Evme.SmartFolder.hide() ||
+        Evme.Collection.hideFullscreen() || 
+        // hide the collection if visible
+        Evme.Collection.hide() ||
         // close search results full screen background image if visible
         Evme.BackgroundImage.closeFullScreen() ||
         // clear the searchbar and apps
@@ -80,12 +80,12 @@ window.Evme = new function Evme_Core() {
       return false;
     };
 
-    this.onSmartfolderSuggest = function onSmartfolderSuggest() {
-      Evme.Brain.SmartFolderSuggest.showUI();
+    this.onCollectionSuggest = function onCollectionSuggest() {
+      Evme.Brain.CollectionsSuggest.showUI();
     };
     
-    this.onSmartfolderCustom = function onSmartfolderCustom() {
-      Evme.SmartFolderSuggest.newCustom();
+    this.onCollectionCustom = function onCollectionCustom() {
+      Evme.CollectionSuggest.newCustom();
     };
 
     this.searchFromOutside = function searchFromOutside(query) {
@@ -95,7 +95,7 @@ window.Evme = new function Evme_Core() {
     
   function initObjects(data) {
     var appsEl = Evme.$("#evmeApps"),
-      smartFolderEl = document.querySelector(".smart-folder .evme-apps");
+        collectionEl = document.querySelector(".collection .evme-apps");
 
     Evme.Features.init({
       "featureStateByConnection": data.featureStateByConnection
@@ -110,7 +110,7 @@ window.Evme = new function Evme_Core() {
       "requestTimeout": data.locationRequestTimeout
     });
 
-    Evme.SmartFolderSuggest.init({
+    Evme.CollectionsSuggest.init({
       "elParent": Evme.Utils.getContainer()
     });
 
@@ -183,16 +183,16 @@ window.Evme = new function Evme_Core() {
       ]
     });
 
-    Evme.SmartfolderResults = new Evme.ResultManager();
-    Evme.SmartfolderResults.init({
-      "NAME": 'SmartfolderResults',
-      "el": smartFolderEl,
+    Evme.CollectionResults = new Evme.ResultManager();
+    Evme.CollectionResults.init({
+      "NAME": 'CollectionResults',
+      "el": collectionEl,
       "appsPerRow": data.apps.appsPerRow,
       "providers": [{
           type: Evme.PROVIDER_TYPES.STATIC,
           config: {
             "renderer": Evme.StaticAppsRenderer,
-            "containerEl": Evme.$(".static", smartFolderEl)[0],
+            "containerEl": Evme.$(".static", collectionEl)[0],
             "containerSelector": ".static",
             "filterResults": true
           }
@@ -200,16 +200,16 @@ window.Evme = new function Evme_Core() {
           type: Evme.PROVIDER_TYPES.CLOUD,
           config: {
             "renderer": Evme.CloudAppsRenderer,
-            "containerEl": Evme.$(".cloud", smartFolderEl)[0]
+            "containerEl": Evme.$(".cloud", collectionEl)[0]
           }
         }
       ]
     });
 
-    Evme.SmartFolderStorage.init();
+    Evme.CollectionStorage.init();
     
-    Evme.SmartFolder.init({
-      "resultsManager": Evme.SmartfolderResults,
+    Evme.Collection.init({
+      "resultsManager": Evme.CollectionResults,
       "bgImage": (Evme.BackgroundImage.get() || {}).image
     });
 

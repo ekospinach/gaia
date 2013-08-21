@@ -430,8 +430,8 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.Config.design.apps.defaultAppIcon[this.PIXEL_RATIO_NAME];
     };
 
-    this.getEmptyFolderIcon = function getEmptyFolderIcon(){
-        return Evme.__config.emptyFolderIcon;
+    this.getEmptyCollectionIcon = function getEmptyCollectionIcon(){
+        return Evme.__config.emptyCollectionIcon;
     };
 
     this.getIconGroup = function getIconGroup(numIcons) {

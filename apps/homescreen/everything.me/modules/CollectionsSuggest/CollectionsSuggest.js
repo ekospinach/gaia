@@ -1,5 +1,5 @@
-Evme.SmartFolderSuggest = new function Evme_SmartFolderSuggest() {
-  var NAME = 'SmartFolderSuggest', self = this,
+Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
+  var NAME = 'CollectionsSuggest', self = this,
       elList = null, elParent = null, active = false,
       savedIcons = null;
 
