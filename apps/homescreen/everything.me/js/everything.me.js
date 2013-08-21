@@ -6,7 +6,7 @@ var EverythingME = {
     }
     
     var self = this,
-        page = document.getElementById('evmePage'),
+        page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child');
 
     // TODO

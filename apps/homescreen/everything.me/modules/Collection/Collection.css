@@ -231,14 +231,17 @@
 @-moz-keyframes collection-show {
   0% {
     transform: translateY(100%);
+    z-index: 10001;
   }
   100% {
     transform: translateY(0%);
+    z-index: 10001;
   }
 }
 @-moz-keyframes collection-hide {
   0% {
     transform: translateY(0%);
+    z-index: 10001;
   }
   100% {
     transform: translateY(100%);
