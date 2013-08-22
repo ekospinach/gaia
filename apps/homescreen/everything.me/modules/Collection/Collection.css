@@ -210,7 +210,7 @@
 }
 
 .apps.evme-collection-visible div[data-current-page] ol {
-    transform: translateY(6rem);
+    opacity: 0;
 }
 .apps.evme-collection-visible div[data-current-page] .evmeScope #search-header {
     transform: translateY(-7rem);
