@@ -12,7 +12,7 @@
     z-index: 51;
     padding-top: 0.9rem;
     transform-origin: 0 0;
-    transition: transform 400ms linear;
+    transition: transform 350ms ease-out;
 }
     #evmeContainer #search-rapper {
         position: absolute;

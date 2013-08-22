@@ -30,11 +30,6 @@ body[data-transitioning] .apps > div {
   visibility: visible;
 }
 
-/* Here users can view the clock while grid is loading -> better experience */
-#landing-page {
-  display: block;
-}
-
 .apps ol {
   width: 100%;
   padding: 0;
