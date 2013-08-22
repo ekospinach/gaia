@@ -6,7 +6,7 @@
  void function() {
   Evme.Collection = new function Evme_Collection() {
     var self = this,
-      NAME = "Collection",
+      NAME = 'Collection',
 
       currentSettings = null,
 
@@ -43,13 +43,13 @@
 
       elAppsContainer = resultsManager.getElement();
 
-      elTitle = Evme.$(".title", el)[0];
-      elImage = Evme.$(".image", el)[0];
+      elTitle = Evme.$('.title', el)[0];
+      elImage = Evme.$('.image', el)[0];
       elClose = Evme.$('.close', el)[0];
 
       elActions = Evme.$('.collection-actions', el)[0];
       actionsButtons = Evme.$('menu button', elActions);
-      for (var i=0,button; button=actionsButtons[i++];) {
+      for (var i = 0, button; button = actionsButtons[i++];) {
           button.addEventListener('click', collectionActionClick);
       }
 
@@ -59,11 +59,11 @@
           elActions.classList.toggle('show');
       });
 
-      elClose.addEventListener("click", self.hide);
+      elClose.addEventListener('click', self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
 
       initPreinstalled();
-      Evme.EventHandler.trigger(NAME, "init");
+      Evme.EventHandler.trigger(NAME, 'init');
     };
 
     this.create = function create(options) {
@@ -72,7 +72,7 @@
         icons = options.icons || [],
         gridPosition = options.gridPosition,
         callback = options.callback || Evme.Utils.NOOP,
-        extra = {"icons": icons};
+        extra = {'icons': icons};
 
       if (query) {
         Evme.CollectionSettings.createByQuery(query, extra, function onCreate(collectionSettings) {
@@ -80,7 +80,7 @@
           callback(collectionSettings);
         });
       }
-    }
+    };
 
     this.show = function launch(e) {
       var data = e.detail;
@@ -100,7 +100,7 @@
           Evme.EventHandler.trigger(NAME, 'show');
         });
       });
-    }
+    };
 
     this.hide = function hide() {
       if (!currentSettings) {
@@ -130,7 +130,7 @@
       return true;
     };
 
-    this.isOpen = function isOpen(){
+    this.isOpen = function isOpen() {
         return currentSettings !== null;
     };
 
@@ -219,10 +219,10 @@
 
     this.userSetBg = function userSetBg() {
       return (currentSettings.bg && currentSettings.bg.setByUser);
-    }
+    };
 
     this.addApps = function addApps(newApps, collectionSettings) {
-      if (!Array.isArray(newApps)){
+      if (!Array.isArray(newApps)) {
         newApps = [newApps];
       }
 
@@ -236,22 +236,14 @@
     this.removeResult = function removeResult(data) {
       var id = data.id; // the id of the app to remove
 
-      EvmeCollectionStorage.getCollectionsWithApp(id, function onAllCollections(collections){
-        var newApps = currentSettings.apps.filter(function filterApp(app) {
-          return app.id !== id;
-        });
-
-        if (newApps.length < currentSettings.apps.length) {
-          // remove the app
-          setStaticApps(newApps);
-
-          // if not in other collection, put app back on the homescreen
-          if (collection.length === 1) {
-            EvmeManager.unhideFromGrid(id);
-          }
-        }
-
+      var newApps = currentSettings.apps.filter(function filterApp(app) {
+        return app.id !== id;
       });
+
+      if (newApps.length < currentSettings.apps.length) {
+        // remove the app
+        setStaticApps(newApps);
+      }
     };
 
     this.toggleEditMode = function toggleEditMode(bool) {
@@ -271,7 +263,7 @@
       return true;
     };
 
-    this.updateIcons = function updateIcons(collectionSettings, icons, merge){
+    this.updateIcons = function updateIcons(collectionSettings, icons, merge) {
       if (collectionSettings && icons && icons.length) {
         if (merge) {
           icons = mergeAppIcons(collectionSettings.apps, icons);
@@ -293,7 +285,10 @@
         uniqueApps = Evme.Utils.unique(apps, 'id'),
         icons = mergeAppIcons(apps, settings.icons);
 
-      Evme.CollectionStorage.update(settings, {"apps": uniqueApps, "icons": icons}, function onUpdate(updatedSettings){
+      Evme.CollectionStorage.update(settings, {
+        'apps': uniqueApps,
+        'icons': icons
+      }, function onUpdate(updatedSettings) {
         resultsManager.renderStaticApps(updatedSettings.apps);
         addCollectionToHomescreen(updatedSettings);
       });
@@ -303,25 +298,25 @@
       e.preventDefault();
       e.stopPropagation();
       switch (this.dataset.action) {
-        case "addApp":
-          Evme.EventHandler.trigger(NAME, "actionAddApp", {
-            "staticApps": currentSettings.apps
+        case 'addApp':
+          Evme.EventHandler.trigger(NAME, 'actionAddApp', {
+            'staticApps': currentSettings.apps
           });
           break;
 
-        case "rename":
-          var newTitle = prompt(Evme.Utils.l10n(NAME, "prompt-rename"), title);
+        case 'rename':
+          var newTitle = prompt(Evme.Utils.l10n(NAME, 'prompt-rename'), title);
           if (newTitle && newTitle !== title) {
             Evme.CollectionStorage.update(currentSettings, {
-              "experienceId": null,
-              "query": newTitle,
-              "name": newTitle
+              'experienceId': null,
+              'query': newTitle,
+              'name': newTitle
             }, function onUpdate(updatedSettings) {
               self.setTitle(newTitle);
               addCollectionToHomescreen(updatedSettings);
-              Evme.EventHandler.trigger(NAME, "rename", {
-                "id": currentSettings.id,
-                "newName": newTitle
+              Evme.EventHandler.trigger(NAME, 'rename', {
+                'id': currentSettings.id,
+                'newName': newTitle
               });
             });
           }
@@ -345,8 +340,8 @@
         for (var i = 0; i < defaultShortcuts.length; i++) {
           var shortcut = defaultShortcuts[i],
             gridPosition = {
-              "page": (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
-              "index": (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
+              'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
+              'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
             };
 
           var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
@@ -354,7 +349,7 @@
           });
 
           (function initCollection(experienceId, shortcutIcons, gridPosition) {
-            Evme.Utils.getRoundIcons({"sources": shortcutIcons }, function onRoundIcons(roundIcons) {
+            Evme.Utils.getRoundIcons({'sources': shortcutIcons }, function onRoundIcons(roundIcons) {
               createPreinstalledCollection(experienceId, roundIcons, gridPosition);
             });
           })(shortcut.experienceId, shortcutIcons, gridPosition);
@@ -405,7 +400,7 @@
     this.experienceId = args.experienceId;
 
     this.apps = args.apps || [];
-    this.icons = args.icons || [];
+    this.icons = args.icons || []; // [3,5,"app://browser.gaiamobile.org/style/icon60.png"]
   };
 
   /**
@@ -417,7 +412,7 @@
   Evme.CollectionSettings.createByQuery = function createByQuery(query, extra, cb) {
     if (extra instanceof Function) {
       (cb = extra) && (extra = {});
-    };
+    }
 
     var installedApps = Evme.InstalledAppsService.getMatchingApps({
       'query': query
@@ -435,13 +430,13 @@
     saveSettings(settings, cb);
   };
 
-  Evme.CollectionSettings.updateAll = function updateAll(){
+  Evme.CollectionSettings.updateAll = function updateAll() {
     var ids = Evme.CollectionStorage.getAllIds();
 
     for (var i = 0, id; id = ids[i++];) {
       Evme.CollectionStorage.get(id, populateCollection);
     }
-  }
+  };
 
   // save collection settings in storage and run callback async.
   function saveSettings(settings, cb) {
@@ -450,7 +445,7 @@
     });
   }
 
-  function populateCollection(settings){
+  function populateCollection(settings) {
     var existingIds = Evme.Utils.pluck(settings.apps, 'id');
 
     var newApps = Evme.InstalledAppsService.getMatchingApps({
@@ -458,15 +453,15 @@
     });
 
     newApps = newApps.filter(function isNew(app) {
-      return existingIds.indexOf(app.id) === -1
-    })
+      return existingIds.indexOf(app.id) === -1;
+    });
 
     if (!newApps.length) return;
 
     var apps = settings.apps.concat(newApps),
         icons = mergeAppIcons(apps, settings.icons);
 
-    Evme.CollectionStorage.update(settings, {"apps": apps, "icons": icons}, addCollectionToHomescreen);
+    Evme.CollectionStorage.update(settings, {'apps': apps, 'icons': icons}, addCollectionToHomescreen);
   };
 
   /**
@@ -477,15 +472,15 @@
     var homescreenIcons = (settings.icons.length) ?
         settings.icons : Evme.Utils.pluck(settings.apps, 'icon');
 
-    Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas){
+    Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas) {
       EvmeManager.addGridItem({
-        "id": settings.id,
-        "originUrl": 'fldr://' + settings.id,
-        "title": settings.name,
-        "icon": canvas.toDataURL(),
-        "isCollection": true,
-        "isEmpty": !(homescreenIcons.length),
-        "gridPosition": gridPosition
+        'id': settings.id,
+        'originUrl': 'fldr://' + settings.id,
+        'title': settings.name,
+        'icon': canvas.toDataURL(),
+        'isCollection': true,
+        'isEmpty': !(homescreenIcons.length),
+        'gridPosition': gridPosition
       });
     });
   }
@@ -501,15 +496,15 @@
    * Persists settings to local storage
    */
   Evme.CollectionStorage = new function Evme_CollectionStorage() {
-    var NAME = "CollectionStorage",
-        IDS_STORAGE_KEY = "evmeCollection",
-        PREFIX = "fldrsttngs_",
+    var NAME = 'CollectionStorage',
+        IDS_STORAGE_KEY = 'evmeCollection',
+        PREFIX = 'fldrsttngs_',
         self = this,
         ids = null,
         locked = false;  // locks the ids list
 
     this.init = function init() {
-      Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds){
+      Evme.Storage.get(IDS_STORAGE_KEY, function onGet(storedIds) {
         ids = storedIds || [];
       });
 
@@ -517,34 +512,8 @@
     };
 
     this.remove = function remove(e) {
-      var rmCollectionId = e.detail.collection.id;
-
-      // for apps only in the removed collection - add back to homescreen
-      self.getAllCollections(function onCollections(collection) {
-        var idsRemoved = [], // ids of apps in the removed collection
-            appCollectionCount = {}; // mapping app_id -> number of collections it appears in
-
-        for (var i = 0, collection; collection = collection[i++];) {
-          for (var j = 0, app; app = collection.apps[j++];) {
-            appCollectionCount[app.id] = appCollectionCount[app.id] ? (appCollectionCount[app.id] + 1) : 1;
-          }
-
-          if (collection.id === rmCollectionId) {
-            idsRemoved = Evme.Utils.pluck(collection.apps, 'id');
-          }
-        }
-
-        for (var i = 0, id; id = idsRemoved[i++];) {
-          if (appCollectionCount[id] === 1) {
-            EvmeManager.unhideFromGrid(id);
-          }
-        }
-
-        // delete reference to removed collection
-        removeId(rmCollectionId);
-      });
-
-    }
+      removeId(e.detail.collection.id);
+    };
 
     this.add = function add(settings, cb) {
       if (!settings.id) return;
@@ -591,16 +560,6 @@
       }
     };
 
-    this.getCollectionsWithApp = function getCollectionsWithApp(appId, callback) {
-      self.getAllCollections(function onCollections(collections) {
-        callback(collections.filter(isAppInCollection));
-      });
-
-      function isAppInCollection(collection) {
-        return Evme.Utils.pluck(collection.apps, 'id').indexOf(appId) > -1;
-      }
-    }
-
     function addId(id) {
       if (ids && ids.indexOf(id) > -1) return;
 
@@ -627,7 +586,7 @@
       try {
         lock();
         ids = ids.filter(function neqId(storedId) {return storedId !== id });
-        Evme.CollectionStorage.set(IDS_STORAGE_KEY, ids, function onRemoved(){
+        Evme.CollectionStorage.set(IDS_STORAGE_KEY, ids, function onRemoved() {
           unlock();
           Evme.Storage.remove(PREFIX + collectionId);
         });
@@ -636,11 +595,11 @@
       }
     }
 
-    function lock(){
+    function lock() {
       locked = true;
     }
 
-    function unlock(){
+    function unlock() {
       locked = false;
     }
   };
