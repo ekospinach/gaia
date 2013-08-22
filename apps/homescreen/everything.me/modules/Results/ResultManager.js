@@ -174,7 +174,9 @@ Evme.ResultManager = function Evme_ResultsManager() {
     }
 
     for (var i = 0, item; item = items[i++];) {
-      if (Evme.$isVisible(item)) icons.push(item.dataset.iconSrc);
+      if (item.dataset.iconSrc && Evme.$isVisible(item)) {
+        icons.push(item.dataset.iconSrc);
+      }
 
       if (icons.length === numToGet) break;
     }
