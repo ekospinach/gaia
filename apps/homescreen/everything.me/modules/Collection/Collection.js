@@ -80,7 +80,7 @@
           callback(collectionSettings);
         });
       }
-    }
+    };
 
     this.show = function launch(e) {
       var data = e.detail;
@@ -236,22 +236,14 @@
     this.removeResult = function removeResult(data) {
       var id = data.id; // the id of the app to remove
 
-      EvmeCollectionStorage.getCollectionsWithApp(id, function onAllCollections(collections){
-        var newApps = currentSettings.apps.filter(function filterApp(app) {
-          return app.id !== id;
-        });
-
-        if (newApps.length < currentSettings.apps.length) {
-          // remove the app
-          setStaticApps(newApps);
-
-          // if not in other collection, put app back on the homescreen
-          if (collection.length === 1) {
-            EvmeManager.unhideFromGrid(id);
-          }
-        }
-
+      var newApps = currentSettings.apps.filter(function filterApp(app) {
+        return app.id !== id;
       });
+
+      if (newApps.length < currentSettings.apps.length) {
+        // remove the app
+        setStaticApps(newApps);
+      }
     };
 
     this.toggleEditMode = function toggleEditMode(bool) {
@@ -405,7 +397,7 @@
     this.experienceId = args.experienceId;
 
     this.apps = args.apps || [];
-    this.icons = args.icons || [];
+    this.icons = args.icons || []; // [3,5,"app://browser.gaiamobile.org/style/icon60.png"]
   };
 
   /**
@@ -517,34 +509,8 @@
     };
 
     this.remove = function remove(e) {
-      var rmCollectionId = e.detail.collection.id;
-
-      // for apps only in the removed collection - add back to homescreen
-      self.getAllCollections(function onCollections(collection) {
-        var idsRemoved = [], // ids of apps in the removed collection
-            appCollectionCount = {}; // mapping app_id -> number of collections it appears in
-
-        for (var i = 0, collection; collection = collection[i++];) {
-          for (var j = 0, app; app = collection.apps[j++];) {
-            appCollectionCount[app.id] = appCollectionCount[app.id] ? (appCollectionCount[app.id] + 1) : 1;
-          }
-
-          if (collection.id === rmCollectionId) {
-            idsRemoved = Evme.Utils.pluck(collection.apps, 'id');
-          }
-        }
-
-        for (var i = 0, id; id = idsRemoved[i++];) {
-          if (appCollectionCount[id] === 1) {
-            EvmeManager.unhideFromGrid(id);
-          }
-        }
-
-        // delete reference to removed collection
-        removeId(rmCollectionId);
-      });
-
-    }
+      removeId(e.detail.collection.id);
+    };
 
     this.add = function add(settings, cb) {
       if (!settings.id) return;
@@ -590,16 +556,6 @@
         }
       }
     };
-
-    this.getCollectionsWithApp = function getCollectionsWithApp(appId, callback) {
-      self.getAllCollections(function onCollections(collections) {
-        callback(collections.filter(isAppInCollection));
-      });
-
-      function isAppInCollection(collection) {
-        return Evme.Utils.pluck(collection.apps, 'id').indexOf(appId) > -1;
-      }
-    }
 
     function addId(id) {
       if (ids && ids.indexOf(id) > -1) return;
