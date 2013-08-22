@@ -70,10 +70,24 @@ body[data-transitioning] .apps > div {
   display: none;
 }
 
+/* Maximum 12 icons for first page */
+.apps div:first-child ol > li:nth-child(13) {
+  display: none;
+}
+
 /* Adds 1 row of icons */
 @media all and (min-device-width: 320px) and (min-device-height: 640px) {
-  .apps ol > li:nth-child(17) {
+  .apps ol:first-child > li:nth-child(13) {
     display: inline-block;
+  }
+
+	.apps ol > li:nth-child(17) {
+    display: inline-block;
+  }
+
+	 /* Maximum 16 icons for first page */
+  .apps ol:first-child > li:nth-child(21) {
+    display: none;
   }
 
    /* Maximum 20 icons for page */

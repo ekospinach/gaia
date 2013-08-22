@@ -30,6 +30,8 @@ var Homescreen = (function() {
       gridSelector: '.apps',
       dockSelector: '.dockWrapper',
       tapThreshold: Configurator.getSection('tap_threshold'),
+      moveCollectionThreshold:
+                        Configurator.getSection('move_collection_threshold'),
       // It defines the threshold to consider a gesture like a swipe. Number
       // in the range 0.0 to 1.0, both included, representing the screen width
       swipeThreshold: swipeSection.threshold,
@@ -61,7 +63,7 @@ var Homescreen = (function() {
         // start to pan while home is loading
         GridManager.goToPage(landingPage);
       }
-      DragDropManager.init();
+      DragDropManager.init(options);
       Wallpaper.init();
 
       // add tap-and-hold menu

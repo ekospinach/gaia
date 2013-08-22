@@ -171,7 +171,7 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function isEvmeVisible(isVisible) {
-        GridManager.setLandingPageOpacity(isVisible ? 0.4 : 0);
+        // TODO remove
     }
 
     function openInstalledApp(params) {       

@@ -107,13 +107,18 @@ Icon.prototype = {
         container.dataset[prop] = value;
     });
 
-
     // Collection (as bookmarks)
     if (descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
       container.dataset.isCollection = true;
       container.dataset.isEmpty = descriptor.isEmpty;
       container.dataset.collectionId = descriptor.id;
       container.dataset.collectionName = descriptor.name;
+    } else {
+      container.dataset.origin = descriptor.manifestURL ||
+                                 descriptor.bookmarkURL;
+      if (descriptor.entry_point) {
+        container.dataset.entryPoint = descriptor.entry_point;
+      }
     }
 
     var localizedName = descriptor.localizedName || descriptor.name;
@@ -492,6 +497,10 @@ Icon.prototype = {
 
     var draggableElem = this.draggableElem = document.createElement('div');
     draggableElem.className = 'draggable';
+    if (this.descriptor.type !== GridItemsFactory.TYPE.COLLECTION) {
+      // Collections cannot be appended to others so this operation isn't needed
+      this.savePostion(draggableElem.dataset);
+    }
 
     // For some reason, cloning and moving a node re-triggers the blob
     // URI to be validated. So we assign a new blob URI to the image
@@ -520,6 +529,30 @@ Icon.prototype = {
     document.body.appendChild(draggableElem);
   },
 
+  /*
+   * Saves the current container (page or dock) and  position.
+   *
+   * * pageType -> 'dock' or 'page' types
+   * * pageIndex -> index of page (no needed for dock)
+   * * iconIndex -> index of icon inside page or dock container
+   *
+   * @param{Object} Source object to set results
+   */
+  savePostion: function icon_savePosition(obj) {
+    var page;
+
+    if (this.container.parentNode === DockManager.page.olist) {
+      page = DockManager.page;
+      obj.pageType = 'dock';
+    } else {
+      page = GridManager.pageHelper.getCurrent();
+      obj.pageType = 'page';
+      obj.pageIndex = GridManager.pageHelper.getCurrentPageNumber();
+    }
+
+    obj.iconIndex = page.getIconIndex(this.container);
+  },
+
   addClassToDragElement: function icon_addStyleToDragElement(className) {
     this.draggableElem.classList.add(className);
   },
@@ -529,18 +562,32 @@ Icon.prototype = {
   },
 
   /*
-   * This method is invoked when the drag gesture finishes
+   * This method is invoked when the drag gesture finishes. If x and y are
+   * defined, the icon flies to this position
+   *
+   * @param{Function} callback will be performed when animations finishes
+   *
+   * @param{Integer} x-coordinate
+   *
+   * @param{Integer} y-coordinate
+   *
+   * @param{Integer} scale factor of the animation
    */
-  onDragStop: function icon_onDragStop(callback) {
+  onDragStop: function icon_onDragStop(callback, tx , ty, scale) {
     var container = this.container;
 
-    var rect = container.getBoundingClientRect();
-    var x = (Math.abs(rect.left + rect.right) / 2) % window.innerWidth;
-    x -= this.initXCenter;
+    var x = tx,
+        y = ty;
 
-    var y = (rect.top + rect.bottom) / 2 +
-            (this.initHeight - (rect.bottom - rect.top)) / 2;
-    y -= this.initYCenter;
+    if (typeof x === 'undefined') {
+      var rect = container.getBoundingClientRect();
+      x = (Math.abs(rect.left + rect.right) / 2) % window.innerWidth;
+      x -= this.initXCenter;
+
+      y = (rect.top + rect.bottom) / 2 +
+              (this.initHeight - (rect.bottom - rect.top)) / 2;
+      y -= this.initYCenter;
+    }
 
     var draggableElem = this.draggableElem;
     var style = draggableElem.style;
@@ -564,7 +611,8 @@ Icon.prototype = {
     }, this.FALLBACK_DRAG_STOP_DELAY);
 
     var content = draggableElem.querySelector('div');
-    content.style.MozTransform = 'scale(1)';
+    scale = typeof scale !== 'undefined' ? scale : 1;
+    content.style.MozTransform = 'scale(' + scale + ')';
     content.addEventListener('transitionend', function tEnd(e) {
       e.target.removeEventListener('transitionend', tEnd);
       if (fallbackID !== null) {
@@ -776,13 +824,15 @@ Page.prototype = {
     if (!this.ready) {
       var self = this;
       var ensureCallbackID = null;
-      self.container.addEventListener('onpageready', function onPageReady(e) {
+      var onPageReady = function onPageReady(e) {
         e.target.removeEventListener('onpageready', onPageReady);
         if (ensureCallbackID !== null) {
           window.clearTimeout(ensureCallbackID);
           self.doDragLeave(callback, reflow);
         }
-      });
+      };
+
+      self.container.addEventListener('onpageready', onPageReady);
 
       // We ensure that there is not a transitionend lost on dragging
       ensureCallbackID = window.setTimeout(function() {
@@ -868,14 +918,18 @@ Page.prototype = {
    * @param{Number} index to insert at
    */
   appendIconAt: function pg_appendIconAt(icon, index) {
+    var olist = this.olist,
+        children = this.olist.children;
+
+    if (children[index] === icon.container) {
+      return;
+    }
+
     if (!icon.container) {
       icon.render();
     }
 
     this.setReady(false);
-
-    var olist = this.olist,
-        children = this.olist.children;
 
     if (children[index]) {
       olist.insertBefore(icon.container, children[index]);
@@ -927,6 +981,25 @@ Page.prototype = {
     if (!lastIcon)
       return null;
     return GridManager.getIcon(lastIcon.dataset);
+  },
+
+  /*
+   * Returns the last visible icon of the page
+   */
+  getLastVisibleIcon: function pg_getLastVisibleIcon() {
+    if (this.getNumIcons() <= this.numberOfIcons) {
+      return this.getLastIcon();
+    } else {
+      var node = this.olist.children[this.numberOfIcons - 1];
+      if (this.iconsWhileDragging.length > 0)
+        node = this.iconsWhileDragging[this.numberOfIcons - 1];
+
+      if (!node) {
+        return null;
+      }
+
+      return GridManager.getIcon(node.dataset);
+    }
   },
 
   /*

@@ -1,10 +1,6 @@
 'use strict';
 
 var GridManager = (function() {
-  var MAX_ICONS_PER_PAGE = 4 * 4;
-  var MAX_ICONS_PER_EVME_PAGE = 4 * 3;
-  var EVME_PAGE = 1;
-
   // Be aware that the current manifest icon description syntax does
   // not distinguish between 60@1.5x and 90@1x, so we would have to use
   // the latter as the former.
@@ -28,7 +24,7 @@ var GridManager = (function() {
   var defaultAppIcon, defaultBookmarkIcon;
 
   var opacityOnAppGridPageMax = .7;
-  var kPageTransitionDuration, overlayTransition, overlay, overlayStyle;
+  var kPageTransitionDuration;
   var landingPageOpacity = 0;
 
   var numberOfSpecialPages = 0, landingPage, prevLandingPage, nextLandingPage;
@@ -43,13 +39,16 @@ var GridManager = (function() {
     right: 0
   };
 
+  var MAX_ICONS_PER_PAGE = 4 * 4;
+  var MAX_ICONS_PER_EVME_PAGE = 4 * 3;
+  var EVME_PAGE = 1;
   // Check if there is space for another row of icons
   // For WVGA, 800x480, we also want to show 4 x 5 grid on homescreen
   // the homescreen size would be 770 x 480, and 770/480 ~= 1.6
   if (DEVICE_HEIGHT - BASE_HEIGHT > BASE_HEIGHT / 5 ||
       DEVICE_HEIGHT / windowWidth >= 1.6) {
-    MAX_ICONS_PER_PAGE = 4 * 5;
-    MAX_ICONS_PER_EVME_PAGE = 4 * 4;
+    MAX_ICONS_PER_PAGE += 4;
+    MAX_ICONS_PER_EVME_PAGE += 4;
   }
 
   var startEvent, isPanning = false, startX, currentX, deltaX, removePanHandler,
@@ -289,60 +288,18 @@ var GridManager = (function() {
         // We should move the pages with the first touchmove event
         window.mozRequestAnimationFrame(refresh);
 
-        // Generate a function accordingly to the current page position.
-        if (currentPage > nextLandingPage || Homescreen.isInEditMode()) {
-          var pan = function(e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
+        var pan = function(e) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
 
-            currentX = getX(e);
-            deltaX = panningResolver.getDeltaX(e);
+          currentX = getX(e);
+          deltaX = panningResolver.getDeltaX(e);
 
-            if (!isPanning && Math.abs(deltaX) >= tapThreshold) {
-              isPanning = true;
-            }
-            window.mozRequestAnimationFrame(refresh);
-          };
-        } else {
-          var setOpacityToOverlay = noop;
-          if (currentPage === landingPage) {
-            setOpacityToOverlay = function() {
-              if (!forward)
-                return;
-
-              var opacity = landingPageOpacity +
-                            (Math.abs(deltaX) / windowWidth) *
-                            (opacityOnAppGridPageMax - landingPageOpacity);
-              overlayStyle.opacity = opacityStepFunction(opacity);
-            };
-          } else {
-            setOpacityToOverlay = function() {
-              if (forward)
-                return;
-
-              var opacity = opacityOnAppGridPageMax -
-                    (Math.abs(deltaX) / windowWidth) *
-                    (opacityOnAppGridPageMax - landingPageOpacity);
-              overlayStyle.opacity = opacityStepFunction(opacity);
-            };
+          if (!isPanning && Math.abs(deltaX) >= tapThreshold) {
+            isPanning = true;
           }
-
-          var pan = function(e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            currentX = getX(e);
-            deltaX = panningResolver.getDeltaX(e);
-
-            if (!isPanning && Math.abs(deltaX) >= tapThreshold) {
-              isPanning = true;
-            }
-            window.mozRequestAnimationFrame(function() {
-              refresh();
-              setOpacityToOverlay();
-            });
-          };
-        }
+          window.mozRequestAnimationFrame(refresh);
+        };
 
         var container = pages[currentPage].container;
         container.addEventListener(touchmove, pan, true);
@@ -401,12 +358,6 @@ var GridManager = (function() {
         }
         break;
     }
-  }
-
-  function applyEffectOverlay(index) {
-    overlayStyle.MozTransition = overlayTransition;
-    overlayStyle.opacity =
-      (index === landingPage ? landingPageOpacity : opacityOnAppGridPageMax);
   }
 
   function onTouchEnd(deltaX, evt) {
@@ -479,8 +430,6 @@ var GridManager = (function() {
       toPage.container.dispatchEvent(new CustomEvent('gridpageshowend'));
     }
 
-    overlayStyle.MozTransition = '';
-
     // We are going to prepare pages that are next to current page
     // for panning.
 
@@ -536,7 +485,6 @@ var GridManager = (function() {
       var start = index;
       var end = currentPage;
     }
-    applyEffectOverlay(index);
 
     currentPage = index;
     updatePaginationBar();
@@ -788,6 +736,10 @@ var GridManager = (function() {
       return currentPage;
     },
 
+    getPage: function(index) {
+      return pages[index];
+    },
+
     /*
      * Returns the total number of pages
      */
@@ -911,9 +863,6 @@ var GridManager = (function() {
    * Initialize the UI.
    */
   function initUI(selector) {
-    overlay = document.querySelector('#landing-overlay');
-    overlayStyle = overlay.style;
-
     container = document.querySelector(selector);
     container.addEventListener('contextmenu', handleEvent);
     container.addEventListener('wheel', handleEvent);
@@ -1264,7 +1213,6 @@ var GridManager = (function() {
     swipeThreshold = windowWidth * options.swipeThreshold;
     swipeFriction = options.swipeFriction || defaults.swipeFriction; // Not zero
     kPageTransitionDuration = options.swipeTransitionDuration;
-    overlayTransition = 'opacity ' + kPageTransitionDuration + 'ms ease';
 
     IconRetriever.init();
 
@@ -1435,14 +1383,6 @@ var GridManager = (function() {
     dirCtrl: dirCtrl,
 
     pageHelper: pageHelper,
-
-    setLandingPageOpacity: function setLandingPageOpacity(value) {
-      // TODO remove
-      landingPageOpacity = value;
-      if (currentPage === landingPage) {
-        applyEffectOverlay(0);
-      }
-    },
 
     showRestartDownloadDialog: showRestartDownloadDialog,
 
