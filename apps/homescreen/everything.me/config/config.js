@@ -31,7 +31,6 @@ Evme.Config = Evme.__config = {
     },
     "searchSources": {
         "URL": "url",
-        "TRENDING": "trnd",
         "SHORTCUT": "shrt",
         "SHORTCUT_ENTITY": "enty",
         "SHORTCUT_CONTINUE_BUTTON": "shrb",

@@ -76,9 +76,6 @@ Evme.api = new function Evme_api() {
         this.bgimage = function bgimage(options, callback) {
             return request("Search/bgimage", options, callback);
         };
-        this.trending = function trending(options, callback) {
-            return request("Search/trending", options, callback);
-        };
         this.disambiguate = function disambiguate(options, callback) {
             return request("Search/disambiguate", options, callback);
         };
@@ -99,15 +96,6 @@ Evme.api = new function Evme_api() {
         };
         this.suggestions = function suggestions(options, callback) {
             return request("Shortcuts/suggestions", options, callback);
-        };
-    };
-    
-    this.User = new function User() {
-        this.apps = function apps(options, callback) {
-            return request("User/apps", options, callback);
-        };
-        this.clearApps = function clearApps(options, callback) {
-            return request("User/clearApps", options, callback);
         };
     };
     

@@ -40,8 +40,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "Search.apps": true,
             "Search.bgimage": true,
             "Shortcuts.get": 2 * 24 * 60,
-            "Shortcuts.suggestions": 2 * 24 * 60,
-            "Search.trending": true
+            "Shortcuts.suggestions": 2 * 24 * 60
         },
         requestsThatDontNeedConnection = {
             "Search.suggestions": true,
@@ -49,17 +48,16 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         },
         paramsToCleanFromCacheKey = ["cachedIcons", "idx", "feature", "sid", "credentials"],
         doesntNeedSession = {
-            "Session.init": true,
-            "Search.trending": true
+            "Session.init": true
         },
 
-	// parameters for getting native app suggestions
-	paramsForNativeSuggestions = {
-	    'nativeSuggestions': true,
-	    'nativeIconFormat': 64, // same as GridManager.PREFERRED_ICON_SIZE
-	    'nativeIconAsUrl': true,
-	    '_opt': 'app.type'
-	},
+      	// parameters for getting native app suggestions
+      	paramsForNativeSuggestions = {
+      	    'nativeSuggestions': true,
+      	    'nativeIconFormat': 64, // same as GridManager.PREFERRED_ICON_SIZE
+      	    'nativeIconAsUrl': true,
+      	    '_opt': 'app.type'
+      	},
         
         /*
          * config of params to pass from requests to reports
@@ -103,7 +101,7 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             });
         }
 
-	self.Session.init(options.callback);
+        self.Session.init(options.callback);
     };
     
     this.search = function search(options, callback, noSession) {
@@ -122,21 +120,21 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             "limit": options.limit || 16,
             "idx": options.index || '',
             "iconFormat": options.iconFormat || 10,
-	    "prevQuery": (options.first === 0) ? options.prevQuery || "" : "",
-	    '_opt': 'app.type'
+            "prevQuery": (options.first === 0) ? options.prevQuery || "" : "",
+            "_opt": 'app.type'
         };
 
-	if (params.first) {
-	    Evme.EventHandler.trigger(NAME, "loadmore", params);
-	}
+        if (params.first) {
+          Evme.EventHandler.trigger(NAME, "loadmore", params);
+        }
 
-	if (params.exact) {
-	    for (var key in paramsForNativeSuggestions) {
-		if (params[key] === undefined) {
-		    params[key] = paramsForNativeSuggestions[key];
-		}
-	    }
-	}
+        if (params.exact) {
+          for (var key in paramsForNativeSuggestions) {
+            if (params[key] === undefined) {
+              params[key] = paramsForNativeSuggestions[key];
+            }
+          }
+        }
         
         return request({
             "methodNamespace": "Search",
@@ -149,53 +147,24 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
     
     // icons in cache, to be reported to server
     this.CachedIcons = new function CachedIcons() {
-	var self = this,
-	    newIcons = [];
-
-	this.add = function add(icon) {
-	    newIcons.push(icon);
-	};
-
-	this.clear = function clear() {
-	    newIcons = [];
-	};
-
-	this.yank = function yank() {
-	    var result = Evme.Utils.convertIconsToAPIFormat(newIcons);
-	    self.clear();
-	    return result;
-	};
+      var self = this,
+          newIcons = [];
+      
+      this.add = function add(icon) {
+        newIcons.push(icon);
+      };
+      
+      this.clear = function clear() {
+        newIcons = [];
+      };
+      
+      this.yank = function yank() {
+        var result = Evme.Utils.convertIconsToAPIFormat(newIcons);
+        self.clear();
+        return result;
+      };
     };
 
-    this.User = new function User() {
-        this.apps = function apps(options, callback) {
-            !options && (options = {});
-            
-            var params = {
-                "cachedIcons": options.cachedIcons,
-                "first": options.first,
-                "limit": options.limit,
-                "iconFormat": options.iconFormat
-            };
-            
-            return request({
-                "methodNamespace": "User",
-                "methodName": "apps",
-                "params": params,
-                "callback": callback
-            });
-        };
-        
-        this.clearApps = function clearApps(callback) {
-            return request({
-                "methodNamespace": "User",
-                "methodName": "clearApps",
-                "params": {},
-                "callback": callback
-            });
-        };
-    };
-    
     this.suggestions = function suggestions(options, callback) {
         !options && (options = {});
     
@@ -265,9 +234,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         }, options._NOCACHE || false);
     };
     
-    this.shortcutsGet = function shortcutsGet(options, callback) {
-    };
-    
     this.Shortcuts = new function Shortcuts() {
       this.get = function get(options, callback) {
         !options && (options = {});
@@ -299,26 +265,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         });
       };
     };
-    
-    this.trending = function trending(options, callback) {
-        !options && (options = {});
-        
-        var params = {
-            "first": options.first,
-            "limit": options.limit,
-            "returnImage": options.returnImage,
-            "iconFormat": options.iconFormat,
-            "quality": options.quality,
-            "queries": options.queries
-        };
-        
-        return request({
-            "methodNamespace": "Search",
-            "methodName": "trending",
-            "params": params,
-            "callback": callback
-        }, options._NOCACHE || false);
-    }
     
     this.Logger = new function Logger(){
         var self = this,
@@ -355,11 +301,17 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         // string together ids like so:
         // apiurl/?guids=["guid1","guid2","guid3", ...]
 
-        var guids = (options.guids || []).map(cleanGuid),
-            guidStr = JSON.stringify(guids);
+        var guids = (options.guids || []).map(cleanGuid);
 
+        for (var i=0; i<guids.length; i++) {
+          if (!guids[i]) {
+            guids.splice(i, 1);
+            i--;
+          }
+        }
+        
         var params = {
-            "guids": guidStr
+            "guids": JSON.stringify(guids)
         };
 
         return request({
@@ -426,22 +378,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             savedParamsToPass[ev] = paramValue;
         }
     }
-    
-    this.searchLocations = function searchLocations(options, callback) {
-        !options && (options = {});
-        
-        var params = {
-            "query": options.query,
-            "latlon": undefined
-        };
-        
-        return request({
-            "methodNamespace": "Location",
-            "methodName": "search",
-            "params": params,
-            "callback": callback
-        }, options._NOCACHE || false);
-    };
     
     this.setLocation = function setLocation(lat, lon) {
         userLat = lat;

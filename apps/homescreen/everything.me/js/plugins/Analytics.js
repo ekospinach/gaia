@@ -329,7 +329,7 @@ Evme.Analytics = new function Evme_Analytics() {
     this.DoATAPI = new function DoATAPI(){
         var LOGGER_WARN_SLOW_API_RESPONSE_TIME = 2000,
             LOGGER_WARN_SLOW_API_RESPONSE_TEXT = "Slow API response",
-            blacklistMethods = ["logger/", "stats/", "search/trending", "search/bgimage"];
+            blacklistMethods = ["logger/", "stats/", "search/bgimage"];
         
         this.success = function success(data){
             // Supress report for blacklist methods
