@@ -18,6 +18,7 @@
     "device-storage:sdcard":{ "access": "readonly" },
     "device-storage:apps":{ "access": "readonly" },
     "webapps-manage":{},
+    "open-remote-window":{},
     "permissions":{},
     "settings":{ "access": "readwrite" },
     "wifi-manage":{},
@@ -38,10 +39,8 @@
     }
   },
   "messages": ["bluetooth-pairing-request",
-               "bluetooth-authorize",
                "bluetooth-cancel",
-               "bluetooth-pairedstatuschanged",
-               "bluetooth-hfp-status-changed"],
+               "bluetooth-pairedstatuschanged"],
   "locales": {
     "ar": {
       "name": "الضبط",

@@ -50,7 +50,7 @@ GridItem.prototype = {
   getFeatures: function gc_getFeatures() {
     return {
       id: this.id,
-      name: this.manifest.name.replace(/\s/g, '&nbsp;'),
+      name: this.manifest.name,
       icon: this.manifest.icons['60'],
       remote: true,
       useAsyncPanZoom: this.useAsyncPanZoom

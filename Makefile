@@ -352,12 +352,6 @@ webapp-optimize: install-xulrunner-sdk
 optimize-clean: install-xulrunner-sdk
 	@$(call run-js-command, optimize-clean)
 
-# Populate appcache
-offline-cache: webapp-manifests install-xulrunner-sdk
-	@echo "Populate external apps appcache"
-	@$(call run-js-command, offline-cache)
-	@echo "Done"
-
 # Get additional extensions
 $(PROFILE_FOLDER)/installed-extensions.json: build/additional-extensions.json $(wildcard .build/custom-extensions.json)
 ifeq ($(DESKTOP),1)
@@ -406,7 +400,11 @@ reference-workload-x-heavy:
 
 # The install-xulrunner target arranges to get xulrunner downloaded and sets up
 # some commands for invoking it. But it is platform dependent
+# IMPORTANT: you should generally change the directory name when you change the
+# URL unless you know what you're doing
 XULRUNNER_SDK_URL=http://ftp.mozilla.org/pub/mozilla.org/xulrunner/nightly/2013/08/2013-08-07-03-02-16-mozilla-central/xulrunner-26.0a1.en-US.
+XULRUNNER_DIRECTORY?=xulrunner-sdk-26
+XULRUNNER_URL_FILE=$(XULRUNNER_DIRECTORY)/.url
 
 ifeq ($(SYS),Darwin)
 # For mac we have the xulrunner-sdk so check for this directory
@@ -419,14 +417,14 @@ else
 # 64-bit
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_MAC_SDK_URL)x86_64.sdk.tar.bz2
 endif
-XULRUNNERSDK=./xulrunner-sdk/bin/XUL.framework/Versions/Current/run-mozilla.sh
-XPCSHELLSDK=./xulrunner-sdk/bin/XUL.framework/Versions/Current/xpcshell
+XULRUNNERSDK=./$(XULRUNNER_DIRECTORY)/bin/XUL.framework/Versions/Current/run-mozilla.sh
+XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/XUL.framework/Versions/Current/xpcshell
 
 else ifeq ($(findstring MINGW32,$(SYS)), MINGW32)
 # For windows we only have one binary
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_SDK_URL)win32.sdk.zip
 XULRUNNERSDK=
-XPCSHELLSDK=./xulrunner-sdk/bin/xpcshell
+XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/xpcshell
 
 else
 # Otherwise, assume linux
@@ -438,23 +436,29 @@ XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_LINUX_SDK_URL)x86_64.sdk.tar.bz2
 else
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_LINUX_SDK_URL)i686.sdk.tar.bz2
 endif
-XULRUNNERSDK=./xulrunner-sdk/bin/run-mozilla.sh
-XPCSHELLSDK=./xulrunner-sdk/bin/xpcshell
+XULRUNNERSDK=./$(XULRUNNER_DIRECTORY)/bin/run-mozilla.sh
+XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/xpcshell
 endif
 
 .PHONY: install-xulrunner-sdk
 install-xulrunner-sdk:
+	@echo "XULrunner directory: $(XULRUNNER_DIRECTORY)"
 ifndef USE_LOCAL_XULRUNNER_SDK
-ifneq ($(XULRUNNER_SDK_DOWNLOAD),$(shell cat .xulrunner-url 2> /dev/null))
-	rm -rf xulrunner-sdk
+ifneq ($(XULRUNNER_SDK_DOWNLOAD),$(shell cat $(XULRUNNER_URL_FILE) 2> /dev/null))
+# must download the xulrunner sdk
+	rm -rf $(XULRUNNER_DIRECTORY)
 	$(DOWNLOAD_CMD) $(XULRUNNER_SDK_DOWNLOAD)
 ifeq ($(findstring MINGW32,$(SYS)), MINGW32)
 	unzip xulrunner*.zip && rm xulrunner*.zip
 else
-	tar xjf xulrunner*.tar.bz2 && rm xulrunner*.tar.bz2
-endif
-	@echo $(XULRUNNER_SDK_DOWNLOAD) > .xulrunner-url
-endif
+	mkdir $(XULRUNNER_DIRECTORY)
+	tar xjf xulrunner*.tar.bz2 --strip-components=1 -C $(XULRUNNER_DIRECTORY) && rm xulrunner*.tar.bz2 || \
+		( echo; \
+		echo "We failed extracting the XULRunner SDK archive which may be corrupted."; \
+		echo "You should run 'make really-clean' and try again." ; false )
+endif # MINGW32
+	@echo $(XULRUNNER_SDK_DOWNLOAD) > $(XULRUNNER_URL_FILE)
+endif # XULRUNNER_SDK_DOWNLOAD
 endif # USE_LOCAL_XULRUNNER_SDK
 
 define run-js-command
@@ -663,7 +667,7 @@ test-agent-bootstrap-apps:
 # Temp make file method until we can switch
 # over everything in test
 ifneq ($(strip $(APP)),)
-APP_TEST_LIST=$(shell find apps/$(APP)/test/unit -name '*_test.js')
+APP_TEST_LIST=$(shell find apps/$(APP) -name '*_test.js' | grep '/test/unit/')
 endif
 .PHONY: test-agent-test
 test-agent-test:
@@ -869,7 +873,7 @@ clean:
 
 # clean out build products
 really-clean: clean
-	rm -rf xulrunner-sdk .xulrunner-url
+	rm -rf xulrunner-* .xulrunner-*
 
 .PHONY: install-git-hook
 install-git-hook:

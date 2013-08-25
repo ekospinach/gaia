@@ -12,9 +12,9 @@ Bookmark.prototype = {
   launch: function bookmark_launch() {
     var features = this.getFeatures();
 
-    // The third parameter is received in window_manager without whitespaces
-    // so we decice replace them for &nbsp;
-    window.open(this.url, '_blank', JSON.stringify(features));
+    window.open(this.url, '_blank', Object.keys(features).map(function(key) {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(features[key]);
+    }).join(','));
   }
 };
 

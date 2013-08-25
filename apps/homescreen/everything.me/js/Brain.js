@@ -833,7 +833,8 @@ Evme.Brain = new function Evme_Brain() {
                 "isExternal": loadingApp.isExternal(),
                 "query": Searcher.getDisplayedQuery(),
                 "source": Searcher.getDisplayedSource(),
-                "icon": data.data.icon
+                "icon": data.data.icon,
+                "entryPoint": data.data.entryPoint
             };
 
             var appId;

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 RETRY=10
-FIREFOX_URL=http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/18.0.1/linux-x86_64/en-US/firefox-18.0.1.tar.bz2
 
 # generate port number between 10000 ~ 60000
 export TEST_AGENT_PORT=$[ 10000 + $RANDOM % (60000 + 1 - 10000) ]
@@ -38,14 +37,15 @@ echo 'Downloading and installing closure linter'
 sudo easy_install $GJSLINT_PACKAGE_URL &> /dev/null
 
 echo 'Downloading Firefox'
-curl -s "$FIREFOX_URL" | tar jx &> /dev/null
+npm install -g mozilla-download &> /dev/null
+mozilla-download --product firefox $PWD/firefox
 
 echo 'Downloading & installing node dependencies'
 make common-install &> /dev/null
 
 # Make gaia for test-agent environment
 echo 'Downloading xulrunner-sdk and making profile for testing (more than 5 minutes)'
-DEBUG=1 WGET_OPTS=-nv make &> /dev/null
+DEBUG=1 DESKTOP=0 WGET_OPTS=-nv make &> /dev/null
 
 echo "Starting test-agent-server and waiting for server to start on port ${TEST_AGENT_PORT}"
 make test-agent-server &> /dev/null &

@@ -857,20 +857,32 @@ var GridManager = (function() {
    * Ways to enumerate installed apps & bookmarks and find
    * out whether a certain "origin" is available as an existing installed app or
    * bookmark. Only used by Everything.me at this point.
+   * @param {Boolean} expands manifests with multiple entry points.
    * @param {Boolean} disallows hidden apps.
+   * @return {Array} icon objects.
    */
-  function getApps(suppressHiddenRoles) {
-    var apps = [],
-        app;
+  function getApps(expandApps, suppressHiddenRoles) {
+    var apps = [];
+
     for (var origin in appsByOrigin) {
-      app = appsByOrigin[origin];
+      var app = appsByOrigin[origin];
+
+      // app.manifest is null until the downloadsuccess/downloadapplied event
+      var manifest = app.manifest || app.updateManifest;
 
       if (app.type === GridItemsFactory.TYPE.COLLECTION ||
-          (suppressHiddenRoles &&
-            HIDDEN_ROLES.indexOf(appsByOrigin[origin].manifest.role) !== -1)) {
+          (suppressHiddenRoles && HIDDEN_ROLES.indexOf(manifest.role) !== -1)) {
         continue;
       }
-      apps.push(appsByOrigin[origin]);
+
+      if (expandApps && manifest.entry_points) {
+        for (var i in manifest.entry_points) {
+          apps.push(new Icon(buildDescriptor(app, i), app));
+        }
+        continue;
+      }
+
+      apps.push(new Icon(buildDescriptor(app), app));
     }
     return apps;
   }
@@ -1036,29 +1048,23 @@ var GridManager = (function() {
   }
 
   function hasOfflineCache(app) {
-    return app.type === GridItemsFactory.TYPE.COLLECTION ||
-           app.manifest.appcache_path != null;
+    if (app.type === GridItemsFactory.TYPE.COLLECTION) {
+      return true;
+    } else {
+      var manifest = app ? app.manifest || app.updateManifest : null;
+      return manifest.appcache_path != null;     
+    }
   }
 
   /*
-   * Create or update a single icon for an Application (or Bookmark) object.
+   * Builds a descriptor for an icon object
    */
-  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset,
-                                    gridPosition) {
-    // Make sure we update the icon/label when the app is updated.
-    if (app.type !== GridItemsFactory.TYPE.COLLECTION &&
-        app.type !== GridItemsFactory.TYPE.BOOKMARK) {
-      app.ondownloadapplied = function ondownloadapplied(event) {
-        createOrUpdateIconForApp(event.application, entryPoint);
-        app.ondownloadapplied = null;
-        app.ondownloaderror = null;
-      };
-      app.ondownloaderror = function ondownloaderror(event) {
-        createOrUpdateIconForApp(app, entryPoint);
-      };
-    }
-
+  function buildDescriptor(app, entryPoint) {
     var manifest = app.manifest ? app.manifest : app.updateManifest;
+
+    if (!manifest)
+      return;
+
     var iconsAndNameHolder = manifest;
     if (entryPoint)
       iconsAndNameHolder = manifest.entry_points[entryPoint];
@@ -1085,6 +1091,25 @@ var GridManager = (function() {
                       app.type !== GridItemsFactory.TYPE.BOOKMARK) {
       descriptor.localizedName = iconsAndNameHolder.name;
     }
+
+    return descriptor;
+  }
+
+  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset, gridPosition) {
+    // Make sure we update the icon/label when the app is updated.
+    if (app.type !== GridItemsFactory.TYPE.COLLECTION &&
+        app.type !== GridItemsFactory.TYPE.BOOKMARK) {
+      app.ondownloadapplied = function ondownloadapplied(event) {
+        createOrUpdateIconForApp(event.application, entryPoint);
+        app.ondownloadapplied = null;
+        app.ondownloaderror = null;
+      };
+      app.ondownloaderror = function ondownloaderror(event) {
+        createOrUpdateIconForApp(app, entryPoint);
+      };
+    }
+
+    var descriptor = buildDescriptor(app, entryPoint);
 
     // If there's an existing icon for this bookmark/app/entry point already,
     // let it update itself.

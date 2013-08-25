@@ -1213,6 +1213,8 @@ var MediaDB = (function() {
 
   /* Details of helper functions follow */
 
+  var DUMMYFILE_FROM_CAMERA = /DCIM\/\d{3}MZLLA\/\.VID_\d{4}\.3gp$/;
+
   //
   // Return true if media db should ignore this file.
   //
@@ -1237,65 +1239,14 @@ var MediaDB = (function() {
   // give us a name only, not the file object.
   // Ignore files having directories beginning with .
   // Bug https://bugzilla.mozilla.org/show_bug.cgi?id=838179
+  // Ignore all dummy files from camera, see bug 908035 for this part.
   function ignoreName(filename) {
-    var path = filename.substring(0, filename.lastIndexOf('/') + 1);
-    return (path[0] === '.' || path.indexOf('/.') !== -1);
-  }
-
-  // With the removal of composite storage, this function emulates
-  // the composite storage enumeration (i.e. return files from
-  // all of the storage areas).
-  function enumerateAll(storages, dir, options) {
-    var storageIndex = 0;
-    var ds_cursor = null;
-
-    var cursor = {
-      continue: function cursor_continue() {
-        ds_cursor.continue();
-      }
-    };
-
-    function enumerateNextStorage() {
-      // The || {} on the next line is required to make enumerate work properly
-      // on v1-train.
-      ds_cursor = storages[storageIndex].enumerate(dir, options || {});
-      ds_cursor.onsuccess = onsuccess;
-      ds_cursor.onerror = onerror;
-    };
-
-    function onsuccess(e) {
-      cursor.result = e.target.result;
-      if (!cursor.result) {
-        storageIndex++;
-        if (storageIndex < storages.length) {
-          enumerateNextStorage();
-          return;
-        }
-        // If we've run out of storages, then we fall through and call
-        // onsuccess with the null result.
-      }
-      if (cursor.onsuccess) {
-        try {
-          cursor.onsuccess(e);
-        } catch (err) {
-          console.warn('enumerateAll onsuccess threw', err);
-        }
-      }
-    };
-
-    function onerror(e) {
-      cursor.error = e.target.error;
-      if (cursor.onerror) {
-        try {
-          cursor.onerror(e);
-        } catch (err) {
-          console.warn('enumerateAll onerror threw', err);
-        }
-      }
-    };
-
-    enumerateNextStorage();
-    return cursor;
+    if (DUMMYFILE_FROM_CAMERA.test(filename)) {
+      return true;
+    } else {
+      var path = filename.substring(0, filename.lastIndexOf('/') + 1);
+      return (path[0] === '.' || path.indexOf('/.') !== -1);
+    }
   }
 
   // Tell the db to start a manual scan. I think we don't do
