@@ -1,7 +1,7 @@
 Evme.InstalledAppResult = function Evme_InstalledAppResult() {
   Evme.Result.call(this);
   this.type = Evme.RESULT_TYPE.INSTALLED;
-}
+};
 Evme.InstalledAppResult.prototype = Object.create(Evme.Result.prototype);
 Evme.InstalledAppResult.prototype.constructor = Evme.InstalledAppResult;
 
@@ -120,10 +120,10 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   }
 
   this.requestAppsInfo = function requestAppsInfo() {
-    var gridApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS),
-      guids = gridApps.map(function getId(gridApp){
-        return gridApp.manifestURL || gridApp.bookmarkURL;
-      });
+    var gridApps = EvmeManager.getGridApps(),
+        guids = gridApps.map(function getId(gridApp){
+          return gridApp.manifestURL || gridApp.bookmarkURL;
+        });
 
     Evme.EventHandler.trigger(NAME, "requestAppsInfo", guids);
   };
@@ -234,7 +234,7 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
     // empty current index and create a new one
     appIndex = {};
 
-    var gridApps = Evme.Utils.sendToOS(Evme.Utils.OSMessages.GET_ALL_APPS);
+    var gridApps = EvmeManager.getGridApps();
 
     for (var i = 0, gridApp; gridApp = gridApps[i++];) {
       var appInfo = EvmeManager.getAppInfo(gridApp, function onAppInfo(appInfo){

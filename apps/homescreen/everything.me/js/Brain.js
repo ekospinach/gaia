@@ -731,10 +731,7 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         function saveToHomescreen(data, showConfirm) {
-            var isAppInstalled = Evme.Utils.sendToOS(
-                Evme.Utils.OSMessages.IS_APP_INSTALLED, {
-                    'url': data.app.getFavLink()
-                });
+            var isAppInstalled = EvmeManager.isAppInstalled(data.app.getFavLink());
 
             if (isAppInstalled) {
                 window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
@@ -862,6 +859,7 @@ Evme.Brain = new function Evme_Brain() {
             var resultType = data.app.type;
             if (resultType === Evme.RESULT_TYPE.INSTALLED) {
                 EvmeManager.openApp({
+                    "id": data.app.getId(),
                     "url": data.app.getLink(),
                     "originUrl": data.app.getFavLink(),
                     "title": data.data.name,

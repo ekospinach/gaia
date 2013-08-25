@@ -140,10 +140,6 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 		return cfg.isWeblink;
 	};
 
-	this.getLink = function getLink() {
-		return cfg.appUrl;
-	};
-
 	this.getElement = function getElement() {
 		return el;
 	};

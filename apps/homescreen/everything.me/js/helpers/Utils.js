@@ -21,29 +21,25 @@ Evme.Utils = new function Evme_Utils() {
         INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
 
         OSMessages = this.OSMessages = {
-            "APP_CLICK": "open-in-app",
-            "APP_INSTALL": "add-bookmark",
-            "IS_APP_INSTALLED": "is-app-installed",
-            "OPEN_URL": "open-url",
-            "SHOW_MENU": "show-menu",
-            "HIDE_MENU": "hide-menu",
-            "MENU_HEIGHT": "menu-height",
-            "GET_ALL_APPS": "get-all-apps",
-            "EVME_OPEN": "evme-open",
-      	    "GET_APP_INFO": "get-app-info",
-      	    "GET_ICON_SIZE": "get-icon-size",
-      	    "OPEN_MARKETPLACE_APP": "open-marketplace-app",
-            "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
+          "APP_INSTALL": "add-bookmark",
+          "OPEN_URL": "open-url",
+          "SHOW_MENU": "show-menu",
+          "HIDE_MENU": "hide-menu",
+          "MENU_HEIGHT": "menu-height",
+          "EVME_OPEN": "evme-open",
+          "GET_ICON_SIZE": "get-icon-size",
+          "OPEN_MARKETPLACE_APP": "open-marketplace-app",
+          "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
         };
 
     this.PIXEL_RATIO_NAMES = {
-    	NORMAL: 'normal',
-    	HIGH: 'high'
+      NORMAL: 'normal',
+      HIGH: 'high'
     };
 
     this.ICONS_FORMATS = {
-    	"Small": 10,
-    	"Large": 20
+      "Small": 10,
+      "Large": 20
     };
 
     this.REGEXP = {
@@ -190,12 +186,8 @@ Evme.Utils = new function Evme_Utils() {
 
     this.sendToOS = function sendToOS(type, data) {
         switch (type) {
-            case OSMessages.APP_CLICK:
-                return EvmeManager.openApp(data);
             case OSMessages.APP_INSTALL:
                 return EvmeManager.addGridItem(data);
-            case OSMessages.IS_APP_INSTALLED:
-                return EvmeManager.isAppInstalled(data.url);
             case OSMessages.OPEN_URL:
                 return EvmeManager.openUrl(data.url);
             case OSMessages.SHOW_MENU:
@@ -204,10 +196,6 @@ Evme.Utils = new function Evme_Utils() {
                 return EvmeManager.menuHide();
             case OSMessages.MENU_HEIGHT:
                 return EvmeManager.getMenuHeight();
-            case OSMessages.GET_ALL_APPS:
-                return EvmeManager.getApps();
-            case OSMessages.GET_APP_INFO:
-                return EvmeManager.getAppInfo(data);
             case OSMessages.GET_ICON_SIZE:
                 return EvmeManager.getIconSize();
             case OSMessages.EVME_OPEN:
@@ -464,10 +452,65 @@ Evme.Utils = new function Evme_Utils() {
         };
 
         reader.readAsDataURL(blob);
-    }
+    };
+
+    /**
+     * Append or overrite a url string with query parameter key=value.
+     * insertParam('app://homescreen.gaiamobile.org:8080', 'appId', 123) =>
+     *   app://homescreen.gaiamobile.org:8080?appId=123
+     *   
+     * adopted from http://stackoverflow.com/a/487049/1559840
+     */
+    this.insertParam = function insertParam(url, key, value) {
+      key = encodeURI(key);
+      value = encodeURI(value);
+
+      var parts = url.split("?");
+      var domain = parts[0];
+      var search = parts[1] || '';
+      var kvp = search.split('&');
+
+      var i = kvp.length;
+      var x;
+      while (i--) {
+        x = kvp[i].split('=');
+
+        if (x[0] == key) {
+          x[1] = value;
+          kvp[i] = x.join('=');
+          break;
+        }
+      }
+
+      if (i < 0) {
+        kvp[kvp.length] = [key, value].join('=');
+      }
+
+      return domain + "?" + kvp.filter(function isEmpty(pair) {
+        return pair !== '';
+      }).join('&');
+    };
+
+    /**
+     * Get a query parameter value from a url
+     * extractParam('app://homescreen.gaiamobile.org:8080?appId=123', appId) => 123
+     */
+    this.extractParam = function extractParam(url, key) {
+      var search = url.split('?')[1];
+      if (search) {
+        var kvp = search.split('&');
+        for (var i = 0; i < kvp.length; i++) {
+          var pair = kvp[i];
+          if (key === pair.split('=')[0]) {
+            return pair.split('=')[1];
+          }
+        }
+      }
+      return undefined;
+    };
 
     this.setKeyboardVisibility = function setKeyboardVisibility(value){
-    	if (self.isKeyboardVisible === value) return;
+      if (self.isKeyboardVisible === value) return;
 
         self.isKeyboardVisible = value;
 

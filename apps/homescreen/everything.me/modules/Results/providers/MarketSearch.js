@@ -33,7 +33,7 @@ Evme.MarketSearchResult = function Evme_MarketSearch() {
     return canvas;
   };
 
-}
+};
 Evme.MarketSearchResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketSearchResult.prototype.constructor = Evme.MarketSearchResult;
 
@@ -55,11 +55,10 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
   this.init = function init(cfg) {
     containerEl = cfg.containerEl;
     
-    EvmeManager.getAppInfo({
-      manifestURL: Evme.__config.marketplaceAppId
-    }, function(appInfo) {
+    EvmeManager.getAppByOrigin(Evme.Config.marketplaceAppOrigin, function(appInfo) {
+      app.name = appInfo.name;
       app.isOfflineReady = appInfo.isOfflineReady;
-    });    
+    });
   };
 
   this.render = function render() {

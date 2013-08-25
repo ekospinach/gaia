@@ -887,6 +887,14 @@ var GridManager = (function() {
     return apps;
   }
 
+  function getApp(origin) {
+    var app = appsByOrigin[origin];
+    if (app) {
+      return new Icon(buildDescriptor(app), app);
+    }
+    return null;
+  }
+
   function getCollections() {
     var apps = [], app;
     for (var origin in appsByOrigin) {
@@ -896,10 +904,6 @@ var GridManager = (function() {
       }
     }
     return apps;
-  }
-
-  function getAppByOrigin(url) {
-    return appsByOrigin[url];
   }
 
 
@@ -1044,7 +1048,11 @@ var GridManager = (function() {
     Detect if an app can work offline
   */
   function isHosted(app) {
-    return app.origin.indexOf('app://') === -1;
+    if (app.origin) {
+      return app.origin.indexOf('app://') === -1;
+    }
+
+    return false;
   }
 
   function hasOfflineCache(app) {
@@ -1052,7 +1060,7 @@ var GridManager = (function() {
       return true;
     } else {
       var manifest = app ? app.manifest || app.updateManifest : null;
-      return manifest.appcache_path != null;     
+      return manifest.appcache_path != null;
     }
   }
 
@@ -1410,11 +1418,11 @@ var GridManager = (function() {
 
     getIconForBookmark: getIconForBookmark,
 
+    getApp: getApp,
+
     getApps: getApps,
 
     getCollections: getCollections,
-
-    getAppByOrigin: getAppByOrigin,
 
     goToPage: goToPage,
 

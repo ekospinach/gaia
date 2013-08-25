@@ -1,19 +1,36 @@
+'use strict';
 
-"use strict";
+var EvmeManager = (function EvmeManager() {  
+    /**
+     * E.me references each entry point as a different app with unique id
+     * The entry point is encapsulated as a query key 
+     * http://communications.gaiamobile.org:8080/manifest.webapp?eme-ep=dialer
+     */
+    var EME_ENTRY_POINT_KEY = "eme-ep";
 
-var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
         currentURL = null;
 
     function openApp(params) {
-        var evmeApp = new EvmeApp({
-            bookmarkURL: params.originUrl,
-            name: params.title,
-            icon: params.icon
-        });
+        var id = params.id;
+        
+        if (id) {  // installed app
+          var entryPoint = Evme.Utils.extractParam(id, EME_ENTRY_POINT_KEY);
+          if (entryPoint) {
+            GridManager.getApp(params.originUrl).app.launch(entryPoint);
+          } else {
+            GridManager.getApp(params.originUrl).app.launch();
+          }
+        } else {  // cloud app
+          var evmeApp = new EvmeApp({
+              bookmarkURL: params.originUrl,
+              name: params.title,
+              icon: params.icon
+          });
 
-        evmeApp.launch(params.url, params.urlTitle, params.useAsyncPanZoom);
-        currentURL = params.url;
+          evmeApp.launch(params.url, params.urlTitle, params.useAsyncPanZoom);
+          currentURL = params.url;         
+        }
     }
 
     function addGridItem(params) {
@@ -61,7 +78,7 @@ var EvmeManager = (function EvmeManager() {
     /**
      * Returns all apps on grid *excluding* collections.
      */
-    function getApps() {
+    function getGridApps() {
         return GridManager.getApps(true /* Flatten */, true /* Hide hidden */);
     }
 
@@ -71,20 +88,48 @@ var EvmeManager = (function EvmeManager() {
     function getCollections() {
         return GridManager.getCollections();
     }
+   
+    function getAppByOrigin(origin, cb) {
+      var gridApp = GridManager.getApp(origin);
+      if (gridApp) {
+        getAppInfo(gridApp, cb);
+      } else {
+        console.error("E.me error: app " + origin + " does not exist");
+      }
+    }
 
+    /**
+     * Returns E.me formatted information about an object 
+     * returned by GridManager.getApps.
+     */
     function getAppInfo(gridApp, cb) {
         cb = cb || Evme.Utils.NOOP;
-
-        var id = gridApp.manifestURL || gridApp.bookmarkURL,
-            icon = GridManager.getIcon(gridApp),
+      
+        var nativeApp = gridApp.app,  // XPCWrappedNative
+            descriptor = gridApp.descriptor,
+            id,
+            icon,
             appInfo;
 
-        if (!id) return;
+        // TODO document
+        // TODO launch by entry_point
+        if (nativeApp.manifestURL) {
+          id = generateAppId(nativeApp.manifestURL, descriptor.entry_point);
+        } else {
+          id = nativeApp.bookmarkURL;
+        }
+        
+        if (!id) {
+          console.error("E.me error: can't find suitable id for " + descriptor.name);
+          return;
+        }
+        
+        icon = GridManager.getIcon(descriptor);
 
         appInfo = {
             "id": id,
-            "name": getAppName(gridApp),
-            "appUrl": gridApp.origin,
+            "name": descriptor.name,
+            "appUrl": nativeApp.origin,
             "icon": Icon.prototype.DEFAULT_ICON_URL,
             "isOfflineReady": icon && 'isOfflineReady' in icon && icon.isOfflineReady()
         };
@@ -100,6 +145,16 @@ var EvmeManager = (function EvmeManager() {
                 }
             });
         }
+    }
+
+    /**
+     * Generate a uuid for E.me to reference the app
+     */
+    function generateAppId(manifestURL, entryPoint){
+      if (entryPoint)
+        return Evme.Utils.insertParam(manifestURL, EME_ENTRY_POINT_KEY, entryPoint);
+
+      return manifestURL;
     }
 
     function retrieveIcon(request) {
@@ -133,22 +188,6 @@ var EvmeManager = (function EvmeManager() {
       };
     }
 
-    function getAppName(app) {
-        var manifest = app.manifest;
-        if (!manifest) {
-            return null;
-        }
-
-        if ('locales' in manifest) {
-            var locale = manifest.locales[document.documentElement.lang];
-            if (locale && locale.name) {
-                return locale.name;
-            }
-        }
-
-        return manifest.name;
-    }
-
     function getIconSize() {
         return Icon.prototype.MAX_ICON_SIZE;
     }
@@ -179,22 +218,17 @@ var EvmeManager = (function EvmeManager() {
       }
     }
 
-    function getApp(appId) {
-      return GridManager.getIcon({
-        "manifestURL": appId
-      });
-    }
-
     return {
       openApp: openApp,
 
       addGridItem: addGridItem,
 
-      isAppInstalled: function isAppInstalled(url) {
-          return GridManager.getIconForBookmark(url) ||
-                 GridManager.getAppByOrigin(url);
+      isAppInstalled: function isAppInstalled(origin) {
+          return GridManager.getApp(origin);
       },
-      getApps: getApps,
+      
+      getAppByOrigin: getAppByOrigin,
+      getGridApps: getGridApps,
       getCollections: getCollections,
       getAppInfo: getAppInfo,
 

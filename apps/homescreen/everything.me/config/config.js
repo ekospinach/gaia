@@ -7,7 +7,7 @@ Evme.Config = Evme.__config = {
     "unsupportedRedirectMode": false,
     "buildNum": 145,
     "timeoutBeforeSessionInit": 0,
-    "marketplaceAppId": "https://marketplace.firefox.com/packaged.webapp",
+    "marketplaceAppOrigin": "app://marketplace.firefox.com",
     "apps": {
         "appsPerRow": 4,
         "appHeight": 89,
