@@ -61,7 +61,7 @@ Evme.InstalledAppsRenderer = function Evme_InstalledAppsRenderer() {
         appUrls = [];
 
     for (var i = 0, app; app = apps[i++];) {
-      var result = new Evme.InstalledAppResult(app.appUrl),
+      var result = new Evme.InstalledAppResult(),
         el = result.init(app);
 
       result.draw(app.icon || DEFAULT_ICON);

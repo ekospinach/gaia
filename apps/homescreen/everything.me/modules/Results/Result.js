@@ -7,29 +7,24 @@ Evme.RESULT_TYPE = {
   WEBLINK: 'weblink'
 };
 
-Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
+Evme.Result = function Evme_Result() {
   var NAME = "Result",
-    self = this,
-    cfg = {}, el = null,
-    index = __index,
-    isMore = __isMore,
+      self = this,
+      el = null,
 
-    TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
-    TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
-    TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
+      TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
+      TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
+      TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
 
-    image = new Image();
+      image = new Image();
+
 
   this.type = 'NOT_SET';
-  
-  this.app = null;
-  this.icon = null;
+  this.cfg = {};
   this.elIcon = null;
 
-  this.init = function init(app) {
-    cfg = app;
-
-    this.app = app;
+  this.init = function init(cfg) {
+    self.cfg = cfg;
 
     el = Evme.$create('li', {
       'id': 'app_' + cfg.id,
@@ -43,9 +38,9 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
     this.elIcon = el.querySelector('img');
 
     // remove button
-    if (app.isRemovable) {
+    if (cfg.isRemovable) {
       var removeButton = Evme.$create('span', {
-        'class': 'remove' 
+        'class': 'remove'
       });
       removeButton.addEventListener('click', cbRemoveClick);
       removeButton.addEventListener('touchstart', stopPropagation);
@@ -60,10 +55,10 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
   };
 
   this.draw = function draw(iconObj) {
-    cfg.icon = iconObj;
+    self.cfg.icon = iconObj;
     
     if (el) {
-      el.setAttribute('data-name', cfg.name);
+      el.setAttribute('data-name', self.cfg.name);
 
       if (Evme.Utils.isBlob(iconObj)) {
         Evme.Utils.blobToDataURI(iconObj, function onDataReady(src) {
@@ -76,7 +71,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
       }
     }
 
-    function setImageSrc(src) {   
+    function setImageSrc(src) {
       image.onload = self.onAppIconLoad;
       image.src = src;
     }
@@ -116,7 +111,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
     canvas.height = baseHeight + TEXT_MARGIN + TEXT_HEIGHT - 1;
 
     Evme.Utils.writeTextToCanvas({
-      "text": cfg.name,
+      "text": self.cfg.name,
       "context": context,
       "offset": textOffset + TEXT_MARGIN
     });
@@ -137,7 +132,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
   };
 
   this.isExternal = function isExternal() {
-    return cfg.isWeblink;
+    return self.cfg.isWeblink;
   };
 
   this.getElement = function getElement() {
@@ -145,23 +140,23 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
   };
 
   this.getId = function getId() {
-    return cfg.id;
+    return self.cfg.id;
   };
 
   this.getLink = function getLink() {
-    return cfg.appUrl;
+    return self.cfg.appUrl;
   };
 
   this.getFavLink = function getFavLink() {
-    return cfg.favUrl != "@" && cfg.favUrl || cfg.appUrl;
+    return self.cfg.favUrl != "@" && self.cfg.favUrl || self.cfg.appUrl;
   };
 
   this.getIcon = function getIcon() {
-    return cfg.icon;
+    return self.cfg.icon;
   };
 
   this.getCfg = function getCfg() {
-    return cfg;
+    return self.cfg;
   };
 
   function onClick(e) {
@@ -169,11 +164,9 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
     Evme.EventHandler.trigger(NAME, "click", {
       "app": self,
-      "appId": cfg.id,
+      "appId": self.cfg.id,
       "el": el,
-      "data": cfg,
-      "index": index,
-      "isMore": isMore,
+      "data": self.cfg,
       "e": e
     });
   }
@@ -184,11 +177,9 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
     Evme.EventHandler.trigger(NAME, "hold", {
       "app": self,
-      "appId": cfg.id,
+      "appId": self.cfg.id,
       "el": el,
-      "data": cfg,
-      "index": index,
-      "isMore": isMore
+      "data": self.cfg
     });
   }
 
@@ -199,7 +190,7 @@ Evme.Result = function Evme_Result(__cfg, __index, __isMore) {
 
   function cbRemoveClick() {
     Evme.EventHandler.trigger(NAME, "remove", {
-      "id": cfg.id
+      "id": self.cfg.id
     });
   }
 }

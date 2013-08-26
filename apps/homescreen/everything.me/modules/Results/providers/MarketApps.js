@@ -27,14 +27,14 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
     });
 
     Evme.Utils.writeTextToCanvas({
-      "text": this.app.name,
+      "text": this.cfg.name,
       "context": context,
       "offset": textOffset + TEXT_MARGIN + FONT_SIZE + 1 * Evme.Utils.devicePixelRatio
     });
 
     return canvas;
   };
-}
+};
 
 Evme.MarketResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketResult.prototype.constructor = Evme.Evme_MarketResult;
