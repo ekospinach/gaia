@@ -988,7 +988,7 @@ Evme.Brain = new function Evme_Brain() {
 
                 requestCollectionApps = null;
 
-                 window.mozRequestAnimationFrame(Evme.Location.updateIfNeeded);
+                Evme.Location.updateIfNeeded();
             });
 
             loadBGImage();
@@ -1488,7 +1488,7 @@ Evme.Brain = new function Evme_Brain() {
                 
                 // only try to refresh location of it's a "real" search- with keyboard down
                 if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
-                    window.mozRequestAnimationFrame(Evme.Location.updateIfNeeded);
+                    Evme.Location.updateIfNeeded();
                 }
             }, removeSession);
         };
