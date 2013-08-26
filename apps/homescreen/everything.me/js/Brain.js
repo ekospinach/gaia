@@ -9,7 +9,6 @@ Evme.Brain = new function Evme_Brain() {
         _config = {},
         elContainer = null,
         isActive = false,
-        QUERIES_TO_NOT_CACHE = "",
         DEFAULT_NUMBER_OF_APPS_TO_LOAD = Evme.Config.numberOfAppsToLoad,
         NUMBER_OF_APPS_TO_LOAD_IN_COLLECTION = 16,
         NUMBER_OF_APPS_TO_LOAD = "FROM CONFIG",
@@ -385,7 +384,6 @@ Evme.Brain = new function Evme_Brain() {
 
         // transition to default items
         this.showDefault = function showDefault() {
-            Searcher.cancelRequests();
             Evme.BackgroundImage.loadDefault();
 
             if (Evme.Searchbar.getValue() == "" && !Evme.Utils.isKeyboardVisible) {
@@ -990,7 +988,7 @@ Evme.Brain = new function Evme_Brain() {
 
                 requestCollectionApps = null;
 
-                Evme.Location.updateIfNeeded();
+                 window.mozRequestAnimationFrame(Evme.Location.updateIfNeeded);
             });
 
             loadBGImage();
@@ -1374,6 +1372,7 @@ Evme.Brain = new function Evme_Brain() {
             lastQueryForImage = "",
             hasMoreApps = false,
             autocompleteCache = {},
+            lastRequestAppsTime = 0,
 
             requestSearch = null,
             requestImage = null,
@@ -1454,11 +1453,6 @@ Evme.Brain = new function Evme_Brain() {
 
             options.iconsFormat = iconsFormat;
 
-            var _NOCACHE = false;
-            if (QUERIES_TO_NOT_CACHE.toLowerCase().indexOf(query.toLowerCase()) !== -1) {
-                _NOCACHE = true;
-            }
-
             Searcher.cancelSearch();
 
             // set timer for progress indicator
@@ -1474,6 +1468,8 @@ Evme.Brain = new function Evme_Brain() {
                 return;
             }
 
+            var requestAppsTime = Date.now();
+            lastRequestAppsTime = requestAppsTime;
             requestSearch = Evme.DoATAPI.search({
                 "query": query,
                 "typeHint": type,
@@ -1485,24 +1481,23 @@ Evme.Brain = new function Evme_Brain() {
                 "limit": NUMBER_OF_APPS_TO_LOAD,
                 "first": appsCurrentOffset,
                 "iconFormat": iconsFormat,
-                "prevQuery": prevQuery,
-                "_NOCACHE": _NOCACHE
+                "prevQuery": prevQuery
             }, function onSuccess(data) {
-                getAppsComplete(data, options);
+                getAppsComplete(data, options, requestAppsTime);
                 requestSearch = null;
-
+                
                 // only try to refresh location of it's a "real" search- with keyboard down
                 if (exact && appsCurrentOffset === 0 && !Evme.Utils.isKeyboardVisible) {
-                    Evme.Location.updateIfNeeded();
+                    window.mozRequestAnimationFrame(Evme.Location.updateIfNeeded);
                 }
             }, removeSession);
         };
 
-        function getAppsComplete(data, options) {
+        function getAppsComplete(data, options, requestAppsTime) {
             if (data.errorCode !== Evme.DoATAPI.ERROR_CODES.SUCCESS) {
                 return false;
             }
-            if (!requestSearch) {
+            if (requestAppsTime < lastRequestAppsTime) {
                 return;
             }
 
@@ -1557,7 +1552,6 @@ Evme.Brain = new function Evme_Brain() {
 
             if (isMore || !bSameQuery) {
                 if (apps) {
-
                     lastSearch.query = query;
                     lastSearch.source = _source;
                     lastSearch.type = _type;
