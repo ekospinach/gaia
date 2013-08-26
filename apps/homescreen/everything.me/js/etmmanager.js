@@ -98,7 +98,7 @@ var EvmeManager = (function EvmeManager() {
         }
         
         if (!id) {
-          console.error("E.me error: can't find suitable id for " + descriptor.name);
+          console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
           return;
         }
         
