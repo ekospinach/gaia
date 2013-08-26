@@ -85,10 +85,7 @@ Evme.Result = function Evme_Result() {
     el.dataset.iconSrc = src;
   };
 
-  /**
-   * Default implementation of Result icon rendering.
-   * Currently only Evme.CloudAppResult implements different rendering.
-   */
+  // @default
   this.onAppIconLoad = function onAppIconLoad() {
     // use OS icon rendering
     var iconCanvas = Icon.prototype.createCanvas(image),
@@ -103,6 +100,7 @@ Evme.Result = function Evme_Result() {
     self.setIconSrc(image.src);
   };
 
+  // @default
   this.initIcon = function initIcon(baseHeight, textOffset) {
     var canvas = document.createElement('canvas'),
         context = canvas.getContext('2d');
@@ -119,12 +117,19 @@ Evme.Result = function Evme_Result() {
     return canvas;
   };
 
+  // @default
   this.iconPostRendering = function iconPostRendering(iconCanvas) {
-    // default: do nothing
+    // do nothing
   };
 
+  // @default
   this.finalizeIcon = function finalizeIcon(canvas) {
     self.elIcon.src = canvas.toDataURL();
+  };
+
+  // @default
+  this.launch = function launchResult() {
+    Evme.Utils.log("Result.launch [not implemented]");
   };
 
   this.remove = function remove() {
@@ -161,6 +166,7 @@ Evme.Result = function Evme_Result() {
 
   function onClick(e) {
     e.stopPropagation();
+    self.launch();
 
     Evme.EventHandler.trigger(NAME, "click", {
       "app": self,

@@ -1,7 +1,14 @@
-Evme.ContactResult = function Evme_ContactResult() {
+Evme.ContactResult = function Evme_ContactResult(contactId) {
+  var self = this;
+
   Evme.Result.call(this);
   this.type = Evme.RESULT_TYPE.CONTACT;
-}
+
+  // @override
+  this.launch = function launchContactResult() {
+    EvmeManager.openContact({"id": contactId});
+  };
+};
 Evme.ContactResult.prototype = Object.create(Evme.Result.prototype);
 Evme.ContactResult.prototype.constructor = Evme.ContactResult;
 
@@ -47,9 +54,8 @@ Evme.ContactResultsRenderer = function Evme_ContactResultsRenderer() {
   function renderDocFrag(contacts) {
     var docFrag = document.createDocumentFragment();
     for (var i = 0, contact; contact = contacts[i++];) {
-      var result = new Evme.ContactResult(),
+      var result = new Evme.ContactResult(contact.id),
         el = result.init({
-          "id": contact.id,
           "name": contact.name[0]
         });
 

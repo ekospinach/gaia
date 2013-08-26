@@ -1,15 +1,16 @@
-Evme.CloudAppResult = function Evme_CloudAppsResult() {
+Evme.CloudAppResult = function Evme_CloudAppsResult(query) {
   Evme.Result.call(this);
 
   this.type = Evme.RESULT_TYPE.CLOUD;
 
-  var self = this,
-      SHADOW_OFFSET = 2 * Evme.Utils.devicePixelRatio,
+  var SHADOW_OFFSET = 2 * Evme.Utils.devicePixelRatio,
       SHADOW_BLUR = 2 * Evme.Utils.devicePixelRatio,
       SIZE = 52 * Evme.Utils.devicePixelRatio,
-      FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR;
+      FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR,
 
-  
+      self = this,
+      roundedAppIcon;
+ 
   // @override
   // manipulate the icon (clipping, shadow, resize)
   this.onAppIconLoad = function CloudResult_onAppIconLoad() {
@@ -29,10 +30,11 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
     imageContext.drawImage(this, (FULL_SIZE - SIZE) / 2, (FULL_SIZE - SIZE) / 2, SIZE, SIZE);
 
     // save a reference to the clipped icon
-    self.setIconSrc(elImageCanvas.toDataURL());
+    roundedAppIcon = elImageCanvas.toDataURL();
+    self.setIconSrc(roundedAppIcon);
 
     fixedImage.onload = function onImageLoad() {
-        // shadow
+      // shadow
       context.shadowOffsetX = 0;
       context.shadowOffsetY = SHADOW_OFFSET;
       context.shadowBlur = SHADOW_BLUR;
@@ -43,8 +45,19 @@ Evme.CloudAppResult = function Evme_CloudAppsResult() {
 
     fixedImage.src = elImageCanvas.toDataURL('image/png');
   };
-};
 
+  // @override
+  this.launch = function launchCloudApp() {
+    EvmeManager.openCloudApp({
+        "url": self.cfg.appUrl,
+        "originUrl": self.getFavLink(),
+        "title": self.cfg.name,
+        "icon": roundedAppIcon,
+        "urlTitle": query,
+        "useAsyncPanZoom": self.cfg.isWeblink
+    });
+  };
+};
 Evme.CloudAppResult.prototype = Object.create(Evme.Result.prototype);
 Evme.CloudAppResult.prototype.constructor = Evme.CloudAppResult;
 
@@ -65,10 +78,13 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
     containerEl = cfg.containerEl;
   };
 
-  this.render = function render(apps, pageNum, missingIconsCb) {
+  this.render = function render(apps, params) {
     if (!apps.length) return;
 
-    var newSignature = Evme.Utils.getAppsSignature(apps);
+    var query = params.query,
+        pageNum = params.pageNum,
+        missingIconsCb = params.missingIconsCb,
+        newSignature = Evme.Utils.getAppsSignature(apps);
 
     // if same apps as last - do nothing
     if (lastSignature === newSignature) {
@@ -82,7 +98,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
       self.clear();
     }
 
-    _render(apps, missingIconsCb);
+    _render(apps, query, missingIconsCb);
   };
 
   this.clear = function clear() {
@@ -106,14 +122,14 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
     return containerEl.childElementCount;
   };
 
-  function _render(apps, missingIconsCb){
+  function _render(apps, query, missingIconsCb){
     var docFrag = document.createDocumentFragment(),
       noIconAppIds = [];  // ids of apps received without an icon
 
     for (var i = 0, app; app = apps[i++];) {
       app.isOfflineReady = false;
       
-      var result = new Evme.CloudAppResult(),
+      var result = new Evme.CloudAppResult(query),
           el = result.init(app);
 
       if (app.icon) {  // app with icon url from API response

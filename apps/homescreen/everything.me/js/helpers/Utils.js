@@ -27,9 +27,7 @@ Evme.Utils = new function Evme_Utils() {
           "HIDE_MENU": "hide-menu",
           "MENU_HEIGHT": "menu-height",
           "EVME_OPEN": "evme-open",
-          "GET_ICON_SIZE": "get-icon-size",
-          "OPEN_MARKETPLACE_APP": "open-marketplace-app",
-          "OPEN_MARKETPLACE_SEARCH": "open-marketplace-search"
+          "GET_ICON_SIZE": "get-icon-size"
         };
 
     this.PIXEL_RATIO_NAMES = {
@@ -201,10 +199,6 @@ Evme.Utils = new function Evme_Utils() {
             case OSMessages.EVME_OPEN:
                 EvmeManager.isEvmeVisible(data.isVisible);
                 break;
-            case OSMessages.OPEN_MARKETPLACE_APP:
-                return EvmeManager.openMarketplaceApp(data);
-            case OSMessages.OPEN_MARKETPLACE_SEARCH:
-                return EvmeManager.openMarketplaceSearch(data);
         }
     };
 

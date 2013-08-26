@@ -856,53 +856,6 @@ Evme.Brain = new function Evme_Brain() {
             }
             Evme.EventHandler.trigger("Core", "redirectedToApp", loadingAppAnalyticsData);
 
-            var resultType = data.app.type;
-            if (resultType === Evme.RESULT_TYPE.INSTALLED) {
-                EvmeManager.openApp({
-                    "id": data.app.getId(),
-                    "url": data.app.getLink(),
-                    "originUrl": data.app.getFavLink(),
-                    "title": data.data.name,
-                    "icon": data.app.icon,
-                    "urlTitle": Evme.Searchbar.getValue(),
-                    "useAsyncPanZoom": data.app.isExternal()
-                });
-            } else if (resultType === Evme.RESULT_TYPE.MARKET) {
-                if (data.app.slug) {
-                    Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_APP, {
-                        "slug": data.app.slug
-                    });
-                }
-            } else if (resultType === Evme.RESULT_TYPE.CLOUD) {
-                var appIcon = Evme.Utils.formatImageData(data.data.icon);
-                Evme.Utils.getRoundIcon({
-                    "src": appIcon
-                }, function onIconReady(roundedAppIcon) {
-                    EvmeManager.openApp({
-                        "url": data.app.getLink(),
-                        "originUrl": data.app.getFavLink(),
-                        "title": data.data.name,
-                        "icon": roundedAppIcon,
-                        "urlTitle": Evme.Searchbar.getValue(),
-                        "useAsyncPanZoom": data.app.isExternal()
-                    });
-                });
-            } else if (resultType == Evme.RESULT_TYPE.MARKET_SEARCH) {
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.OPEN_MARKETPLACE_SEARCH, {
-                    query: Evme.Searchbar.getElement().value
-                });
-            } else if (resultType === Evme.RESULT_TYPE.CONTACT) {
-                var activity = new MozActivity({
-                    name: 'open',
-                    data: {
-                        type: 'webcontacts/contact',
-                        params: {
-                            'id': data.appId
-                        }
-                    }
-                });
-            }
-
             setTimeout(returnFromOutside, 2000);
         };
 

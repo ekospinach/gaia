@@ -153,11 +153,21 @@ Evme.ResultManager = function Evme_ResultsManager() {
       // render market apps and result for launching market search
       if (!pageNum) {
         self.scrollToTop();
-        MARKETAPPS in providers && providers[MARKETAPPS].render(marketApps, pageNum);
-        response.nativeAppsHint && MARKETSEARCH in providers && providers[MARKETSEARCH].render();
+        
+        MARKETAPPS in providers 
+          && providers[MARKETAPPS].render(marketApps, pageNum);
+        
+        response.nativeAppsHint && MARKETSEARCH in providers 
+          && providers[MARKETSEARCH].render({
+            "query": response.query
+          });
       }
 
-      CLOUD in providers && providers[CLOUD].render(cloudApps, pageNum, requestMissingIcons);
+      CLOUD in providers && providers[CLOUD].render(cloudApps, {
+        "query": response.query,
+        "pageNum": pageNum,
+        "requestMissingIcons": requestMissingIcons
+      });
     }
   };
 

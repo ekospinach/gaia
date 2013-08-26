@@ -1,4 +1,4 @@
-Evme.MarketSearchResult = function Evme_MarketSearch() {
+Evme.MarketSearchResult = function Evme_MarketSearch(query) {
   var self = this,
     TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
     TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
@@ -33,6 +33,10 @@ Evme.MarketSearchResult = function Evme_MarketSearch() {
     return canvas;
   };
 
+  // @override
+  this.launch = function launchMarketSearch() {
+    EvmeManager.openMarketplaceSearch({"query" : query});
+  };
 };
 Evme.MarketSearchResult.prototype = Object.create(Evme.Result.prototype);
 Evme.MarketSearchResult.prototype.constructor = Evme.MarketSearchResult;
@@ -61,10 +65,12 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
     });
   };
 
-  this.render = function render() {
+  this.render = function render(data) {
+    var query = data.query;
+    
     this.clear();
 
-    var marketSearchResult = new Evme.MarketSearchResult(),
+    var marketSearchResult = new Evme.MarketSearchResult(query),
       el = marketSearchResult.init(app);
 
     marketSearchResult.draw(app.icon);

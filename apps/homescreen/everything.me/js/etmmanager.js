@@ -11,28 +11,6 @@ var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
         currentURL = null;
 
-    function openApp(params) {
-        var id = params.id;
-        
-        if (id) {  // installed app
-          var entryPoint = Evme.Utils.extractParam(id, EME_ENTRY_POINT_KEY);
-          if (entryPoint) {
-            GridManager.getApp(params.originUrl).app.launch(entryPoint);
-          } else {
-            GridManager.getApp(params.originUrl).app.launch();
-          }
-        } else {  // cloud app
-          var evmeApp = new EvmeApp({
-              bookmarkURL: params.originUrl,
-              name: params.title,
-              icon: params.icon
-          });
-
-          evmeApp.launch(params.url, params.urlTitle, params.useAsyncPanZoom);
-          currentURL = params.url;         
-        }
-    }
-
     function addGridItem(params) {
       var item = GridItemsFactory.create({
         "id": params.id || Evme.Utils.uuid(),
@@ -196,6 +174,28 @@ var EvmeManager = (function EvmeManager() {
         GridManager.setLandingPageOpacity(isVisible ? 0.4 : 0);
     }
 
+    function openInstalledApp(params) {       
+        var gridApp = GridManager.getApp(params.origin),
+            entryPoint = Evme.Utils.extractParam(params.id, EME_ENTRY_POINT_KEY);
+        
+        if (entryPoint) {
+          gridApp.app.launch(entryPoint);
+        } else {
+          gridApp.app.launch();
+        }
+    }
+
+    function openCloudApp(params) {
+      var evmeApp = new EvmeApp({
+          bookmarkURL: params.originUrl,
+          name: params.title,
+          icon: params.icon
+      });
+
+      evmeApp.launch(params.url, params.urlTitle, params.useAsyncPanZoom);
+      currentURL = params.url;         
+    }
+
     function openMarketplaceApp(data) {
       var activity = new MozActivity({
         name: "marketplace-app",
@@ -218,9 +218,19 @@ var EvmeManager = (function EvmeManager() {
       }
     }
 
-    return {
-      openApp: openApp,
+    function openContact(data) {
+      var activity = new MozActivity({
+          name: 'open',
+          data: {
+              type: 'webcontacts/contact',
+              params: {
+                  'id': data.id
+              }
+          }
+      });
+    }
 
+    return {
       addGridItem: addGridItem,
 
       isAppInstalled: function isAppInstalled(origin) {
@@ -233,8 +243,11 @@ var EvmeManager = (function EvmeManager() {
       getAppInfo: getAppInfo,
 
       openUrl: openUrl,
+      openCloudApp: openCloudApp,
+      openInstalledApp: openInstalledApp,
       openMarketplaceApp: openMarketplaceApp,
       openMarketplaceSearch: openMarketplaceSearch,
+      openContact: openContact,
 
       isEvmeVisible: isEvmeVisible,
 

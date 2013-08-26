@@ -1,6 +1,14 @@
 Evme.InstalledAppResult = function Evme_InstalledAppResult() {
   Evme.Result.call(this);
   this.type = Evme.RESULT_TYPE.INSTALLED;
+
+  // @override
+  this.launch = function launchInstalledApp(){
+    EvmeManager.openInstalledApp({
+        "id": this.cfg.id,
+        "origin": this.cfg.appUrl
+    });
+  };
 };
 Evme.InstalledAppResult.prototype = Object.create(Evme.Result.prototype);
 Evme.InstalledAppResult.prototype.constructor = Evme.InstalledAppResult;

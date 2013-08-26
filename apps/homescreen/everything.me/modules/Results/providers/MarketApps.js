@@ -34,6 +34,13 @@ Evme.MarketResult = function Evme_MarketResult(slug) {
 
     return canvas;
   };
+
+  // @override
+  this.launch = function launchMarketResult() {
+    if (slug) {
+      EvmeManager.openMarketplaceApp({"slug": slug});
+    }
+  };
 };
 
 Evme.MarketResult.prototype = Object.create(Evme.Result.prototype);
@@ -122,6 +129,6 @@ Evme.MarketAppsRenderer = function Evme_MarketAppsRenderer() {
         app.icon = DEFAULT_ICON;
         result.draw(app.icon);
       }
-    })
+    });
   }
 };
