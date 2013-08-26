@@ -1,33 +1,40 @@
+'use strict';
+
 Evme.ConnectionMessage = new function Evme_ConnectionMessage() {
-    var NAME = "ConnectionMessage",
-	self = this,
-	elParent = null,
+  var NAME = "ConnectionMessage",
+      self = this,
+      elScopes = [],
+      elMessages = [],
 
-	CLASS_NO_CONNECTION = "connection-error",
-	SELECTOR_CONNECTION_MESSAGE = '[role="notification"].connection-message div span';
+      CLASS_NO_CONNECTION = "connection-error",
+      SELECTOR_CONNECTION_MESSAGE = '[role="notification"].connection-message div span';
 
-    this.init = function init(options) {
-        !options && (options = {});
-	elParent = options.elParent;
-        Evme.EventHandler.trigger(NAME, "init");
-    };
+  this.init = function init(options) {
+    elScopes = Evme.Utils.getScopeElements();
+    elMessages = document.querySelectorAll(SELECTOR_CONNECTION_MESSAGE);
 
-    this.show = function show(l10nKey, l10nArgs) {
-	var elements = Evme.$(SELECTOR_CONNECTION_MESSAGE),
-	    msg = Evme.Utils.l10n(NAME, l10nKey, l10nArgs);;
+    Evme.EventHandler.trigger(NAME, "init");
+  };
 
-	for (var i = 0, el; el = elements[i++];) {
-	    el.innerHTML = msg;
-        }
+  this.show = function show(l10nKey, l10nArgs) {
+    var msg = Evme.Utils.l10n(NAME, l10nKey, l10nArgs);
+    
+    for (var i = 0, el; el = elMessages[i++];) {
+      el.innerHTML = msg;
+    }
 
-	elParent.classList.add(CLASS_NO_CONNECTION);
+    for (var i = 0, el; el = elScopes[i++];) {
+      el.classList.add(CLASS_NO_CONNECTION);
+    }
 
-	Evme.EventHandler.trigger(NAME, "show");
-    };
+    Evme.EventHandler.trigger(NAME, "show");
+  };
 
-    this.hide = function hide() {
-	elParent.classList.remove(CLASS_NO_CONNECTION);
+  this.hide = function hide() {
+    for (var i = 0, el; el = elScopes[i++];) {
+      el.classList.remove(CLASS_NO_CONNECTION);
+    }
 
-        Evme.EventHandler.trigger(NAME, "hide");
-    };
+    Evme.EventHandler.trigger(NAME, "hide");
+  };
 };

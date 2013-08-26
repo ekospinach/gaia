@@ -210,7 +210,7 @@ Evme.Utils = new function Evme_Utils() {
         return elContainer;
     };
 
-    this.getScopeElements = function getScopeClass() {
+    this.getScopeElements = function getScopeElements() {
         return document.querySelectorAll("." + SCOPE_CLASS);
     };
 

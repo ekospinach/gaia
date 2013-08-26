@@ -101,9 +101,7 @@ window.Evme = new function Evme_Core() {
       "featureStateByConnection": data.featureStateByConnection
     });
 
-    Evme.ConnectionMessage.init({
-      "elParent": Evme.Utils.getContainer()
-    });
+    Evme.ConnectionMessage.init();
 
     Evme.Location.init({
       "refreshInterval": data.locationInterval,
