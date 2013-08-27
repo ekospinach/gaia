@@ -360,18 +360,24 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         // Save (bookmark) a search as a collection on home screen
-        this.saveSearch = function saveSearch() {
+        this.saveSearch = function saveSearch(data) {
             var icons = Evme.SearchResults.getIcons(),
                 query = Evme.Searchbar.getValue();
             
             Evme.Collection.create({
                 "icons": icons,
-                "query": query
+                "query": query,
+                "callback": function onSave() {
+                    data.callback && data.callback();
+                    Evme.Banner.show('app-install-success', {
+                        'name': query
+                    });
+                }
             });
+        };
 
-            Evme.Banner.show('app-install-success', {
-                'name': query
-            });
+        this.unsaveSearch = function unsaveSearch(data) {
+            Evme.Collection.remove(data.collectionId, {"callback": data.callback});
         };
 
         // slide items in

@@ -15,6 +15,7 @@ Evme.Helper = new function Evme_Helper() {
         queryForSuggestions = "",
         lastVisibleItem,
         clicked = false,
+        title = '',
         titleVisible = false,
         bShouldAnimate = true,
         ftr = {};
@@ -25,7 +26,7 @@ Evme.Helper = new function Evme_Helper() {
         // features
         if (options.features){
             for (var i in options.features) {
-                ftr[i] = options.features[i]
+                ftr[i] = options.features[i];
             }
         }
 
@@ -314,7 +315,9 @@ Evme.Helper = new function Evme_Helper() {
         scroll.scrollTo(0,0);
     };
 
-    this.setTitle = function setTitle(title, type) {
+    this.setTitle = function setTitle(newTitle, type) {
+        title = newTitle;
+
         if (!title) {
             elTitle.innerHTML = '<b ' + Evme.Utils.l10nAttr(NAME, 'title-empty') + '></b>';
             return false;
@@ -348,16 +351,7 @@ Evme.Helper = new function Evme_Helper() {
             elTitle.classList.add("notype");
         }
         
-        elSaveSearch.dataset.saved = false;
-
-        // check if query already saved as collection
-        var collections = EvmeManager.getCollections();
-        for (var i=0, collection; collection = collections[i++]; ) {
-            if (collection.manifest.name.toLowerCase() === title.toLowerCase()){
-                elSaveSearch.dataset.saved = true;
-                break;
-            }
-        }
+        updateBookmarkState();
 
         return html;
     };
@@ -553,7 +547,7 @@ Evme.Helper = new function Evme_Helper() {
         var val = elClicked.dataset.suggestion,
             valToSend = (val || "").replace(/[\[\]]/g, "").toLowerCase(),
             index = elClicked.dataset.index,
-            source = elClicked.dataset.source, 
+            source = elClicked.dataset.source,
             type = elClicked.dataset.type;
             
         if (val) {
@@ -562,12 +556,35 @@ Evme.Helper = new function Evme_Helper() {
     }
 
     function saveSearchClicked(e) {
-        if (elSaveSearch.dataset.saved !== "true") {
-            Evme.EventHandler.trigger(NAME, "saveSearch");
-            elSaveSearch.dataset.saved = true;
+        var collectionId = elSaveSearch.dataset.collectionId,
+            data = {
+                "collectionId": collectionId,
+                "callback": updateBookmarkState
+            };
+        
+        if (collectionId) {
+            Evme.EventHandler.trigger(NAME, 'unsaveSearch', data);
+        } else {
+            Evme.EventHandler.trigger(NAME, 'saveSearch', data);
         }
     }
     
+    // check if query already saved as collection
+    function updateBookmarkState() {
+        var collections = EvmeManager.getCollections();
+
+        var found = collections.some(function isMatchingQuery(collection) {
+            if (collection.manifest.name.toLowerCase() === title.toLowerCase()) {
+                elSaveSearch.dataset.collectionId = collection.id;
+                return true;
+            }
+        });
+
+        if (!found) {
+            elSaveSearch.dataset.collectionId = '';
+        }
+    }
+   
     function titleClicked(e){
         e.preventDefault();
         e.stopPropagation();

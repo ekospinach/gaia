@@ -76,10 +76,25 @@
 
       if (query) {
         Evme.CollectionSettings.createByQuery(query, extra, function onCreate(collectionSettings) {
-          addCollectionToHomescreen(collectionSettings, gridPosition);
-          callback(collectionSettings);
+          addCollectionToHomescreen(collectionSettings, gridPosition, {
+            "callback": function onAddedToHomescreen() {
+              callback(collectionSettings);
+            }
+          });
         });
       }
+    };
+
+    this.remove = function removeCollection(id, params) {
+      params = params || {};
+      
+      EvmeManager.removeGridItem({
+        "id": id,
+        "onConfirm": function onConfirm() {
+          Evme.CollectionStorage.remove(id);
+          params.callback && params.callback();
+        }
+      });
     };
 
     this.show = function launch(e) {
@@ -468,20 +483,20 @@
    * Add a new collection to the homescreen.
    * If collection exists will update the icon.
    */
-  function addCollectionToHomescreen(settings, gridPosition) {
+  function addCollectionToHomescreen(settings, gridPosition, extra) {
     var homescreenIcons = (settings.icons.length) ?
         settings.icons : Evme.Utils.pluck(settings.apps, 'icon');
 
     Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas) {
       EvmeManager.addGridItem({
         'id': settings.id,
-        'originUrl': 'fldr://' + settings.id,
+        'originUrl': settings.id,
         'title': settings.name,
         'icon': canvas.toDataURL(),
         'isCollection': true,
         'isEmpty': !(homescreenIcons.length),
         'gridPosition': gridPosition
-      });
+      }, extra);
     });
   }
 
@@ -498,7 +513,7 @@
   Evme.CollectionStorage = new function Evme_CollectionStorage() {
     var NAME = 'CollectionStorage',
         IDS_STORAGE_KEY = 'evmeCollection',
-        PREFIX = 'fldrsttngs_',
+        PREFIX = 'collectionsettings_',
         self = this,
         ids = null,
         locked = false;  // locks the ids list
@@ -508,11 +523,11 @@
         ids = storedIds || [];
       });
 
-      window.addEventListener('collectionUninstalled', this.remove);
+      window.addEventListener('collectionUninstalled', onCollectionUninstalled);
     };
 
-    this.remove = function remove(e) {
-      removeId(e.detail.collection.id);
+    this.remove = function remove(collectionId) {
+      removeId(collectionId);
     };
 
     this.add = function add(settings, cb) {
@@ -559,6 +574,10 @@
         }
       }
     };
+
+    function onCollectionUninstalled(e) {
+      self.removeId(e.detail.collection.id);
+    }
 
     function addId(id) {
       if (ids && ids.indexOf(id) > -1) return;

@@ -224,6 +224,6 @@ body:not(.evme-keyboard-visible) .empty-query #helper-header {
 #save-search.visible {
     display: block;
 }
-#save-search[data-saved="true"] {
+#save-search[data-collection-id]:not([data-collection-id='']) {
     background-image: url('/everything.me/images/bookmarked.png');
 }
