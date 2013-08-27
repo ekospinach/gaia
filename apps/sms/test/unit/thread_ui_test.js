@@ -851,6 +851,7 @@ suite('thread_ui.js >', function() {
         ThreadUI.recipientsList.removeChild(node);
       });
 
+      /* Bug 909644
       test('Will assimilate recipients', function() {
         var visible, add;
 
@@ -873,6 +874,7 @@ suite('thread_ui.js >', function() {
           source: 'manual'
         });
       });
+     */
     });
 
     suite('Existing Conversation', function() {
@@ -1022,9 +1024,28 @@ suite('thread_ui.js >', function() {
     });
 
     suite('onDeliverySuccess >', function() {
-      test('adds the "delivered" class to the message element', function() {
+      teardown(function() {
+        this.fakeMessage.deliveryStatus = null;
+      });
+      test('sms delivery success', function() {
+        this.fakeMessage.deliveryStatus = 'success';
         ThreadUI.onDeliverySuccess(this.fakeMessage);
         assert.isTrue(this.container.classList.contains('delivered'));
+      });
+      test('mms delivery success', function() {
+        this.fakeMessage.deliveryStatus = ['success'];
+        ThreadUI.onDeliverySuccess(this.fakeMessage);
+        assert.isTrue(this.container.classList.contains('delivered'));
+      });
+      test('multiple recipients mms delivery success', function() {
+        this.fakeMessage.deliveryStatus = ['success', 'success'];
+        ThreadUI.onDeliverySuccess(this.fakeMessage);
+        assert.isTrue(this.container.classList.contains('delivered'));
+      });
+      test('not all recipients return mms delivery success', function() {
+        this.fakeMessage.deliveryStatus = ['success', 'pending'];
+        ThreadUI.onDeliverySuccess(this.fakeMessage);
+        assert.isFalse(this.container.classList.contains('delivered'));
       });
     });
   });
