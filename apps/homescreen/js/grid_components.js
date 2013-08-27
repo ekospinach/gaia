@@ -69,8 +69,6 @@ var Collection = function Collection(params) {
 Collection.prototype = {
   __proto__: GridItem.prototype,
 
-  regexCollection: /fldr:\/\//,
-
   launch: function sc_launch() {
     var features = this.getFeatures();
     // Enriching features...

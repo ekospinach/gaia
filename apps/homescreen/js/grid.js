@@ -1288,7 +1288,9 @@ var GridManager = (function() {
      * @param {Application} app
      *                      The application (or bookmark) object
      */
-    install: function gm_install(app, gridPosition) {
+    install: function gm_install(app, gridPosition, extra) {
+      extra = extra || {};
+
       processApp(app, null, null, gridPosition);
 
       if (app.type === GridItemsFactory.TYPE.COLLECTION) {
@@ -1303,6 +1305,10 @@ var GridManager = (function() {
             'app': app
           }
         }));
+      }
+
+      if (extra.callback) {
+        extra.callback();
       }
     },
 

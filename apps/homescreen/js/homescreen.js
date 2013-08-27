@@ -198,12 +198,21 @@ var Homescreen = (function() {
      *
      * @param {Application} app
      *                      The application object.
+     * @param {Object} extra
+     *                      Extra callbacks and data.
      */
-    showAppDialog: function h_showAppDialog(app) {
+    showAppDialog: function h_showAppDialog(app, extra) {
+      extra = extra || {};
+
       var title, body;
       var cancel = {
         title: _('cancel'),
-        callback: ConfirmDialog.hide
+        callback: function onCancel() {
+          if (extra.onCancel)
+            extra.onCancel()
+
+          ConfirmDialog.hide();
+        }
       };
 
       var confirm = {
@@ -215,6 +224,9 @@ var Homescreen = (function() {
           } else {
             navigator.mozApps.mgmt.uninstall(app);
           }
+
+          if (extra.onConfirm)
+            extra.onConfirm();
         },
         applyClass: 'danger'
       };

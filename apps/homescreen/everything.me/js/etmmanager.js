@@ -11,7 +11,7 @@ var EvmeManager = (function EvmeManager() {
     var currentWindow = null,
         currentURL = null;
 
-    function addGridItem(params) {
+    function addGridItem(params, extra) {
       var item = GridItemsFactory.create({
         "id": params.id || Evme.Utils.uuid(),
         "bookmarkURL": params.originUrl,
@@ -24,8 +24,17 @@ var EvmeManager = (function EvmeManager() {
         "isEmpty": !!params.isEmpty
       });
 
-      GridManager.install(item, params.gridPosition);
+      GridManager.install(item, params.gridPosition, extra);
       GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
+    }
+
+    function removeGridItem(params) {
+      var origin = params.id;
+      
+      var gridItem = GridManager.getApp(origin);
+      Homescreen.showAppDialog(gridItem.app, {
+        "onConfirm": params.onConfirm || Evme.Utils.NOOP
+      });
     }
 
     function openUrl(url) {
@@ -232,6 +241,7 @@ var EvmeManager = (function EvmeManager() {
 
     return {
       addGridItem: addGridItem,
+      removeGridItem: removeGridItem,
 
       isAppInstalled: function isAppInstalled(origin) {
           return GridManager.getApp(origin);
