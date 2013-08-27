@@ -921,7 +921,7 @@ Page.prototype = {
     var olist = this.olist,
         children = this.olist.children;
 
-    if (children[index] === icon.container) {
+    if (children[index] && children[index] === icon.container) {
       return;
     }
 
