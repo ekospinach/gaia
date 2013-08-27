@@ -17,7 +17,8 @@
     "geolocation": {},
     "alarms": {},
     "power":{},
-    "contacts":{ "access": "readonly" }
+    "contacts":{ "access": "readonly" },
+    "mobileconnection":{}
   },
   "locales": {
     "ar": {

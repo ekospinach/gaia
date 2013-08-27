@@ -730,6 +730,14 @@ Evme.Utils = new function Evme_Utils() {
       }
     };
 
+    this.aug = function aug(){
+        var main = arguments[0] || {};
+        for (var i=1, arg; arg=arguments[i++];){
+            for (var k in arg){ main[k] = arg[k] }
+        }
+        return main;
+    };
+
     function uniqueFilter(elem, pos, self) {
         // if first appearance of `elem` is `pos` then it is unique
         return self.indexOf(elem) === pos;
@@ -818,6 +826,11 @@ Evme.Utils = new function Evme_Utils() {
              return getCurrent();
         };
 
+        this.getCarrierName = function getCarrierName() {
+            var conn = getMobileConnection();
+            return conn && MobileOperator.userFacingInfo(conn).operator;
+        };
+
         function getCurrent(){
             return aug({}, consts, types[currentIndex]);
         }
@@ -828,6 +841,14 @@ Evme.Utils = new function Evme_Utils() {
                 for (var k in arguments[i]){ main[k] = arguments[i][k] }
             };
             return main;
+        }
+
+        function getMobileConnection() {
+          var navigator = window.navigator;
+          if (('mozMobileConnection' in navigator) &&
+              navigator.mozMobileConnection &&
+              navigator.mozMobileConnection.data)
+            return navigator.mozMobileConnection;
         }
 
         // init
