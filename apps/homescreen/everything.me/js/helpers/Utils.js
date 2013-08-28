@@ -828,8 +828,7 @@ Evme.Utils = new function Evme_Utils() {
 
         this.getCarrierName = function getCarrierName() {
             var conn = getMobileConnection();
-            return conn && conn.voice && conn.voice.network &&
-                   MobileOperator.userFacingInfo(conn).operator;
+            return conn && MobileOperator.userFacingInfo(conn).operator;
         };
 
         function getCurrent(){
@@ -846,9 +845,10 @@ Evme.Utils = new function Evme_Utils() {
 
         function getMobileConnection() {
           var navigator = window.navigator;
-          if (navigator.mozMobileConnection &&
+          if (('mozMobileConnection' in navigator) &&
+              navigator.mozMobileConnection &&
               navigator.mozMobileConnection.data)
-          return navigator.mozMobileConnection;
+            return navigator.mozMobileConnection;
         }
 
         // init
