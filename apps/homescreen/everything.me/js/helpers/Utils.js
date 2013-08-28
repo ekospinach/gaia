@@ -291,23 +291,25 @@ Evme.Utils = new function Evme_Utils() {
      *  
      * @return {Object}   {1: round1, 2: round2 ...}
      */
-    this.roundIconsMap = function roundIconsMap(iconsData, callback) {
-      var total = Object.keys(iconsData).length,
-          rounded = {},
+    this.roundIconsMap = function roundIconsMap(iconsMap, callback) {
+      var total = Object.keys(iconsMap).length,
+          roundedIconsMap = {},
           processed = 0;
 
-      for (var id in iconsData) {
-        var src = Evme.Utils.formatImageData(iconsData[i]);
+      for (var id in iconsMap) {
+        var src = Evme.Utils.formatImageData(iconsMap[id]);
 
-        Evme.Utils.getRoundIcon({
-          "src": src
-        }, function onRoundIcon(roundIcon) {
-          rounded[id] = roundIcon;
+        (function roundIcon(id, src){
+          Evme.Utils.getRoundIcon({
+            "src": src
+          }, function onRoundIcon(roundIcon) {
+            roundedIconsMap[id] = roundIcon;
 
-          if (++processed === total) {
-            callback(rounded);
-          }
-        });
+            if (++processed === total) {
+              callback(roundedIconsMap);
+            }
+          });
+        })(id, src);
       };
     };
 

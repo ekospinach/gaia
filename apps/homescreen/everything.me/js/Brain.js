@@ -1176,7 +1176,7 @@ Evme.Brain = new function Evme_Brain() {
 
                     Evme.Utils.roundIconsMap(shortcutIconsMap, function onRoundedIcons(iconsMap) {
                         var extraIconsData = shortcut.appIds.map(function wrapIcon(appId) {
-                            return {"id": appId, "icon": iconsMap[appId] };
+                            return {"id": appId, "icon": iconsMap[appId]};
                         });
 
                         Evme.Collection.update(collectionSettings, {
@@ -1207,10 +1207,10 @@ Evme.Brain = new function Evme_Brain() {
                     iconsMap = response.response.icons;
 
                 // first we need to round the icons
-                Evme.Utils.roundIconsMap(iconsMap, function onRoundedIcons(rIconsMap){
+                Evme.Utils.roundIconsMap(iconsMap, function onRoundedIcons(roundedIconsMap){
                     for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
                         var extraIconsData = shortcut.appIds.map(function wrapIcon(appId) {
-                            return {"id" appId, "icon": rIconsMap[appId] };
+                            return {"id": appId, "icon": roundedIconsMap[appId]};
                         });
 
                         Evme.Collection.create({

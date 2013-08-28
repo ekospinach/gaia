@@ -367,7 +367,7 @@
 
           var shortcutIconsMap = {};
           shortcut.appIds.forEach(function getIcon(appId) {
-              shortcutIconsMap[appId] = defaultShortcuts[appId];
+              shortcutIconsMap[appId] = defaultIcons[appId];
           });
 
           (function initCollection(shortcut, iconsMap, gridPosition) {

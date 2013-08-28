@@ -179,7 +179,7 @@ Evme.ResultManager = function Evme_ResultsManager() {
   this.getCloudResultsIconData = function getCloudApps(numToGet) {
     // TOOD
     var icons = this.getIcons();
-    return icons.map(function wrapIcon(icon){return {"id": -1 "icon": icon}});
+    return icons.map(function wrapIcon(icon){return {"id": -1, "icon": icon}});
   };
 
   this.getIcons = function getIcons(numToGet=Evme.Config.numberOfAppInCollectionIcon) {
