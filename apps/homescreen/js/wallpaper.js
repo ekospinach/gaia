@@ -2,7 +2,7 @@
 
 const Wallpaper = (function() {
 
-  function onHomescreenContextmenu() {
+  function pick() {
     var a = new MozActivity({
       name: 'pick',
       data: {
@@ -36,11 +36,6 @@ const Wallpaper = (function() {
   }
 
   return {
-    select: onHomescreenContextmenu,
-
-    init: function init() {
-      //var overlay = document.getElementById('icongrid');
-      //overlay.addEventListener('contextmenu', onHomescreenContextmenu);
-    }
+    select: pick
   };
 })();
