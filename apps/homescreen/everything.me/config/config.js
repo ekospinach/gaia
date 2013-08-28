@@ -3,10 +3,6 @@ Evme.Config = Evme.__config = {
     "apiHost": "api.everything.me",
     "apiKey": "65106dbdb655b25f2defa18ab7d1ecd8",
     "authCookieName": "prod-credentials",
-    "debugMode": false,
-    "unsupportedRedirectMode": false,
-    "buildNum": 145,
-    "timeoutBeforeSessionInit": 0,
     "marketplaceAppOrigin": "app://marketplace.firefox.com",
     "apps": {
         "appsPerRow": 4,
@@ -19,12 +15,7 @@ Evme.Config = Evme.__config = {
     "numberOfAppInCollectionIcon": 3,
 
     "numberOfAppsToLoad": 16,
-    "minHeightForMoreButton": 470,
-    "minimumLettersForSearch": 1,
-    "defaultBGImage": "",
     "bgImageSize": [320, 460],
-     // 24 hours
-    "taskerTriggerInterval": 24 * 60 * 60 * 1000,
     "searchbar": {
         "timeBeforeEventPause": 10000,
         "timeBeforeEventIdle": 10000

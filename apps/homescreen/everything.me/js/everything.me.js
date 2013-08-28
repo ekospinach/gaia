@@ -75,8 +75,7 @@ var EverythingME = {
           'modules/Searchbar/Searchbar.js',
           'modules/SearchHistory/SearchHistory.js',
           'modules/CollectionsSuggest/CollectionsSuggest.js',
-          'modules/Collection/Collection.js',
-          'modules/Tasker/Tasker.js'
+          'modules/Collection/Collection.js'
         ],
         css_files = [
           'css/common.css',

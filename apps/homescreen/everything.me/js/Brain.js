@@ -548,45 +548,6 @@ Evme.Brain = new function Evme_Brain() {
         };
     };
 
-    // modules/Tasker/
-    this.Tasker = new function Tasker() {
-        // TODO update shortcut icons task
-
-        var self = this;
-
-        this.TASK_UPDATE_INSTALLED_QUERY_INDEX = "installedQueryIndexUpdate";
-
-        // module init
-        this.init = function init() {
-            Evme.Tasker.add({
-                "id": self.TASK_UPDATE_INSTALLED_QUERY_INDEX
-            });
-        };
-
-        // when a new task is added to the queue
-        this.taskAdded = function taskAdded(data) {
-
-        };
-
-        // process the queue
-        this.trigger = function trigger(data) {
-            var tasks = data.tasks;
-
-            for (var id in tasks) {
-                if (self['callback_' + id]) {
-                    self['callback_' + id](tasks[id])
-                } else {
-                    Evme.Utils.log('Error: No handler for task [' + id + ']');
-                }
-            }
-        };
-
-        this['callback_' + this.TASK_UPDATE_INSTALLED_QUERY_INDEX] = function updateInstalledQueryIndex(taskData) {
-            Evme.InstalledAppsService.requestAppsInfo();
-        };
-    };
-
-
     // modules/Results/ResultManager
     this.ResultManager = new function ResultManager() {
         // get missing icons

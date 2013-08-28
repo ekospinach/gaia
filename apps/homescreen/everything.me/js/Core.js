@@ -1,8 +1,5 @@
 window.Evme = new function Evme_Core() {
     var NAME = "Core", self = this,
-        recalculateHeightRetries = 1,
-        TIMEOUT_BEFORE_INIT_SESSION = "FROM CONFIG",
-        OPACITY_CHANGE_DURATION = 300,
         head_ts = new Date().getTime();
 
     this.shouldSearchOnInputBlur = false;
@@ -10,14 +7,11 @@ window.Evme = new function Evme_Core() {
     this.init = function init(callback) {
         var data = Evme.__config,
             apiHost = Evme.Utils.getUrlParam("apiHost") || data.apiHost;
-        
-        apiHost && Evme.api.setHost(apiHost);
 
-        TIMEOUT_BEFORE_INIT_SESSION = data.timeoutBeforeSessionInit;
+        apiHost && Evme.api.setHost(apiHost);
 
         Evme.Brain.init({
             "numberOfAppsToLoad": data.numberOfAppsToLoad+(Evme.Utils.devicePixelRatio>1? data.apps.appsPerRow: 0),
-            "minimumLettersForSearch": data.minimumLettersForSearch,
             "searchSources": data.searchSources,
             "pageViewSources": data.pageViewSources,
             "displayInstalledApps": data.apps.displayInstalledApps
@@ -34,27 +28,15 @@ window.Evme = new function Evme_Core() {
         });
     };
 
-    // Gaia communication methods
-    this.setOpacityBackground = function setOpacityBackground(value) {
-        Evme.BackgroundImage.changeOpacity(value, OPACITY_CHANGE_DURATION);
-    };
-
-    this.pageMove = function pageMove(value) {
-        Evme.BackgroundImage.changeOpacity(Math.floor(value*100)/100);
-    };
-    
     this.onShow = function onShow() {
       document.body.classList.add('evme-displayed');
     };
+
     this.onHide = function onHide() {
       document.body.classList.remove('evme-displayed');
 
       Evme.Searchbar.blur();
       Evme.Collection.hide();
-    };
-
-    this.onSwipeFromPage = function onSwipeFromPage() {
-      
     };
 
     this.onHomeButtonPress = function onHomeButtonPress() {
@@ -83,7 +65,7 @@ window.Evme = new function Evme_Core() {
     this.onCollectionSuggest = function onCollectionSuggest() {
       Evme.Brain.CollectionsSuggest.showUI();
     };
-    
+
     this.onCollectionCustom = function onCollectionCustom() {
       Evme.CollectionSuggest.newCustom();
     };
@@ -129,8 +111,7 @@ window.Evme = new function Evme_Core() {
     });
 
     Evme.BackgroundImage.init({
-      "el": Evme.$("#search-overlay"),
-      "defaultImage": data.defaultBGImage
+      "el": Evme.$("#search-overlay")
     });
 
     Evme.SearchResults = new Evme.ResultManager();
@@ -233,10 +214,6 @@ window.Evme = new function Evme_Core() {
       "pageRenderStartTs": head_ts,
       "SEARCH_SOURCES": data.searchSources,
       "PAGEVIEW_SOURCES": data.pageViewSources
-    });
-
-    Evme.Tasker.init({
-      "triggerInterval": data.taskerTriggerInterval
     });
 
     Evme.EventHandler.trigger(NAME, "init", {
