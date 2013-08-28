@@ -64,7 +64,6 @@ var Homescreen = (function() {
         GridManager.goToPage(landingPage);
       }
       DragDropManager.init(options);
-      Wallpaper.init();
 
       // add tap-and-hold menu
       GridManager.container.addEventListener('contextmenu', onTapAndHold);
@@ -209,7 +208,7 @@ var Homescreen = (function() {
         title: _('cancel'),
         callback: function onCancel() {
           if (extra.onCancel)
-            extra.onCancel()
+            extra.onCancel();
 
           ConfirmDialog.hide();
         }
