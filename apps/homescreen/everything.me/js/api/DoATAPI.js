@@ -18,7 +18,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
         manualCredentials = null,
         manualCampaignStats = null,
         requestingSession = false,
-        permanentStats = null,
         
         requestsQueue = {},
         requestsToPerformOnOnline = [],
@@ -92,11 +91,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             manualCredentials = value;
         });
 
-        permanentStats = {
-            screenHeight: window.screen.height,
-            screenWidth: window.screen.width
-        };
-
         // make sure our client info cookie is always updated according to phone ettings
         if (navigator.mozSettings) {
             navigator.mozSettings.addObserver('language.current', function onLanguageChange(e) {
@@ -108,13 +102,6 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             navigator.mozSettings.addObserver('keyboard.current', function onKeyboardLayoutChange(e) {
                 self.setKeyboardLanguage(e.settingValue);
             });
-
-            var req = navigator.mozSettings.createLock().get('*');
-            req.onsuccess = function onsuccess() {
-                var res = req.result;
-                permanentStats.osVersion = res['deviceinfo.os'];
-                permanentStats.deviceType = res['deviceinfo.hardware'];
-            };
         }
 
         self.Session.init(options.callback);
@@ -723,10 +710,9 @@ Evme.DoATAPI = new function Evme_DoATAPI() {
             if (!noSession) {
                 params["sid"] = (self.Session.get() || {}).id || '';
             }
-
-            params.stats = Evme.Utils.aug(params.stats, permanentStats, {
-                carrierName: Evme.Utils.Connection.getCarrierName()
-            });
+            if (!params.stats) {
+                params.stats = {};
+            }
             /* ---------------- */
            
             var _request = new Evme.Request();
