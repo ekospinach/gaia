@@ -69,10 +69,9 @@
     this.create = function create(options) {
       var query = options.query,
         apps = options.apps,
-        icons = options.icons || [],
         gridPosition = options.gridPosition,
         callback = options.callback || Evme.Utils.NOOP,
-        extra = {'icons': icons};
+        extra = {'extraIconsData': options.extraIconsData};
 
       if (query) {
         Evme.CollectionSettings.createByQuery(query, extra, function onCreate(collectionSettings) {
@@ -95,6 +94,64 @@
           params.callback && params.callback();
         }
       });
+    };
+
+    /**
+     * replace collectionSettings[property] with data[property]
+     * for every property in data
+     */
+    this.update = function updateCollection(collectionSettings, data, callback=Evme.Utils.NOOP){
+      Evme.CollectionSettings.update(collectionSettings, data, function onUpdate(updatedSettings){
+        // TODO compare ids of collectionSettings.app with data.apps
+        // and collectionSettings.extraIconsData with data.extraIconsData
+        // to conclude homescreen icon should be updated
+        if ('apps' in data || 'extraIconsData' in data || 'name' in data) {
+          addCollectionToHomescreen(updatedSettings);
+        }
+
+        callback();
+      });
+    };
+
+    // cloud app is always added to the currently open collection
+    this.addCloudApp = function addCloudApp(cloudApp) {
+      Evme.CollectionSettings.update(currentSettings, {
+        "apps": currentSettings.apps.concat(cloudApp)
+      });
+    };
+
+    // add installed app to open collection via settings menu
+    // or to some other collection by dropping an app into it
+    this.addInstalledApp = function addInstalledApp(installedApp, collectionId) {
+      Evme.CollectionStorage.get(collectionId, function onGotSettings(collectionSettings) {
+        Evme.CollectionSettings.update(collectionSettings, {
+          "apps": collectionSettings.apps.concat(installedApp)
+        });
+      });
+    };
+
+    // remove app from the open collection via settings menu
+    this.removeApp = function removeApp(id) {
+      var apps = currentSettings.apps.filter(function keepIt(app) {
+        return app.id !== id;
+      });
+
+      if (apps.length < currentSettings.apps.length) {
+        Evme.CollectionSettings.update(currentSettings, {'apps': apps});
+      }
+    };
+
+    // apps added to the open collection via the settings menu
+    this.addApps = function addApps(newApps) {
+      if (newApps && newApps.length) {
+        Evme.CollectionSettings.update(currentSettings, {'apps': currentSettings.apps.concat(newApps)});
+      }
+    };
+
+    this.onQueryIndexUpdated = function onQueryIndexUpdated() {
+      // TODO
+      Evme.CollectionSettings.updateAll();
+      // move update homescreen here
     };
 
     this.show = function launch(e) {
@@ -123,8 +180,8 @@
       }
 
       // update homescreen icon with first three visible icons
-      var icons = resultsManager.getIcons();
-      self.updateIcons(currentSettings, icons);
+      var extraIconsData = resultsManager.getCloudResultsIconData();
+      self.update(currentSettings, {'extraIconsData': extraIconsData});
 
       currentSettings = null;
 
@@ -166,7 +223,7 @@
       elImageFullscreen = Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
       el.appendChild(elImageFullscreen);
 
-      Evme.CollectionStorage.update(currentSettings, {bg: newBg});
+      self.update(currentSettings, {"bg": newBg});
 
       resultsManager.changeFadeOnScroll(true);
     };
@@ -236,31 +293,6 @@
       return (currentSettings.bg && currentSettings.bg.setByUser);
     };
 
-    this.addApps = function addApps(newApps, collectionSettings) {
-      if (!Array.isArray(newApps)) {
-        newApps = [newApps];
-      }
-
-      var settings = collectionSettings || currentSettings;
-      if (newApps && newApps.length) {
-        var allApps = settings.apps.concat(newApps);
-        setStaticApps(allApps, settings);
-      }
-    };
-
-    this.removeResult = function removeResult(data) {
-      var id = data.id; // the id of the app to remove
-
-      var newApps = currentSettings.apps.filter(function filterApp(app) {
-        return app.id !== id;
-      });
-
-      if (newApps.length < currentSettings.apps.length) {
-        // remove the app
-        setStaticApps(newApps);
-      }
-    };
-
     this.toggleEditMode = function toggleEditMode(bool) {
       if (self.editMode === bool) {
         return false;
@@ -278,35 +310,10 @@
       return true;
     };
 
-    this.updateIcons = function updateIcons(collectionSettings, icons, merge) {
-      if (collectionSettings && icons && icons.length) {
-        if (merge) {
-          icons = mergeAppIcons(collectionSettings.apps, icons);
-        }
-
-        Evme.CollectionStorage.update(collectionSettings, {'icons': icons});
-        addCollectionToHomescreen(collectionSettings);
-      }
-    };
-
     function onVisibilityChange() {
       if (document.mozHidden) {
         self.toggleEditMode(false);
       }
-    }
-
-    function setStaticApps(apps, collectionSettings) {
-      var settings = collectionSettings || currentSettings,
-        uniqueApps = Evme.Utils.unique(apps, 'id'),
-        icons = mergeAppIcons(apps, settings.icons);
-
-      Evme.CollectionStorage.update(settings, {
-        'apps': uniqueApps,
-        'icons': icons
-      }, function onUpdate(updatedSettings) {
-        resultsManager.renderStaticApps(updatedSettings.apps);
-        addCollectionToHomescreen(updatedSettings);
-      });
     }
 
     function collectionActionClick(e) {
@@ -322,13 +329,12 @@
         case 'rename':
           var newTitle = prompt(Evme.Utils.l10n(NAME, 'prompt-rename'), title);
           if (newTitle && newTitle !== title) {
-            Evme.CollectionStorage.update(currentSettings, {
+            self.update(currentSettings, {
               'experienceId': null,
               'query': newTitle,
               'name': newTitle
             }, function onUpdate(updatedSettings) {
               self.setTitle(newTitle);
-              addCollectionToHomescreen(updatedSettings);
               Evme.EventHandler.trigger(NAME, 'rename', {
                 'id': currentSettings.id,
                 'newName': newTitle
@@ -354,42 +360,46 @@
 
         for (var i = 0; i < defaultShortcuts.length; i++) {
           var shortcut = defaultShortcuts[i],
-            gridPosition = {
-              'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
-              'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
-            };
+              gridPosition = {
+                'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
+                'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
+              };
 
-          var shortcutIcons = shortcut.appIds.map(function addIcon(appId) {
-            return defaultIcons[appId];
+          var shortcutIconsMap = {};
+          shortcut.appIds.forEach(function getIcon(appId) {
+              shortcutIconsMap[appId] = defaultShortcuts[appId];
           });
 
-          (function initCollection(experienceId, shortcutIcons, gridPosition) {
-            Evme.Utils.getRoundIcons({'sources': shortcutIcons }, function onRoundIcons(roundIcons) {
-              createPreinstalledCollection(experienceId, roundIcons, gridPosition);
+          (function initCollection(shortcut, iconsMap, gridPosition) {
+            Evme.Utils.roundIconsMap(iconsMap, function onRoundIcons(roundIcons) {
+              var extraIconsData = shortcut.appIds.map(function wrapIcon(appId){
+                return {"id": appId, "icon": roundIcons[appId]};
+              });
+              
+              createPreinstalledCollection(shortcut.experienceId, extraIconsData, gridPosition);
+
             });
-          })(shortcut.experienceId, shortcutIcons, gridPosition);
+          })(shortcut, shortcutIconsMap, gridPosition);
         }
 
         Evme.Storage.set(cacheKey, true);
       });
 
       // create the icon, create the collection, add it to homescreen
-      function createPreinstalledCollection(experienceId, icons, position) {
+      function createPreinstalledCollection(experienceId, extraIconsData, position) {
         var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
           query = Evme.Utils.l10n('shortcut', l10nkey);
 
         var apps = Evme.InstalledAppsService.getMatchingApps({
-          'query': query
+          "query": query
         });
 
-        icons = mergeAppIcons(apps, icons);
-
         var collectionSettings = new Evme.CollectionSettings({
-          id: Evme.Utils.uuid(),
-          experienceId: experienceId,
-          query: query,
-          icons: icons,
-          apps: apps
+          "id": Evme.Utils.uuid(),
+          "experienceId": experienceId,
+          "query": query,
+          "extraIconsData": extraIconsData,
+          "apps": apps
         });
 
         saveSettings(collectionSettings, function onSettingsSaved(collectionSettings) {
@@ -415,7 +425,11 @@
     this.experienceId = args.experienceId;
 
     this.apps = args.apps || [];
-    this.icons = args.icons || []; // [3,5,"app://browser.gaiamobile.org/style/icon60.png"]
+        
+    // TODO save only reference, get data from IconManager
+    // get static apps' icons from InstalledAppsService
+    this.extraIconsData = args.extraIconsData || [];  // list of {"id": 3, "icon": "base64icon"}
+    
   };
 
   /**
@@ -445,7 +459,23 @@
     saveSettings(settings, cb);
   };
 
+  /**
+   * wrapper for update calls
+   * code should not call CollectionStorage.update directly
+   */
+  Evme.CollectionSettings.update = function update(settings, data, cb) {
+    // remove duplicates
+    if ('apps' in data){
+      data.apps = Evme.Utils.unique(data.apps, 'id');
+    }
+
+    Evme.CollectionStorage.update(settings, data, cb);
+  };
+
   Evme.CollectionSettings.updateAll = function updateAll() {
+    // TODO
+    // see if this method required any changes
+    // get collection by EvmeManager.getCollections?
     var ids = Evme.CollectionStorage.getAllIds();
 
     for (var i = 0, id; id = ids[i++];) {
@@ -471,44 +501,41 @@
       return existingIds.indexOf(app.id) === -1;
     });
 
-    if (!newApps.length) return;
-
-    var apps = settings.apps.concat(newApps),
-        icons = mergeAppIcons(apps, settings.icons);
-
-    Evme.CollectionStorage.update(settings, {'apps': apps, 'icons': icons}, addCollectionToHomescreen);
+    if (newApps.length){
+      Evme.Collection.update(settings, {"apps": settings.apps.concat(newApps)});
+    }
   };
 
   /**
-   * Add a new collection to the homescreen.
-   * If collection exists will update the icon.
+   * Add a collection to the homescreen.
+   * If collection exists only update the icon.
    */
   function addCollectionToHomescreen(settings, gridPosition, extra) {
-    var homescreenIcons = (settings.icons.length) ?
-        settings.icons : Evme.Utils.pluck(settings.apps, 'icon');
+    var icons = Evme.Utils.pluck(settings.apps, 'icon');
 
-    Evme.IconGroup.get(homescreenIcons, function onIconCreated(canvas) {
+    if (icons.length < Evme.Config.numberOfAppInCollectionIcon) {
+      var extraIcons = Evme.Utils.pluck(settings.extraIconsData, 'icon');
+      icons = icons.concat(extraIcons).slice(0, Evme.Config.numberOfAppInCollectionIcon);
+    }
+
+    Evme.IconGroup.get(icons, function onIconCreated(canvas) {
       EvmeManager.addGridItem({
         'id': settings.id,
         'originUrl': settings.id,
         'title': settings.name,
         'icon': canvas.toDataURL(),
         'isCollection': true,
-        'isEmpty': !(homescreenIcons.length),
+        'isEmpty': !(icons.length),
         'gridPosition': gridPosition
       }, extra);
     });
   }
 
-  function mergeAppIcons(apps, icons) {
-    if (!apps || !apps.length) return icons;
-    return Evme.Utils.pluck(apps, 'icon').concat(icons).slice(0, Evme.Config.numberOfAppInCollectionIcon);
-  }
-
-
   /**
    * CollectionStorage
    * Persists settings to local storage
+   *
+   * TODO encapsulate - don't expose as Evme.CollectionStorage
    */
   Evme.CollectionStorage = new function Evme_CollectionStorage() {
     var NAME = 'CollectionStorage',

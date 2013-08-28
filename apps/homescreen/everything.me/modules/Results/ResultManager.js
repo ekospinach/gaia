@@ -175,14 +175,17 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return el;
   };
 
-  this.getIcons = function getIcons(numToGet) {
+  // used to update a collection icon when closing it
+  this.getCloudResultsIconData = function getCloudApps(numToGet) {
+    // TOOD
+    var icons = this.getIcons();
+    return icons.map(function wrapIcon(icon){return {"id": -1 "icon": icon}});
+  };
+
+  this.getIcons = function getIcons(numToGet=Evme.Config.numberOfAppInCollectionIcon) {
     var icons = [],
       items = Evme.$("li", el);
     
-    if (numToGet === undefined) {
-      numToGet = Evme.Config.numberOfAppInCollectionIcon;
-    }
-
     for (var i = 0, item; item = items[i++];) {
       if (item.dataset.iconSrc && Evme.$isVisible(item)) {
         icons.push(item.dataset.iconSrc);
