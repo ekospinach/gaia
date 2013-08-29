@@ -42,7 +42,6 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
       var result,
           el;
       
-      debugger;
       if (app.staticType === Evme.STATIC_APP_TYPE.CLOUD){
         result = new Evme.CloudAppResult(app.collectionQuery);
       } else {
