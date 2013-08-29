@@ -97,8 +97,8 @@
     };
 
     /**
-     * replace collectionSettings[property] with data[property]
-     * for every property in data
+     * Overwrite a collection's settings with new data
+     * and update the homescreen icon if needed.
      */
     this.update = function updateCollection(collectionSettings, data, callback=Evme.Utils.NOOP){
       Evme.CollectionSettings.update(collectionSettings, data, function onUpdate(updatedSettings){
@@ -109,13 +109,13 @@
           addCollectionToHomescreen(updatedSettings);
         }
 
-        callback();
+        callback(updatedSettings);
       });
     };
 
     // cloud app is always added to the currently open collection
     this.addCloudApp = function addCloudApp(cloudApp) {
-      Evme.CollectionSettings.update(currentSettings, {
+      self.update(currentSettings, {
         "apps": currentSettings.apps.concat(cloudApp)
       });
     };
@@ -124,7 +124,7 @@
     // or to some other collection by dropping an app into it
     this.addInstalledApp = function addInstalledApp(installedApp, collectionId) {
       Evme.CollectionStorage.get(collectionId, function onGotSettings(collectionSettings) {
-        Evme.CollectionSettings.update(collectionSettings, {
+        self.update(collectionSettings, {
           "apps": collectionSettings.apps.concat(installedApp)
         });
       });
@@ -137,14 +137,18 @@
       });
 
       if (apps.length < currentSettings.apps.length) {
-        Evme.CollectionSettings.update(currentSettings, {'apps': apps});
+        self.update(currentSettings, {'apps': apps});
       }
     };
 
     // apps added to the open collection via the settings menu
     this.addApps = function addApps(newApps) {
       if (newApps && newApps.length) {
-        Evme.CollectionSettings.update(currentSettings, {'apps': currentSettings.apps.concat(newApps)});
+        self.update(currentSettings, {
+          'apps': currentSettings.apps.concat(newApps)
+        }, function onUpdate(updatedSettings) {
+          resultsManager.renderStaticApps(updatedSettings.apps);
+        });
       }
     };
 
@@ -154,7 +158,7 @@
       // move update homescreen here
     };
 
-    this.show = function launch(e) {
+    this.show = function show(e) {
       var data = e.detail;
       Evme.CollectionStorage.get(data.id, function onGotFromStorage(collectionSettings) {
         currentSettings = collectionSettings;
