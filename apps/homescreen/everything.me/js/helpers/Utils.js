@@ -281,7 +281,7 @@ Evme.Utils = new function Evme_Utils() {
 
             callback(canvas.toDataURL());
         };
-        img.src = options.src;
+        img.src = self.formatImageData(options.src);
     };
 
     /**

@@ -109,14 +109,35 @@
           addCollectionToHomescreen(updatedSettings);
         }
 
+        // collection is open and apps changed
+        if (currentSettings && 'apps' in data) {
+          resultsManager.renderStaticApps(updatedSettings.apps);
+        }
+
         callback(updatedSettings);
       });
     };
 
     // cloud app is always added to the currently open collection
-    this.addCloudApp = function addCloudApp(cloudApp) {
-      self.update(currentSettings, {
-        "apps": currentSettings.apps.concat(cloudApp)
+    this.addCloudApp = function addCloudApp(cloudResult) {
+      var cloudAppData = cloudResult.cfg;
+
+      Evme.Utils.getRoundIcon({
+          "src": cloudAppData.icon,
+          "padding": true
+      }, function onIconReady(roundedAppIcon) {
+        // add some properties we will use when rendering a CloudAppResult
+        // see StaticApps.js@render
+        cloudAppData.staticType = Evme.STATIC_APP_TYPE.CLOUD;
+        cloudAppData.collectionQuery = currentSettings.query;
+
+        // save the rounded version as the icon
+        cloudAppData.icon = roundedAppIcon;
+
+        self.update(currentSettings, {
+          "apps": currentSettings.apps.concat(cloudAppData)
+        });
+          
       });
     };
 
@@ -146,8 +167,6 @@
       if (newApps && newApps.length) {
         self.update(currentSettings, {
           'apps': currentSettings.apps.concat(newApps)
-        }, function onUpdate(updatedSettings) {
-          resultsManager.renderStaticApps(updatedSettings.apps);
         });
       }
     };

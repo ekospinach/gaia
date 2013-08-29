@@ -723,15 +723,8 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         function pinToCollection(data) {
-            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
-            Evme.Utils.getRoundIcon({
-                "src": appIcon,
-                "padding": true
-            }, function onIconReady(roundedAppIcon) {
-                var _app = data.app.app;
-                _app.icon = roundedAppIcon;
-                Evme.Collection.addCloudApp(app);
-            });
+            var cloudResult = data.app;
+            Evme.Collection.addCloudApp(cloudResult);
         }
 
         function saveToHomescreen(data, showConfirm) {

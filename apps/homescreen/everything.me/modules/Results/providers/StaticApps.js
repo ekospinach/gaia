@@ -1,17 +1,6 @@
-Evme.StaticAppResult = function Evme_StaticAppResult() {
-  Evme.Result.call(this);
-  this.type = Evme.RESULT_TYPE.INSTALLED;
-
-  // @override
-  this.launch = function launchStaticdApp(){
-    EvmeManager.openInstalledApp({
-        "id": this.cfg.id,
-        "origin": this.cfg.appUrl
-    });
-  };
+Evme.STATIC_APP_TYPE = {
+  CLOUD: 'cloud'
 };
-Evme.StaticAppResult.prototype = Object.create(Evme.Result.prototype);
-Evme.StaticAppResult.prototype.constructor = Evme.StaticAppResult;
 
 Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
   var NAME = "StaticAppsRenderer",
@@ -50,8 +39,17 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
     for (var i = 0, app; app = apps[i++];) {
       app.isRemovable = true;
       
-      var result = new Evme.StaticAppResult(),
-          el = result.init(app);
+      var result,
+          el;
+      
+      debugger;
+      if (app.staticType === Evme.STATIC_APP_TYPE.CLOUD){
+        result = new Evme.CloudAppResult(app.collectionQuery);
+      } else {
+        result = new Evme.InstalledAppResult();
+      }
+      
+      el = result.init(app);
 
       result.draw(app.icon || DEFAULT_ICON);
       docFrag.appendChild(el);
