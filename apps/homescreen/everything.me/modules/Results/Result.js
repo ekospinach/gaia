@@ -82,6 +82,7 @@ Evme.Result = function Evme_Result() {
    * Used when closing a collection to update its homescreen icon
    */
   this.setIconSrc = function(src) {
+    el.dataset.iconId = this.cfg.id;
     el.dataset.iconSrc = src;
   };
 

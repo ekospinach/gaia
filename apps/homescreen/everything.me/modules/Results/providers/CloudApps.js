@@ -83,7 +83,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 
     var query = params.query,
         pageNum = params.pageNum,
-        missingIconsCb = params.missingIconsCb,
+        requestMissingIcons = params.requestMissingIcons,
         newSignature = Evme.Utils.getAppsSignature(apps);
 
     // if same apps as last - do nothing
@@ -98,7 +98,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
       self.clear();
     }
 
-    _render(apps, query, missingIconsCb);
+    _render(apps, query, requestMissingIcons);
   };
 
   this.clear = function clear() {
@@ -122,7 +122,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
     return containerEl.childElementCount;
   };
 
-  function _render(apps, query, missingIconsCb){
+  function _render(apps, query, requestMissingIcons){
     var docFrag = document.createDocumentFragment(),
       noIconAppIds = [];  // ids of apps received without an icon
 
@@ -155,10 +155,10 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 
     containerEl.appendChild(docFrag);
 
-    noIconAppIds.length && getCachedIconsAsync(noIconAppIds, missingIconsCb);
+    noIconAppIds.length && getCachedIconsAsync(noIconAppIds, requestMissingIcons);
   }
 
-  function getCachedIconsAsync(appIds, missingIconsCb) {
+  function getCachedIconsAsync(appIds, requestMissingIcons) {
     var idsMissing = [], // ids of apps which have no cached icon
       pendingRequests = appIds.length;
 
@@ -187,7 +187,7 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
 
         // all cache requests returned - request missing icons
         if (pendingRequests === 0) {
-          idsMissing.length && missingIconsCb(idsMissing);
+          idsMissing.length && requestMissingIcons(idsMissing);
         }
       });
     }

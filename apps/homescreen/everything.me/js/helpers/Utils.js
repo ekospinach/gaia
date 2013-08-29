@@ -281,23 +281,36 @@ Evme.Utils = new function Evme_Utils() {
 
             callback(canvas.toDataURL());
         };
-        img.src = options.src;
+        img.src = self.formatImageData(options.src);
     };
 
-    this.getRoundIcons = function getRoundIcons(options, callback) {
-        var sources = options.sources,
-            rounded = [];
+    /**
+     * Round all icons in an icon map object
+     * @param  {Object}   {1: src1, 2: src2 ...}
+     * @param  {Function} Function to call when done
+     *  
+     * @return {Object}   {1: round1, 2: round2 ...}
+     */
+    this.roundIconsMap = function roundIconsMap(iconsMap, callback) {
+      var total = Object.keys(iconsMap).length,
+          roundedIconsMap = {},
+          processed = 0;
 
-        for (var i = 0, src; src = sources[i++];) {
-            src = Evme.Utils.formatImageData(src);
-            Evme.Utils.getRoundIcon({"src": src}, function onRoundIcon(icon){
-                rounded.push(icon);
+      for (var id in iconsMap) {
+        var src = Evme.Utils.formatImageData(iconsMap[id]);
 
-                if (rounded.length === sources.length) {
-                    callback(rounded);
-                }
-            });
-        };
+        (function roundIcon(id, src){
+          Evme.Utils.getRoundIcon({
+            "src": src
+          }, function onRoundIcon(roundIcon) {
+            roundedIconsMap[id] = roundIcon;
+
+            if (++processed === total) {
+              callback(roundedIconsMap);
+            }
+          });
+        })(id, src);
+      };
     };
 
     this.writeTextToCanvas = function writeTextToCanvas(options) {

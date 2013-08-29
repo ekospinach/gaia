@@ -88,13 +88,10 @@ Evme.Brain = new function Evme_Brain() {
             var appId = options.app.id,
                 collectionId = options.collection.id;
 
-            Evme.CollectionStorage.get(collectionId, function onGotSettings(collectionSettings) {
-                // check app not already in collection
-                if (Evme.Utils.pluck(collectionSettings.apps, 'id').indexOf(appId) < 0) {
-                    var app = Evme.InstalledAppsService.getAppById(appId);
-                    Evme.Collection.addApps(app, collectionSettings);
-                }
-            });
+            var installedApp = Evme.InstalledAppsService.getAppById(appId);
+            if (installedApp) {
+                Evme.Collection.addInstalledApp(installedApp, collectionId);
+            }
         }
     }
 
@@ -361,12 +358,12 @@ Evme.Brain = new function Evme_Brain() {
 
         // Save (bookmark) a search as a collection on home screen
         this.saveSearch = function saveSearch(data) {
-            var icons = Evme.SearchResults.getIcons(),
+            var extraIconsData = Evme.SearchResults.getCloudResultsIconData(),
                 query = Evme.Searchbar.getValue();
             
             Evme.Collection.create({
-                "icons": icons,
                 "query": query,
+                "extraIconsData": extraIconsData,
                 "callback": function onSave() {
                     data.callback && data.callback();
                     Evme.Banner.show('app-install-success', {
@@ -625,7 +622,7 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.queryIndexUpdated = function queryIndexUpdated() {
-            Evme.CollectionSettings.updateAll();
+            Evme.Collection.onQueryIndexUpdated();
         };
     };
 
@@ -672,7 +669,10 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         this.remove = function remove(data) {
-            Evme.Collection.removeResult(data);
+            var id = data.id;
+            if (id) {
+                Evme.Collection.removeResult(data);
+            }
         };
 
         function openCloudAppMenu(data) {
@@ -684,15 +684,8 @@ Evme.Brain = new function Evme_Brain() {
         }
 
         function pinToCollection(data) {
-            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
-            Evme.Utils.getRoundIcon({
-                "src": appIcon,
-                "padding": true
-            }, function onIconReady(roundedAppIcon) {
-                var _app = data.app.app;
-                _app.icon = roundedAppIcon;
-                Evme.Collection.addApps([_app]);
-            });
+            var cloudResult = data.app;
+            Evme.Collection.addCloudApp(cloudResult);
         }
 
         function saveToHomescreen(data, showConfirm) {
@@ -1033,7 +1026,9 @@ Evme.Brain = new function Evme_Brain() {
             select.init({
                 callback: function onInit(selectedArr) {
                     select = null;
-                    Evme.Collection.addApps(selectedArr);
+                    if (selectedArr.length){
+                        Evme.Collection.addApps(selectedArr);
+                    }
                 }
             });
 
@@ -1127,14 +1122,21 @@ Evme.Brain = new function Evme_Brain() {
                     "_NOCACHE": true
                 }, function onShortcutsGet(response) {
                     var shortcut = response.response.shortcuts[0],
-                        icons = shortcut.appIds.map(function getIcon(appId) {
-                            return response.response.icons[appId];
+                        shortcutIconsMap = {};
+
+                    shortcut.appIds.forEach(function getIcon(appId) {
+                        shortcutIconsMap[appId] = response.response.icons[appId];
+                    });
+
+                    Evme.Utils.roundIconsMap(shortcutIconsMap, function onRoundedIcons(iconsMap) {
+                        var extraIconsData = shortcut.appIds.map(function wrapIcon(appId) {
+                            return {"id": appId, "icon": iconsMap[appId]};
                         });
-                    if (icons) {
-                        Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
-                            Evme.Collection.updateIcons(collectionSettings, roundIcons, true);
+
+                        Evme.Collection.update(collectionSettings, {
+                            "extraIconsData": extraIconsData
                         });
-                    }
+                    });
                 });
             }
         };
@@ -1156,27 +1158,22 @@ Evme.Brain = new function Evme_Brain() {
                 "_NOCACHE": true
             }, function onShortcutsGet(response) {
                 var shortcuts = response.response.shortcuts,
-                    icons = response.response.icons,
-                    query, appIds, experienceId, shortcutIcons;
+                    iconsMap = response.response.icons;
 
-                for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
-                    query = shortcut.query;
-                    experienceId = shortcut.experienceId;
-                    appIds = shortcut.appIds;
-                    
-                    shortcutIcons = appIds.map(function getIcon(appId) {
-                        return icons[appId];
-                    });
-
-                    (function createShortcut(icons, query) {
-                        Evme.Utils.getRoundIcons({"sources": icons}, function onRoundIcons(roundIcons) {
-                            Evme.Collection.create({
-                                "icons": roundIcons,
-                                "query": query
-                            });
+                // first we need to round the icons
+                Evme.Utils.roundIconsMap(iconsMap, function onRoundedIcons(roundedIconsMap){
+                    for (var i = 0, shortcut; shortcut = shortcuts[i++];) {
+                        var extraIconsData = shortcut.appIds.map(function wrapIcon(appId) {
+                            return {"id": appId, "icon": roundedIconsMap[appId]};
                         });
-                    })(shortcutIcons, query);
-                }
+
+                        Evme.Collection.create({
+                            "extraIconsData": extraIconsData,
+                            "query": shortcut.query
+                        });
+                    }
+                });
+
             });
         };
 

@@ -175,24 +175,21 @@ Evme.ResultManager = function Evme_ResultsManager() {
     return el;
   };
 
-  this.getIcons = function getIcons(numToGet) {
-    var icons = [],
-      items = Evme.$("li", el);
-    
-    if (numToGet === undefined) {
-      numToGet = Evme.Config.numberOfAppInCollectionIcon;
-    }
+  // used to update a collection icon when closing it
+  this.getCloudResultsIconData = function getCloudResultsIconData(numToGet=Evme.Config.numberOfAppInCollectionIcon) {
+    var iconData = [],
+        items = Evme.$(SELECTOR_CLOUD_RESULTS, el);
 
     for (var i = 0, item; item = items[i++];) {
       if (item.dataset.iconSrc && Evme.$isVisible(item)) {
-        icons.push(item.dataset.iconSrc);
+        iconData.push({"id": item.dataset.iconId, "icon": item.dataset.iconSrc});
       }
 
-      if (icons.length === numToGet) break;
+      if (iconData.length === numToGet) break;
     }
 
-    return icons;
-  }
+    return iconData;
+  };
 
   this.getAppTapAndHoldTime = function getAppTapAndHoldTime() {
     return TIMEOUT_BEFORE_REPORTING_APP_HOLD;
