@@ -164,7 +164,7 @@ BUILDDIR := file:///$(shell pwd -W)/build/
 # Mingw mangle path and append c:\mozilla-build\msys\data in front of paths
 MSYS_FIX=/
 else
-BUILDDIR := file:///$(CURDIR)/build/
+BUILDDIR := file://$(CURDIR)/build/
 endif
 
 ifndef GAIA_APP_CONFIG
@@ -306,7 +306,11 @@ exports.config = {
 	"GAIA_CONCAT_LOCALES" : "$(GAIA_CONCAT_LOCALES)",
 	"GAIA_ENGINE" : "xpcshell",
 	"GAIA_DISTRIBUTION_DIR" : "$(GAIA_DISTRIBUTION_DIR)",
-	"GAIA_APPDIRS" : "$(GAIA_APPDIRS)"
+	"GAIA_APPDIRS" : "$(GAIA_APPDIRS)",
+	"NOFTU" : "$(NOFTU)",
+	"REMOTE_DEBUGGER" : "$(REMOTE_DEBUGGER)",
+	"TARGET_BUILD_VARIANT" : "$(TARGET_BUILD_VARIANT)",
+	"SETTINGS_PATH" : "$(SETTINGS_PATH)"
 }
 
 endef
@@ -437,11 +441,7 @@ reference-workload-x-heavy:
 
 # The install-xulrunner target arranges to get xulrunner downloaded and sets up
 # some commands for invoking it. But it is platform dependent
-# IMPORTANT: you should generally change the directory name when you change the
-# URL unless you know what you're doing
 XULRUNNER_SDK_URL=http://ftp.mozilla.org/pub/mozilla.org/xulrunner/nightly/2013/08/2013-08-07-03-02-16-mozilla-central/xulrunner-26.0a1.en-US.
-XULRUNNER_DIRECTORY?=xulrunner-sdk-26
-XULRUNNER_URL_FILE=$(XULRUNNER_DIRECTORY)/.url
 
 ifeq ($(SYS),Darwin)
 # For mac we have the xulrunner-sdk so check for this directory
@@ -454,14 +454,14 @@ else
 # 64-bit
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_MAC_SDK_URL)x86_64.sdk.tar.bz2
 endif
-XULRUNNERSDK=./$(XULRUNNER_DIRECTORY)/bin/XUL.framework/Versions/Current/run-mozilla.sh
-XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/XUL.framework/Versions/Current/xpcshell
+XULRUNNERSDK=./xulrunner-sdk/bin/XUL.framework/Versions/Current/run-mozilla.sh
+XPCSHELLSDK=./xulrunner-sdk/bin/XUL.framework/Versions/Current/xpcshell
 
 else ifeq ($(findstring MINGW32,$(SYS)), MINGW32)
 # For windows we only have one binary
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_SDK_URL)win32.sdk.zip
 XULRUNNERSDK=
-XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/xpcshell
+XPCSHELLSDK=./xulrunner-sdk/bin/xpcshell
 
 else
 # Otherwise, assume linux
@@ -473,8 +473,8 @@ XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_LINUX_SDK_URL)x86_64.sdk.tar.bz2
 else
 XULRUNNER_SDK_DOWNLOAD=$(XULRUNNER_LINUX_SDK_URL)i686.sdk.tar.bz2
 endif
-XULRUNNERSDK=./$(XULRUNNER_DIRECTORY)/bin/run-mozilla.sh
-XPCSHELLSDK=./$(XULRUNNER_DIRECTORY)/bin/xpcshell
+XULRUNNERSDK=./xulrunner-sdk/bin/run-mozilla.sh
+XPCSHELLSDK=./xulrunner-sdk/bin/xpcshell
 endif
 
 .PHONY: build-config-js
@@ -483,33 +483,24 @@ build-config-js:
 
 .PHONY: install-xulrunner-sdk
 install-xulrunner-sdk: build-config-js
-	@echo "XULrunner directory: $(XULRUNNER_DIRECTORY)"
 ifndef USE_LOCAL_XULRUNNER_SDK
-ifneq ($(XULRUNNER_SDK_DOWNLOAD),$(shell cat $(XULRUNNER_URL_FILE) 2> /dev/null))
-# must download the xulrunner sdk
-	rm -rf $(XULRUNNER_DIRECTORY)
+ifneq ($(XULRUNNER_SDK_DOWNLOAD),$(shell cat .xulrunner-url 2> /dev/null))
+	rm -rf xulrunner-sdk
 	$(DOWNLOAD_CMD) $(XULRUNNER_SDK_DOWNLOAD)
 ifeq ($(findstring MINGW32,$(SYS)), MINGW32)
-	unzipdir="`mktemp -d`" ;\
-	unzip xulrunner*.zip -d "$$unzipdir" ;\
-	mv "$$unzipdir"/xulrunner-sdk $(XULRUNNER_DIRECTORY) ;\
-	rm xulrunner*.zip && rm -r "$$unzipdir"
+	unzip xulrunner*.zip && rm xulrunner*.zip
 else
-	mkdir $(XULRUNNER_DIRECTORY)
-	tar xjf xulrunner*.tar.bz2 --strip-components=1 -C $(XULRUNNER_DIRECTORY) && rm xulrunner*.tar.bz2 || \
-		( echo; \
-		echo "We failed extracting the XULRunner SDK archive which may be corrupted."; \
-		echo "You should run 'make really-clean' and try again." ; false )
-endif # MINGW32
-	@echo $(XULRUNNER_SDK_DOWNLOAD) > $(XULRUNNER_URL_FILE)
-endif # XULRUNNER_SDK_DOWNLOAD
+	tar xjf xulrunner*.tar.bz2 && rm xulrunner*.tar.bz2
+endif
+	@echo $(XULRUNNER_SDK_DOWNLOAD) > .xulrunner-url
+endif
 endif # USE_LOCAL_XULRUNNER_SDK
 
 define run-js-command
 	echo "run-js-command $1";
 	$(XULRUNNERSDK) $(XPCSHELLSDK) \
 		-e "const GAIA_BUILD_DIR='$(BUILDDIR)'" \
-		-f build/xpcshell-commonjs.js  -e "require('$(strip $1)').execute()"
+		-f build/xpcshell-commonjs.js -e "require('$(strip $1)').execute()"
 endef
 
 # Optional files that may be provided to extend the set of default
@@ -840,30 +831,9 @@ purge:
 	$(ADB) remount
 	$(ADB) shell rm -r $(MSYS_FIX)/system/b2g/webapps
 
-# Build the settings.json file from settings.py
-ifeq ($(NOFTU), 1)
-SETTINGS_ARG += --noftu
-endif
-
-ifeq ($(REMOTE_DEBUGGER), 1)
-SETTINGS_ARG += --enable-debugger
-endif
-
-ifeq ($(DEBUG),1)
-SETTINGS_ARG += --homescreen=http://homescreen.$(GAIA_DOMAIN)$(GAIA_PORT)/manifest.webapp
-endif
-
-# We want the console to be disabled for device builds using the user variant.
-ifneq ($(TARGET_BUILD_VARIANT),user)
-SETTINGS_ARG += --console
-endif
-
-$(PROFILE_FOLDER)/settings.json:
-ifneq ($(GAIA_DEV_PIXELS_PER_PX),1)
-	python build/settings.py $(SETTINGS_ARG) --profile-folder $(PROFILE_FOLDER) --locale $(GAIA_DEFAULT_LOCALE) --homescreen $(SCHEME)homescreen.$(GAIA_DOMAIN)$(GAIA_PORT)/manifest.webapp --ftu $(SCHEME)communications.$(GAIA_DOMAIN)$(GAIA_PORT)/manifest.webapp --wallpaper build/wallpaper@$(GAIA_DEV_PIXELS_PER_PX)x.jpg --override $(SETTINGS_PATH) --output $(PROFILE_FOLDER)/settings.json
-else
-	python build/settings.py $(SETTINGS_ARG) --profile-folder $(PROFILE_FOLDER) --locale $(GAIA_DEFAULT_LOCALE) --homescreen $(SCHEME)homescreen.$(GAIA_DOMAIN)$(GAIA_PORT)/manifest.webapp --ftu $(SCHEME)communications.$(GAIA_DOMAIN)$(GAIA_PORT)/manifest.webapp --wallpaper build/wallpaper.jpg --override $(SETTINGS_PATH) --output $(PROFILE_FOLDER)/settings.json
-endif
+$(PROFILE_FOLDER)/settings.json: install-xulrunner-sdk
+	@test -d $(PROFILE_FOLDER) || mkdir -p $(PROFILE_FOLDER)
+	@$(call run-js-command, settings)
 
 # push $(PROFILE_FOLDER)/settings.json and $(PROFILE_FOLDER)/contacts.json (if CONTACTS_PATH defined) to the phone
 install-default-data: $(PROFILE_FOLDER)/settings.json contacts
@@ -895,7 +865,7 @@ clean:
 
 # clean out build products
 really-clean: clean
-	rm -rf xulrunner-* .xulrunner-*
+	rm -rf xulrunner-sdk .xulrunner-url
 
 .PHONY: install-git-hook
 install-git-hook:

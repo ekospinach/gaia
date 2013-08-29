@@ -838,7 +838,10 @@ Page.prototype = {
       ensureCallbackID = window.setTimeout(function() {
         ensureCallbackID = null;
         self.container.removeEventListener('onpageready', onPageReady);
-        self.doDragLeave(callback, reflow);
+        self.doDragLeave(function onfinish() {
+          self.setReady(true);
+          callback();
+        }, reflow);
       }, this.FALLBACK_READY_EVENT_DELAY);
 
       return;

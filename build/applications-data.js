@@ -218,27 +218,6 @@ function execute() {
   utils.writeContent(init,
     utils.getDistributionFileContent('sms-blacklist', content));
 
-  // Browser
-  init = utils.getFile(config.GAIA_DIR, 'apps', 'browser', 'js', 'init.json');
-
-  // bind mcc, mnc pair as key from
-  // http://en.wikipedia.org/wiki/Mobile_country_code
-  // the match sequence is Carrier + Nation > Carrier default > system default
-  // key always with 6 digits, the default key is "000000"
-  // mcc:3 digits
-  // mnc:3 digits, fill with leading zeros, fill '000' in MNC to provide the
-  // carrier default bookmark
-
-  content = {
-    '000000': {
-      'bookmarks': [
-      ]
-    }
-  };
-
-  utils.writeContent(init,
-    utils.getDistributionFileContent('browser', content));
-
   // Active Sensors
   init = utils.getFile(config.GAIA_DIR,
     'apps', 'settings', 'resources', 'sensors.json');
@@ -254,6 +233,17 @@ function execute() {
 
   utils.writeContent(init,
     utils.getDistributionFileContent('support', content));
+
+  // Browser
+  init = utils.getFile(config.GAIA_DIR, 'apps', 'browser', 'js', 'init.json');
+
+  // bind mcc, mnc pair as key from
+  // http://en.wikipedia.org/wiki/Mobile_country_code
+  // the match sequence is Carrier + Nation > Carrier default > system default
+  // key always with 6 digits, the default key is "000000"
+  // mcc:3 digits
+  // mnc:3 digits, fill with leading zeros, fill '000' in MNC to provide the
+  // carrier default bookmark
 
   content = {
     '000000': {
@@ -427,7 +417,7 @@ function execute() {
                                             'communications_services.json')));
 
   // Bug 883344 Only use default facebook app id if is mozilla partner build
-  if (utils.OFFICIAL === '1') {
+  if (config.OFFICIAL === '1') {
     content.facebook.applicationId = '395559767228801';
     content.live.applicationId = '00000000440F8B08';
   }
