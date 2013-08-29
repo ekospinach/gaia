@@ -87,7 +87,7 @@ var Homescreen = (function() {
       ('Wallpaper' in window ?
       '<button id="buttonWallpaper">Change Wallpaper...</button>' : '') +
       ('EverythingME' in window ?
-      '<button id="buttonAddCollection">Add Collections</button>' +
+      '<button id="buttonAddCollections">Add Collections</button>' +
       '<button id="buttonCustomCollection">Custom Collection</button>' : '') +
       '<button id="btnCancel">Cancel</button>' +
     '</menu>' +
