@@ -461,11 +461,7 @@
    * @param  {Object}   extra
    * @param  {Function} cb
    */
-  Evme.CollectionSettings.createByQuery = function createByQuery(query, extra, cb) {
-    if (extra instanceof Function) {
-      (cb = extra) && (extra = {});
-    }
-
+  Evme.CollectionSettings.createByQuery = function createByQuery(query, extra={}, cb=Evme.Utils.NOOP) {
     var installedApps = Evme.InstalledAppsService.getMatchingApps({
       'query': query
     });
@@ -475,7 +471,7 @@
     var settings = new Evme.CollectionSettings({
       id: Evme.Utils.uuid(),
       query: query,
-      icons: installedIcons.concat(extra.icons || []),
+      extraIconsData: extra.extraIconsData,
       apps: installedApps
     });
 
