@@ -64,81 +64,12 @@ var Homescreen = (function() {
         GridManager.goToPage(landingPage);
       }
       DragDropManager.init(options);
-
-      // add tap-and-hold menu
-      GridManager.container.addEventListener('contextmenu', onTapAndHold);
+      Wallpaper.init();
 
       if (onInit instanceof Function) {
         onInit();
       }
     });
-  }
-
-  function onTapAndHold(e) {
-    e.preventDefault();
-
-    var elDialog = document.createElement('form');
-    elDialog.onsubmit = function() { return false; };
-    elDialog.setAttribute('role', 'dialog');
-    elDialog.setAttribute('data-type', 'action');
-    elDialog.style.zIndex = '10005'; // to be on top of dock
-    elDialog.innerHTML = '<menu>' +
-      ('Wallpaper' in window ?
-      '<button id="buttonWallpaper">Change Wallpaper...</button>' : '') +
-      ('EverythingME' in window ?
-      '<button id="buttonAddCollections">Add Collections</button>' +
-      '<button id="buttonCustomCollection">Custom Collection</button>' : '') +
-      '<button id="btnCancel">Cancel</button>' +
-    '</menu>' +
-  '</form>';
-
-    document.body.appendChild(elDialog);
-
-    attachEvents();
-
-    function attachEvents() {
-      attachEvent('buttonWallpaper', onClickWallpaper);
-      attachEvent('buttonAddCollections', onClickAdd);
-      attachEvent('buttonCustomCollection', onClickCustom);
-      attachEvent('btnCancel', onClickCancel);
-    }
-
-    function removeEvents() {
-      removeEvent('buttonWallpaper', onClickWallpaper);
-      removeEvent('buttonAddCollections', onClickAdd);
-      removeEvent('buttonCustomCollection', onClickCustom);
-      removeEvent('btnCancel', onClickCancel);
-    }
-
-    function attachEvent(id, listener) {
-      var el = elDialog.querySelector('#' + id);
-      el && el.addEventListener('click', listener);
-    }
-    function removeEvent(id, listener) {
-      var el = elDialog.querySelector('#' + id);
-      el && el.removeEventListener('click', listener);
-    }
-
-    function onClickWallpaper() {
-      Wallpaper.select();
-      window.setTimeout(hide, 50);
-    }
-    function onClickAdd() {
-      EverythingME.Collection.suggest();
-      hide();
-    }
-    function onClickCustom() {
-      EverythingME.Collection.custom();
-      hide();
-    }
-    function onClickCancel() {
-      hide();
-    }
-
-    function hide() {
-      removeEvents();
-      elDialog.parentNode.removeChild(elDialog);
-    }
   }
 
   function exitFromEditMode() {
