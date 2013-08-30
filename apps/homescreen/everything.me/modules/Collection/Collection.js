@@ -17,8 +17,6 @@
       elImage = null,
       elImageFullscreen = null,
       resultsManager = null,
-      elActions = null,
-      elOpenActions = null,
       isFullScreenVisible = false,
 
       title = '',
@@ -33,8 +31,6 @@
     this.editMode = false;
 
     this.init = function init(options) {
-      var actionsButtons;
-
       !options && (options = {});
 
       resultsManager = options.resultsManager;
@@ -46,18 +42,6 @@
       elTitle = Evme.$('.title', el)[0];
       elImage = Evme.$('.image', el)[0];
       elClose = Evme.$('.close', el)[0];
-
-      elActions = Evme.$('.collection-actions', el)[0];
-      actionsButtons = Evme.$('menu button', elActions);
-      for (var i = 0, button; button = actionsButtons[i++];) {
-          button.addEventListener('click', collectionActionClick);
-      }
-
-      elOpenActions = Evme.$('.open-actions', el)[0];
-      elOpenActions.addEventListener('click', function onClick() {
-          Evme.Collection.toggleEditMode(false);
-          elActions.classList.toggle('show');
-      });
 
       elClose.addEventListener('click', self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
@@ -337,37 +321,6 @@
       if (document.mozHidden) {
         self.toggleEditMode(false);
       }
-    }
-
-    function collectionActionClick(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      switch (this.dataset.action) {
-        case 'addApp':
-          Evme.EventHandler.trigger(NAME, 'actionAddApp', {
-            'staticApps': currentSettings.apps
-          });
-          break;
-
-        case 'rename':
-          var newTitle = prompt(Evme.Utils.l10n(NAME, 'prompt-rename'), title);
-          if (newTitle && newTitle !== title) {
-            self.update(currentSettings, {
-              'experienceId': null,
-              'query': newTitle,
-              'name': newTitle
-            }, function onUpdate(updatedSettings) {
-              self.setTitle(newTitle);
-              Evme.EventHandler.trigger(NAME, 'rename', {
-                'id': currentSettings.id,
-                'newName': newTitle
-              });
-            });
-          }
-          break;
-
-      }
-      elActions.classList.remove('show');
     }
 
     function initPreinstalled() {

@@ -653,20 +653,6 @@ Evme.Utils = new function Evme_Utils() {
         return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     };
 
-    /**
-     * Sorts an objects array by `property`
-     */
-    this.sortBy = function sortBy(property, array) {
-        array.sort(function compare(a, b) {
-            if (a[property] < b[property]) {
-              return -1;
-            } else if (a[property] === b[property]) {
-              return 0;
-            }
-            return 1;
-        });
-      };
-
     // retrieves the value of a specified property from all elements in the `collection`.
     this.pluck = function pluck(collection, property) {
         if (Array.isArray(collection)) {

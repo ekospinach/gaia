@@ -998,35 +998,6 @@ Evme.Brain = new function Evme_Brain() {
                 requestCollectionApps = null;
             });
         };
-
-        this.actionAddApp = function actionAddApp(data) {
-            // create <select multiple>
-            var select = new Evme.SelectBox();
-            select.init({
-                callback: function onInit(selectedArr) {
-                    select = null;
-                    if (selectedArr.length){
-                        Evme.Collection.addApps(selectedArr);
-                    }
-                }
-            });
-
-            // generate options
-            var staticAppIds = Evme.Utils.pluck(data.staticApps, 'id'),
-                appIndex = Evme.InstalledAppsService.getApps(),
-                installedApps = Evme.Utils.valuesOf(appIndex),
-                appArray = installedApps.filter(function notAdded(app) {
-                    return staticAppIds.indexOf(app.id) === -1;
-                }).map(function toSelectBoxFormat(app) {
-                        return {
-                            "text": app.name,
-                            "return": app
-                        }
-                });
-
-            Evme.Utils.sortBy("text", appArray);
-            select.load(appArray);
-        };
     };
 
     // modules/CollectionsSuggest/
