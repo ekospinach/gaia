@@ -106,8 +106,7 @@ window.Evme = new function Evme_Core() {
     Evme.Helper.init({
       "el": Evme.$("#helper"),
       "elTitle": Evme.$("#search-title"),
-      "elTip": Evme.$("#helper-tip"),
-      "elSaveSearch": Evme.$("#save-search")
+      "elTip": Evme.$("#helper-tip")
     });
 
     Evme.BackgroundImage.init({
