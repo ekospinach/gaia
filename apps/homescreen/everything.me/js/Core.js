@@ -67,7 +67,7 @@ window.Evme = new function Evme_Core() {
     };
 
     this.onCollectionCustom = function onCollectionCustom() {
-      Evme.CollectionSuggest.newCustom();
+      Evme.CollectionsSuggest.newCustom();
     };
 
     this.searchFromOutside = function searchFromOutside(query) {
