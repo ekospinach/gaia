@@ -135,9 +135,7 @@ window.Evme = new function Evme_Core() {
           type: Evme.PROVIDER_TYPES.INSTALLED,
           config: {
             "renderer": Evme.InstalledAppsRenderer,
-            "containerEl": Evme.$(".installed", appsEl)[0],
-            "containerSelector": ".installed",
-            "filterResults": true
+            "containerEl": Evme.$(".installed", appsEl)[0]
           }
         }, {
           type: Evme.PROVIDER_TYPES.CLOUD,
@@ -170,9 +168,7 @@ window.Evme = new function Evme_Core() {
           type: Evme.PROVIDER_TYPES.STATIC,
           config: {
             "renderer": Evme.StaticAppsRenderer,
-            "containerEl": Evme.$(".static", collectionEl)[0],
-            "containerSelector": ".static",
-            "filterResults": true
+            "containerEl": Evme.$(".static", collectionEl)[0]
           }
         }, {
           type: Evme.PROVIDER_TYPES.CLOUD,

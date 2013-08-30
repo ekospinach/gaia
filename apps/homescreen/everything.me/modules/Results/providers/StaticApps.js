@@ -6,14 +6,10 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
   var NAME = "StaticAppsRenderer",
     DEFAULT_ICON = Evme.Utils.getDefaultAppIcon(),
     self = this,
-    containerEl,
-    containerSelector,
-    filterResults;
+    containerEl;
 
   this.init = function init(cfg) {
     containerEl = cfg.containerEl;
-    containerSelector = cfg.containerSelector;
-    filterResults = cfg.filterResults;
   };
 
   this.render = function render(apps) {
@@ -23,9 +19,6 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
 
   this.clear = function clear() {
     containerEl.innerHTML = '';
-    filterResults && Evme.Utils.filterProviderResults({
-      "id": 'static'
-    });
   };
 
   this.getResultCount = function getResultCount() {
@@ -33,8 +26,7 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
   };
 
   function renderDocFrag(apps) {
-    var docFrag = document.createDocumentFragment(),
-        appUrls = [];
+    var docFrag = document.createDocumentFragment();
 
     for (var i = 0, app; app = apps[i++];) {
       app.isRemovable = true;
@@ -52,19 +44,8 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
 
       result.draw(app.icon || DEFAULT_ICON);
       docFrag.appendChild(el);
-
-      if (filterResults && 'appUrl' in app) {
-        appUrls.push(app.appUrl);
-      }
     }
         
     containerEl.appendChild(docFrag);
-
-    filterResults && Evme.Utils.filterProviderResults({
-      "id": 'static',
-      "attribute": 'data-url',
-      "containerSelector": containerSelector,
-      "items": appUrls
-    });
   }
 }

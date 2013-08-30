@@ -145,9 +145,6 @@ Evme.CloudAppsRenderer = function Evme_CloudAppsRenderer() {
         noIconAppIds.push(app.id);
       }
 
-      // used for result filtering
-      result.getElement().dataset.url = app.appUrl;
-
       lastRenderedResults[app.id] = result;
 
       docFrag.appendChild(el);

@@ -91,57 +91,6 @@ Evme.Utils = new function Evme_Utils() {
     this.warn = this.logger("warn");
     this.error = this.logger("error");
 
-    /**
-     * Creates a <style> element which basically does result deduping
-     * by applying a css rule {display:none} to certain results
-     * This is to avoid complex JS deduping
-     * @param  {JSON object} cfg
-     *
-     * @example
-     * Cloud results should be hidden if already bookmarked
-     * Installed results call filterProviderResults with the following cfg:
-     * {
-     *  id: 'installed',
-     *  containerSelector: '.installed',
-     *  attribute: 'data-url',
-     *  items: [url1, url2]
-     * }
-     * filterProviderResults creates the following element in <head>
-     * <style>ul:not(.installed) li[data-url="url1"], ul:not(.installed) li[data-url="url2"] {
-     *  display: none
-     * }
-     * </style>
-     *
-     * More uses can be found in InstalledAppService for marketplace result deduping
-     */
-    this.filterProviderResults = function filterProviderResults(cfg) {
-        var styleEl = document.querySelector('style[id="'+cfg.id+'"]'),
-            html = '';
-
-        if (!styleEl) {
-            styleEl = Evme.$create('style', { "id": cfg.id });
-            headEl.appendChild(styleEl);
-        }
-
-        if (cfg.items && cfg.items.length) {
-            var selectors = [];
-            for (var i=0,item; item=cfg.items[i++];) {
-                selectors.push(
-                    self.renderTemplate(filterSelectorTemplate, cfg.containerSelector, cfg.attribute, item)
-                );
-            }
-            html = selectors.join(',')+'{display:none}';
-        }
-        styleEl.innerHTML = html;
-    };
-
-    this.renderTemplate = function renderTemplate(template) {
-        for (var i=0,arg; arg=arguments[++i];) {
-            template = template.replace('{'+(i-1)+'}', arg);
-        }
-        return template;
-    };
-
     this.l10n = function l10n(module, key, args) {
         return navigator.mozL10n.get(Evme.Utils.l10nKey(module, key), args);
     };
