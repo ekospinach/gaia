@@ -51,18 +51,11 @@ Evme.MarketSearchRenderer = function Evme_MarketSearchRenderer() {
       app = {
         id: 'marketsearch',
         icon: Evme.DEFAULT_ICONS.MARKETPLACE,
-        appUrl: 'store://?search',
-        name: 'Makertplace', // overwriten in this.update()
-        isOfflineReady: true // overwriten in this.update()
+        appUrl: 'store://?search'
       };
 
   this.init = function init(cfg) {
     containerEl = cfg.containerEl;
-    
-    EvmeManager.getAppByOrigin(Evme.Config.marketplaceAppOrigin, function(appInfo) {
-      app.name = appInfo.name;
-      app.isOfflineReady = appInfo.isOfflineReady;
-    });
   };
 
   this.render = function render(data) {

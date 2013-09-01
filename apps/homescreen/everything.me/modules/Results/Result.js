@@ -31,10 +31,6 @@ Evme.Result = function Evme_Result() {
       'data-name': cfg.name
     }, '<img />');
 
-    if ('isOfflineReady' in cfg) {
-      el.dataset.offlineReady = cfg.isOfflineReady;
-    }
-
     this.elIcon = el.querySelector('img');
 
     // remove button

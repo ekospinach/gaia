@@ -117,8 +117,7 @@ var EvmeManager = (function EvmeManager() {
             "id": id,
             "name": descriptor.name,
             "appUrl": nativeApp.origin,
-            "icon": Icon.prototype.DEFAULT_ICON_URL,
-            "isOfflineReady": icon && 'isOfflineReady' in icon && icon.isOfflineReady()
+            "icon": Icon.prototype.DEFAULT_ICON_URL
         };
 
         if (!icon) {
