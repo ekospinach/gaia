@@ -109,10 +109,10 @@ Evme.InstalledAppsService = new function Evme_InstalledAppsService() {
   }
 
   this.requestAppsInfo = function requestAppsInfo() {
-    var gridApps = EvmeManager.getGridApps(),
-	guids = gridApps.map(function getId(gridApp){
-	  return gridApp.manifestURL || gridApp.bookmarkURL;
-	});
+    var gridApps = EvmeManager.getGridApps();
+    var guids = gridApps.map(function getId(gridApp){
+          return gridApp.app.manifestURL || gridApp.app.bookmarkURL;
+        });
 
     Evme.EventHandler.trigger(NAME, "requestAppsInfo", guids);
   };
