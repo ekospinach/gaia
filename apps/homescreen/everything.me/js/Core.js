@@ -120,12 +120,6 @@ window.Evme = new function Evme_Core() {
       "appsPerRow": data.apps.appsPerRow,
       "providers": [
         {
-          type: Evme.PROVIDER_TYPES.CONTACTS,
-          config: {
-            "renderer": Evme.ContactResultsRenderer,
-            "containerEl": Evme.$(".contacts", appsEl)[0]
-          }
-        }, {
           type: Evme.PROVIDER_TYPES.STATIC,
           config: {
             "renderer": Evme.StaticAppsRenderer,

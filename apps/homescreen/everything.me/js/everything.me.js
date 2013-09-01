@@ -70,7 +70,6 @@ var EverythingME = {
           'modules/Location/Location.js',
           'modules/Results/Result.js',
           'modules/Results/providers/CloudApps.js',
-          'modules/Results/providers/ContactSearch.js',
           'modules/Results/providers/InstalledApps.js',
           'modules/Results/providers/MarketApps.js',
           'modules/Results/providers/MarketSearch.js',
