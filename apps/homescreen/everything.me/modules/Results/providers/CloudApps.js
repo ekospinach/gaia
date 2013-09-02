@@ -5,7 +5,7 @@ Evme.CloudAppResult = function Evme_CloudAppsResult(query) {
 
   var SHADOW_OFFSET = 2 * Evme.Utils.devicePixelRatio,
       SHADOW_BLUR = 2 * Evme.Utils.devicePixelRatio,
-      SIZE = 52 * Evme.Utils.devicePixelRatio,
+      SIZE = 58 * Evme.Utils.devicePixelRatio,
       FULL_SIZE = SIZE + SHADOW_OFFSET + SHADOW_BLUR,
 
       self = this,
