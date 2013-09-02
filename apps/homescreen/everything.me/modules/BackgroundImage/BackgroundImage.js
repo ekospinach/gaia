@@ -2,7 +2,7 @@
 
 Evme.BackgroundImage = new function Evme_BackgroundImage() {
     var NAME = "BackgroundImage", self = this,
-        el = null, elFullScreen = null, elementsToFade = null, elStyle = null,
+        el = null, elFullScreen = null, elFullScreenParent = null, elementsToFade = null, elStyle = null,
         currentImage = null, elCurrentImage = null, active = false, changeOpacityTransitionCallback = null,
         defaultImage = "",
         TIMEOUT_BEFORE_REMOVING_OLD_IMAGE = 1500;
@@ -12,6 +12,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
 
         defaultImage = options.defaultImage || "";
         el = options.el;
+        elFullScreenParent = options.elFullScreenParent;
         elStyle = el.style;
 
 	elementsToFade = document.querySelectorAll('*[data-opacity-on-swipe=true]');
@@ -41,7 +42,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
                 elCurrentImage.style.backgroundImage = 'url(' + currentImage.image + ')';
                 el.appendChild(elCurrentImage);
 
-		cbUpdated(currentImage);
+                cbUpdated(currentImage);
 
                 window.setTimeout(function onTimeout(){
                     elCurrentImage.classList.add("visible");
@@ -109,7 +110,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
 
         elFullScreen = self.getFullscreenElement(currentImage, self.closeFullScreen);
 
-        el.parentNode.appendChild(elFullScreen);
+        elFullScreenParent.appendChild(elFullScreen);
 
         window.setTimeout(function onTimeout(){
             elFullScreen.classList.add("ontop");
@@ -127,6 +128,8 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
         var el = Evme.$create('div', {'id': "bgimage-overlay"},
                         '<div class="img" style="background-image: url(' + data.image + ')"></div>' +
                         '<div class="content">' +
+                            '<b class="rightbutton"></b>' +
+                            '<span class="separator"></span>' +
                             ((data.query)? '<h2>' + data.query + '</h2>' : '') +
                             ((data.source)? '<div class="source"><b ' + Evme.Utils.l10nAttr(NAME, 'source-label') + '></b> <span>' + data.source + '</span></div>' : '') +
                             '<b class="close"></b>' +
@@ -139,6 +142,15 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
                 e.preventDefault();
                 e.stopPropagation();
                 onClose && onClose();
+            });
+        });
+
+        Evme.$('.rightbutton', el)[0].addEventListener('touchstart', function onTouchStart(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            Evme.EventHandler.trigger(NAME, 'setWallpaper', {
+                "image": data.image
             });
         });
 
@@ -227,7 +239,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
     }
 
     function cbRemoved() {
-	Evme.EventHandler.trigger(NAME, "removed");
+        Evme.EventHandler.trigger(NAME, "removed");
     }
 
     function cbLoaded() {
@@ -243,4 +255,4 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
     function cbHideFullScreen() {
         Evme.EventHandler.trigger(NAME, "hideFullScreen");
     }
-}
+};
