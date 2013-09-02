@@ -7,6 +7,9 @@
   Evme.Collection = new function Evme_Collection() {
     var self = this,
       NAME = 'Collection',
+      INIT_COLLECTIONS_KEY = 'createdInitialCollections',
+      LOCAL_SHORTCUTS_KEY = 'localShortcuts',
+      LOCAL_SHORTCUTS_ICONS_KEY = 'localShortcutsIcons',
 
       currentSettings = null,
 
@@ -46,7 +49,18 @@
       elClose.addEventListener('click', self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
 
-      initPreinstalled();
+      // init pre-installed collections
+      Evme.Storage.get(INIT_COLLECTIONS_KEY, function onCacheValue(didInitCollections) {
+        if (!didInitCollections) {
+          Evme.Storage.get(LOCAL_SHORTCUTS_KEY, function onLocalShortcuts(localShortcuts) {
+            Evme.Storage.get(LOCAL_SHORTCUTS_ICONS_KEY, function onLocalShortcutsIcon(localIcons) {
+              initPreinstalled(localShortcuts, localIcons);
+              Evme.Storage.set(INIT_COLLECTIONS_KEY, true);
+            });
+          });
+        }
+      });
+
       Evme.EventHandler.trigger(NAME, 'init');
     };
 
@@ -323,66 +337,86 @@
       }
     }
 
-    function initPreinstalled() {
-      var cacheKey = 'createdInitialShortcuts';
+    function initPreinstalled(localShortcuts, localIcons) {
 
-      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-        if (didInitShortcuts) {
-          return;
-        }
+      localShortcuts = localShortcuts || [];
+      localIcons = localIcons || [];
 
-        var defaultShortcuts = Evme.__config['_localShortcuts'],
+      var defaultCollections = Evme.__config['_localShortcuts'],
           defaultIcons = Evme.__config['_localShortcutsIcons'];
 
-        for (var i = 0; i < defaultShortcuts.length; i++) {
-          var shortcut = defaultShortcuts[i],
-              gridPosition = {
-                'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
-                'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
-              };
+      var collections = [];
 
-          var shortcutIconsMap = {};
-          shortcut.appIds.forEach(function getIcon(appId) {
-              shortcutIconsMap[appId] = defaultIcons[appId];
-          });
-
-          (function initCollection(shortcut, iconsMap, gridPosition) {
-            Evme.Utils.roundIconsMap(iconsMap, function onRoundIcons(roundIcons) {
-              var extraIconsData = shortcut.appIds.map(function wrapIcon(appId){
-                return {"id": appId, "icon": roundIcons[appId]};
-              });
-              
-              createPreinstalledCollection(shortcut.experienceId, extraIconsData, gridPosition);
-
-            });
-          })(shortcut, shortcutIconsMap, gridPosition);
-        }
-
-        Evme.Storage.set(cacheKey, true);
+      // set translated queries for default collections
+      defaultCollections.forEach(function setQuery(defaultShortcut) {
+        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(defaultShortcut.experienceId);
+        defaultShortcut.query = Evme.Utils.l10n('shortcut', l10nkey);
       });
 
-      // create the icon, create the collection, add it to homescreen
-      function createPreinstalledCollection(experienceId, extraIconsData, position) {
-        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-          query = Evme.Utils.l10n('shortcut', l10nkey);
+      // local shortcuts might not appear in the 'shortcutIdsToL10nKeys' map
+      // so can not be translated. use 'query' field as is
+      collections = defaultCollections.concat(localShortcuts);
 
-        var apps = Evme.InstalledAppsService.getMatchingApps({
-          "query": query
+      // no duplicates
+      collections = Evme.Utils.unique(collections, 'experienceId');
+
+      for (var i = 0; i < collections.length; i++) {
+        // TODO skip if collection with same query exists on homescreen
+
+        var shortcut = collections[i],
+          gridPosition = {
+            'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
+            'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
+          };
+
+        var shortcutIconsMap = {},
+          appsWithIcon = [];
+
+        shortcut.appIds.forEach(function getIcon(appId) {
+          if (localIcons[appId]) {
+            shortcutIconsMap[appId] = localIcons[appId];
+            appsWithIcon.push(appId);
+          } else if (defaultIcons[appId]) {
+            shortcutIconsMap[appId] = defaultIcons[appId];
+            appsWithIcon.push(appId);
+          }
         });
 
-        var collectionSettings = new Evme.CollectionSettings({
-          "id": Evme.Utils.uuid(),
-          "experienceId": experienceId,
-          "query": query,
-          "extraIconsData": extraIconsData,
-          "apps": apps
-        });
+        // make sure shortcut.appIds contains only apps we found icon for
+        shortcut.appIds = appsWithIcon;
 
-        saveSettings(collectionSettings, function onSettingsSaved(collectionSettings) {
-          addCollectionToHomescreen(collectionSettings, position);
-          populateCollection(collectionSettings);
-        });
-      };
+        (function initCollection(shortcut, iconsMap, gridPosition) {
+          Evme.Utils.roundIconsMap(iconsMap, function onRoundIcons(roundIcons) {
+            var extraIconsData = shortcut.appIds.map(function wrapIcon(appId) {
+              return {
+                "id": appId,
+                "icon": roundIcons[appId]
+              };
+            });
+
+            createPreinstalledCollection(shortcut, extraIconsData, gridPosition);
+          });
+        })(shortcut, shortcutIconsMap, gridPosition);
+      }
+    }
+
+    function createPreinstalledCollection(shortcut, extraIconsData, position) {
+      var apps = Evme.InstalledAppsService.getMatchingApps({
+        "query": shortcut.query
+      });
+
+      var collectionSettings = new Evme.CollectionSettings({
+        "id": Evme.Utils.uuid(),
+        "experienceId": shortcut.experienceId,
+        "query": shortcut.query,
+        "extraIconsData": extraIconsData,
+        "apps": apps
+      });
+
+      saveSettings(collectionSettings, function onSettingsSaved(collectionSettings) {
+        addCollectionToHomescreen(collectionSettings, position);
+        populateCollection(collectionSettings);
+      });
     }
   };
 

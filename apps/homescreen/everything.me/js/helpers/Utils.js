@@ -245,8 +245,16 @@ Evme.Utils = new function Evme_Utils() {
           roundedIconsMap = {},
           processed = 0;
 
+      if (total === 0) {
+        callback(roundedIconsMap);
+      }
+
       for (var id in iconsMap) {
         var src = Evme.Utils.formatImageData(iconsMap[id]);
+        if (!src) {
+          processed++;
+          continue;
+        }
 
         (function roundIcon(id, src){
           Evme.Utils.getRoundIcon({
