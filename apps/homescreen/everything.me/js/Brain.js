@@ -1184,10 +1184,10 @@ Evme.Brain = new function Evme_Brain() {
 
 		Evme.CollectionsSuggest.Loading.show();
 
-		Evme.CollectionStorage.getAllCollections(function onCollections(collections) {
+		EvmeManager.getCollections(function onCollections(collections) {
 		    var existingCollectionsQueries = [];
 		    for (var i = 0, collection; collection = collections[i++];) {
-			existingCollectionsQueries.push(collection.query);
+			existingCollectionsQueries.push(collection.manifest.name);
                     }
 
                     // load suggested shortcuts from API

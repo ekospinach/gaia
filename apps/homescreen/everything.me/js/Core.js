@@ -220,7 +220,7 @@ window.Evme = new function Evme_Core() {
 	}
       ]
     });
-
+  
     Evme.CollectionStorage.init();
     
     Evme.Collection.init({
