@@ -49,8 +49,12 @@
     transition: transform 200ms linear;
 }
 
-.evmeScope .evme-apps ul.marketapps li{
+.evmeScope .evme-apps ul.marketapps li {
     height: 11rem;
+}
+
+.evmeScope .evme-apps ul li.save-to-homescreen {
+  pointer-events: none;
 }
 
 .evmeScope .evme-apps:not(.has-installed) .has-installed-visible {
