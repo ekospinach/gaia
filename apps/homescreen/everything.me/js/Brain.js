@@ -675,9 +675,11 @@ this.InstalledAppsService = new function InstalledAppsService() {
             var isAppInstalled = EvmeManager.isAppInstalled(data.app.getFavLink());
 
             if (isAppInstalled) {
+                data.el.classList.add('save-to-homescreen');
                 window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
                     'name': data.data.name
                 }));
+                data.el.classList.remove('save-to-homescreen');
                 return;
             }
 
@@ -685,7 +687,12 @@ this.InstalledAppsService = new function InstalledAppsService() {
                 var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
                     'name': data.data.name
                 });
-                if (!window.confirm(msg)) {
+
+                data.el.classList.add('save-to-homescreen');
+                var saved = window.confirm(msg);
+                data.el.classList.remove('save-to-homescreen');
+
+                if (!saved) {
                     return;
                 }
             }
