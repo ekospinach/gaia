@@ -16,10 +16,9 @@ Evme.Result = function Evme_Result() {
 
       TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
       TEXT_WIDTH = 72 * Evme.Utils.devicePixelRatio,
-      TEXT_MARGIN = 6 * Evme.Utils.devicePixelRatio,
+      TEXT_MARGIN = 14 * Evme.Utils.devicePixelRatio,
 
       image = new Image();
-
 
   this.type = 'NOT_SET';
   this.cfg = {};

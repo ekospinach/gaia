@@ -40,7 +40,7 @@ Evme.CloudAppResult = function Evme_CloudAppsResult(query) {
       context.shadowOffsetX = 0;
       context.shadowOffsetY = SHADOW_OFFSET;
       context.shadowBlur = SHADOW_BLUR;
-      context.shadowColor = 'rgba(0, 0, 0, 0.6)';
+      context.shadowColor = 'rgba(0, 0, 0, .8)';
       context.drawImage(fixedImage, (canvas.width - FULL_SIZE) / 2, 0);
       self.finalizeIcon(canvas);
     };

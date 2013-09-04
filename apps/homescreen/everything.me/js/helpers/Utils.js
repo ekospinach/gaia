@@ -59,7 +59,7 @@ Evme.Utils = new function Evme_Utils() {
 
     this.EMPTY_APPS_SIGNATURE = '';
 
-    this.APPS_FONT_SIZE = 12 * self.devicePixelRatio;
+    this.APPS_FONT_SIZE = 13 * self.devicePixelRatio;
 
     this.PIXEL_RATIO_NAME = (this.devicePixelRatio > 1) ? this.PIXEL_RATIO_NAMES.HIGH : this.PIXEL_RATIO_NAMES.NORMAL;
 
@@ -290,11 +290,13 @@ Evme.Utils = new function Evme_Utils() {
       context.textAlign = 'center';
       context.textBaseline = 'top';
       context.fillStyle = 'rgba(255,255,255,1)';
-      context.shadowOffsetX = 1;
-      context.shadowOffsetY = 1;
-      context.shadowBlur = 3;
-      context.shadowColor = 'rgba(0, 0, 0, 0.6)';
       context.font = '600 ' + FONT_SIZE + 'px sans-serif';
+
+      // text shadow
+      context.shadowOffsetX = 0;
+      context.shadowOffsetY = 1;
+      context.shadowBlur = 1;
+      context.shadowColor = 'rgba(0, 0, 0, 1)';
 
       for (var i=0,word; word=text[i++];) {
         // add 1 to the word with because of the space between words
