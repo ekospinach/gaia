@@ -182,7 +182,7 @@ var EverythingME = {
   },
 
   // copy relevant user data from 1.0.1 to 1.1 versions
-  migrateStorage: function EverythingME_migrateStorage(onComplete) {
+  migrateStorage: function EverythingME_migrateStorage(onComplete, force) {
     var migrationStorageKey = 'migrated_1.0.1_to_1.1';
 
     if (!onComplete) {
@@ -191,7 +191,7 @@ var EverythingME = {
 
     asyncStorage.getItem(migrationStorageKey, function evmeMigration(value) {
       // this means we already migrated, so everything's a-ok
-      if (value === true) {
+      if (value === true && !force) {
         onComplete();
         return;
       }

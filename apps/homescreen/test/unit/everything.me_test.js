@@ -63,7 +63,7 @@ suite('everything.me.js >', function() {
 
         done();
       });
-    });
+    }, true); // force migration even if already done by EverythingME.init()
   });
 
   suite('Everything.me will be destroyed >', function() {
