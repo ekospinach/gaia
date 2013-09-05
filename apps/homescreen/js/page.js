@@ -45,7 +45,7 @@ Icon.prototype = {
   // element dataset and allow us to uniquely look up the Icon object from
   // the HTML element.
   _descriptorIdentifiers: ['manifestURL', 'entry_point', 'bookmarkURL',
-                           'useAsyncPanZoom', 'desiredPos'],
+                           'useAsyncPanZoom'],
 
   /**
    * The Application (or Bookmark) object corresponding to this icon.
@@ -97,9 +97,14 @@ Icon.prototype = {
     dataset.isIcon = true;
     this._descriptorIdentifiers.forEach(function(prop) {
       var value = descriptor[prop];
-      if (value !== undefined)
+      if (value)
         dataset[prop] = value;
     });
+
+    // For single variant
+    var value = descriptor['desiredPos'];
+    if (value !== undefined)
+      dataset['desiredPos'] = value;
 
     // Collection (as bookmarks)
     if (descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
