@@ -1281,9 +1281,15 @@ var WindowManager = (function() {
   // Because we know when and who to re-launch when activity ends.
   window.addEventListener('mozChromeEvent', function(e) {
     if (e.detail.type == 'activity-done') {
-      // Remove the top most frame every time we get an 'activity-done' event.
       stopInlineActivity();
-      if (!inlineActivityFrames.length && !activityCallerOrigin) {
+      if (runningApps[displayedApp].activityCaller) {
+        // Display activity callee if there's one bind to current activity.
+        var caller = runningApps[displayedApp].activityCaller;
+        delete caller.activityCallee;
+        delete runningApps[displayedApp].activityCaller;
+        setDisplayedApp(caller.origin);
+      } else if (!inlineActivityFrames.length && !activityCallerOrigin) {
+        // Remove the top most frame every time we get an 'activity-done' event.
         setDisplayedApp(activityCallerOrigin);
         activityCallerOrigin = '';
       }
@@ -1401,6 +1407,11 @@ var WindowManager = (function() {
       // specifically requests it.
       if (!config.isActivity)
         return;
+
+      var caller = runningApps[displayedApp];
+
+      runningApps[config.origin].activityCaller = caller;
+      caller.activityCallee = runningApps[config.origin];
 
       // XXX: the correct way would be for UtilityTray to close itself
       // when there is a appwillopen/appopen event.
@@ -1752,16 +1763,30 @@ var WindowManager = (function() {
       return;
     }
 
+    var app = runningApps[origin];
     // As we can't immediatly remove runningApps entry,
     // we flag it as being killed in order to avoid trying to remove it twice.
     // (Check required because of bug 814583)
-    if (runningApps[origin].killed) {
+    if (app.killed) {
       if (callback) {
         setTimeout(callback);
       }
       return;
     }
-    runningApps[origin].killed = true;
+    app.killed = true;
+
+    // Remove callee <-> caller reference before we remove the window.
+    if ('activityCaller' in runningApps[origin] &&
+        runningApps[origin].activityCaller) {
+      delete runningApps[origin].activityCaller.activityCallee;
+      delete runningApps[origin].activityCaller;
+    }
+
+    if ('activityCallee' in runningApps[origin] &&
+        runningApps[origin].activityCallee) {
+      delete runningApps[origin].activityCallee.activityCaller;
+      delete runningApps[origin].activityCallee;
+    }
 
     // If the app is the currently displayed app, switch to the homescreen
     if (origin === displayedApp) {
@@ -1800,7 +1825,11 @@ var WindowManager = (function() {
     // Let other system app module know an app is
     // being killed, removed or crashed.
     var evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent('appterminated', true, false, { origin: origin });
+    var manifestURL = app.manifestURL;
+    evt.initCustomEvent('appterminated', true, false, {
+      origin: origin,
+      manifestURL: manifestURL
+    });
     window.dispatchEvent(evt);
   }
 

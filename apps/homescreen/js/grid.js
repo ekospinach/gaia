@@ -7,12 +7,15 @@ var GridManager = (function() {
   var PREFERRED_ICON_SIZE = 60 * (window.devicePixelRatio || 1);
 
   var SAVE_STATE_TIMEOUT = 100;
-  var BASE_WIDTH = 320;
   var BASE_HEIGHT = 460; // 480 - 20 (status bar height)
   var DEVICE_HEIGHT = window.innerHeight;
 
   var OPACITY_STEPS = 40; // opacity steps between [0,1]
   var HIDDEN_ROLES = ['system', 'keyboard', 'homescreen'];
+
+  // Holds the list of single variant apps that have been installed
+  // previously already
+  var svPreviouslyInstalledApps = [];
 
   var container;
 
@@ -49,6 +52,11 @@ var GridManager = (function() {
       DEVICE_HEIGHT / windowWidth >= 1.6) {
     MAX_ICONS_PER_PAGE += 4;
     MAX_ICONS_PER_EVME_PAGE += 4;
+  }
+
+  // tablet+ devices are stricted to 5 x 3 grid
+  if (ScreenLayout.getCurrentLayout() !== 'tiny') {
+    MAX_ICONS_PER_PAGE = 5 * 3;
   }
 
   var startEvent, isPanning = false, startX, currentX, deltaX, removePanHandler,
@@ -408,6 +416,7 @@ var GridManager = (function() {
     saveStateTimeout = window.setTimeout(function saveStateTrigger() {
       saveStateTimeout = null;
       pageHelper.saveAll();
+      HomeState.saveSVInstalledApps(GridManager.svPreviouslyInstalledApps);
     }, SAVE_STATE_TIMEOUT);
   }
 
@@ -710,12 +719,6 @@ var GridManager = (function() {
       HomeState.saveGrid(state);
     },
 
-    render: function() {
-      for (var i = 0, page; page = pages[i++];) {
-        page.render();
-      }
-    },
-
     getNext: function() {
       return pages[currentPage + 1];
     },
@@ -1014,6 +1017,31 @@ var GridManager = (function() {
     }
   }
 
+  function isPreviouslyInstalled(manifest) {
+    for (var i = 0, elemNum = svPreviouslyInstalledApps.length;
+         i < elemNum; i++) {
+      if (svPreviouslyInstalledApps[i].manifest === manifest) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*
+   * SV - Return the single operator app (identify by manifest) or undefined
+   * if the manifesURL doesn't correspond with a SV app
+   */
+  function getSingleVariantApp(manifestURL) {
+    var singleVariantApps = Configurator.getSingleVariantApps();
+    if (manifestURL in singleVariantApps) {
+      var app = singleVariantApps[manifestURL];
+      if (app.screen !== undefined && app.location !== undefined) {
+        return app;
+      }
+    }
+  }
+
+
   /*
    * Builds a descriptor for an icon object
    */
@@ -1087,6 +1115,11 @@ var GridManager = (function() {
       pages[index].appendIconAt(icon, gridPosition.index || 0);
     } else {
       var index = getFirstPageWithEmptySpace(gridPageOffset);
+      var svApp = getSingleVariantApp(app.manifestURL);
+      if (svApp && !isPreviouslyInstalled(app.manifestURL)) {
+        index = svApp.screen;
+        icon.descriptor.desiredPos = svApp.location;
+      }
 
       if (index < pages.length) {
         pages[index].appendIcon(icon);
@@ -1243,12 +1276,19 @@ var GridManager = (function() {
       DockManager.init(dockContainer, dock, tapThreshold);
       initApps();
       callback();
-    }, EVME_PAGE);
+    }, {
+      offset: EVME_PAGE,
+      iteratorSVApps: function eachSVApp(svApp) {
+        GridManager.svPreviouslyInstalledApps.push(svApp);
+      }
+    });
   }
 
   return {
 
     hiddenRoles: HIDDEN_ROLES,
+
+    svPreviouslyInstalledApps: svPreviouslyInstalledApps,
 
     /*
      * Initializes the grid manager
@@ -1289,6 +1329,10 @@ var GridManager = (function() {
      *
      * @param {Application} app
      *                      The application (or bookmark) object
+     * @param {Object}      gridPosition
+     *                      Position to install the app: 'page' and 'index'
+     * @param {Object}      extra
+     *                      Optional parameters
      */
     install: function gm_install(app, gridPosition, extra) {
       extra = extra || {};

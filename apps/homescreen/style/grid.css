@@ -37,7 +37,9 @@ body[data-transitioning] .apps > div {
   display: block;
   margin: 0 auto;
 	margin-top: .3rem;
-  transition: all 200ms linear;
+
+  /* collection is opened, homescreen apps are faded out */
+  transition: opacity 200ms linear;
 }
 
 .apps ol > li {
@@ -47,23 +49,6 @@ body[data-transitioning] .apps > div {
   float: left;
   text-align: center;
 }
-/*.apps ol > li div img {
-  position: relative;
-  z-index: 10;
-}
-.apps ol > li[data-is-collection="true"]:not([data-is-empty="true"]) div::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 6rem;
-  height: 6rem;
-  background: white;
-  border-radius: 50%;
-  margin-left: -2.8rem;
-  margin-top: -4rem;
-  opacity: 0.2;
-}*/
 
 /* Maximum 16 icons for page */
 .apps ol > li:nth-child(17) {
@@ -76,12 +61,12 @@ body[data-transitioning] .apps > div {
 }
 
 /* Adds 1 row of icons */
-@media all and (min-device-width: 320px) and (min-device-height: 640px) {
+@media (min-device-width: 320px) and (min-device-height: 640px) {
   .apps ol:first-child > li:nth-child(13) {
     display: inline-block;
   }
 
-	.apps ol > li:nth-child(17) {
+  .apps ol > li:nth-child(17) {
     display: inline-block;
   }
 
@@ -169,7 +154,6 @@ ol:not([disabled]) li.active > div > img {
   margin: 0.3rem auto 0;
   font-weight: 500;
   letter-spacing: -0.025rem;
-  text-transform: capitalize;
 }
 
 /* Alternative icons when an app is being installed */
@@ -216,7 +200,7 @@ body[data-transitioning] .loading:after {
 
 /* For WVGA (800 x 480), adjust the padding to make app icons fit in 4 x 5 grid */
 /* The width here is described as CSS pixel, so it would be 320px while dppx = 1.5 */
-@media all and (min-device-width: 320px) and (max-device-width: 359px) and (max-aspect-ratio: 4 / 6) {
+@media (min-device-width: 320px) and (max-device-width: 359px) and (max-aspect-ratio: 4 / 6) {
   .apps ol > li > div {
     margin-top: 0;
   }
@@ -231,6 +215,43 @@ body[data-transitioning] .loading:after {
 
   /* Maximum 20 icons for page */
   .apps ol > li:nth-child(21) {
+    display: none;
+  }
+}
+
+/* For tablet+ Device */
+@media (min-width: 768px) and (orientation: landscape) {
+  .apps ol > li {
+    width: 20%; /* five a line */
+  }
+
+  /* Option to delete apps */
+  .apps ol > li span.options {
+    height: 4.5rem;
+    background: url(../resources/images/delete.png) no-repeat left top / 4.5rem;
+  }
+
+  .apps ol {
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+    padding: 5.3rem 6rem 5.6rem 9.3rem;
+  }
+
+  .labelWrapper {
+    margin-top: 1.5rem;
+    font-size: 1.8rem;
+    line-height: 1.8rem;
+    height: 2.3rem;
+    font-weight: 400;
+  }
+
+  .apps ol > li > div > span > span {
+    font-size: 1.8rem;
+    text-shadow: 0 0 0.5rem;
+  }
+
+  /* Maximum 15 icons for page */
+  .apps ol > li:nth-child(16) {
     display: none;
   }
 }
