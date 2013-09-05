@@ -30,26 +30,9 @@ suite('everything.me.js >', function() {
     document.body.removeChild(wrapperNode);
   });
 
-  suite('Everything.me is initialized correctly >', function() {
-
-    test('Ev.me page is not loaded >', function() {
-      assert.isFalse(EverythingME.displayed);
-    });
-  });
-
-  suite('Everything.me is displayed >', function() {
-
-    EverythingME.activate();
-
-    test('Ev.me page is loaded >', function() {
-      assert.isTrue(EverythingME.displayed);
-    });
-  });
-
-  suite('Everything.me is hidden >', function() {
-
-    test('Ev.me page is not loaded >', function() {
-      assert.isFalse(EverythingME.displayed);
+  suite('Everything.me starts initialization correctly >', function() {
+    test('Ev.me page is loading >', function() {
+      assert.isTrue(document.body.classList.contains('evme-loading'));
     });
   });
 

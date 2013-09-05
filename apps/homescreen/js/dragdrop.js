@@ -235,6 +235,14 @@ var DragDropManager = (function() {
     }, ENSURE_DRAG_END_DELAY);
   }
 
+  /*
+   *  This method implements the draggable icon behavior after releasing the
+   *  finger. If user releases an icon over a collection, this will be copied
+   *  into collection. Otherwise the icon goes to the new position.
+   *
+   * @param{Function} Callback will be performed when draggable icon animation
+   *                  finishes
+   */
   function sendDragStopToDraggableIcon(callback) {
     if (draggableIconIsCollection ||
         overlapElem.dataset.isCollection !== 'true') {

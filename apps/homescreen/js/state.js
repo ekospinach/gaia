@@ -14,7 +14,7 @@ const HomeState = (function() {
 
     // push empty pages at the beginning of the grid
     offset = offset || 0;
-    for (var i=0; i<offset; i++) {
+    for (var i = 0; i < offset; i++) {
       grid.splice(1, 0, []);
     }
 

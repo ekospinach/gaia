@@ -955,7 +955,8 @@ var GridManager = (function() {
       // navigator.mozApps backed app will objects will be handled
       // asynchronously and therefore at a later time.
       var app = null;
-      if (descriptor.type !== GridItemsFactory.TYPE.APP) {
+      if (descriptor.type === GridItemsFactory.TYPE.BOOKMARK ||
+          descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
         app = GridItemsFactory.create(descriptor);
         bookmarksByOrigin[app.origin] = app;
       }
@@ -1052,7 +1053,8 @@ var GridManager = (function() {
     return descriptor;
   }
 
-  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset, gridPosition) {
+  function createOrUpdateIconForApp(app, entryPoint, gridPageOffset,
+                                    gridPosition) {
     // Make sure we update the icon/label when the app is updated.
     if (app.type !== GridItemsFactory.TYPE.COLLECTION &&
         app.type !== GridItemsFactory.TYPE.BOOKMARK) {
