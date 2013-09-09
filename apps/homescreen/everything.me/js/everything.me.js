@@ -118,7 +118,7 @@ var EverythingME = {
       var link = document.createElement('link');
       link.type = 'text/css';
       link.rel = 'stylesheet';
-      link.href = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
+      link.href = '/everything.me/' + file + (CB ? '?' + Date.now() : '');
       link.addEventListener('load', onCSSLoad);
       window.setTimeout(function load() {
         head.appendChild(link);
@@ -128,7 +128,7 @@ var EverythingME = {
     function loadScript(file) {
       var script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
+      script.src = '/everything.me/' + file + (CB ? '?' + Date.now() : '');
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
       window.setTimeout(function load() {
@@ -159,6 +159,9 @@ var EverythingME = {
     var page = document.getElementById('evmeContainer');
     EvmeFacade.onShow();
     document.body.classList.remove('evme-loading');
+    
+    var e = new CustomEvent('evme.load');
+    window.dispatchEvent(e);
   },
 
   destroy: function EverythingME_destroy() {

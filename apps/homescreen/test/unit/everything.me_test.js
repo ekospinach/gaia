@@ -3,6 +3,26 @@
 requireApp('homescreen/test/unit/mock_everything.me.html.js');
 requireApp('homescreen/test/unit/mock_asyncStorage.js');
 requireApp('homescreen/test/unit/mock_l10n.js');
+
+// homescreen files evme depends on
+require('/shared/js/screen_layout.js');
+
+requireApp('homescreen/js/message.js');
+requireApp('homescreen/js/request.js');
+requireApp('homescreen/js/grid_components.js');
+requireApp('homescreen/js/bookmark.js');
+requireApp('homescreen/js/state.js');
+requireApp('homescreen/js/icon_retriever.js');
+requireApp('homescreen/js/page.js');
+requireApp('homescreen/js/pagbar.js');
+requireApp('homescreen/js/dock.js');
+requireApp('homescreen/js/grid.js');
+requireApp('homescreen/js/dragdrop.js');
+requireApp('homescreen/js/homescreen.js');
+requireApp('homescreen/js/configurator.js');
+requireApp('homescreen/js/wallpaper.js');
+
+// main evme file
 requireApp('homescreen/everything.me/js/everything.me.js');
 
 if (!this.asyncStorage) {
@@ -13,7 +33,9 @@ suite('everything.me.js >', function() {
   var wrapperNode,
       realAsyncStorage;
 
-  suiteSetup(function() {
+  suiteSetup(function(done) {
+    this.timeout(10000);
+
     realAsyncStorage = window.asyncStorage;
     window.asyncStorage = MockasyncStorage;
 
@@ -22,6 +44,10 @@ suite('everything.me.js >', function() {
     document.body.appendChild(wrapperNode);
 
     EverythingME.init();
+
+    window.addEventListener('evme.load', function onEvmeLoad() {
+      done();
+    });
   });
 
   suiteTeardown(function() {

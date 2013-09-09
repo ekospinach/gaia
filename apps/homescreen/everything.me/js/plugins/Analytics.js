@@ -42,7 +42,9 @@ Evme.Analytics = new function Evme_Analytics() {
         // if enabled
         if (options.enabled){
             // we send data according to the settings flag (Submit performance data)
-            SettingsListener.observe('debug.performance_data.shared', false, onSettingChange);
+            if (window.SettingsListener) {
+              SettingsListener.observe('debug.performance_data.shared', false, onSettingChange);
+            }
 
             getCurrentAppsRowsCols = options.getCurrentAppsRowsCols;
             getCurrentSearchQuery = options.getCurrentSearchQuery;
