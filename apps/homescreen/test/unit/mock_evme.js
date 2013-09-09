@@ -1,0 +1,18 @@
+'use strict';
+
+var MockEvme = function() {
+  this.EventHandler = {
+    _fired: {},
+
+    fired: function fired(className, eventName) {
+      return (className + '.' + eventName) in this._fired;
+    },
+
+    // save the event locally, so we can later check it
+    trigger: function trigger(className, eventName, data) {
+      this._fired[className + '.' + eventName] = data;
+    }
+  };
+};
+
+MockEvme = new MockEvme();
