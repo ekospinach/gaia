@@ -16,8 +16,6 @@ suite('everything.me.js >', function() {
       realAsyncStorage;
 
   suiteSetup(function(done) {
-    this.timeout(10000);
-
     realAsyncStorage = window.asyncStorage;
     window.asyncStorage = MockasyncStorage;
 

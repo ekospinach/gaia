@@ -1,7 +1,13 @@
 'use strict';
 
-var MockEvme = function() {
-  this.EventHandler = {
+window.Evme = {
+  Utils: {
+    l10n: function l10n(module, key, args) {
+      return module + '.' + key;
+    }
+  },
+
+  EventHandler: {
     _fired: {},
 
     fired: function fired(className, eventName) {
@@ -12,7 +18,5 @@ var MockEvme = function() {
     trigger: function trigger(className, eventName, data) {
       this._fired[className + '.' + eventName] = data;
     }
-  };
+  }
 };
-
-MockEvme = new MockEvme();
