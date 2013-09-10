@@ -53,7 +53,7 @@ Evme.Searchbar = new function Evme_Searchbar() {
     };
     
     this.getValue = function getValue() {
-        return trim(value) === '' ? '' : value;
+        return value.trim() === '' ? '' : value;
     };
     
     this.isFocused = function getIsFocused() {
