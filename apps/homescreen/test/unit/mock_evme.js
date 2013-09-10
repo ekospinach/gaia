@@ -3,19 +3,21 @@
 window.realEvme = window.Evme;
 
 window.Evme = {
+  wrapperNode: null,
+
   suiteSetup: function suiteSetup() {
-    if (!document.getElementById('mock-evme-html')) {
-      var wrapperNode = document.createElement('section');
-      wrapperNode.id = 'mock-evme-html';
-      wrapperNode.innerHTML = MockEverythingMeHtml;
-      document.body.appendChild(wrapperNode);
-    }
+    this.wrapperNode = document.createElement('section');
+    this.wrapperNode.id = 'mock-evme-html';
+    this.wrapperNode.innerHTML = MockEverythingMeHtml;
+    document.body.appendChild(this.wrapperNode);
 
     // reset the events to not have leftover between tests
     this.EventHandler._fired = {};
   },
 
-  tearDown: function tearDown() {
+  suiteTeardown: function tearDown() {
+    this.wrapperNode.parentNode.removeChild(this.wrapperNode);
+
     if (window.realEvme) {
       window.Evme = window.realEvme;
     }
@@ -92,7 +94,12 @@ window.Evme = {
 
     // save the event locally, so we can later check it
     trigger: function trigger(className, eventName, data) {
-      this._fired[className + '.' + eventName] = (data || null);
+      var eventName = className + '.' + eventName,
+          args = data || null;
+
+      this._fired[eventName] = (args);
+
+      window.dispatchEvent(new CustomEvent(eventName, args));
     }
   }
 };

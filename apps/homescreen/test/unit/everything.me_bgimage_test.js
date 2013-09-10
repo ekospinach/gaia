@@ -22,12 +22,12 @@ suite('Evme.BackgroundImage >', function() {
   });
 
   suiteTeardown(function() {
-    Evme.tearDown();
+    Evme.suiteTeardown();
   });
 
   test('init', function() {
     assert.isTrue(Evme.EventHandler.fired('BackgroundImage', 'init'));
-    assert.isTrue(elMockElementsToFade.length !== 0);
+    assert.isTrue(elMockElementsToFade.length > 0);
   });
 
   test('set image (url)', function(done) {
@@ -44,19 +44,23 @@ suite('Evme.BackgroundImage >', function() {
 
     assert.isTrue(
       Evme.EventHandler.fired('BackgroundImage', 'updated', outputExpected));
-    assert.isFalse(elMockImage.classList.contains('default'));
 
-    window.setTimeout(function() {
+    window.addEventListener('BackgroundImage.show', function show() {
+      window.removeEventListener('BackgroundImage.show', show);
+
       var elActualImage = elMockImage.querySelector('.img.visible');
 
       // the image has been created
       assert.isTrue(!!elActualImage);
 
+      // the is not defiend as default anymore
+      assert.isFalse(elMockImage.classList.contains('default'));
+
       // the image is set according to the URL passed
       assert.equal(elActualImage.style.backgroundImage, 'url("' + src + '")');
 
       done();
-    }, 50);
+    });
   });
 
   test('set image (object)', function(done) {
@@ -73,20 +77,24 @@ suite('Evme.BackgroundImage >', function() {
 
     assert.isTrue(
       Evme.EventHandler.fired('BackgroundImage', 'updated', outputExpected));
-    assert.isFalse(elMockImage.classList.contains('default'));
 
-    window.setTimeout(function() {
+    window.addEventListener('BackgroundImage.show', function show() {
+      window.removeEventListener('BackgroundImage.show', show);
+
       var elActualImage = elMockImage.querySelector('.img.visible');
 
       // the image has been created
       assert.isTrue(!!elActualImage);
+
+      // the is not defiend as default anymore
+      assert.isFalse(elMockImage.classList.contains('default'));
 
       // the image is set according to the URL passed
       assert.equal(
         elActualImage.style.backgroundImage, 'url("' + src.image + '")');
 
       done();
-    }, 50);
+    });
   });
 
   test('set default image', function() {
@@ -117,26 +125,35 @@ suite('Evme.BackgroundImage >', function() {
     // since we pass a URL, there should be no Source to the image
     assert.isTrue(elFullScreen.classList.contains('nosource'));
 
-    window.setTimeout(function() {
+    window.addEventListener('BackgroundImage.elementsHidden', function hide() {
+      window.removeEventListener('BackgroundImage.elementsHidden', hide);
+
       // make sure all the other elements were faded out
       for (var i = 0, el; el = elMockElementsToFade[i++];) {
         assert.equal(el.style.opacity, 0);
       }
 
       done();
-    }, 100);
+    });
   });
 
   test('hide full screen', function(done) {
+    // show the fullscreen so we can check its removal
+    Evme.BackgroundImage.showFullScreen();
+
     // closeFullScreen should return TRUE since we ran "showFullScreen" before
     assert.isTrue(Evme.BackgroundImage.closeFullScreen());
 
     assert.isTrue(Evme.EventHandler.fired('BackgroundImage', 'hideFullScreen'));
 
-    window.setTimeout(function() {
-      assert.isNull(document.getElementById('bgimage-overlay'));
+    window.addEventListener('BackgroundImage.fullScreenRemoved',
+      function hide() {
+        window.removeEventListener('BackgroundImage.fullScreenRemoved', hide);
 
-      done();
-    }, 1000);
+        assert.isNull(document.getElementById('bgimage-overlay'));
+
+        done();
+      }
+    );
   });
 });

@@ -19,7 +19,7 @@ suite('Evme.Banner >', function() {
   });
 
   suiteTeardown(function() {
-    Evme.tearDown();
+    Evme.suiteTeardown();
   });
 
   test('init', function() {
@@ -37,15 +37,15 @@ suite('Evme.Banner >', function() {
     assert.equal(elMockBanner.textContent, 'Banner.dummy-l10n-key');
   });
 
-  test('hide', function(done) {
-    // banner is supposed to hide itself automatically after 5s - let's verify
-    this.timeout(5500);
-    window.setTimeout(function onBannerHide() {
-        // event was fired
-        assert.isTrue(Evme.EventHandler.fired('Banner', 'hide'));
-        // banner is not visible
-        assert.isFalse(elMockBanner.classList.contains('visible'));
-        done();
-    }, 5000);
+  test('hide', function() {
+    // first we show, so that the hide will work
+    Evme.Banner.show('dummy-l10n-key');
+
+    Evme.Banner.hide();
+
+    // event was fired
+    assert.isTrue(Evme.EventHandler.fired('Banner', 'hide'));
+    // banner is not visible
+    assert.isFalse(elMockBanner.classList.contains('visible'));
   });
 });

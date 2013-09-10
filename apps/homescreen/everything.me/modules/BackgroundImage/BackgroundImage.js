@@ -39,13 +39,19 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
                 elCurrentImage.style.backgroundImage = 'url(' + currentImage.image + ')';
                 el.appendChild(elCurrentImage);
 
-		cbUpdated(currentImage);
+		            Evme.EventHandler.trigger(NAME, "updated", {
+                    "image": currentImage
+                });
 
                 window.setTimeout(function onTimeout(){
                     elCurrentImage.classList.add("visible");
 
                     window.setTimeout(function onTimeout(){
                         el.classList.remove("default");
+
+                        Evme.EventHandler.trigger(NAME, "show", {
+                            "image": currentImage
+                        });
                     }, 300);
                 }, 10);
             }
@@ -103,6 +109,8 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
             onElementsToFade(function onElement(){
                 this.style.opacity = 0;
             });
+
+            Evme.EventHandler.trigger(NAME, "elementsHidden");
         }, 0);
 
         elFullScreen = self.getFullscreenElement(currentImage, self.closeFullScreen);
@@ -116,7 +124,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
 
         active = true;
 
-        cbShowFullScreen();
+        Evme.EventHandler.trigger(NAME, "showFullScreen");
     };
 
     this.getFullscreenElement = function getFullscreenElement(data, onClose) {
@@ -160,10 +168,13 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
 
             window.setTimeout(function onTimeout(){
                 Evme.$remove(elFullScreen);
+                Evme.EventHandler.trigger(NAME, "fullScreenRemoved");
             }, 700);
 
             e && e.preventDefault();
-            cbHideFullScreen();
+
+            Evme.EventHandler.trigger(NAME, "hideFullScreen");
+
             active = false;
             return true;
         }
@@ -206,39 +217,11 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
             elRemove.classList.remove("visible");
             currentImage = {};
 
-	    cbRemoved();
+            Evme.EventHandler.trigger(NAME, "removed");
 
             window.setTimeout(function onTimeout(){
                 Evme.$remove(elRemove);
             }, TIMEOUT_BEFORE_REMOVING_OLD_IMAGE);
         }
-    }
-
-    function imageLoaded() {
-        cbLoaded();
-    }
-
-    function cbUpdated(image) {
-        Evme.EventHandler.trigger(NAME, "updated", {
-            "image": image
-        });
-    }
-
-    function cbRemoved() {
-	Evme.EventHandler.trigger(NAME, "removed");
-    }
-
-    function cbLoaded() {
-        Evme.EventHandler.trigger(NAME, "load", {
-            "image": currentImage
-        });
-    }
-
-    function cbShowFullScreen() {
-        Evme.EventHandler.trigger(NAME, "showFullScreen");
-    }
-
-    function cbHideFullScreen() {
-        Evme.EventHandler.trigger(NAME, "hideFullScreen");
     }
 }
