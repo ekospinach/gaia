@@ -2,6 +2,7 @@
   "name": "News",
   "description": "News smart collection",
   "role": "collection",
+  "provider_id": "245",
   "locales": {
     "en-US": {
       "name": "News",

@@ -2,6 +2,7 @@
   "name": "Recipes",
   "description": "Recipes smart collection",
   "role": "collection",
+  "provider_id": "270",
   "locales": {
     "en-US": {
       "name": "Recipes",

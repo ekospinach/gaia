@@ -2,6 +2,7 @@
   "name": "Funny",
   "description": "Funny smart collection",
   "role": "collection",
+  "provider_id": "277",
   "locales": {
     "en-US": {
       "name": "Funny",

@@ -2,6 +2,7 @@
   "name": "Local",
   "description": "Local smart collection",
   "role": "collection",
+  "provider_id": "296",
   "locales": {
     "en-US": {
       "name": "Local",

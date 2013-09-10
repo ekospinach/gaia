@@ -2,6 +2,7 @@
   "name": "Social",
   "description": "Social smart collection",
   "role": "collection",
+  "provider_id": "289",
   "locales": {
     "en-US": {
       "name": "Social",

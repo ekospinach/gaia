@@ -2,6 +2,7 @@
   "name": "Movies",
   "description": "Movies smart collection",
   "role": "collection",
+  "provider_id": "181",
   "locales": {
     "en-US": {
       "name": "Movies",

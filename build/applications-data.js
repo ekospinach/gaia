@@ -51,6 +51,7 @@ function bestMatchingIcon(preferred_size, manifest, origin) {
 function iconDescriptor(directory, app_name, entry_point) {
   let origin = utils.gaiaOriginURL(app_name);
   let manifestURL = utils.gaiaManifestURL(app_name);
+  let descriptor = {};
 
   // Locate the directory of a given app.
   // If the directory (Gaia.distributionDir)/(directory)/(app_name) exists,
@@ -96,6 +97,8 @@ function iconDescriptor(directory, app_name, entry_point) {
     origin = utils.gaiaOriginURL('homescreen');
     manifestURL =
                 utils.gaiaManifestURL('homescreen', 'collections/' + app_name);
+    descriptor.provider_id = manifest.provider_id;
+    descriptor.role = manifest.role;
   }
 
   if (entry_point &&
@@ -106,14 +109,13 @@ function iconDescriptor(directory, app_name, entry_point) {
   let icon = bestMatchingIcon(PREFERRED_ICON_SIZE, manifest, origin);
 
   //TODO set localizedName once we know the default locale
-  return {
-    manifestURL: manifestURL,
-    entry_point: entry_point,
-    updateTime: INSTALL_TIME,
-    name: manifest.name,
-    icon: icon,
-    role: manifest.role
-  };
+  descriptor.manifestURL = manifestURL;
+  descriptor.entry_point = entry_point;
+  descriptor.updateTime = INSTALL_TIME;
+  descriptor.name = manifest.name;
+  descriptor.icon = icon;
+  
+  return descriptor;
 }
 
 function execute() {

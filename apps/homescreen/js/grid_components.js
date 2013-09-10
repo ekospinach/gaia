@@ -70,6 +70,7 @@ var Collection = function Collection(params, cb) {
   this.type = GridItemsFactory.TYPE.COLLECTION;
   this.isEmpty = params.isEmpty; // only a collection can be empty
   this.hideFromGrid = !!params.hideFromGrid;
+  this.providerId = params.id || params.provider_id;
 
   cb = cb || function() {};
   this.processManifest(cb);
@@ -81,9 +82,7 @@ Collection.prototype = {
   launch: function sc_launch() {
     var features = this.getFeatures();
     // Enriching features...
-    features.id = this.id || '';
-    features.type = 'url';
-    features.url = this.url;
+    features.id = this.providerId || '';
 
     window.dispatchEvent(new CustomEvent('collectionlaunch', {
       'detail': features

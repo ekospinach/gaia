@@ -2,6 +2,7 @@
   "name": "Sports",
   "description": "Sports smart collection",
   "role": "collection",
+  "provider_id": "260",
   "locales": {
     "en-US": {
       "name": "Sports",

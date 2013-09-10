@@ -2,6 +2,7 @@
   "name": "Tv",
   "description": "Tv smart collection",
   "role": "collection",
+  "provider_id": "213",
   "locales": {
     "en-US": {
       "name": "Tv",

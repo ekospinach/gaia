@@ -2,6 +2,7 @@
   "name": "Shopping",
   "description": "Shopping smart collection",
   "role": "collection",
+  "provider_id": "238",
   "locales": {
     "en-US": {
       "name": "Shopping",

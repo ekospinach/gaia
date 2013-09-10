@@ -2,6 +2,7 @@
   "name": "Photography",
   "description": "Photography smart collection",
   "role": "collection",
+  "provider_id": "349",
   "locales": {
     "en-US": {
       "name": "Photography",
