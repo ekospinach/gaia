@@ -1,12 +1,13 @@
 var EverythingME = {
+  pendingEvent: undefined,
+
   init: function EverythingME_init() {
     var footer = document.querySelector('#footer');
     if (footer) {
       footer.style.MozTransition = '-moz-transform .3s ease';
     }
     
-    var self = this,
-        page = document.getElementById('evmeContainer'),
+    var page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child');
 
     gridPage.classList.add('evmePage');
@@ -27,17 +28,17 @@ var EverythingME = {
 
     activationIcon.addEventListener('contextmenu', onContextMenu);
     activationIcon.addEventListener('click', triggerActivate);
-    window.addEventListener('EvmeCollectionLaunch', triggerActivate);
+    window.addEventListener('collectionlaunch', triggerActivate);
 
     function triggerActivate(e) {
-      self.pendingEvent = e;
+      EverythingME.pendingEvent = e;
 
       activationIcon.removeEventListener('click', triggerActivate);
       activationIcon.removeEventListener('contextmenu', onContextMenu);
 
-      window.removeEventListener('EvmeCollectionLaunch', triggerActivate);
+      window.removeEventListener('collectionlaunch', triggerActivate);
 
-      self.activate();
+      EverythingME.activate();
     }
 
     function onContextMenu(e) {
@@ -188,7 +189,7 @@ var EverythingME = {
 
     EvmeFacade.onShow();
     var e = EverythingME.pendingEvent;
-
+    
     if (e && input && e.target === input) {
       // set the query the user entered before loaded
       if (existingQuery) {

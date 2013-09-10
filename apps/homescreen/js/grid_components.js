@@ -85,7 +85,7 @@ Collection.prototype = {
     features.type = 'url';
     features.url = this.url;
 
-    window.dispatchEvent(new CustomEvent('EvmeCollectionLaunch', {
+    window.dispatchEvent(new CustomEvent('collectionlaunch', {
       'detail': features
     }));
   },

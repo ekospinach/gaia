@@ -61,7 +61,7 @@ Evme.Brain = new function Evme_Brain() {
         initL10nObserver();
 
         // init event listeners     
-        window.addEventListener('EvmeCollectionLaunch', Evme.Collection.show);
+        window.addEventListener('collectionlaunch', Evme.Collection.show);
         window.addEventListener('EvmeDropApp', onAppDrop);
 
         // prevent homescreen contextmenu
