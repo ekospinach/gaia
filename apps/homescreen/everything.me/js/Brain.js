@@ -60,9 +60,11 @@ Evme.Brain = new function Evme_Brain() {
 
         initL10nObserver();
 
-	// init event listeners
-	window.addEventListener('EvmeCollectionLaunch', Evme.Collection.show);
-	window.addEventListener('EvmeDropApp', onAppDrop);
+        // init event listeners     
+        window.addEventListener('collectionlaunch', function onCollectionLaunch(e){
+            Evme.Collection.show(e);
+        });
+        window.addEventListener('EvmeDropApp', onAppDrop);
 
 	// prevent homescreen contextmenu
 	elContainer.addEventListener('contextmenu', function onTouchStart(e) {
@@ -81,18 +83,19 @@ Evme.Brain = new function Evme_Brain() {
     };
 
     function onAppDrop(e) {
-	var options = e.detail;
+        var options = e.detail;
 
-	// dropping app on collection
-	if (options.app && options.collection) {
-	    var appId = options.app.id,
-		collectionId = options.collection.id;
+        // dropping app on collection
+        if (options.app && options.collection) {
+            var appId = options.app.id,
+                collectionId = options.collection.id;
 
-	    var installedApp = Evme.InstalledAppsService.getAppById(appId);
-	    if (installedApp) {
-		Evme.Collection.addInstalledApp(installedApp, collectionId);
-	    }
-	}
+            Evme.InstalledAppsService.getAppById(appId, function getAppByOrigin(installedApp) {
+                if (installedApp) {
+                    Evme.Collection.addInstalledApp(installedApp, collectionId);
+                }    
+            });
+        }
     }
 
     // l10n: create a mutation observer to know when a node was added

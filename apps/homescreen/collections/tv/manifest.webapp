@@ -1,0 +1,20 @@
+{
+  "name": "Tv",
+  "description": "Tv smart collection",
+  "role": "collection",
+  "provider_id": "213",
+  "locales": {
+    "en-US": {
+      "name": "Tv",
+      "description": "Television"
+    },
+    "fr": {
+      "name": "Tv",
+      "description": "Tv"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/tv/icon.png"
+  }
+}

@@ -45,7 +45,7 @@ Icon.prototype = {
   // element dataset and allow us to uniquely look up the Icon object from
   // the HTML element.
   _descriptorIdentifiers: ['manifestURL', 'entry_point', 'bookmarkURL',
-			   'useAsyncPanZoom'],
+                           'useAsyncPanZoom'],
 
   /**
    * The Application (or Bookmark) object corresponding to this icon.
@@ -97,7 +97,7 @@ Icon.prototype = {
     dataset.isIcon = true;
     this._descriptorIdentifiers.forEach(function(prop) {
       var value = descriptor[prop];
-      if (value || value === 0)
+      if (value)
         dataset[prop] = value;
     });
 
@@ -114,9 +114,9 @@ Icon.prototype = {
       dataset.collectionName = descriptor.name;
     } else {
       dataset.origin = descriptor.manifestURL ||
-				 descriptor.bookmarkURL;
+                                 descriptor.bookmarkURL;
       if (descriptor.entry_point) {
-	dataset.entryPoint = descriptor.entry_point;
+        dataset.entryPoint = descriptor.entry_point;
       }
     }
 
@@ -458,8 +458,7 @@ Icon.prototype = {
    */
   translate: function icon_translate() {
     var descriptor = this.descriptor;
-    if (descriptor.type === GridItemsFactory.TYPE.COLLECTION ||
-	descriptor.type === GridItemsFactory.TYPE.BOOKMARK)
+    if (descriptor.type === GridItemsFactory.TYPE.BOOKMARK)
       return;
 
     var app = this.app;
@@ -579,7 +578,7 @@ Icon.prototype = {
     var container = this.container;
 
     var x = tx,
-	y = ty;
+        y = ty;
 
     if (typeof x === 'undefined') {
       var rect = container.getBoundingClientRect();
@@ -587,7 +586,7 @@ Icon.prototype = {
       x -= this.initXCenter;
 
       y = (rect.top + rect.bottom) / 2 +
-	      (this.initHeight - (rect.bottom - rect.top)) / 2;
+              (this.initHeight - (rect.bottom - rect.top)) / 2;
       y -= this.initYCenter;
     }
 
@@ -935,7 +934,7 @@ Page.prototype = {
    */
   appendIconAt: function pg_appendIconAt(icon, index) {
     var olist = this.olist,
-	children = this.olist.children;
+        children = this.olist.children;
 
     if (children[index] && children[index] === icon.container) {
       return;
@@ -1004,10 +1003,10 @@ Page.prototype = {
     } else {
       var node = this.olist.children[this.numberOfIcons - 1];
       if (this.iconsWhileDragging.length > 0)
-	node = this.iconsWhileDragging[this.numberOfIcons - 1];
+        node = this.iconsWhileDragging[this.numberOfIcons - 1];
 
       if (!node) {
-	return null;
+        return null;
       }
 
       return GridManager.getIcon(node.dataset);

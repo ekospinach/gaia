@@ -12,20 +12,20 @@ var EvmeManager = (function EvmeManager() {
         currentURL = null;
 
     function addGridItem(params, extra) {
-      var item = GridItemsFactory.create({
-	"id": params.id || Evme.Utils.uuid(),
-	"bookmarkURL": params.originUrl,
-	"name": params.title,
-	"icon": params.icon,
-	"iconable": false,
-	"useAsyncPanZoom": params.useAsyncPanZoom,
-	"type": !!params.isCollection ? GridItemsFactory.TYPE.COLLECTION :
-				    GridItemsFactory.TYPE.BOOKMARK,
-	"isEmpty": !!params.isEmpty
+      GridItemsFactory.create({
+        "id": params.id || Evme.Utils.uuid(),
+        "bookmarkURL": params.originUrl,
+        "name": params.title,
+        "icon": params.icon,
+        "iconable": false,
+        "useAsyncPanZoom": params.useAsyncPanZoom,
+        "type": !!params.isCollection ? GridItemsFactory.TYPE.COLLECTION :
+                                GridItemsFactory.TYPE.BOOKMARK,
+        "isEmpty": !!params.isEmpty
+      }, function doAddGridItem(item) {
+        GridManager.install(item, params.gridPosition, extra);
+        GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
       });
-
-      GridManager.install(item, params.gridPosition, extra);
-      GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
     function removeGridItem(params) {
@@ -90,47 +90,47 @@ var EvmeManager = (function EvmeManager() {
      * returned by GridManager.getApps.
      */
     function getAppInfo(gridApp, cb) {
-	cb = cb || Evme.Utils.NOOP;
+        cb = cb || Evme.Utils.NOOP;
 
-	var nativeApp = gridApp.app,  // XPCWrappedNative
-	    descriptor = gridApp.descriptor,
-	    id,
-	    icon,
-	    appInfo;
+        var nativeApp = gridApp.app,  // XPCWrappedNative
+            descriptor = gridApp.descriptor,
+            id,
+            icon,
+            appInfo;
 
-	// TODO document
-	// TODO launch by entry_point
-	if (nativeApp.manifestURL) {
-	  id = generateAppId(nativeApp.manifestURL, descriptor.entry_point);
-	} else {
-	  id = nativeApp.bookmarkURL;
+        // TODO document
+        // TODO launch by entry_point
+        if (nativeApp.manifestURL) {
+          id = generateAppId(nativeApp.manifestURL, descriptor.entry_point);
+        } else {
+          id = nativeApp.bookmarkURL;
         }
 
-	if (!id) {
-	  console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
-	  return;
-	}
+        if (!id) {
+          console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
+          return;
+        }
 
-	icon = GridManager.getIcon(descriptor);
+        icon = GridManager.getIcon(descriptor);
 
-	appInfo = {
-	    "id": id,
-	    "name": descriptor.name,
-	    "appUrl": nativeApp.origin,
-	    "icon": Icon.prototype.DEFAULT_ICON_URL
-	};
+        appInfo = {
+            "id": id,
+            "name": descriptor.name,
+            "appUrl": nativeApp.origin,
+            "icon": Icon.prototype.DEFAULT_ICON_URL
+        };
 
-	if (!icon) {
-	    cb(appInfo);
-	} else {
-	    retrieveIcon({
-		icon: icon,
-		done: function(blob) {
-		    if (blob) appInfo['icon'] = blob;
-		    cb(appInfo);
-		}
-	    });
-	}
+        if (!icon) {
+            cb(appInfo);
+        } else {
+            retrieveIcon({
+                icon: icon,
+                done: function(blob) {
+                    if (blob) appInfo['icon'] = blob;
+                    cb(appInfo);
+                }
+            });
+        }
     }
 
     /**
@@ -183,14 +183,14 @@ var EvmeManager = (function EvmeManager() {
     }
 
     function openInstalledApp(params) {
-	var gridApp = GridManager.getApp(params.origin),
-	    entryPoint = Evme.Utils.extractParam(params.id, EME_ENTRY_POINT_KEY);
+        var gridApp = GridManager.getApp(params.origin),
+            entryPoint = Evme.Utils.extractParam(params.id, EME_ENTRY_POINT_KEY);
 
-	if (entryPoint) {
-	  gridApp.app.launch(entryPoint);
-	} else {
-	  gridApp.app.launch();
-	}
+        if (entryPoint) {
+          gridApp.app.launch(entryPoint);
+        } else {
+          gridApp.app.launch();
+        }
     }
 
     function openCloudApp(params) {
