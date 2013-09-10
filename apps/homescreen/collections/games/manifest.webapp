@@ -1,0 +1,20 @@
+{
+  "name": "Games",
+  "description": "Games smart collection",
+  "role": "collection",
+  "provider_id": "207",
+  "locales": {
+    "en-US": {
+      "name": "Games",
+      "description": "Games"
+    },
+    "fr": {
+      "name": "Jeux",
+      "description": "Jeux"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/games/icon.png"
+  }
+}
