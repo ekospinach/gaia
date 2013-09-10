@@ -32,7 +32,7 @@
 
       resultsManager = options.resultsManager;
 
-      el = document.getElementsByClassName('collection')[0];
+      el = document.getElementById('collection');
 
       elAppsContainer = resultsManager.getElement();
 

@@ -4,6 +4,9 @@
 .evme-ready .evmeScope {
     display: block;
 }
+.evme-loading #evmeOverlay {
+  display: block;
+}
 #evme-activation-icon {
   position: absolute;
   top: 3.2rem;

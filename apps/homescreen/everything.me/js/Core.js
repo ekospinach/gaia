@@ -96,6 +96,11 @@ window.Evme = new function Evme_Core() {
     var collections = EvmeManager.getCollections(),
         total = collections.length;
     
+    if (total === 0) {
+      done();
+      return;
+    }
+
     for (var i = 0; i < total; i++) {
       var collection = collections[i],
           experienceId = collection.providerId;
@@ -119,7 +124,7 @@ window.Evme = new function Evme_Core() {
 
   function initObjects(data) {
     var appsEl = Evme.$("#evmeApps"),
-        collectionEl = document.querySelector(".collection .evme-apps");
+        collectionEl = document.querySelector("#collection .evme-apps");
 
     Evme.Features.init({
       "featureStateByConnection": data.featureStateByConnection

@@ -38,6 +38,17 @@ var EverythingME = {
 
       window.removeEventListener('collectionlaunch', triggerActivate);
 
+      // open the collection immediately 
+      if (e.type === 'collectionlaunch') {
+        window.mozRequestAnimationFrame(function() {
+          var elCollection = document.getElementById('collection');
+          elCollection.classList.add('visible');
+
+          var elLoader = elCollection.querySelector(".loading-more");
+          elLoader.classList.add('show');
+        });
+      }
+
       EverythingME.activate();
     }
 
@@ -108,8 +119,7 @@ var EverythingME = {
           'modules/Helper/Helper.css',
           'modules/Results/Results.css',
           'modules/Searchbar/Searchbar.css',
-          'modules/CollectionsSuggest/CollectionsSuggest.css',
-          'modules/Collection/Collection.css'
+          'modules/CollectionsSuggest/CollectionsSuggest.css'
         ];
 
     var head = document.head;
