@@ -9,9 +9,7 @@ suite('Evme.Banner >', function() {
   var elMockBanner;
 
   suiteSetup(function() {
-    var wrapperNode = document.createElement('section');
-    wrapperNode.innerHTML = MockEverythingMeHtml;
-    document.body.appendChild(wrapperNode);
+    Evme.suiteSetup();
 
     elMockBanner = document.getElementById('homescreenStatus');
 
@@ -24,11 +22,11 @@ suite('Evme.Banner >', function() {
     Evme.tearDown();
   });
 
-  test('Banner init', function() {
+  test('init', function() {
     assert.isTrue(Evme.EventHandler.fired('Banner', 'init'));
   });
 
-  test('Banner show', function() {
+  test('show', function() {
     Evme.Banner.show('dummy-l10n-key');
 
     // event was fired
@@ -39,7 +37,7 @@ suite('Evme.Banner >', function() {
     assert.equal(elMockBanner.textContent, 'Banner.dummy-l10n-key');
   });
 
-  test('Banner hide', function(done) {
+  test('hide', function(done) {
     // banner is supposed to hide itself automatically after 5s - let's verify
     this.timeout(5500);
     window.setTimeout(function onBannerHide() {
