@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Sports",
       "description": "Sports"
+    },
+    "fr": {
+      "name": "Sport",
+      "description": "Sport"
     }
   },
   "default_locale": "en-US"

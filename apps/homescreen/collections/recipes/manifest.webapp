@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Recipes",
       "description": "Recipes"
+    },
+    "fr": {
+      "name": "Recettes",
+      "description": "Recettes"
     }
   },
   "default_locale": "en-US"

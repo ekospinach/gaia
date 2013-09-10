@@ -6,6 +6,10 @@
     "en-US": {
       "name": "News",
       "description": "News"
+    },
+    "fr": {
+      "name": "Actualités",
+      "description": "Actualités"
     }
   },
   "default_locale": "en-US"

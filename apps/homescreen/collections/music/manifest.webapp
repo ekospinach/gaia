@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Music",
       "description": "Music"
+    },
+    "fr": {
+      "name": "Musique",
+      "description": "Musique"
     }
   },
   "default_locale": "en-US"

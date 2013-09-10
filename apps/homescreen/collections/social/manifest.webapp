@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Social",
       "description": "Social"
+    },
+    "fr": {
+      "name": "Social",
+      "description": "Social"
     }
   },
   "default_locale": "en-US"

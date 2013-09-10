@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Funny",
       "description": "Funny"
+    },
+    "fr": {
+      "name": "Humour",
+      "description": "Humour"
     }
   },
   "default_locale": "en-US"

@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Photography",
       "description": "Photography"
+    },
+    "fr": {
+      "name": "Photographie",
+      "description": "Photographie"
     }
   },
   "default_locale": "en-US"

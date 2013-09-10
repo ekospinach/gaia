@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Local",
       "description": "Local"
+    },
+    "fr": {
+      "name": "Local",
+      "description": "Local"
     }
   },
   "default_locale": "en-US"

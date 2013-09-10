@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Games",
       "description": "Games"
+    },
+    "fr": {
+      "name": "Jeux",
+      "description": "Jeux"
     }
   },
   "default_locale": "en-US"

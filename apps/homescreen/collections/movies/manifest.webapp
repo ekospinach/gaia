@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Movies",
       "description": "Movies"
+    },
+    "fr": {
+      "name": "Films",
+      "description": "Films"
     }
   },
   "default_locale": "en-US"

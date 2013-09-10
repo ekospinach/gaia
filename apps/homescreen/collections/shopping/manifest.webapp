@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Shopping",
       "description": "Shopping"
+    },
+    "fr": {
+      "name": "Achats",
+      "description": "Achats"
     }
   },
   "default_locale": "en-US"

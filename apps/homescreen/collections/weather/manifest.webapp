@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Weather",
       "description": "Weather"
+    },
+    "fr": {
+      "name": "Météo",
+      "description": "Météo"
     }
   },
   "default_locale": "en-US"

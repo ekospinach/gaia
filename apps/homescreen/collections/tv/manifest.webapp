@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Tv",
       "description": "Television"
+    },
+    "fr": {
+      "name": "Tv",
+      "description": "Tv"
     }
   },
   "default_locale": "en-US"

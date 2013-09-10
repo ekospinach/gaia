@@ -6,6 +6,10 @@
     "en-US": {
       "name": "Utilities",
       "description": "Utilities"
+    },
+    "fr": {
+      "name": "Utilité",
+      "description": "Utilité"
     }
   },
   "default_locale": "en-US"
