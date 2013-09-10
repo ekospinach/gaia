@@ -937,7 +937,6 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         function loadBGImage() {
-            debugger;
             if (!Evme.Collection.isOpen()) return;
             if (Evme.Collection.userSetBg()) return;
 

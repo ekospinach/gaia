@@ -295,7 +295,14 @@
     };
 
     this.getQuery = function getQuery() {
-      return currentSettings.query;
+      var query = currentSettings.query || '';
+      
+      if (!query && currentSettings.experienceId) {
+        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(currentSettings.experienceId);
+        query = Evme.Utils.l10n('shortcut', l10nkey);
+      }
+
+      return query;
     };
 
     this.userSetBg = function userSetBg() {
