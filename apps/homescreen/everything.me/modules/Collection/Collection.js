@@ -23,10 +23,7 @@
 
       CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
       CLASS_WHEN_ANIMATING = 'animate',
-      TRANSITION_DURATION = 400,
-
-      // number of preinstalled collections to create on the first page
-      NUM_COLLECTIONS_FIRST_PAGE = 6;
+      TRANSITION_DURATION = 400;
 
     this.editMode = false;
 
@@ -337,38 +334,19 @@
           return;
         }
 
-        var defaultShortcuts = Evme.__config['_localShortcuts'],
-          defaultIcons = Evme.__config['_localShortcutsIcons'];
+        var defaultCollections = Evme.Config.defaultCollections;
 
-        for (var i = 0; i < defaultShortcuts.length; i++) {
-          var shortcut = defaultShortcuts[i],
-              gridPosition = {
-                'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
-                'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
-              };
-
-          var shortcutIconsMap = {};
-          shortcut.appIds.forEach(function getIcon(appId) {
-              shortcutIconsMap[appId] = defaultIcons[appId];
-          });
-
-          (function initCollection(shortcut, iconsMap, gridPosition) {
-            Evme.Utils.roundIconsMap(iconsMap, function onRoundIcons(roundIcons) {
-              var extraIconsData = shortcut.appIds.map(function wrapIcon(appId){
-                return {"id": appId, "icon": roundIcons[appId]};
-              });
-
-              createPreinstalledCollection(shortcut.experienceId, extraIconsData, gridPosition);
-
-            });
-          })(shortcut, shortcutIconsMap, gridPosition);
+        for (var i = 0; i < defaultCollections.length; i++) {
+          var collection = defaultCollections[i];
+          createPreinstalledCollection(collection);
         }
 
         Evme.Storage.set(cacheKey, true);
       });
 
-      // create the icon, create the collection, add it to homescreen
-      function createPreinstalledCollection(experienceId, extraIconsData, position) {
+      function createPreinstalledCollection(collection) {
+        var experienceId = collection.experienceId;
+        
         var key = Evme.Utils.shortcutIdToKey(experienceId),
           l10nkey = 'id-' + key,
           query = Evme.Utils.l10n('shortcut', l10nkey);
@@ -381,14 +359,10 @@
           "id": Evme.Utils.getCollectionId(key),
           "experienceId": experienceId,
           "query": query,
-          "extraIconsData": extraIconsData,
           "apps": apps
         });
 
-        saveSettings(collectionSettings, function onSettingsSaved(collectionSettings) {
-          addCollectionToHomescreen(collectionSettings, position);
-          populateCollection(collectionSettings);
-        });
+        saveSettings(collectionSettings);
       };
     }
   };
