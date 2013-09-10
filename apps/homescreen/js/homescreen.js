@@ -12,7 +12,7 @@ var Homescreen = (function() {
     GridManager.localize();
   });
 
-  var initialized = false, landingPage;
+  var initialized = false;
   onConnectionChange(navigator.onLine);
 
   function initialize(lPage, onInit) {
@@ -23,7 +23,6 @@ var Homescreen = (function() {
     PaginationBar.init('.paginationScroller');
 
     initialized = true;
-    landingPage = lPage;
 
     var swipeSection = Configurator.getSection('swipe');
     var options = {
@@ -31,7 +30,7 @@ var Homescreen = (function() {
       dockSelector: '.dockWrapper',
       tapThreshold: Configurator.getSection('tap_threshold'),
       moveCollectionThreshold:
-			Configurator.getSection('move_collection_threshold'),
+      Configurator.getSection('move_collection_threshold'),
       // It defines the threshold to consider a gesture like a swipe. Number
       // in the range 0.0 to 1.0, both included, representing the screen width
       swipeThreshold: swipeSection.threshold,
@@ -51,7 +50,7 @@ var Homescreen = (function() {
         } else if (Homescreen.isInEditMode()) {
           exitFromEditMode();
         } else {
-          GridManager.goToPage(landingPage);
+          GridManager.goToLandingPage();
         }
 
         GridManager.ensurePanning();
@@ -61,13 +60,13 @@ var Homescreen = (function() {
       if (document.location.hash === '#root') {
         // Switch to the first page only if the user has not already
         // start to pan while home is loading
-        GridManager.goToPage(landingPage);
+        GridManager.goToLandingPage();
       }
       DragDropManager.init(options);
       Wallpaper.init();
 
       if (onInit instanceof Function) {
-	onInit();
+  onInit();
       }
     });
   }
@@ -137,26 +136,26 @@ var Homescreen = (function() {
       var title, body;
       var cancel = {
         title: _('cancel'),
-	callback: function onCancel() {
-	  if (extra.onCancel)
-	    extra.onCancel();
+  callback: function onCancel() {
+    if (extra.onCancel)
+      extra.onCancel();
 
-	  ConfirmDialog.hide();
-	}
+    ConfirmDialog.hide();
+  }
       };
 
       var confirm = {
         callback: function onAccept() {
           ConfirmDialog.hide();
-	  if (app.type === GridItemsFactory.TYPE.COLLECTION ||
-	      app.type === GridItemsFactory.TYPE.BOOKMARK) {
+    if (app.type === GridItemsFactory.TYPE.COLLECTION ||
+        app.type === GridItemsFactory.TYPE.BOOKMARK) {
             app.uninstall();
           } else {
             navigator.mozApps.mgmt.uninstall(app);
           }
 
-	  if (extra.onConfirm)
-	    extra.onConfirm();
+    if (extra.onConfirm)
+      extra.onConfirm();
         },
         applyClass: 'danger'
       };
@@ -165,7 +164,7 @@ var Homescreen = (function() {
       // a bookmark shortcut instead of an app.
       var manifest = app.manifest || app.updateManifest;
       if (app.type === GridItemsFactory.TYPE.COLLECTION ||
-	  app.type === GridItemsFactory.TYPE.BOOKMARK) {
+    app.type === GridItemsFactory.TYPE.BOOKMARK) {
         title = _('remove-title-2', { name: manifest.name });
         body = _('remove-body', { name: manifest.name });
         confirm.title = _('remove');

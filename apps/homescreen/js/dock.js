@@ -108,19 +108,15 @@ var DockManager = (function() {
           return;
         }
 
-        if (GridManager.pageHelper.getCurrentPageNumber() >
-            GridManager.landingPage) {
-
+        if ('isIcon' in evt.target.dataset) {
           Homescreen.setMode('edit');
           removeActive();
-
-          if ('isIcon' in evt.target.dataset) {
-            DragDropManager.start(evt, {
-              'x': startEvent.pageX,
-              'y': startEvent.pageY
-            });
-          }
+          DragDropManager.start(evt, {
+            'x': startEvent.pageX,
+            'y': startEvent.pageY
+          });
         }
+
         break;
     }
   }

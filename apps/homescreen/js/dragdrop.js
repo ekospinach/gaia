@@ -154,9 +154,8 @@ var DragDropManager = (function() {
 
           done();
         });
-      } else if (
-          (pageHelper.getCurrentPageNumber() > GridManager.landingPage + 1) &&
-          dirCtrl.limitPrev(cx)) {
+      } else if (pageHelper.getCurrentPageNumber() > 0 &&
+                 dirCtrl.limitPrev(cx)) {
         isDisabledDrop = true;
         DragLeaveEventManager.send(curPageObj, function end(done) {
           pageHelper.getPrevious().appendIconVisible(draggableIcon);
@@ -223,7 +222,7 @@ var DragDropManager = (function() {
     DragLeaveEventManager.send(page, function(done) {
       if (ensureCallbackID !== null) {
         window.clearTimeout(ensureCallbackID);
-	sendDragStopToDraggableIcon(callback);
+        sendDragStopToDraggableIcon(callback);
       }
       done();
     }, true);
@@ -245,7 +244,7 @@ var DragDropManager = (function() {
    */
   function sendDragStopToDraggableIcon(callback) {
     if (draggableIconIsCollection ||
-	overlapElem.dataset.isCollection !== 'true') {
+        overlapElem.dataset.isCollection !== 'true') {
       // If we are dragging an app or bookmark or we aren't over a collection
       // The icon will be placed in the new position
       draggableIcon.onDragStop(callback);
@@ -254,8 +253,8 @@ var DragDropManager = (function() {
 
     // App should be copied
     var overlapRect = overlapElem.getBoundingClientRect(),
-	centerX = overlapRect.left + overlapRect.width / 2,
-	centerY = overlapRect.top + overlapRect.height / 2;
+        centerX = overlapRect.left + overlapRect.width / 2,
+        centerY = overlapRect.top + overlapRect.height / 2;
 
     var container = draggableIcon.container;
 
@@ -266,25 +265,25 @@ var DragDropManager = (function() {
       var dataset = draggableIcon.draggableElem.dataset;
       var page = DockManager.page;
       if (dataset.pageType === 'page') {
-	page = GridManager.pageHelper.getPage(parseInt(dataset.pageIndex, 10));
-	if (page === GridManager.pageHelper.getCurrent()) {
-	  draggableIcon.remove();
-	}
+        page = GridManager.pageHelper.getPage(parseInt(dataset.pageIndex, 10));
+        if (page === GridManager.pageHelper.getCurrent()) {
+          draggableIcon.remove();
+        }
       }
 
       // We have to reload the icon in order to avoid errors on re-validations
       // because of the object url was revoked
       draggableIcon.loadRenderedIcon(function loaded(url) {
-	// The icon reappears without animation
-	page.appendIconAt(draggableIcon, parseInt(dataset.iconIndex, 10));
-	// Removing hover class for current collection
-	removeHoverClass();
-	previousElement = undefined;
-	dataset = container.dataset;
-	sendEvmeDropApp(dataset.origin, dataset.entryPoint);
-	window.URL.revokeObjectURL(url);
-	container.classList.remove('hidden');
-	callback();
+        // The icon reappears without animation
+        page.appendIconAt(draggableIcon, parseInt(dataset.iconIndex, 10));
+        // Removing hover class for current collection
+        removeHoverClass();
+        previousElement = undefined;
+        dataset = container.dataset;
+        sendEvmeDropApp(dataset.origin, dataset.entryPoint);
+        window.URL.revokeObjectURL(url);
+        container.classList.remove('hidden');
+        callback();
       });
     }, centerX - sx, centerY - sy, 0);
   }
@@ -298,13 +297,13 @@ var DragDropManager = (function() {
   function sendEvmeDropApp(origin, entryPoint) {
     window.dispatchEvent(new CustomEvent('EvmeDropApp', {
       'detail': {
-	'app': {
-	  'id': origin,
-	  'entryPoint': entryPoint
-	},
-	'collection': {
-	  'id': overlapElem.dataset.collectionId
-	}
+        'app': {
+          'id': origin,
+          'entryPoint': entryPoint
+        },
+        'collection': {
+          'id': overlapElem.dataset.collectionId
+        }
       }
     }));
   }
@@ -323,7 +322,7 @@ var DragDropManager = (function() {
     if (!draggableIconIsCollection && overlapElem.dataset.isCollection) {
       // If we are dragging an app/bookmark over a collection
       overCollection(draggableIcon,
-			 GridManager.getIcon(overlapElem.dataset), page);
+       GridManager.getIcon(overlapElem.dataset), page);
       return;
     }
 
@@ -394,7 +393,7 @@ var DragDropManager = (function() {
 
   function move() {
     draggableElemStyle.MozTransform =
-			 'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
+      'translate(' + (cx - sx) + 'px,' + (cy - sy) + 'px)';
   }
 
   var previousElement;
@@ -455,7 +454,7 @@ var DragDropManager = (function() {
           x < rectObject.left || x > rectObject.right ||
           y < rectObject.top || y > rectObject.bottom) {
         newOverlapElem = document.elementFromPoint(x, y);
-	addHoverClass(newOverlapElem);
+  addHoverClass(newOverlapElem);
       }
     }
 
@@ -592,7 +591,7 @@ var DragDropManager = (function() {
      */
     init: function ddm_init(options) {
       if (options && options.moveCollectionThreshold) {
-	MOVE_COLLECTION_THRESHOLD = options.moveCollectionThreshold;
+        MOVE_COLLECTION_THRESHOLD = options.moveCollectionThreshold;
       }
       dirCtrl = GridManager.dirCtrl;
       limitY = window.innerHeight -
