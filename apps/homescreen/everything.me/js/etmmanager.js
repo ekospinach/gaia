@@ -1,9 +1,9 @@
 'use strict';
 
-var EvmeManager = (function EvmeManager() {  
+var EvmeManager = (function EvmeManager() {
     /**
      * E.me references each entry point as a different app with unique id
-     * The entry point is encapsulated as a query key 
+     * The entry point is encapsulated as a query key
      * http://communications.gaiamobile.org:8080/manifest.webapp?eme-ep=dialer
      */
     var EME_ENTRY_POINT_KEY = "eme-ep";
@@ -12,7 +12,7 @@ var EvmeManager = (function EvmeManager() {
         currentURL = null;
 
     function addGridItem(params, extra) {
-      var item = GridItemsFactory.create({
+      GridItemsFactory.create({
         "id": params.id || Evme.Utils.uuid(),
         "bookmarkURL": params.originUrl,
         "name": params.title,
@@ -20,17 +20,17 @@ var EvmeManager = (function EvmeManager() {
         "iconable": false,
         "useAsyncPanZoom": params.useAsyncPanZoom,
         "type": !!params.isCollection ? GridItemsFactory.TYPE.COLLECTION :
-                                    GridItemsFactory.TYPE.BOOKMARK,
+                                GridItemsFactory.TYPE.BOOKMARK,
         "isEmpty": !!params.isEmpty
+      }, function doAddGridItem(item) {
+        GridManager.install(item, params.gridPosition, extra);
+        GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
       });
-
-      GridManager.install(item, params.gridPosition, extra);
-      GridManager.ensurePagesOverflow(Evme.Utils.NOOP);
     }
 
     function removeGridItem(params) {
       var origin = params.id;
-      
+
       var gridItem = GridManager.getApp(origin);
       Homescreen.showAppDialog(gridItem.app, {
         "onConfirm": params.onConfirm || Evme.Utils.NOOP
@@ -75,7 +75,7 @@ var EvmeManager = (function EvmeManager() {
     function getCollections() {
         return GridManager.getCollections();
     }
-   
+
     function getAppByOrigin(origin, cb) {
       var gridApp = GridManager.getApp(origin);
       if (gridApp) {
@@ -86,12 +86,12 @@ var EvmeManager = (function EvmeManager() {
     }
 
     /**
-     * Returns E.me formatted information about an object 
+     * Returns E.me formatted information about an object
      * returned by GridManager.getApps.
      */
     function getAppInfo(gridApp, cb) {
         cb = cb || Evme.Utils.NOOP;
-      
+
         var nativeApp = gridApp.app,  // XPCWrappedNative
             descriptor = gridApp.descriptor,
             id,
@@ -105,12 +105,12 @@ var EvmeManager = (function EvmeManager() {
         } else {
           id = nativeApp.bookmarkURL;
         }
-        
+
         if (!id) {
           console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
           return;
         }
-        
+
         icon = GridManager.getIcon(descriptor);
 
         appInfo = {
@@ -182,10 +182,10 @@ var EvmeManager = (function EvmeManager() {
         // TODO remove
     }
 
-    function openInstalledApp(params) {       
+    function openInstalledApp(params) {
         var gridApp = GridManager.getApp(params.origin),
             entryPoint = Evme.Utils.extractParam(params.id, EME_ENTRY_POINT_KEY);
-        
+
         if (entryPoint) {
           gridApp.app.launch(entryPoint);
         } else {
@@ -201,7 +201,7 @@ var EvmeManager = (function EvmeManager() {
       });
 
       evmeApp.launch(params.url, params.urlTitle, params.useAsyncPanZoom);
-      currentURL = params.url;         
+      currentURL = params.url;
     }
 
     function openMarketplaceApp(data) {
@@ -245,7 +245,7 @@ var EvmeManager = (function EvmeManager() {
       isAppInstalled: function isAppInstalled(origin) {
           return GridManager.getApp(origin);
       },
-      
+
       getAppByOrigin: getAppByOrigin,
       getGridApps: getGridApps,
       getCollections: getCollections,

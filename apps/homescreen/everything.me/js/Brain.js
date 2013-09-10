@@ -61,7 +61,9 @@ Evme.Brain = new function Evme_Brain() {
         initL10nObserver();
 
         // init event listeners     
-        window.addEventListener('EvmeCollectionLaunch', Evme.Collection.show);
+        window.addEventListener('collectionlaunch', function onCollectionLaunch(e){
+            Evme.Collection.show(e);
+        });
         window.addEventListener('EvmeDropApp', onAppDrop);
 
         // prevent homescreen contextmenu
@@ -88,10 +90,11 @@ Evme.Brain = new function Evme_Brain() {
             var appId = options.app.id,
                 collectionId = options.collection.id;
 
-            var installedApp = Evme.InstalledAppsService.getAppById(appId);
-            if (installedApp) {
-                Evme.Collection.addInstalledApp(installedApp, collectionId);
-            }
+            Evme.InstalledAppsService.getAppById(appId, function getAppByOrigin(installedApp) {
+                if (installedApp) {
+                    Evme.Collection.addInstalledApp(installedApp, collectionId);
+                }    
+            });
         }
     }
 

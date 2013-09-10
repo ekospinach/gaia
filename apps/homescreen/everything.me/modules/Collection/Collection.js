@@ -23,10 +23,7 @@
 
       CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
       CLASS_WHEN_ANIMATING = 'animate',
-      TRANSITION_DURATION = 400,
-
-      // number of preinstalled collections to create on the first page
-      NUM_COLLECTIONS_FIRST_PAGE = 6;
+      TRANSITION_DURATION = 400;
 
     this.editMode = false;
 
@@ -35,7 +32,7 @@
 
       resultsManager = options.resultsManager;
 
-      el = document.getElementsByClassName('collection')[0];
+      el = document.getElementById('collection');
 
       elAppsContainer = resultsManager.getElement();
 
@@ -46,7 +43,6 @@
       elClose.addEventListener('click', self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
 
-      initPreinstalled();
       Evme.EventHandler.trigger(NAME, 'init');
     };
 
@@ -70,7 +66,7 @@
 
     this.remove = function removeCollection(id, params) {
       params = params || {};
-      
+
       EvmeManager.removeGridItem({
         "id": id,
         "onConfirm": function onConfirm() {
@@ -121,7 +117,7 @@
         self.update(currentSettings, {
           "apps": currentSettings.apps.concat(cloudAppData)
         });
-          
+
       });
     };
 
@@ -166,8 +162,14 @@
       Evme.CollectionStorage.get(data.id, function onGotFromStorage(collectionSettings) {
         currentSettings = collectionSettings;
 
-        el.dataset.id = collectionSettings.id;
-        self.setTitle(collectionSettings.name || collectionSettings.query);
+        var id = el.dataset.id = collectionSettings.id;
+        var icon = GridManager.getApp(id);
+        var title = collectionSettings.name || collectionSettings.query;
+        if (icon) {
+          title = icon.descriptor.name;
+        }
+
+        self.setTitle(title);
         collectionSettings.bg && self.setBackground(collectionSettings.bg);
 
         self.editMode = false;
@@ -293,7 +295,14 @@
     };
 
     this.getQuery = function getQuery() {
-      return currentSettings.query;
+      var query = currentSettings.query || '';
+      
+      if (!query && currentSettings.experienceId) {
+        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(currentSettings.experienceId);
+        query = Evme.Utils.l10n('shortcut', l10nkey);
+      }
+
+      return query;
     };
 
     this.userSetBg = function userSetBg() {
@@ -322,68 +331,6 @@
         self.toggleEditMode(false);
       }
     }
-
-    function initPreinstalled() {
-      var cacheKey = 'createdInitialShortcuts';
-
-      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-        if (didInitShortcuts) {
-          return;
-        }
-
-        var defaultShortcuts = Evme.__config['_localShortcuts'],
-          defaultIcons = Evme.__config['_localShortcutsIcons'];
-
-        for (var i = 0; i < defaultShortcuts.length; i++) {
-          var shortcut = defaultShortcuts[i],
-              gridPosition = {
-                'page': (i < NUM_COLLECTIONS_FIRST_PAGE) ? 0 : 1,
-                'index': (i < NUM_COLLECTIONS_FIRST_PAGE) ? i : (i % NUM_COLLECTIONS_FIRST_PAGE)
-              };
-
-          var shortcutIconsMap = {};
-          shortcut.appIds.forEach(function getIcon(appId) {
-              shortcutIconsMap[appId] = defaultIcons[appId];
-          });
-
-          (function initCollection(shortcut, iconsMap, gridPosition) {
-            Evme.Utils.roundIconsMap(iconsMap, function onRoundIcons(roundIcons) {
-              var extraIconsData = shortcut.appIds.map(function wrapIcon(appId){
-                return {"id": appId, "icon": roundIcons[appId]};
-              });
-              
-              createPreinstalledCollection(shortcut.experienceId, extraIconsData, gridPosition);
-
-            });
-          })(shortcut, shortcutIconsMap, gridPosition);
-        }
-
-        Evme.Storage.set(cacheKey, true);
-      });
-
-      // create the icon, create the collection, add it to homescreen
-      function createPreinstalledCollection(experienceId, extraIconsData, position) {
-        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-          query = Evme.Utils.l10n('shortcut', l10nkey);
-
-        var apps = Evme.InstalledAppsService.getMatchingApps({
-          "query": query
-        });
-
-        var collectionSettings = new Evme.CollectionSettings({
-          "id": Evme.Utils.uuid(),
-          "experienceId": experienceId,
-          "query": query,
-          "extraIconsData": extraIconsData,
-          "apps": apps
-        });
-
-        saveSettings(collectionSettings, function onSettingsSaved(collectionSettings) {
-          addCollectionToHomescreen(collectionSettings, position);
-          populateCollection(collectionSettings);
-        });
-      };
-    }
   };
 
 
@@ -401,11 +348,11 @@
     this.experienceId = args.experienceId;
 
     this.apps = args.apps || [];
-        
+
     // TODO save only reference, get data from IconManager
     // get static apps' icons from InstalledAppsService
     this.extraIconsData = args.extraIconsData || [];  // list of {"id": 3, "icon": "base64icon"}
-    
+
   };
 
   /**
