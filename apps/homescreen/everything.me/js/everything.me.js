@@ -5,14 +5,27 @@ var EverythingME = {
       footer.style.MozTransition = '-moz-transform .3s ease';
     }
     
-    var page = document.getElementById('evmeContainer'),
+    var self = this,
+        page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child');
 
-    // TODO
-    // We need to re-think how to lazy-load E.me
-    // it is required for interacting with Collections:
-    // create initial collections, open collections, create collections etc.
-    EverythingME.activate();
+    gridPage.classList.add('evmePage');
+
+    // create activation icon
+    var activationIcon = document.createElement('div');
+    activationIcon.id = 'evme-activation-icon';
+    activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
+    gridPage.insertBefore(activationIcon, gridPage.firstChild);
+
+    navigator.mozL10n.ready(function loadSearchbarValue() {
+      var input = activationIcon.querySelector('input'),
+          defaultText = navigator.mozL10n.get('evme-searchbar-default2') || '';
+
+      input.setAttribute('placeholder', defaultText);
+    });
+
+    activationIcon.addEventListener('click', onClick);
+    activationIcon.addEventListener('contextmenu', onContextMenu);
 
     gridPage.addEventListener('gridpageshowend', function onPageShow() {
       EvmeFacade.onShow();
@@ -21,9 +34,11 @@ var EverythingME = {
       EvmeFacade.onHide();
     });
 
-    // add evme into the first grid page
-    gridPage.classList.add('evmePage');
-    gridPage.appendChild(page.parentNode.removeChild(page));  
+    function onClick(e) {
+      this.removeEventListener('click', onClick);
+      this.removeEventListener('contextmenu', onContextMenu);
+      self.activate();
+    }
 
     function onContextMenu(e) {
       e.stopPropagation();
@@ -38,7 +53,7 @@ var EverythingME = {
     this.load();
   },
 
-  load: function EverythingME_load() {
+  load: function EverythingME_load(callback) {
     var CB = !('ontouchstart' in window),
         js_files = [
           'js/Core.js',
@@ -155,9 +170,31 @@ var EverythingME = {
   },
 
   onEvmeLoaded: function onEvmeLoaded() {
-    var page = document.getElementById('evmeContainer');
+    var page = document.getElementById('evmeContainer'),
+        gridPage = document.querySelector('#icongrid > div:first-child'),
+        activationIcon = document.getElementById('evme-activation-icon');
+        input = activationIcon.querySelector('input'),
+        existingQuery = input && input.value;
+
+    // add evme into the first grid page
+    gridPage.appendChild(page.parentNode.removeChild(page)); 
+
     EvmeFacade.onShow();
+    
+    // set the query the user entered before loaded
+    input = document.getElementById('search-q');
+    if (input) {
+      if (existingQuery) {
+        EvmeFacade.searchFromOutside(existingQuery);
+      }
+
+      EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
+      input.setSelectionRange(existingQuery.length, existingQuery.length);
+    }
+
     document.body.classList.remove('evme-loading');
+
+    activationIcon.parentNode.removeChild(activationIcon);
   },
 
   destroy: function EverythingME_destroy() {
