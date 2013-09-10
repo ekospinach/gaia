@@ -1,0 +1,20 @@
+{
+  "name": "Utilities",
+  "description": "Utilities smart collection",
+  "role": "collection",
+  "provider_id": "357",
+  "locales": {
+    "en-US": {
+      "name": "Utilities",
+      "description": "Utilities"
+    },
+    "fr": {
+      "name": "Utilité",
+      "description": "Utilité"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/utilities/icon.png"
+  }
+}

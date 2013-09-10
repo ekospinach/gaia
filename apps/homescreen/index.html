@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="style/dragdrop.css">
     <link rel="stylesheet" type="text/css" href="style/dock.css">
     <link rel="stylesheet" type="text/css" href="everything.me/css/everything.me.css">
+    <link rel="stylesheet" type="text/css" href="everything.me/modules/Collection/Collection.css">
 
     <!-- Shared code -->
     <script type="text/javascript" src="shared/js/l10n.js"></script>
@@ -77,20 +78,20 @@
     </header>
 
     <div id="evmeOverlay" class="evmeScope">
-      <div class="collection">
-	<div class="header">
-	  <div class="header-content">
-	    <h2 class="title"></h2>
-	    <b class="close"></b>
-	  </div>
-	</div>
-	<div class="content">
-	  <div class="evme-apps" data-opacity-on-swipe="true">
-	    <div>
-	      <div>
-		<ul class="static"></ul>
-		<hr>
-		<ul class="cloud"></ul>
+      <div id="collection">
+        <div class="header">
+          <div class="header-content">
+            <h2 class="title"></h2>
+            <b class="close"></b>
+          </div>
+        </div>
+        <div class="content">
+          <div class="evme-apps" data-opacity-on-swipe="true">
+            <div>
+              <div>
+                <ul class="static"></ul>
+                <hr>
+                <ul class="cloud"></ul>
               </div>
 
 	      <section role="notification" class="connection-message">

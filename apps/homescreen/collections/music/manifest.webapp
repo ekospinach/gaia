@@ -1,0 +1,20 @@
+{
+  "name": "Music",
+  "description": "Music smart collection",
+  "role": "collection",
+  "provider_id": "142",
+  "locales": {
+    "en-US": {
+      "name": "Music",
+      "description": "Music"
+    },
+    "fr": {
+      "name": "Musique",
+      "description": "Musique"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/music/icon.png"
+  }
+}
