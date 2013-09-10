@@ -68,7 +68,6 @@ var EverythingME = {
           'js/etmmanager.js',
 
           'config/config.js',
-          'config/shortcuts.js',
           'js/developer/utils.1.3.js',
           'js/helpers/Utils.js',
           'js/helpers/Storage.js',

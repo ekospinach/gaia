@@ -43,7 +43,6 @@
       elClose.addEventListener('click', self.hide);
       elAppsContainer.dataset.scrollOffset = 0;
 
-      initPreinstalled();
       Evme.EventHandler.trigger(NAME, 'init');
     };
 
@@ -324,46 +323,6 @@
       if (document.mozHidden) {
         self.toggleEditMode(false);
       }
-    }
-
-    function initPreinstalled() {
-      var cacheKey = 'createdInitialShortcuts';
-
-      Evme.Storage.get(cacheKey, function onCacheValue(didInitShortcuts) {
-        if (didInitShortcuts) {
-          return;
-        }
-
-        var defaultCollections = Evme.Config.defaultCollections;
-
-        for (var i = 0; i < defaultCollections.length; i++) {
-          var collection = defaultCollections[i];
-          createPreinstalledCollection(collection);
-        }
-
-        Evme.Storage.set(cacheKey, true);
-      });
-
-      function createPreinstalledCollection(collection) {
-        var experienceId = collection.experienceId;
-        
-        var key = Evme.Utils.shortcutIdToKey(experienceId),
-          l10nkey = 'id-' + key,
-          query = Evme.Utils.l10n('shortcut', l10nkey);
-
-        var apps = Evme.InstalledAppsService.getMatchingApps({
-          "query": query
-        });
-
-        var collectionSettings = new Evme.CollectionSettings({
-          "id": Evme.Utils.getCollectionId(key),
-          "experienceId": experienceId,
-          "query": query,
-          "apps": apps
-        });
-
-        saveSettings(collectionSettings);
-      };
     }
   };
 

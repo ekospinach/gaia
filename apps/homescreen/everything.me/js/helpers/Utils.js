@@ -136,10 +136,6 @@ Evme.Utils = new function Evme_Utils() {
         return Evme.uuid();
     };
 
-    this.getCollectionId = function getCollectionId(key) {
-        return homescreenOrigin + '/collections/' + key + '/manifest.webapp';
-    };
-
     this.sendToOS = function sendToOS(type, data) {
         switch (type) {
             case OSMessages.APP_INSTALL:
