@@ -1,4 +1,31 @@
-<div id="evmeOverlay" class="evmeScope">
+<div id="search-overlay"></div>
+    <div id="bg-overlay"></div>
+    <!-- This markup is just to detect text overflow with app names
+         because of pages are hidden after rendering -->
+    <div id="fake-icon">
+      <span id="fake-icon-name-wrapper" class="labelWrapper">
+        <span id="fake-icon-name"></span>
+      </span>
+    </div>
+
+    <section id="confirm-dialog">
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 id="confirm-dialog-title"></h1>
+          <p id="confirm-dialog-message"></p>
+        </section>
+        <menu>
+          <button id="confirm-dialog-cancel-button"></button>
+          <button id="confirm-dialog-confirm-button" class="danger"></button>
+        </menu>
+      </form>
+    </section>
+
+    <header id="paginationBar">
+      <div class="paginationScroller" role="slider" aria-valuemin="0" aria-valuenow="0" aria-valuemax="0" aria-controls="icongrid"></div>
+    </header>
+
+    <div id="evmeOverlay" class="evmeScope">
       <div class="collection">
         <div class="header">
           <div class="header-content">
@@ -23,7 +50,7 @@
               <section role="notification" class="loading-more">
                 <div>
                   <progress></progress>
-                  <span data-l10n-id="evme-appsmore-loading">Loading…</span>
+                  <span data-l10n-id="evme-appsmore-loading">Loading‚Ä¶</span>
                 </div>
               </section>
 
@@ -88,7 +115,7 @@
             <section role="notification" class="loading-more">
               <div>
                 <progress></progress>
-                <span data-l10n-id="evme-appsmore-loading">Loading…</span>
+                <span data-l10n-id="evme-appsmore-loading">Loading‚Ä¶</span>
               </div>
             </section>
           </div>
@@ -96,4 +123,13 @@
       </div>
     </div> <!-- /evmeContainer -->
 
-    <div id="icongrid" class="apps" role="main"><div></div></div>
+    <div id="icongrid" class="apps" role="main">
+      <div><ol></ol></div>
+    </div>
+
+    <section id="homescreenStatus" role="status" class="noreset"></section>
+
+    <footer id="footer">
+      <div class="dockWrapper"></div>
+    </footer>
+    <div id="repaint-helper"></div>
