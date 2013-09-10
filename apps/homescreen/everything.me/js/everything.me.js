@@ -29,6 +29,7 @@ var EverythingME = {
     activationIcon.addEventListener('contextmenu', onContextMenu);
     activationIcon.addEventListener('click', triggerActivate);
     window.addEventListener('collectionlaunch', triggerActivate);
+    window.addEventListener('EvmeDropApp', triggerActivate);
 
     function triggerActivate(e) {
       EverythingME.pendingEvent = e;
@@ -37,6 +38,7 @@ var EverythingME = {
       activationIcon.removeEventListener('contextmenu', onContextMenu);
 
       window.removeEventListener('collectionlaunch', triggerActivate);
+      window.removeEventListener('EvmeDropApp', triggerActivate);
 
       // open the collection immediately 
       if (e.type === 'collectionlaunch') {

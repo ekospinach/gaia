@@ -90,10 +90,11 @@ Evme.Brain = new function Evme_Brain() {
             var appId = options.app.id,
                 collectionId = options.collection.id;
 
-            var installedApp = Evme.InstalledAppsService.getAppById(appId);
-            if (installedApp) {
-                Evme.Collection.addInstalledApp(installedApp, collectionId);
-            }
+            Evme.InstalledAppsService.getAppById(appId, function getAppByOrigin(installedApp) {
+                if (installedApp) {
+                    Evme.Collection.addInstalledApp(installedApp, collectionId);
+                }    
+            });
         }
     }
 
@@ -936,6 +937,7 @@ Evme.Brain = new function Evme_Brain() {
         };
 
         function loadBGImage() {
+            debugger;
             if (!Evme.Collection.isOpen()) return;
             if (Evme.Collection.userSetBg()) return;
 
