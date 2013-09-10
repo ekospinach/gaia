@@ -220,6 +220,5 @@
   100% {
     transform: translateY(100%);
     pointer-events: none;
-    display: none;
   }
 }
