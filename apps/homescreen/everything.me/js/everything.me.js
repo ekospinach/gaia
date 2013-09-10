@@ -11,6 +11,7 @@ var EverythingME = {
 
     gridPage.classList.add('evmePage');
 
+
     // create activation icon
     var activationIcon = document.createElement('div');
     activationIcon.id = 'evme-activation-icon';
@@ -24,8 +25,24 @@ var EverythingME = {
       input.setAttribute('placeholder', defaultText);
     });
 
-    activationIcon.addEventListener('click', onClick);
     activationIcon.addEventListener('contextmenu', onContextMenu);
+    activationIcon.addEventListener('click', triggerActivate);
+    window.addEventListener('EvmeCollectionLaunch', triggerActivate);
+
+    function triggerActivate(e) {
+      self.pendingEvent = e;
+
+      activationIcon.removeEventListener('click', triggerActivate);
+      activationIcon.removeEventListener('contextmenu', onContextMenu);
+
+      window.removeEventListener('EvmeCollectionLaunch', triggerActivate);
+
+      self.activate();
+    }
+
+    function onContextMenu(e) {
+      e.stopPropagation();
+    }
 
     gridPage.addEventListener('gridpageshowend', function onPageShow() {
       EvmeFacade.onShow();
@@ -34,20 +51,10 @@ var EverythingME = {
       EvmeFacade.onHide();
     });
 
-    function onClick(e) {
-      this.removeEventListener('click', onClick);
-      this.removeEventListener('contextmenu', onContextMenu);
-      self.activate();
-    }
-
-    function onContextMenu(e) {
-      e.stopPropagation();
-    }
-
     EverythingME.migrateStorage();
   },
   
-  activate: function EverythingME_activate(e) {
+  activate: function EverythingME_activate() {
     document.body.classList.add('evme-loading');
 
     this.load();
@@ -180,10 +187,10 @@ var EverythingME = {
     gridPage.appendChild(page.parentNode.removeChild(page)); 
 
     EvmeFacade.onShow();
-    
-    // set the query the user entered before loaded
-    input = document.getElementById('search-q');
-    if (input) {
+    var e = EverythingME.pendingEvent;
+
+    if (e && input && e.target === input) {
+      // set the query the user entered before loaded
       if (existingQuery) {
         EvmeFacade.searchFromOutside(existingQuery);
       }
@@ -195,6 +202,10 @@ var EverythingME = {
     document.body.classList.remove('evme-loading');
 
     activationIcon.parentNode.removeChild(activationIcon);
+
+    if (e) {
+      e.target.dispatchEvent(e);
+    };
   },
 
   destroy: function EverythingME_destroy() {
