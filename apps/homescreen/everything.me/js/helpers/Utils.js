@@ -669,6 +669,21 @@ Evme.Utils = new function Evme_Utils() {
 	}
     };
 
+    // compare arrays of literals. will NOT work for array of objects.
+    // returns true if arrays are identical
+    this.arraysEqual = function arraysEqual(array1, array2) {
+      if (array1.length !== array2.length)
+        return false;
+
+      for (var i = 0; i < array1.length; i++) {
+        if (array1[i] !== array2[i]) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
     // Creates a duplicate-value-free version of the `array`
     this.unique = function unique(array, property) {
       // array of objects, unique by `property` of the objects
