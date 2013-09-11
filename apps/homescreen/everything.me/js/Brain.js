@@ -29,6 +29,7 @@ Evme.Brain = new function Evme_Brain() {
 	CLASS_WHEN_HAS_QUERY = 'evme-has-query',
 	CLASS_WHEN_COLLECTION_VISIBLE = 'evme-collection-visible',
 	CLASS_WHEN_LOADING_SHORTCUTS_SUGGESTIONS = 'evme-suggest-collections-loading',
+    CLASS_WHEN_SAVING_TO_HOMESCREEN = 'save-to-homescreen',
 
 	L10N_SYSTEM_ALERT = 'alert',
 
@@ -676,31 +677,39 @@ Evme.Brain = new function Evme_Brain() {
 	    Evme.Collection.addCloudApp(cloudResult);
 	}
 
-	function saveToHomescreen(data, showConfirm) {
-	    var isAppInstalled = EvmeManager.isAppInstalled(data.app.getFavLink());
+        function saveToHomescreen(data, showConfirm) {
+            var isAppInstalled = EvmeManager.isAppInstalled(data.app.getFavLink()),
+                classList = data.el.classList;
 
             if (isAppInstalled) {
-		window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
-		    'name': data.data.name
-		}));
+                classList.add(CLASS_WHEN_SAVING_TO_HOMESCREEN);
+                window.alert(Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-exists', {
+                    'name': data.data.name
+                }));
+                classList.remove(CLASS_WHEN_SAVING_TO_HOMESCREEN);
                 return;
             }
 
-	    if (showConfirm) {
-		var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
-		    'name': data.data.name
-		});
-		if (!window.confirm(msg)) {
-		    return;
-		}
+            if (showConfirm) {
+                var msg = Evme.Utils.l10n(L10N_SYSTEM_ALERT, 'app-install-confirm', {
+                    'name': data.data.name
+                });
+
+                classList.add(CLASS_WHEN_SAVING_TO_HOMESCREEN);
+                var saved = window.confirm(msg);
+                classList.remove(CLASS_WHEN_SAVING_TO_HOMESCREEN);
+
+                if (!saved) {
+                    return;
+                }
             }
 
             // get icon data
             var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
             // make it round
-	    Evme.Utils.getRoundIcon({
-		"src": appIcon
-	    }, function onIconReady(roundedAppIcon) {
+            Evme.Utils.getRoundIcon({
+                "src": appIcon
+            }, function onIconReady(roundedAppIcon) {
                 // bookmark - add to homescreen
                 Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
                     'originUrl': data.app.getFavLink(),
@@ -713,13 +722,13 @@ Evme.Brain = new function Evme_Brain() {
                     'name': data.data.name
                 });
 
-		// analytics
-		Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
+                // analytics
+                Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
                     "id": data.data.id,
                     "name": data.data.name
                 });
             });
-	}
+        }
 
         // app clicked
         this.click = function click(data) {
