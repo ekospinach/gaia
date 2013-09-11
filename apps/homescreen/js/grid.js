@@ -10,7 +10,6 @@ var GridManager = (function() {
   var BASE_HEIGHT = 460; // 480 - 20 (status bar height)
   var DEVICE_HEIGHT = window.innerHeight;
 
-  var OPACITY_STEPS = 40; // opacity steps between [0,1]
   var HIDDEN_ROLES = ['system', 'keyboard', 'homescreen'];
 
   // Holds the list of single variant apps that have been installed
@@ -26,11 +25,8 @@ var GridManager = (function() {
 
   var defaultAppIcon, defaultBookmarkIcon;
 
-  var opacityOnAppGridPageMax = .7;
   var kPageTransitionDuration;
-  var landingPageOpacity = 0;
 
-  var numberOfSpecialPages = 0, landingPage, prevLandingPage, nextLandingPage;
   var pages = [];
   var currentPage = 0;
 
@@ -44,7 +40,6 @@ var GridManager = (function() {
 
   var MAX_ICONS_PER_PAGE = 4 * 4;
   var MAX_ICONS_PER_EVME_PAGE = 4 * 3;
-  var EVME_PAGE = 1;
   // Check if there is space for another row of icons
   // For WVGA, 800x480, we also want to show 4 x 5 grid on homescreen
   // the homescreen size would be 770 x 480, and 770/480 ~= 1.6
@@ -188,13 +183,6 @@ var GridManager = (function() {
   }
 
   var removeActive = noop;
-
-  function opacityStepFunction(opacity) {
-      // This step function is used to reduce the number of
-      // opacity changes as the swipe transition occurs on
-      // the home screen. The goal is to improve performance.
-      return Math.round(opacity * OPACITY_STEPS) / OPACITY_STEPS;
-  }
 
   function handleEvent(evt) {
     switch (evt.type) {
@@ -340,7 +328,7 @@ var GridManager = (function() {
           return;
         }
 
-        if (currentPage > landingPage && 'isIcon' in evt.target.dataset) {
+        if ('isIcon' in evt.target.dataset) {
           evt.stopImmediatePropagation();
           removePanHandler();
           Homescreen.setMode('edit');
@@ -536,6 +524,11 @@ var GridManager = (function() {
     });
   }
 
+  function goToLandingPage() {
+    document.body.dataset.transitioning = 'true';
+    goToPage(0);
+  }
+
   function goToNextPage(callback) {
     document.body.dataset.transitioning = 'true';
     goToPage(currentPage + 1, callback);
@@ -593,7 +586,7 @@ var GridManager = (function() {
 
   function getFirstPageWithEmptySpace(pageOffset) {
     pageOffset = pageOffset || 0;
-    for (var i = numberOfSpecialPages + pageOffset, page; page = pages[i++];) {
+    for (var i = pageOffset, page; page = pages[i++];) {
       if (page.getNumIcons() < page.numberOfIcons) {
         return i - 1;
       }
@@ -606,7 +599,7 @@ var GridManager = (function() {
 
     pages.forEach(function checkIsEmpty(page, index) {
       // ignore the landing page
-      if (index < numberOfSpecialPages + EVME_PAGE) {
+      if (index === 0) {
         return;
       }
 
@@ -633,7 +626,7 @@ var GridManager = (function() {
    * pages with a number of apps greater that the maximum
    */
   function ensurePagesOverflow(callback) {
-    ensurePageOverflow(numberOfSpecialPages, callback);
+    ensurePageOverflow(0, callback);
   }
 
   function ensurePageOverflow(index, callback) {
@@ -707,7 +700,7 @@ var GridManager = (function() {
      * Saves all pages state on the database
      */
     saveAll: function() {
-      var state = pages.slice(numberOfSpecialPages);
+      var state = pages.slice(0);
       state.unshift(DockManager.page);
       for (var i = 0; i < state.length; i++) {
         var page = state[i];
@@ -880,10 +873,6 @@ var GridManager = (function() {
     // not backed by the app database. Note that this creates an
     // offset between these indexes here and the ones in the DB.
     // See also pageHelper.saveAll().
-    numberOfSpecialPages = container.children.length;
-    landingPage = numberOfSpecialPages - 1;
-    prevLandingPage = landingPage - 1;
-    nextLandingPage = landingPage + 1;
     for (var i = 0; i < container.children.length; i++) {
       var pageElement = container.children[i];
       var page = new Page(pageElement, null);
@@ -1270,8 +1259,9 @@ var GridManager = (function() {
         return;
       }
 
+      // 1 is the index for landing page where ev.me is loading
       var pageIcons = convertDescriptorsToIcons(pageState),
-          numberOfIcons = pageState.index === EVME_PAGE ?
+          numberOfIcons = pageState.index === 1 ?
           MAX_ICONS_PER_EVME_PAGE : MAX_ICONS_PER_PAGE;
 
       pageHelper.addPage(pageIcons, numberOfIcons);
@@ -1437,6 +1427,8 @@ var GridManager = (function() {
 
     goToNextPage: goToNextPage,
 
+    goToLandingPage: goToLandingPage,
+
     localize: localize,
 
     dirCtrl: dirCtrl,
@@ -1450,10 +1442,6 @@ var GridManager = (function() {
     ensurePanning: ensurePanning,
 
     ensurePagesOverflow: ensurePagesOverflow,
-
-    get landingPage() {
-      return landingPage;
-    },
 
     getBlobByDefault: function(app) {
       if (app && app.iconable) {
