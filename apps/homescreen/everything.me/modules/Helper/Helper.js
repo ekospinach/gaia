@@ -6,6 +6,7 @@ Evme.Helper = new function Evme_Helper() {
 	elTitle = null,
 	elList = null,
 	elTip = null,
+    elSaveSearch = null,
 	_data = {},
 	defaultText = "",
 	scroll = null,
@@ -32,11 +33,13 @@ Evme.Helper = new function Evme_Helper() {
         el = options.el;
         elTitle = options.elTitle;
         elTip = options.elTip;
+        elSaveSearch = options.elSaveSearch;
         elWrapper = el.parentNode;
         elList = Evme.$("ul", el)[0];
 
         elList.addEventListener("click", elementClick, false);
         elTitle.addEventListener("click", titleClicked, false);
+        elSaveSearch.addEventListener("click", saveSearchClicked, false);
         
         self.reset();
 
@@ -347,6 +350,8 @@ Evme.Helper = new function Evme_Helper() {
         } else {
             elTitle.classList.add("notype");
         }
+        
+        updateBookmarkState();
 
         return html;
     };
@@ -354,6 +359,7 @@ Evme.Helper = new function Evme_Helper() {
     this.showTitle = function showTitle() {
         if (titleVisible) return;
         
+        elSaveSearch.classList.add("visible");
         elWrapper.classList.add("close");
         elTitle.classList.remove("close");
         self.hideTip();
@@ -365,6 +371,7 @@ Evme.Helper = new function Evme_Helper() {
     this.hideTitle = function hideTitle() {
         if (!titleVisible) return;
         
+        elSaveSearch.classList.remove("visible");
         elWrapper.classList.remove("close");
         elTitle.classList.add("close");
         window.setTimeout(self.disableCloseAnimation, 50);
@@ -545,6 +552,36 @@ Evme.Helper = new function Evme_Helper() {
             
         if (val) {
             cbClick(elClicked, index, isVisibleItem(index), val, valToSend, source, type);
+        }
+    }
+
+    function saveSearchClicked(e) {
+        var collectionId = elSaveSearch.dataset.collectionId,
+            data = {
+                "collectionId": collectionId,
+                "callback": updateBookmarkState
+            };
+        
+        if (collectionId) {
+            Evme.EventHandler.trigger(NAME, 'unsaveSearch', data);
+        } else {
+            Evme.EventHandler.trigger(NAME, 'saveSearch', data);
+        }
+    }
+    
+    // check if query already saved as collection
+    function updateBookmarkState() {
+        var collections = EvmeManager.getCollections();
+
+        var found = collections.some(function isMatchingQuery(collection) {
+            if (collection.manifest.name.toLowerCase() === title.toLowerCase()) {
+                elSaveSearch.dataset.collectionId = collection.id;
+                return true;
+            }
+        });
+
+        if (!found) {
+            elSaveSearch.dataset.collectionId = '';
         }
     }
 
