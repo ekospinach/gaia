@@ -99,7 +99,9 @@ window.Evme = {
 
       this._fired[eventName] = (args);
 
-      window.dispatchEvent(new CustomEvent(eventName, args));
+      window.dispatchEvent(new CustomEvent(eventName, {
+        detail: args
+      }));
     }
   }
 };
