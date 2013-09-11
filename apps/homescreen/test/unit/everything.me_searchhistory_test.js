@@ -7,10 +7,14 @@ requireApp('homescreen/test/unit/mock_evme_storage.js');
 requireApp('homescreen/everything.me/modules/SearchHistory/SearchHistory.js');
 
 suite('Evme.SearchHistory >', function() {
-  var MAX_ENTRIES = 3;
+  var MAX_ENTRIES = 3,
+      PREINIT_QUERY = 'preinit query';
 
   suiteSetup(function() {
     Evme.suiteSetup();
+
+    // add directly to the storage, to verify the class reads it on init
+    Evme.Storage.set('userHistory', JSON.stringify([{ query: PREINIT_QUERY}]));
 
     Evme.SearchHistory.init({
       maxEntries: MAX_ENTRIES
@@ -24,6 +28,11 @@ suite('Evme.SearchHistory >', function() {
   test('init', function() {
     assert.isTrue(Evme.EventHandler.fired('SearchHistory', 'init'));
     assert.isTrue(Evme.EventHandler.fired('SearchHistory', 'populate'));
+
+    // make sure that the class reads from the storage upon init
+    var queries = Evme.SearchHistory.get();
+    assert.equal(queries.length, 1);
+    assert.equal(queries[0].query, PREINIT_QUERY);
   });
 
   test('save query', function() {
