@@ -191,24 +191,26 @@ var EverythingME = {
   onEvmeLoaded: function onEvmeLoaded() {
     var page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child'),
-        activationIcon = document.getElementById('evme-activation-icon');
-        input = activationIcon.querySelector('input'),
-        existingQuery = input && input.value;
+        activationIcon = document.getElementById('evme-activation-icon'),
+        activationIconInput = activationIcon.querySelector('input'),
+        existingQuery = activationIconInput && activationIconInput.value,
+        evmeInput = document.getElementById('search-q');
 
     // add evme into the first grid page
     gridPage.appendChild(page.parentNode.removeChild(page)); 
 
     EvmeFacade.onShow();
+
     var e = EverythingME.pendingEvent;
-    
-    if (e && input && e.target === input) {
+
+    if (e && evmeInput && e.target === activationIconInput) {
       // set the query the user entered before loaded
       if (existingQuery) {
         EvmeFacade.searchFromOutside(existingQuery);
       }
 
       EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
-      input.setSelectionRange(existingQuery.length, existingQuery.length);
+      evmeInput.setSelectionRange(existingQuery.length, existingQuery.length);
     }
 
     document.body.classList.remove('evme-loading');
