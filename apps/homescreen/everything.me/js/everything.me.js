@@ -8,7 +8,8 @@ var EverythingME = {
     }
     
     var page = document.getElementById('evmeContainer'),
-        gridPage = document.querySelector('#icongrid > div:first-child');
+        gridPage = document.querySelector('#icongrid > div:first-child'),
+        appsEl = document.getElementById('icongrid');
 
     gridPage.classList.add('evmePage');
 
@@ -42,16 +43,25 @@ var EverythingME = {
 
       // open the collection immediately 
       if (e.type === 'collectionlaunch') {
-        window.mozRequestAnimationFrame(function() {
-          var elCollection = document.getElementById('collection');
-          elCollection.classList.add('visible');
-
-          var elLoader = elCollection.querySelector(".loading-more");
-          elLoader.classList.add('show');
-        });
+        onCollectionOpened(activationIcon);
       }
 
       EverythingME.activate();
+    }
+
+    function onCollectionOpened(activationIcon) {
+      appsEl.classList.add('evme-collection-visible');
+
+      var elCollection = document.getElementById('collection');
+      elCollection.classList.add('visible');
+
+      var closeButton  = elCollection.querySelector('.close');
+      closeButton.addEventListener('click', EverythingME.onCollectionClosed);
+
+      var elLoader = elCollection.querySelector(".loading-more");
+      elLoader.classList.add('show');
+
+      window.addEventListener("hashchange", EverythingME.onCollectionClosed);
     }
 
     function onContextMenu(e) {
@@ -66,6 +76,14 @@ var EverythingME = {
     });
 
     EverythingME.migrateStorage();
+  },
+
+  onCollectionClosed: function onCollectionClosed(activationIcon) {
+    var appsEl = document.getElementById('icongrid');
+    appsEl.classList.remove('evme-collection-visible');
+
+    var elCollection = document.getElementById('collection');
+    elCollection.classList.remove('visible');
   },
   
   activate: function EverythingME_activate() {
@@ -194,7 +212,8 @@ var EverythingME = {
         activationIcon = document.getElementById('evme-activation-icon'),
         activationIconInput = activationIcon.querySelector('input'),
         existingQuery = activationIconInput && activationIconInput.value,
-        evmeInput = document.getElementById('search-q');
+        evmeInput = document.getElementById('search-q'),
+        closeButton = document.querySelector('#collection .close');
 
     // add evme into the first grid page
     gridPage.appendChild(page.parentNode.removeChild(page)); 
@@ -211,7 +230,12 @@ var EverythingME = {
 
       EvmeFacade.Searchbar && EvmeFacade.Searchbar.focus && EvmeFacade.Searchbar.focus();
       evmeInput.setSelectionRange(existingQuery.length, existingQuery.length);
-    }
+    }    
+
+    var closeButton  = document.querySelector('#collection .close');
+    closeButton.removeEventListener('click', EverythingME.onCollectionClosed);
+
+    window.removeEventListener("hashchange", EverythingME.onCollectionClosed);
 
     document.body.classList.remove('evme-loading');
 

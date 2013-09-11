@@ -207,7 +207,8 @@ body:not(.evme-loaded) #collection progress {
 .apps.evme-collection-visible div[data-current-page] ol {
     opacity: 0;
 }
-.apps.evme-collection-visible div[data-current-page] .evmeScope #search-header {
+.apps.evme-collection-visible div[data-current-page] .evmeScope #search-header,
+.apps.evme-collection-visible div[data-current-page] #evme-activation-icon {
     transform: translateY(-7rem);
 }
 .evmeScope #collection form {
