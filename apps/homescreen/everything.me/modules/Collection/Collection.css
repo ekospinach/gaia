@@ -30,10 +30,10 @@ body:not(.evme-ready) #collection progress {
 }
 
 .evmeScope #collection.visible {
+    z-index: 10001;
     pointer-events: inherit;
     display: block;
     animation-name: collection-show;
-    animation-fill-mode: forwards;
 }
 
     .evmeScope #collection.animate .title,
@@ -223,11 +223,9 @@ body:not(.evme-ready) #collection progress {
 @-moz-keyframes collection-show {
   0% {
     transform: translateY(100%);
-    z-index: 10001;
   }
   100% {
     transform: translateY(0%);
-    z-index: 10001;
   }
 }
 @-moz-keyframes collection-hide {
@@ -238,6 +236,5 @@ body:not(.evme-ready) #collection progress {
   100% {
     transform: translateY(100%);
     pointer-events: none;
-    display: none;
   }
 }

@@ -1,13 +1,13 @@
 #homescreenStatus {
-  z-index: -1;
-  opacity: 0;
-  -moz-transition: all 600ms ease;
-}
-#homescreenStatus.visible {
   z-index: 10001;
-  opacity: 1;
-  -moz-transition: all 600ms ease;
+  -moz-transition: -moz-transform 300ms ease;
+  -moz-transform: translateY(100%);
 }
+
+#homescreenStatus.visible {
+  -moz-transform: translateY(0);
+}
+
 #homescreenStatus > p > strong {
   white-space: nowrap;
 }
