@@ -6,6 +6,7 @@ html, body {
   border: none;
   font-size: 10px;
   overflow: hidden;
+  background-color: rgba(0,0,0,0.45);
 }
 
 * {
@@ -67,15 +68,6 @@ html[dir=rtl] .apps ol > li {
 
 li:active {
   background-color: transparent !important;
-}
-
-#bg-overlay {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgba(0,0,0,0.7);
 }
 
 /* === Repaint Helper === */
