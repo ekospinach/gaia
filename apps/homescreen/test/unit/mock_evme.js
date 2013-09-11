@@ -16,6 +16,10 @@ window.Evme = {
   },
 
   suiteTeardown: function tearDown() {
+    if (window.realScroll) {
+      window.Scroll = window.realScroll;
+    }
+
     this.wrapperNode.parentNode.removeChild(this.wrapperNode);
 
     if (window.realEvme) {
@@ -26,6 +30,15 @@ window.Evme = {
   Utils: {
     l10n: function l10n(module, key, args) {
       return module + '.' + key;
+    },
+    l10nAttr: function l10nAttr(module, key, args) {
+      return '';
+    },
+    l10nKey: function l10nKey(module, key) {
+      return ('evme-' + module + '-' + key).toLowerCase();
+    },
+    l10nParseConfig: function l10nParseConfig(text) {
+      return '';
     }
   },
 
@@ -73,6 +86,10 @@ window.Evme = {
     return isById ? els[0] : els;
   },
 
+  html: function html(text) {
+    return text;
+  },
+
   EventHandler: {
     _fired: {},
 
@@ -82,7 +99,12 @@ window.Evme = {
           isFired = eventArgs !== undefined;
 
       if (isFired && args) {
-        isFired = (JSON.stringify(args) === JSON.stringify(eventArgs));
+        for (var k in args) {
+          if (args[k] !== eventArgs[k]) {
+            isFired = false;
+            break;
+          }
+        }
       }
 
       // delete it so if we check the same event in two tests
@@ -104,4 +126,12 @@ window.Evme = {
       }));
     }
   }
+};
+
+
+window.realScroll = window.Scroll;
+window.Scroll = function() {
+  Evme.EventHandler.trigger('Scroll', 'init');
+
+  this.scrollTo = function scrollTo() {};
 };
