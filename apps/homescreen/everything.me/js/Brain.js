@@ -636,19 +636,25 @@ Evme.Brain = new function Evme_Brain() {
 
         // app pressed and held
         this.hold = function hold(data) {
-	    currentHoldData = data;
+            currentHoldData = data;
 
-	    if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
-		if (Evme.Collection.isOpen()) {
-		    Evme.Collection.toggleEditMode(false);
-		    openCloudAppMenu(data);
-		} else {
-		    saveToHomescreen(data, true);
-		}
-	    } else if (data.app.type === Evme.RESULT_TYPE.INSTALLED && !Evme.Collection.editMode) {
-		Evme.Collection.toggleEditMode(true);
-	    }
-	};
+            // in collection
+            if (Evme.Collection.isOpen()) {
+                if (data.app.cfg.isStatic === true) {
+                    Evme.Collection.toggleEditMode(true);
+                } else if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
+                    Evme.Collection.toggleEditMode(false);
+                    openCloudAppMenu(data);
+                }
+            }
+
+            // in search
+            else {
+                if (data.app.type === Evme.RESULT_TYPE.CLOUD) {
+                    saveToHomescreen(data, true);
+                }
+            }
+        };
 
 	this.remove = function remove(data) {
 	    var id = data.id;
