@@ -51,7 +51,7 @@ var ConfirmDialog = (function() {
       dialog.classList.add('visible');
     },
 
-    showApp: function dialog_showApp(app) {
+    showApp: function dialog_showApp(app, extra) {
       var title, body, cancel = {
         title: _('cancel'),
         callback: ConfirmDialog.hide
@@ -66,6 +66,8 @@ var ConfirmDialog = (function() {
           } else {
             navigator.mozApps.mgmt.uninstall(app);
           }
+
+          extra.onConfirm && extra.onConfirm();
         },
         applyClass: 'danger'
       };

@@ -156,11 +156,11 @@ var Homescreen = (function() {
      * @param {Application} app
      *                      The application object.
      */
-    showAppDialog: function h_showAppDialog(app) {
+    showAppDialog: function h_showAppDialog(app, extra) {
       LazyLoader.load(['shared/style/buttons.css', 'shared/style/headers.css',
                        'shared/style/confirm.css', 'style/request.css',
                        'js/request.js'], function loaded() {
-        ConfirmDialog.showApp(app);
+        ConfirmDialog.showApp(app, extra);
       });
     },
 
