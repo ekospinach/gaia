@@ -1,3 +1,20 @@
+/* styles for open collection before eme is loaded */
+body:not(.evme-loaded) #collection hr,
+body:not(.evme-loaded) #collection .connection-message,
+body:not(.evme-loaded) #collection .loading-more div span {
+  display: none;
+}
+body:not(.evme-loaded) #collection .evme-apps {
+  width: 100%;
+}
+body:not(.evme-loaded) #collection progress {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -1.45rem;
+  margin-left: -1.45rem;
+}
+
 .evmeScope #collection {
     position: fixed;
     top: 0;
