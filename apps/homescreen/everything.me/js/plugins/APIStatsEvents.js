@@ -97,7 +97,7 @@ Evme.APIStatsEvents = function Evme_APIStatsEvents(Sandbox){
             if (authenticate(item)) {
                 
                 // render template
-                var template = templatesStr[item["class"]+"_"+item["event"]]
+                var template = templatesStr[item["class"]+"_"+item["event"]],
                     data = renderTemplate(template, item["data"]);
                 
                 data && processedItems.push( data );
