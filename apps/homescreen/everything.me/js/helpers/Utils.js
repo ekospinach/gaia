@@ -4,11 +4,13 @@ Evme.Utils = new function Evme_Utils() {
         newUser = false, isTouch = false,
         parsedQuery = parseQuery(),
         elContainer = null,
+        elOverlay = null,
 	headEl = document.querySelector('html>head'),
 	filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
 
 	CONTAINER_ID = "evmeContainer", // main E.me container
 	SCOPE_CLASS = "evmeScope",      // elements with E.me content
+  OVERLAY_ID = "evmeOverlay",     // E.me element visible on all grid pages
 
         COOKIE_NAME_CREDENTIALS = "credentials",
 
@@ -72,6 +74,7 @@ Evme.Utils = new function Evme_Utils() {
         isTouch = window.hasOwnProperty("ontouchstart");
 
         elContainer = document.getElementById(CONTAINER_ID);
+        elOverlay = document.getElementById(OVERLAY_ID);
     };
 
     this.logger = function logger(level) {
@@ -162,6 +165,10 @@ Evme.Utils = new function Evme_Utils() {
 
     this.getContainer = function getContainer() {
         return elContainer;
+    };
+
+    this.getOverlay = function getOverlay() {
+      return elOverlay;
     };
 
     this.getScopeElements = function getScopeElements() {

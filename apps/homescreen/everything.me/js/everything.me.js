@@ -30,6 +30,7 @@ var EverythingME = {
     activationIcon.addEventListener('contextmenu', onContextMenu);
     activationIcon.addEventListener('click', triggerActivateFromInput);
     window.addEventListener('collectionlaunch', triggerActivate);
+    window.addEventListener('suggestcollections', triggerActivate);
     window.addEventListener('EvmeDropApp', triggerActivate);
 
     function triggerActivateFromInput(e) {
@@ -258,15 +259,6 @@ var EverythingME = {
     for (var i = 0; i < list.length; i++) {
       var resource = list[i];
       resource.parentNode.removeChild(resource);
-    }
-  },
-
-  Collection: {
-    suggest: function EverythingME_Collection_suggest() {
-      EvmeFacade.onCollectionSuggest();
-    },
-    custom: function EverythingME_Collection_custom() {
-      EvmeFacade.onCollectionCustom();
     }
   },
 

@@ -31,6 +31,7 @@
     <!-- Specific code -->
     <script type="text/javascript" defer src="js/message.js"></script>
     <script type="text/javascript" defer src="js/request.js"></script>
+    <script type="text/javascript" defer src="js/contextmenu.js"></script>
     <script type="text/javascript" defer src="js/grid_components.js"></script>
     <script type="text/javascript" defer src="js/bookmark.js"></script>
     <script type="text/javascript" defer src="js/state.js"></script>
@@ -72,11 +73,24 @@
       </form>
     </section>
 
+    <!-- long tap on empty homescreen space opens a context menu -->
+    <section id="contextmenu-dialog">
+      <form role="dialog" data-type="action">
+        <menu>
+          <button id="contextmenu-dialog-wallpaper-button" data-l10n-id="contextmenu-add-wallpaper" type="button"></button>
+          <button id="contextmenu-dialog-collections-button" data-l10n-id="contextmenu-add-collections" type="button"></button>
+          <button id="contextmenu-dialog-cancel-button" data-l10n-id="cancel" type="button"></button>
+        </menu>
+      </form>
+    </section>
+
     <header id="paginationBar">
       <div class="paginationScroller" role="slider" aria-valuemin="0" aria-valuenow="0" aria-valuemax="0" aria-controls="icongrid"></div>
     </header>
 
+    <!-- visible on all pages -->
     <div id="evmeOverlay" class="evmeScope">
+      <select id="collections-select" multiple="true"></select>
       <div id="collection">
         <div class="header">
           <div class="header-content">

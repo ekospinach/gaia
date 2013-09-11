@@ -1,18 +1,19 @@
 Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
-  var NAME = 'CollectionsSuggest', self = this,
-      elList = null, elParent = null, active = false,
+  var NAME = 'CollectionsSuggest',
+      CUSTOM_OPT_VALUE = 'customCollectionValue',
+      CUSTOM_OPT_ID = 'custom-collection'
+      self = this,
+      elList = null,
+      elParent = null,
+      active = false,
       savedIcons = null;
 
   this.init = function init(options) {
     elParent = options.elParent;
 
-    elList = Evme.$create('select', {
-      "multiple": "true",
-      "id": "shortcuts-select"
-    });
-    elList.addEventListener("blur", onHide);
-
-    elParent.appendChild(elList);
+    elList = options.el;
+    elList.addEventListener("blur", onBlur);
+    elList.addEventListener('change', onChange);
 
     Evme.EventHandler.trigger(NAME, 'init');
   };
@@ -42,6 +43,7 @@ Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
   };
 
   this.newCustom = function newCustom() {
+    elList.blur();
     var customQuery = prompt(Evme.Utils.l10n(NAME, "prompt-create"));
 
     if (!customQuery) {
@@ -55,14 +57,14 @@ Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
 
   this.get = function get() {
     var selectedShortcuts = [],
-	elShourtcuts = Evme.$('option', elList);
+        elShourtcuts = Evme.$('option', elList);
 
     for (var i=0, elOption; elOption=elShourtcuts[i++];) {
       if (elOption.selected) {
-	selectedShortcuts.push({
-	  "query": elOption.value,
-	  "experienceId": elOption.dataset.experience || ''
-	});
+        selectedShortcuts.push({
+          "query": elOption.value,
+          "experienceId": elOption.dataset.experience || ''
+        });
       }
     }
 
@@ -79,8 +81,17 @@ Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
   };
 
   this.add = function add(shortcuts) {
-    var html = '',
-	shortcutsAdded = {};
+    var shortcutsAdded = {};
+
+    elList.innerHTML = '';
+
+    // custom collection
+    var optCustom = document.createElement('option');
+    optCustom.text = Evme.Utils.l10n('shortcut', 'custom');
+    optCustom.value = CUSTOM_OPT_VALUE;
+    optCustom.id = CUSTOM_OPT_ID;
+
+    elList.appendChild(optCustom);
 
     for (var i=0,shortcut,query,queryKey,experienceId,name; shortcut=shortcuts[i++];) {
       query = shortcut.query;
@@ -89,53 +100,52 @@ Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
       name = query;
 
       if (experienceId) {
-	var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
-	    translatedName = Evme.Utils.l10n('shortcut', l10nkey);
+        var l10nkey = 'id-' + Evme.Utils.shortcutIdToKey(experienceId),
+            translatedName = Evme.Utils.l10n('shortcut', l10nkey);
 
-	if (translatedName) {
-	  name = translatedName;
-	}
+        if (translatedName) {
+          name = translatedName;
+        }
       }
 
       name = name.replace(/</g, '&lt;');
 
       if (!shortcutsAdded[queryKey]) {
-	html += '<option ' +
-		    'value="' + query.replace(/"/g, '&quot;') + '" ' +
-		    'data-experience="' + experienceId + '"' +
-		'>' + Evme.html(name) + '</option>';
+        var opt = document.createElement('option');
+        opt.text = Evme.html(name);
+        opt.value = query.replace(/"/g, '&quot;');
+        opt.dataset.experience = experienceId;
 
-	shortcutsAdded[queryKey] = true;
+        elList.appendChild(opt);
+        shortcutsAdded[queryKey] = true;
       }
     }
-
-    elList.innerHTML = html;
   };
 
   this.Loading = new function Loading() {
     var active = false,
-	ID = 'shortcuts-customize-loading';
+        ID = 'shortcuts-customize-loading';
 
     this.show = function loadingShow() {
       if (active) return;
 
       var el = Evme.$create('form',
-		  {'id': ID, 'role': 'dialog', 'data-type': 'confirm'},
-		  '<section>' +
-		      '<h1 ' + Evme.Utils.l10nAttr(NAME, 'loading') + '></h1>' +
-		      '<p class="noreset">' +
-			  '<progress></progress>' +
-		      '</p>' +
-		  '</section>' +
-		  '<menu>' +
-		      '<button ' + Evme.Utils.l10nAttr(NAME, 'loading-cancel') + ' class="full"></button>' +
-		  '</menu>');
+                  {'id': ID, 'role': 'dialog', 'data-type': 'confirm'},
+                  '<section>' +
+                      '<h1 ' + Evme.Utils.l10nAttr(NAME, 'loading') + '></h1>' +
+                      '<p class="noreset">' +
+                          '<progress></progress>' +
+                      '</p>' +
+                  '</section>' +
+                  '<menu>' +
+                      '<button ' + Evme.Utils.l10nAttr(NAME, 'loading-cancel') + ' class="full"></button>' +
+                  '</menu>');
 
       Evme.$("button", el, function onItem(elButton) {
-	elButton.addEventListener("click", onLoadingCancel)
+        elButton.addEventListener("click", onLoadingCancel)
       });
 
-      Evme.Utils.getContainer().appendChild(el);
+      Evme.Utils.getOverlay().appendChild(el);
 
       active = true;
 
@@ -152,10 +162,25 @@ Evme.CollectionsSuggest = new function Evme_CollectionsSuggest() {
     };
   };
 
-  function onHide() {
+  function isCustomSelected() {
+    var optCustom = document.getElementById(CUSTOM_OPT_ID);
+    return (optCustom && optCustom.selected);
+  }
+
+  function onChange() {
+    if (isCustomSelected()) {
+      self.newCustom();
+    }
+  }
+
+  function onBlur() {
     active = false;
+    self.Loading.hide();
     Evme.EventHandler.trigger(NAME, 'hide');
-    done();
+
+    if (!isCustomSelected()) {
+      done();  
+    }
   }
 
   function onLoadingCancel(e) {

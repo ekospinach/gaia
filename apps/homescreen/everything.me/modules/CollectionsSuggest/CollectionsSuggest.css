@@ -1,4 +1,4 @@
-#evmeContainer #shortcuts-select {
+#evmeOverlay #collections-select {
     position: absolute;
     top: 0;
     left: 0;
@@ -9,11 +9,11 @@
     border: 0;
 }
 
-#evmeContainer #shortcuts-customize-loading {
+#evmeOverlay #shortcuts-customize-loading {
     z-index: 800;
 }
 
-#evmeContainer #shortcuts-customize-loading p {
+#evmeOverlay #shortcuts-customize-loading p {
     text-align: center;
     overflow: hidden;
 }
