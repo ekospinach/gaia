@@ -13,10 +13,10 @@
 }
 
 .evmeScope #collection.visible {
+    z-index: 10001;
     pointer-events: inherit;
     display: block;
     animation-name: collection-show;
-    animation-fill-mode: forwards;
 }
 
     .evmeScope #collection.animate .title,
@@ -205,11 +205,9 @@
 @-moz-keyframes collection-show {
   0% {
     transform: translateY(100%);
-    z-index: 10001;
   }
   100% {
     transform: translateY(0%);
-    z-index: 10001;
   }
 }
 @-moz-keyframes collection-hide {
