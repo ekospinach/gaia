@@ -6,7 +6,7 @@ var EverythingME = {
     if (footer) {
       footer.style.MozTransition = '-moz-transform .3s ease';
     }
-    
+
     var page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child'),
         appsEl = document.getElementById('icongrid');
@@ -17,7 +17,7 @@ var EverythingME = {
     // create activation icon
     var activationIcon = document.createElement('div');
     activationIcon.id = 'evme-activation-icon';
-    activationIcon.innerHTML = '<input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" />';
+    activationIcon.innerHTML = '<div><input type="text" x-inputmode="verbatim" data-l10n-id="evme-searchbar-default" /></div>';
     gridPage.insertBefore(activationIcon, gridPage.firstChild);
 
     navigator.mozL10n.ready(function loadSearchbarValue() {
@@ -28,14 +28,19 @@ var EverythingME = {
     });
 
     activationIcon.addEventListener('contextmenu', onContextMenu);
-    activationIcon.addEventListener('click', triggerActivate);
+    activationIcon.addEventListener('click', triggerActivateFromInput);
     window.addEventListener('collectionlaunch', triggerActivate);
     window.addEventListener('EvmeDropApp', triggerActivate);
+
+    function triggerActivateFromInput(e) {
+      document.body.classList.add('evme-loading-from-input');
+      triggerActivate(e);
+    }
 
     function triggerActivate(e) {
       EverythingME.pendingEvent = e;
 
-      activationIcon.removeEventListener('click', triggerActivate);
+      activationIcon.removeEventListener('click', triggerActivateFromInput);
       activationIcon.removeEventListener('contextmenu', onContextMenu);
 
       window.removeEventListener('collectionlaunch', triggerActivate);
@@ -238,6 +243,7 @@ var EverythingME = {
     window.removeEventListener("hashchange", EverythingME.onCollectionClosed);
 
     document.body.classList.remove('evme-loading');
+    document.body.classList.remove('evme-loading-from-input');
 
     activationIcon.parentNode.removeChild(activationIcon);
 
