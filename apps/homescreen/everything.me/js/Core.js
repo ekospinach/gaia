@@ -61,14 +61,6 @@ window.Evme = new function Evme_Core() {
       return false;
     };
 
-    this.onCollectionSuggest = function onCollectionSuggest() {
-      Evme.Brain.CollectionsSuggest.showUI();
-    };
-
-    this.onCollectionCustom = function onCollectionCustom() {
-      Evme.CollectionSuggest.newCustom();
-    };
-
     this.searchFromOutside = function searchFromOutside(query) {
         Evme.Brain.Searcher.searchExactFromOutside(query);
     };
@@ -138,6 +130,7 @@ window.Evme = new function Evme_Core() {
     });
 
     Evme.CollectionsSuggest.init({
+      "el": document.getElementById('collections-select'),
       "elParent": Evme.Utils.getContainer()
     });
 

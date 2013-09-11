@@ -71,6 +71,11 @@ var Homescreen = (function() {
     });
   }
 
+  function onTapAndHold(e) {
+    e.preventDefault();
+    ContextMenuDialog.show();
+  }
+
   function exitFromEditMode() {
     Homescreen.setMode('normal');
     ConfirmDialog.hide();
