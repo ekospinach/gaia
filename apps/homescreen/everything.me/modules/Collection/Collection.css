@@ -1,13 +1,13 @@
 /* styles for open collection before eme is loaded */
-body:not(.evme-loaded) #collection hr,
-body:not(.evme-loaded) #collection .connection-message,
-body:not(.evme-loaded) #collection .loading-more div span {
+body:not(.evme-ready) #collection hr,
+body:not(.evme-ready) #collection .connection-message,
+body:not(.evme-ready) #collection .loading-more div span {
   display: none;
 }
-body:not(.evme-loaded) #collection .evme-apps {
+body:not(.evme-ready) #collection .evme-apps {
   width: 100%;
 }
-body:not(.evme-loaded) #collection progress {
+body:not(.evme-ready) #collection progress {
   position: absolute;
   top: 50%;
   left: 50%;
