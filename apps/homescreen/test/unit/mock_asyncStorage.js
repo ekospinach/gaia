@@ -16,8 +16,9 @@ var MockasyncStorage = {
     cb && cb();
   },
 
-  removeItem: function(key) {
+  removeItem: function(key, cb) {
     delete this.keys[key];
+    cb && cb();
   },
 
   clear: function(key) {
