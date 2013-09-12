@@ -63,7 +63,7 @@ var Homescreen = (function() {
         GridManager.goToLandingPage();
       }
       DragDropManager.init(options);
-      Wallpaper.init();
+      GridManager.container.addEventListener('contextmenu', onTapAndHold);
 
       if (onInit instanceof Function) {
 	onInit();
