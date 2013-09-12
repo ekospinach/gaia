@@ -5,14 +5,21 @@ window.realEvme = window.Evme;
 window.Evme = {
   wrapperNode: null,
 
-  suiteSetup: function suiteSetup() {
+  suiteSetup: function suiteSetup(options) {
+    !options && (options = {});
+
     this.wrapperNode = document.createElement('section');
     this.wrapperNode.id = 'mock-evme-html';
     this.wrapperNode.innerHTML = MockEverythingMeHtml;
     document.body.appendChild(this.wrapperNode);
 
-    // reset the events to not have leftover between tests
-    this.EventHandler._fired = {};
+    // if we didn't explicitly asked without the EventHandler mock
+    // add it to Evme object
+    if (options.eventHandler !== false) {
+      // reset the events to not have leftover between tests
+      this.MockEventHandler._fired = {};
+      this.EventHandler = this.MockEventHandler;
+    }
   },
 
   suiteTeardown: function tearDown() {
@@ -93,7 +100,7 @@ window.Evme = {
     return text;
   },
 
-  EventHandler: {
+  MockEventHandler: {
     _fired: {},
 
     fired: function fired(className, eventName, args) {
