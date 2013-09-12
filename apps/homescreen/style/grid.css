@@ -94,12 +94,29 @@ body[data-transitioning] .apps > div {
 
 /* Container -> icon + label */
 .apps ol > li > div {
+  position: relative;
   height: 100%;
   width: 100%;
-	margin-top: .5rem;
-	margin-bottom: .5rem;
+  margin-top: .5rem;
+  margin-bottom: .5rem;
   pointer-events: none; /* NO touchable area */
   font-size: 0; /* To remove the gap between the icon and the label, which is adjustable by .labelWrapper */
+}
+.apps ol > li[data-is-collection = "true"] > div > img {
+  position: relative;
+  z-index: 20;
+}
+.apps ol > li[data-is-collection = "true"] > div:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 5.4rem;
+  height: 5.4rem;
+  margin: 0.2rem 0 0 -2.9rem;
+  border: 0.2rem solid rgba(255, 255, 255, .5);
+  border-radius: 50%;
+  z-index: 10;
 }
 
 /* Handling the case where the status bar is double size */
