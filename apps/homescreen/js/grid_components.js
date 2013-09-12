@@ -56,7 +56,7 @@ GridItem.prototype = {
     return {
       id: this.id,
       name: this.manifest.name,
-      icon: this.manifest.icons['60'],
+      icon: this.manifest.icons && this.manifest.icons['60'],
       remote: true,
       useAsyncPanZoom: this.useAsyncPanZoom
     };
