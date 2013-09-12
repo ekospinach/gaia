@@ -6,8 +6,6 @@ requireApp('homescreen/test/unit/mock_evme.js');
 requireApp('homescreen/everything.me/js/helpers/EventHandler.js');
 
 suite('Evme.EventHandler >', function() {
-  var elMockBanner;
-
   suiteSetup(function() {
     Evme.suiteSetup({
       eventHandler: false
