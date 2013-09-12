@@ -28,6 +28,9 @@ window.Evme = {
   },
 
   Utils: {
+    log: function log() {
+
+    },
     l10n: function l10n(module, key, args) {
       return module + '.' + key;
     },
