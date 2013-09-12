@@ -84,31 +84,31 @@ Evme.Config = Evme.__config = {
             "shadowOpacity": 0.2
         }],
         "3": [{
-            "x": 26,
-            "y": 20,
-            "size": 46,
-            "darken": 0.4,
-            "shadowOffset": 2,
-            "shadowBlur": 1,
-            "shadowOpacity": 0.1
-        },
-        {
-            "x": 18,
-            "y": 10,
-            "size": 46,
-            "darken": 0.25,
-            "shadowOffset": 2,
+            "x": (68 - 68 * 0.45) + 4,
+            "y": (68 - 68 * 0.45)/2,
+            "size": 68 * 0.45,
+            "shadowOffset": 1,
+            "shadowOffsetX": 1,
             "shadowBlur": 2,
-            "shadowOpacity": 0.1
+            "shadowOpacity": 0.4
         },
         {
-            "x": 0,
-            "y": 6,
-            "size": 54,
-            "shadowOffset": 4,
-            "shadowOffsetX": 2,
+            "x": (68 - 68 * 0.5)/2 + 4,
+            "y": (68 - 68 * 0.5)/2,
+            "size": 68 * 0.5,
+            "shadowOffset": 1,
+            "shadowOffsetX": 1,
             "shadowBlur": 4,
-            "shadowOpacity": 0.2
+            "shadowOpacity": .7
+        },
+        {
+            "x": -2,
+            "y": (68 - 68 * 0.6)/2,
+            "size": 68 * 0.6,
+            "shadowOffset": 1,
+            "shadowOffsetX": 1,
+            "shadowBlur": 6,
+            "shadowOpacity": 0.9
         }]
     },
     "design": {
