@@ -134,10 +134,8 @@ function execute() {
       [GAIA_EXTERNAL_APP_SRCDIR, 'marketplace.firefox.com'],
       ['apps/homescreen/collections', 'social'],
       ['apps/homescreen/collections', 'games'],
-      ['apps/homescreen/collections', 'local'],
-      ['apps/homescreen/collections', 'utilities'],
       ['apps/homescreen/collections', 'music'],
-      ['apps/homescreen/collections', 'photography']
+      ['apps/homescreen/collections', 'tv']
     ], [
       ['apps', 'calendar'],
       ['apps', 'clock'],
@@ -145,14 +143,12 @@ function execute() {
       ['apps', 'email'],
       ['apps', 'music'],
       ['apps', 'video'],
-      ['apps/homescreen/collections', 'recipes'],
-      ['apps/homescreen/collections', 'funny'],
+      
       ['apps/homescreen/collections', 'news'],
-      ['apps/homescreen/collections', 'weather'],
-      ['apps/homescreen/collections', 'shopping'],
       ['apps/homescreen/collections', 'sports'],
-      ['apps/homescreen/collections', 'movies'],
-      ['apps/homescreen/collections', 'tv']
+      ['apps/homescreen/collections', 'shopping'],
+      ['apps/homescreen/collections', 'local']
+      ['apps/homescreen/collections', 'funny']
     ]
   ],
     'search_page': {
