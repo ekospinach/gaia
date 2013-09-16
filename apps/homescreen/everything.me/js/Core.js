@@ -1,12 +1,12 @@
 window.Evme = new function Evme_Core() {
     var NAME = "Core", self = this,
-	head_ts = new Date().getTime();
+        head_ts = new Date().getTime();
 
     this.shouldSearchOnInputBlur = false;
 
     this.init = function init(callback) {
-	var data = Evme.__config,
-	    apiHost = Evme.Utils.getUrlParam("apiHost") || data.apiHost;
+        var data = Evme.__config,
+            apiHost = Evme.Utils.getUrlParam("apiHost") || data.apiHost;
 
         apiHost && Evme.api.setHost(apiHost);
 
@@ -42,18 +42,18 @@ window.Evme = new function Evme_Core() {
       Evme.Searchbar.blur();
 
       if (
-      // hide suggested collections list if open
-      Evme.CollectionsSuggest.hide() ||
-      // stop editing if active
-      Evme.Collection.toggleEditMode(false) ||
-      // close full screen background image if visible
-      Evme.Collection.hideFullscreen() ||
-      // hide the collection if visible
-      Evme.Collection.hide() ||
-      // close search results full screen background image if visible
-      Evme.BackgroundImage.closeFullScreen() ||
-      // clear the searchbar and apps
-      (Evme.Searchbar.clearIfHasQuery() && document.body.classList.contains('evme-displayed'))
+        // hide suggested collections list if open
+        Evme.CollectionsSuggest.hide() || 
+        // stop editing if active
+        Evme.Collection.toggleEditMode(false) || 
+        // close full screen background image if visible
+        Evme.Collection.hideFullscreen() || 
+        // hide the collection if visible
+        Evme.Collection.hide() ||
+        // close search results full screen background image if visible
+        Evme.BackgroundImage.closeFullScreen() ||
+        // clear the searchbar and apps
+        (Evme.Searchbar.clearIfHasQuery() && document.body.classList.contains('evme-displayed'))
       ) {
         return true;
       }
@@ -166,43 +166,43 @@ window.Evme = new function Evme_Core() {
       "el": appsEl,
       "appsPerRow": data.apps.appsPerRow,
       "providers": [
-	{
-	  type: Evme.PROVIDER_TYPES.CONTACTS,
-	  config: {
-	    "renderer": Evme.ContactResultsRenderer,
-	    "containerEl": Evme.$(".contacts", appsEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.STATIC,
-	  config: {
-	    "renderer": Evme.StaticAppsRenderer,
-	    "containerEl": Evme.$(".static", appsEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.INSTALLED,
-	  config: {
-	    "renderer": Evme.InstalledAppsRenderer,
-	    "containerEl": Evme.$(".installed", appsEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.CLOUD,
-	  config: {
-	    "renderer": Evme.CloudAppsRenderer,
-	    "containerEl": Evme.$(".cloud", appsEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.MARKETAPPS,
-	  config: {
-	    "renderer": Evme.MarketAppsRenderer,
-	    "containerEl": Evme.$(".marketapps", appsEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.MARKETSEARCH,
-	  config: {
-	    "renderer": Evme.MarketSearchRenderer,
-	    "containerEl": Evme.$(".marketsearch", appsEl)[0]
-	  }
-	}
+        {
+          type: Evme.PROVIDER_TYPES.CONTACTS,
+          config: {
+            "renderer": Evme.ContactResultsRenderer,
+            "containerEl": Evme.$(".contacts", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.STATIC,
+          config: {
+            "renderer": Evme.StaticAppsRenderer,
+            "containerEl": Evme.$(".static", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.INSTALLED,
+          config: {
+            "renderer": Evme.InstalledAppsRenderer,
+            "containerEl": Evme.$(".installed", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.CLOUD,
+          config: {
+            "renderer": Evme.CloudAppsRenderer,
+            "containerEl": Evme.$(".cloud", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.MARKETAPPS,
+          config: {
+            "renderer": Evme.MarketAppsRenderer,
+            "containerEl": Evme.$(".marketapps", appsEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.MARKETSEARCH,
+          config: {
+            "renderer": Evme.MarketSearchRenderer,
+            "containerEl": Evme.$(".marketsearch", appsEl)[0]
+          }
+        }
       ]
     });
 
@@ -212,18 +212,18 @@ window.Evme = new function Evme_Core() {
       "el": collectionEl,
       "appsPerRow": data.apps.appsPerRow,
       "providers": [{
-	  type: Evme.PROVIDER_TYPES.STATIC,
-	  config: {
-	    "renderer": Evme.StaticAppsRenderer,
-	    "containerEl": Evme.$(".static", collectionEl)[0]
-	  }
-	}, {
-	  type: Evme.PROVIDER_TYPES.CLOUD,
-	  config: {
-	    "renderer": Evme.CloudAppsRenderer,
-	    "containerEl": Evme.$(".cloud", collectionEl)[0]
-	  }
-	}
+          type: Evme.PROVIDER_TYPES.STATIC,
+          config: {
+            "renderer": Evme.StaticAppsRenderer,
+            "containerEl": Evme.$(".static", collectionEl)[0]
+          }
+        }, {
+          type: Evme.PROVIDER_TYPES.CLOUD,
+          config: {
+            "renderer": Evme.CloudAppsRenderer,
+            "containerEl": Evme.$(".cloud", collectionEl)[0]
+          }
+        }
       ]
     });
 

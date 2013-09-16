@@ -1,3 +1,10 @@
+function bm(type) {
+  window[type] = Date.now();
+}
+function bmend(type) {
+  console.log('timing [' + type + ']: ' + (Date.now() - window[type]) + 'ms');
+}
+
 var EverythingME = {
   pendingEvent: undefined,
 
@@ -92,15 +99,16 @@ var EverythingME = {
   },
   
   activate: function EverythingME_activate() {
+    bm('Activate');
+    
     document.body.classList.add('evme-loading');
 
+    bm('Load');
     this.load();
   },
 
   load: function EverythingME_load(callback) {
-    var CB = !('ontouchstart' in window),
-
-        js_files = [
+    var js_files = [
           'js/Core.js',
           'js/etmmanager.js',
 
@@ -136,64 +144,46 @@ var EverythingME = {
           'modules/SearchHistory/SearchHistory.js',
           'modules/CollectionsSuggest/CollectionsSuggest.js',
           'modules/Collection/Collection.js'
-        ],
-        css_files = [
-          'css/common.css',
-          'modules/BackgroundImage/BackgroundImage.css',
-          'modules/Banner/Banner.css',
-          'modules/ConnectionMessage/ConnectionMessage.css',
-          'modules/Helper/Helper.css',
-          'modules/Results/Results.css',
-          'modules/Searchbar/Searchbar.css',
-          'modules/CollectionsSuggest/CollectionsSuggest.css'
         ];
 
-    var head = document.head;
+    var elParent = document.body,
+        scriptLoadCount = 0,
+        scriptsToLoad = js_files.length;
 
-    var scriptLoadCount = 0;
-    var cssLoadCount = 0;
 
-    function onScriptLoad(event) {
-      event.target.removeEventListener('load', onScriptLoad);
-      if (++scriptLoadCount == js_files.length) {
-	EverythingME.start();
-      } else {
-        loadScript(js_files[scriptLoadCount]);
-      }
+
+    function startLoadingJS() {
+      bm('Load JS');
+      loadScript(js_files[0]);
+      
     }
-
-    function onCSSLoad(event) {
-      event.target.removeEventListener('load', onCSSLoad);
-      if (++cssLoadCount === css_files.length) {
-        loadScript(js_files[scriptLoadCount]);
-      } else {
-        loadCSS(css_files[cssLoadCount]);
-      }
-    }
-
-    function loadCSS(file) {
-      var link = document.createElement('link');
-      link.type = 'text/css';
-      link.rel = 'stylesheet';
-      link.href = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
-      link.addEventListener('load', onCSSLoad);
-      window.setTimeout(function load() {
-	head.appendChild(link);
-      }, 0);
-    }
-
     function loadScript(file) {
       var script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = 'everything.me/' + file + (CB ? '?' + Date.now() : '');
+      script.src = 'everything.me/' + file;
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
-      window.setTimeout(function load() {
-	head.appendChild(script);
-      }, 0);
+      bm('Load JS file');
+      window.mozRequestAnimationFrame(function tick() {
+        elParent.appendChild(script);
+      });
+	    
+    }
+    
+    function onScriptLoad(event) {
+      bmend('Load JS file');
+      event.target.removeEventListener('load', onScriptLoad);
+      if (++scriptLoadCount >= scriptsToLoad) {
+        bmend('Load JS');
+        bmend('Load');
+        bm('Init');
+        EverythingME.start();
+      } else {
+        loadScript(js_files[scriptLoadCount]);
+      }
     }
 
-    loadCSS(css_files[0]);
+    startLoadingJS();
   },
 
   start: function EverythingME_start() {
@@ -202,7 +192,7 @@ var EverythingME = {
     } else {
       window.addEventListener('load', function onload() {
         window.removeEventListener('load', onload);
-	EverythingME.initEvme();
+	      EverythingME.initEvme();
       });
     }
   },
@@ -250,7 +240,10 @@ var EverythingME = {
 
     if (e) {
       e.target.dispatchEvent(e);
-    };
+    }
+    
+    bmend('Init');
+    bmend('Activate');
   },
 
   destroy: function EverythingME_destroy() {
