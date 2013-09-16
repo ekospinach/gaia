@@ -791,6 +791,157 @@ Evme.Utils = new function Evme_Utils() {
     this.init();
 };
 
+/*
+ * Acts as event manager. Provides bind and trigger functions.
+ */
+Evme.EventHandler = new function Evme_EventHandler(){
+    var arr = {},
+      MAIN_EVENT = "DoATEvent";
+    
+    function bind(eventNamesArr, cb){
+        !(eventNamesArr instanceof Array) && (eventNamesArr = [eventNamesArr]);
+        for (var idx in eventNamesArr){
+            var eventName=eventNamesArr[idx];
+            !(eventName in arr) && (arr[eventName] = []);
+            arr[eventName].push(cb);
+        }
+    }
+
+    function unbind(eventName, cb){
+        if (!cb){
+            arr[eventName] = {};
+        } else {
+            for (var a=arr[eventName], i=a?a.length-1:-1; i>=0; --i) {
+                if (a[i]===cb) {
+                    a.splice(i, 1);
+                    return;
+                }
+            }
+        }        
+    }
+
+    function trigger(eventName, data){
+        if (eventName && eventName in arr){
+            for (var i=0, a=arr[eventName], len=a.length; i<len; i++) {
+                data = Array.prototype.slice.apply(data);
+                a[i].apply(this, data);
+            }
+        }
+    }
+    
+    this.bind = function _bind(cb){
+        bind(MAIN_EVENT, cb)
+    };
+    
+    this.unbind = function _unbind(cb){
+        unbind(MAIN_EVENT, cb)
+    };
+    
+    this.trigger = function _trigger(){
+        trigger(MAIN_EVENT, arguments);
+    };
+};
+
+/*
+ * Proxy to underlying storage provider, to allow easy replacing
+ * of the provider and leaving our API the same
+ */
+Evme.Storage = new function Evme_Storage() {
+    var self = this,
+        KEY_PREFIX = 'evme-';
+        
+    this.set = function set(key, val, ttl, callback) {
+      val = {
+        "value": val
+      };
+      
+      if (ttl) {
+        if (ttl instanceof Function) {
+          callback = ttl;
+        } else {
+          val.expires = Date.now() + ttl*1000;
+        }
+      }
+      
+      asyncStorage.setItem(KEY_PREFIX + key, val, callback);
+    };
+    
+    this.get = function get(key, callback) {
+      asyncStorage.getItem(KEY_PREFIX + key, function onItemGot(value) {
+        if (value && value.expires && value.expires < Date.now()) {
+          self.remove(key);
+          value = null;
+        }
+        
+        // value.value since the value is an object {"value": , "expires": }
+        value = value && value.value;
+        
+        callback && callback(value);
+      });
+    };
+    
+    this.remove = function remove(key, callback) {
+      asyncStorage.removeItem(KEY_PREFIX + key, callback);
+    };
+    
+    // legacy compatibility from localStorage
+    this.enabled = function enabled() {
+      return true;
+    };
+};
+
+/*
+ * Idle class
+ * Triggers a callback after a specified amout of time gone idle
+ */
+Evme.Idle = function Evme_Idle(){
+    var self = this,
+        timer, delay, callback;
+    
+    this.isIdle = true;
+    
+    // init
+    this.init = function init(options){
+        // set params
+        delay = options.delay;
+        callback = options.callback;
+        
+        // start timer
+        self.reset();
+    };
+    
+    // reset timer
+    this.reset = function reset(_delay){
+        // set timeout delay value
+        if (_delay === undefined){
+            _delay = delay;
+        }
+        
+        self.isIdle = false;
+        
+        // stop previous timer
+        clearTimeout(timer);
+        
+        // start a new timer
+        timer = setTimeout(onIdle, _delay);
+    };
+    
+    this.advanceBy = function advanceBy(ms){
+        self.reset(delay-ms);
+    };
+    
+    this.flush = function flush(){
+        self.reset(0);
+    };
+    
+    function onIdle(){
+        self.isIdle = true;
+        
+        // call callback
+        callback();
+    }
+};
+
 Evme.$ = function Evme_$(sSelector, elScope, iterationFunction) {
     var isById = sSelector.charAt(0) === '#',
         els = null;
@@ -849,3 +1000,238 @@ Evme.htmlRegex = /</g;
 Evme.html = function Evme_html(html) {
   return (html || '').replace(Evme.htmlRegex, '&lt;');
 };
+
+
+//     node-uuid/uuid.js
+//
+//     Copyright (c) 2010 Robert Kieffer
+//     Dual licensed under the MIT and GPL licenses.
+//     Documentation and details at https://github.com/broofa/node-uuid
+(function(_global) {
+  // Unique ID creation requires a high quality random # generator, but
+  // Math.random() does not guarantee "cryptographic quality".  So we feature
+  // detect for more robust APIs, normalizing each method to return 128-bits
+  // (16 bytes) of random data.
+  var mathRNG, nodeRNG, whatwgRNG;
+
+  // Math.random()-based RNG.  All platforms, very fast, unknown quality
+  var _rndBytes = new Array(16);
+  mathRNG = function() {
+    var r, b = _rndBytes, i = 0;
+
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) == 0) r = Math.random() * 0x100000000;
+      b[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return b;
+  }
+
+  // Node.js crypto-based RNG - http://nodejs.org/docs/v0.6.2/api/crypto.html
+  // Node.js only, moderately fast, high quality
+  try {
+    var _rb = require('crypto').randomBytes;
+    nodeRNG = _rb && function() {
+      return _rb(16);
+    };
+  } catch (e) {}
+
+  // Select RNG with best quality
+  var _rng = nodeRNG || whatwgRNG || mathRNG;
+
+  // Buffer class to use
+  var BufferClass = typeof(Buffer) == 'function' ? Buffer : Array;
+
+  // Maps for number <-> hex string conversion
+  var _byteToHex = [];
+  var _hexToByte = {};
+  for (var i = 0; i < 256; i++) {
+    _byteToHex[i] = (i + 0x100).toString(16).substr(1);
+    _hexToByte[_byteToHex[i]] = i;
+  }
+
+  // **`parse()` - Parse a UUID into it's component bytes**
+  function parse(s, buf, offset) {
+    var i = (buf && offset) || 0, ii = 0;
+
+    buf = buf || [];
+    s.toLowerCase().replace(/[0-9a-f]{2}/g, function(oct) {
+      if (ii < 16) { // Don't overflow!
+        buf[i + ii++] = _hexToByte[oct];
+      }
+    });
+
+    // Zero out remaining bytes if string was short
+    while (ii < 16) {
+      buf[i + ii++] = 0;
+    }
+
+    return buf;
+  }
+
+  // **`unparse()` - Convert UUID byte array (ala parse()) into a string**
+  function unparse(buf, offset) {
+    var i = offset || 0, bth = _byteToHex;
+    return  bth[buf[i++]] + bth[buf[i++]] +
+            bth[buf[i++]] + bth[buf[i++]] + '-' +
+            bth[buf[i++]] + bth[buf[i++]] + '-' +
+            bth[buf[i++]] + bth[buf[i++]] + '-' +
+            bth[buf[i++]] + bth[buf[i++]] + '-' +
+            bth[buf[i++]] + bth[buf[i++]] +
+            bth[buf[i++]] + bth[buf[i++]] +
+            bth[buf[i++]] + bth[buf[i++]];
+  }
+
+  // **`v1()` - Generate time-based UUID**
+  //
+  // Inspired by https://github.com/LiosK/UUID.js
+  // and http://docs.python.org/library/uuid.html
+
+  // random #'s we need to init node and clockseq
+  var _seedBytes = _rng();
+
+  // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+  var _nodeId = [
+    _seedBytes[0] | 0x01,
+    _seedBytes[1], _seedBytes[2], _seedBytes[3], _seedBytes[4], _seedBytes[5]
+  ];
+
+  // Per 4.2.2, randomize (14 bit) clockseq
+  var _clockseq = (_seedBytes[6] << 8 | _seedBytes[7]) & 0x3fff;
+
+  // Previous uuid creation time
+  var _lastMSecs = 0, _lastNSecs = 0;
+
+  // See https://github.com/broofa/node-uuid for API details
+  function v1(options, buf, offset) {
+    var i = buf && offset || 0;
+    var b = buf || [];
+
+    options = options || {};
+
+    var clockseq = options.clockseq != null ? options.clockseq : _clockseq;
+
+    // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+    // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+    // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+    // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+    var msecs = options.msecs != null ? options.msecs : new Date().getTime();
+
+    // Per 4.2.1.2, use count of uuid's generated during the current clock
+    // cycle to simulate higher resolution clock
+    var nsecs = options.nsecs != null ? options.nsecs : _lastNSecs + 1;
+
+    // Time since last uuid creation (in msecs)
+    var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+    // Per 4.2.1.2, Bump clockseq on clock regression
+    if (dt < 0 && options.clockseq == null) {
+      clockseq = clockseq + 1 & 0x3fff;
+    }
+
+    // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+    // time interval
+    if ((dt < 0 || msecs > _lastMSecs) && options.nsecs == null) {
+      nsecs = 0;
+    }
+
+    // Per 4.2.1.2 Throw error if too many uuids are requested
+    if (nsecs >= 10000) {
+      throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+    }
+
+    _lastMSecs = msecs;
+    _lastNSecs = nsecs;
+    _clockseq = clockseq;
+
+    // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+    msecs += 12219292800000;
+
+    // `time_low`
+    var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+    b[i++] = tl >>> 24 & 0xff;
+    b[i++] = tl >>> 16 & 0xff;
+    b[i++] = tl >>> 8 & 0xff;
+    b[i++] = tl & 0xff;
+
+    // `time_mid`
+    var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+    b[i++] = tmh >>> 8 & 0xff;
+    b[i++] = tmh & 0xff;
+
+    // `time_high_and_version`
+    b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+    b[i++] = tmh >>> 16 & 0xff;
+
+    // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+    b[i++] = clockseq >>> 8 | 0x80;
+
+    // `clock_seq_low`
+    b[i++] = clockseq & 0xff;
+
+    // `node`
+    var node = options.node || _nodeId;
+    for (var n = 0; n < 6; n++) {
+      b[i + n] = node[n];
+    }
+
+    return buf ? buf : unparse(b);
+  }
+
+  // **`v4()` - Generate random UUID**
+
+  // See https://github.com/broofa/node-uuid for API details
+  function v4(options, buf, offset) {
+    // Deprecated - 'format' argument, as supported in v1.2
+    var i = buf && offset || 0;
+
+    if (typeof(options) == 'string') {
+      buf = options == 'binary' ? new BufferClass(16) : null;
+      options = null;
+    }
+    options = options || {};
+
+    var rnds = options.random || (options.rng || _rng)();
+
+    // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = (rnds[6] & 0x0f) | 0x40;
+    rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+    // Copy bytes to buffer, if provided
+    if (buf) {
+      for (var ii = 0; ii < 16; ii++) {
+        buf[i + ii] = rnds[ii];
+      }
+    }
+
+    return buf || unparse(rnds);
+  }
+
+  // Export public API
+  var uuid = v4;
+  uuid.v1 = v1;
+  uuid.v4 = v4;
+  uuid.parse = parse;
+  uuid.unparse = unparse;
+  uuid.BufferClass = BufferClass;
+
+  // Export RNG options
+  uuid.mathRNG = mathRNG;
+  uuid.nodeRNG = nodeRNG;
+  uuid.whatwgRNG = whatwgRNG;
+
+  if (typeof(module) != 'undefined') {
+    // Play nice with node.js
+    module.exports = uuid;
+  } else {
+    // Play nice with browsers
+    var _previousRoot = _global.uuid;
+
+    // **`noConflict()` - (browser only) to reset global 'uuid' var**
+    uuid.noConflict = function() {
+      _global.uuid = _previousRoot;
+      return uuid;
+    }
+    _global.uuid = uuid;
+  }
+}(Evme));

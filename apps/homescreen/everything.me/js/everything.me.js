@@ -99,7 +99,7 @@ var EverythingME = {
   },
   
   activate: function EverythingME_activate() {
-    bm('Activate');
+    bm('Total');
     
     document.body.classList.add('evme-loading');
 
@@ -115,17 +115,12 @@ var EverythingME = {
           'config/config.js',
           'js/developer/utils.1.3.js',
           'js/helpers/Utils.js',
-          'js/helpers/Storage.js',
           'js/helpers/IconManager.js',
           'js/plugins/Scroll.js',
-          'js/external/uuid.js',
-          'js/api/apiv2.js',
           'js/api/DoATAPI.js',
-          'js/helpers/EventHandler.js',
-          'js/helpers/Idle.js',
           'js/plugins/Analytics.js',
-          'js/plugins/APIStatsEvents.js',
           'js/Brain.js',
+
           'modules/BackgroundImage/BackgroundImage.js',
           'modules/Banner/Banner.js',
           'modules/ConnectionMessage/ConnectionMessage.js',
@@ -146,17 +141,15 @@ var EverythingME = {
           'modules/Collection/Collection.js'
         ];
 
-    var elParent = document.body,
+    var elParent = document.head,
         scriptLoadCount = 0,
         scriptsToLoad = js_files.length;
-
-
 
     function startLoadingJS() {
       bm('Load JS');
       loadScript(js_files[0]);
-      
     }
+
     function loadScript(file) {
       var script = document.createElement('script');
       script.type = 'text/javascript';
@@ -164,19 +157,16 @@ var EverythingME = {
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
       bm('Load JS file');
-      window.mozRequestAnimationFrame(function tick() {
         elParent.appendChild(script);
-      });
-	    
     }
-    
+
     function onScriptLoad(event) {
       bmend('Load JS file');
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount >= scriptsToLoad) {
         bmend('Load JS');
         bmend('Load');
-        bm('Init');
+        bm('Evme Init');
         EverythingME.start();
       } else {
         loadScript(js_files[scriptLoadCount]);
@@ -203,6 +193,8 @@ var EverythingME = {
   },
 
   onEvmeLoaded: function onEvmeLoaded() {
+    bmend('Evme Init');
+    bm('Activation Cleanup');
     var page = document.getElementById('evmeContainer'),
         gridPage = document.querySelector('#icongrid > div:first-child'),
         activationIcon = document.getElementById('evme-activation-icon'),
@@ -242,8 +234,8 @@ var EverythingME = {
       e.target.dispatchEvent(e);
     }
     
-    bmend('Init');
-    bmend('Activate');
+    bmend('Activation Cleanup');
+    bmend('Total');
   },
 
   destroy: function EverythingME_destroy() {
