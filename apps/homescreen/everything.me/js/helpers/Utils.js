@@ -7,6 +7,9 @@ Evme.Utils = new function Evme_Utils() {
         headEl = document.querySelector('html>head'),
         filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
 
+        // used to generate a uuid (using createObjectURL)
+        uuidBlob = new Blob(),
+
         CONTAINER_ID = "evmeContainer", // main E.me container
         SCOPE_CLASS = "evmeScope",      // elements with E.me content
 
@@ -133,7 +136,12 @@ Evme.Utils = new function Evme_Utils() {
     };
 
     this.uuid = function generateUUID() {
-        return Evme.uuid();
+      var url = window.URL.createObjectURL(uuidBlob),
+          id = url.replace('blob:', '');
+
+      window.URL.revokeObjectURL(url);
+
+      return id;
     };
 
     this.sendToOS = function sendToOS(type, data) {
