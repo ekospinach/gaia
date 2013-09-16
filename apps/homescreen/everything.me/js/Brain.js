@@ -87,14 +87,10 @@
 
         // dropping app on collection
         if (options.app && options.collection) {
-            var appId = options.app.id,
-                collectionId = options.collection.id;
-
-            Evme.InstalledAppsService.getAppById(appId, function getAppByOrigin(installedApp) {
-                if (installedApp) {
-                    Evme.Collection.addInstalledApp(installedApp, collectionId);
-                }
-            });
+            var appInfo = EvmeManager.getAppInfo(options.app.id);
+            if (appInfo) {
+                Evme.Collection.addInstalledApp(appInfo, options.collection.id);
+            }
         }
     }
 

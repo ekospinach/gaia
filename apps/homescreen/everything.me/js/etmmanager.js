@@ -106,30 +106,55 @@ var EvmeManager = (function EvmeManager() {
       id = nativeApp.bookmarkURL;
     }
 
-    if (!id) {
-      console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
-      return;
+    /**
+     * Returns E.me formatted information about an object
+     * returned by GridManager.getApps.
+     */
+    function getAppInfo(gridApp) {
+
+      if (gridApp instanceof String) {
+        gridApp = getAppById(gridApp);
+      }
+
+      var nativeApp = gridApp.app,  // XPCWrappedNative
+          descriptor = gridApp.descriptor,
+          id,
+          appInfo;
+
+      // TODO document
+      // TODO launch by entry_point
+      if (nativeApp.manifestURL) {
+        id = generateAppId(nativeApp.manifestURL, descriptor.entry_point);
+      } else {
+        id = nativeApp.bookmarkURL;
+      }
+
+      if (!id) {
+        console.warn('E.me: no id found for ' + descriptor.name + '. Will not show up in results');
+        return;
+      }
+
+      appInfo = {
+          "id": id,
+          "name": descriptor.name,
+          "appUrl": nativeApp.origin,
+          "icon": Icon.prototype.DEFAULT_ICON_URL
+      };
+
+      var iconObject = GridManager.getIcon({
+        'manifestURL': id
+      });
+      if (iconObject &&
+        'descriptor' in iconObject &&
+        'renderedIcon' in iconObject.descriptor) {
+        appInfo.icon = iconObject.descriptor.renderedIcon;
+      }
+
+      return appInfo;
     }
 
-    icon = GridManager.getIcon(descriptor);
-
-    appInfo = {
-      "id": id,
-      "name": descriptor.name,
-      "appUrl": nativeApp.origin,
-      "icon": Icon.prototype.DEFAULT_ICON_URL
-    };
-
-    if (!icon) {
-      cb(appInfo);
-    } else {
-      retrieveIcon({
-        icon: icon,
-        done: function(blob) {
-          if (blob) appInfo['icon'] = blob;
-          cb(appInfo);
-        }
-      });
+    function getAppById(appId) {
+      GridManager.getApp(appId);
     }
   }
 

@@ -124,10 +124,10 @@ void function() {
 
     // add installed app to open collection via settings menu
     // or to some other collection by dropping an app into it
-    this.addInstalledApp = function addInstalledApp(installedApp, collectionId) {
+    this.addInstalledApp = function addInstalledApp(installedAppInfo, collectionId) {
       Evme.CollectionStorage.get(collectionId, function onGotSettings(collectionSettings) {
         self.update(collectionSettings, {
-          "apps": collectionSettings.apps.concat(installedApp)
+          "apps": collectionSettings.apps.concat(installedAppInfo)
         });
       });
     };
