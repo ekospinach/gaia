@@ -65,7 +65,10 @@ var EverythingME = {
       EvmeFacade.onHide();
     });
 
-    EverythingME.migrateStorage();
+    EverythingME.EvmeMigration.migrateStorage(function onComplete() {
+      EverythingME.EvmeMigration = null;
+      delete EverythingME.EvmeMigration;
+    });
   },
   
   activate: function EverythingME_activate() {
@@ -238,9 +241,11 @@ var EverythingME = {
       EvmeFacade.onCollectionCustom();
     }
   },
+};
 
+EverythingME.EvmeMigration = (function() {
   // copy relevant user data from 1.0.1 to 1.1 versions
-  migrateStorage: function EverythingME_migrateStorage(onComplete, force) {
+  function migrateStorage(onComplete, force) {
     var migrationStorageKey = 'migrated_1.0.1_to_1.1';
 
     if (!onComplete) {
@@ -271,7 +276,7 @@ var EverythingME = {
           numberOfKeysDone = 0;
 
       for (var key in AUTOMATIC_KEYS) {
-        EverythingME.copyStorageToDB(key, AUTOMATIC_KEYS[key], onDataMigrated);
+        copyStorageToDB(key, AUTOMATIC_KEYS[key], onDataMigrated);
       }
       
       function onDataMigrated() {
@@ -282,9 +287,9 @@ var EverythingME = {
         }
       }
     });
-  },
+  };
   
-  copyStorageToDB: function copyStorageToDB(oldKey, newKey, onComplete) {
+  function copyStorageToDB(oldKey, newKey, onComplete) {
     if (!onComplete) {
       onComplete = function() {};
     }
@@ -335,7 +340,11 @@ var EverythingME = {
 
     return true;
   }
-};
+
+  return {
+    migrateStorage: migrateStorage
+  };
+}());
 
 var EvmeFacade = {
   onShow: function onShow() {
