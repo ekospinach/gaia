@@ -153,15 +153,16 @@ var EverythingME = {
     function loadScript(file) {
       var script = document.createElement('script');
       script.type = 'text/javascript';
+      script.file = file;
       script.src = 'everything.me/' + file;
       script.defer = true;
       script.addEventListener('load', onScriptLoad);
-      bm('Load JS file');
-        elParent.appendChild(script);
+      bm('Load JS file (' + file + ')');
+      elParent.appendChild(script);
     }
 
     function onScriptLoad(event) {
-      bmend('Load JS file');
+      bmend('Load JS file (' + event.target.file +  ')');
       event.target.removeEventListener('load', onScriptLoad);
       if (++scriptLoadCount >= scriptsToLoad) {
         bmend('Load JS');
