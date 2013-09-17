@@ -109,36 +109,7 @@ var EverythingME = {
 
   load: function EverythingME_load(callback) {
     var js_files = [
-          'js/Core.js',
-          'js/etmmanager.js',
-
-          'config/config.js',
-          'js/developer/utils.1.3.js',
-          'js/helpers/Utils.js',
-          'js/helpers/IconManager.js',
-          'js/plugins/Scroll.js',
-          'js/api/DoATAPI.js',
-          'js/plugins/Analytics.js',
-          'js/Brain.js',
-
-          'modules/BackgroundImage/BackgroundImage.js',
-          'modules/Banner/Banner.js',
-          'modules/ConnectionMessage/ConnectionMessage.js',
-          'modules/Features/Features.js',
-          'modules/Helper/Helper.js',
-          'modules/Location/Location.js',
-          'modules/Results/Result.js',
-          'modules/Results/providers/CloudApps.js',
-          'modules/Results/providers/ContactSearch.js',
-          'modules/Results/providers/InstalledApps.js',
-          'modules/Results/providers/MarketApps.js',
-          'modules/Results/providers/MarketSearch.js',
-          'modules/Results/providers/StaticApps.js',
-          'modules/Results/ResultManager.js',
-          'modules/Searchbar/Searchbar.js',
-          'modules/SearchHistory/SearchHistory.js',
-          'modules/CollectionsSuggest/CollectionsSuggest.js',
-          'modules/Collection/Collection.js'
+          'js/Core.min.js'
         ];
 
     var elParent = document.head,
