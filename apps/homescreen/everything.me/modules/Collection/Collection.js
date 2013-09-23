@@ -211,7 +211,7 @@ void function() {
     this.setTitle = function setTitle(newTitle) {
       title = newTitle;
 
-      elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
+      elTitle.innerHTML = title + ' ' +
         '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
     };
 
