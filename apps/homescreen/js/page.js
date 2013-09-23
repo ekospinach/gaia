@@ -45,7 +45,7 @@ Icon.prototype = {
   // element dataset and allow us to uniquely look up the Icon object from
   // the HTML element.
   _descriptorIdentifiers: ['manifestURL', 'entry_point', 'bookmarkURL',
-                           'useAsyncPanZoom', 'desiredPos'],
+                           'useAsyncPanZoom'],
 
   /**
    * The Application (or Bookmark) object corresponding to this icon.
@@ -97,7 +97,7 @@ Icon.prototype = {
     dataset.isIcon = true;
     this._descriptorIdentifiers.forEach(function(prop) {
       var value = descriptor[prop];
-      if (value || value === 0)
+      if (value)
         dataset[prop] = value;
     });
 
@@ -453,8 +453,7 @@ Icon.prototype = {
    */
   translate: function icon_translate() {
     var descriptor = this.descriptor;
-    if (descriptor.type === GridItemsFactory.TYPE.COLLECTION ||
-      descriptor.type === GridItemsFactory.TYPE.BOOKMARK)
+    if (descriptor.type === GridItemsFactory.TYPE.BOOKMARK)
       return;
 
     var app = this.app;

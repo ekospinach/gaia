@@ -1,0 +1,20 @@
+{
+  "name": "Local",
+  "description": "Local smart collection",
+  "role": "collection",
+  "provider_id": "296",
+  "locales": {
+    "en-US": {
+      "name": "Local",
+      "description": "Local"
+    },
+    "fr": {
+      "name": "Local",
+      "description": "Local"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/local/icon.png"
+  }
+}

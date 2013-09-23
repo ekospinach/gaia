@@ -950,7 +950,13 @@ var GridManager = (function() {
       // asynchronously and therefore at a later time.
       var app = null;
       if (descriptor.type === GridItemsFactory.TYPE.BOOKMARK ||
-          descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
+          descriptor.type === GridItemsFactory.TYPE.COLLECTION ||
+          descriptor.role === GridItemsFactory.TYPE.COLLECTION) {
+        if (descriptor.manifestURL) {
+          // At build time this property is manifestURL instead of bookmarkURL
+          descriptor.id = descriptor.bookmarkURL = descriptor.manifestURL;
+          descriptor.type = GridItemsFactory.TYPE.COLLECTION;
+        }
         app = GridItemsFactory.create(descriptor);
         bookmarksByOrigin[app.origin] = app;
       }
@@ -1276,7 +1282,6 @@ var GridManager = (function() {
       initApps();
       callback();
     }, {
-      offset: EVME_PAGE_STATE_INDEX,
       iteratorSVApps: function eachSVApp(svApp) {
         GridManager.svPreviouslyInstalledApps.push(svApp);
       }

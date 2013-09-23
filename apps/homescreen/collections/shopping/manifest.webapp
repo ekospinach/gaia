@@ -1,0 +1,20 @@
+{
+  "name": "Shopping",
+  "description": "Shopping smart collection",
+  "role": "collection",
+  "provider_id": "238",
+  "locales": {
+    "en-US": {
+      "name": "Shopping",
+      "description": "Shopping"
+    },
+    "fr": {
+      "name": "Achats",
+      "description": "Achats"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/shopping/icon.png"
+  }
+}

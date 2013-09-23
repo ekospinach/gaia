@@ -1,0 +1,20 @@
+{
+  "name": "Funny",
+  "description": "Funny smart collection",
+  "role": "collection",
+  "provider_id": "277",
+  "locales": {
+    "en-US": {
+      "name": "Funny",
+      "description": "Funny"
+    },
+    "fr": {
+      "name": "Humour",
+      "description": "Humour"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "60": "/collections/funny/icon.png"
+  }
+}
