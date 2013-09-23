@@ -87,6 +87,8 @@ Evme.IconGroup = new function Evme_IconGroup() {
     context.fill();
     context.closePath();
 
+    onReady(elCanvas);
+
     return elCanvas;
   }
 
