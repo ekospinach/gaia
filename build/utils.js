@@ -219,9 +219,13 @@ function gaiaManifestURL(name, scheme, domain, port) {
   return gaiaOriginURL(name, scheme, domain, port) + '/manifest.webapp';
 }
 
-function getDistributionFileContent(name, defaultContent, distDir) {
-  if (distDir) {
-    let distributionFile = getFile(distDir, name + '.json');
+function gaiaCollectionURL(origin, folderPath) {
+  return origin + folderPath +  '/manifest.collection';
+}
+
+function getDistributionFileContent(name, defaultContent) {
+  if (Gaia.distributionDir) {
+    let distributionFile = getFile(Gaia.distributionDir, name + '.json');
     if (distributionFile.exists()) {
       return getFileContent(distributionFile);
     }
@@ -252,6 +256,7 @@ exports.getJSON = getJSON;
 exports.makeWebappsObject = makeWebappsObject;
 exports.gaiaOriginURL = gaiaOriginURL;
 exports.gaiaManifestURL = gaiaManifestURL;
+exports.gaiaCollectionURL = gaiaCollectionURL;
 exports.getDistributionFileContent = getDistributionFileContent;
 exports.getAbsoluteOrRelativePath = getAbsoluteOrRelativePath
 exports.getGaia = getGaia;
