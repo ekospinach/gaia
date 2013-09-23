@@ -274,6 +274,10 @@ function gaiaManifestURL(name) {
   return gaiaOriginURL(name) + '/manifest.webapp';
 }
 
+function gaiaCollectionURL(origin, folderPath) {
+  return  origin + folderPath +  '/manifest.collection';
+}
+
 function getDistributionFileContent(name, defaultContent) {
   if (Gaia.distributionDir) {
     let distributionFile = getFile(Gaia.distributionDir, name + '.json');
@@ -311,5 +315,6 @@ exports.Gaia = Gaia;
 exports.registerProfileDirectory = registerProfileDirectory;
 exports.gaiaOriginURL = gaiaOriginURL;
 exports.gaiaManifestURL = gaiaManifestURL;
+exports.gaiaCollectionURL = gaiaCollectionURL;
 exports.getDistributionFileContent = getDistributionFileContent;
 exports.getAbsoluteOrRelativePath = getAbsoluteOrRelativePath

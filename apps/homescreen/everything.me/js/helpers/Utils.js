@@ -6,31 +6,36 @@ Evme.Utils = new function Evme_Utils() {
         newUser = false, isTouch = false,
         parsedQuery = parseQuery(),
         elContainer = null,
-	headEl = document.querySelector('html>head'),
-	filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
+        headEl = document.querySelector('html>head'),
+        filterSelectorTemplate = '.evme-apps ul:not({0}) li[{1}="{2}"]',
 
-	CONTAINER_ID = "evmeContainer", // main E.me container
-	SCOPE_CLASS = "evmeScope",      // elements with E.me content
+        CONTAINER_ID = "evmeContainer", // main E.me container
+        SCOPE_CLASS = "evmeScope",      // elements with E.me content
 
-        COOKIE_NAME_CREDENTIALS = "credentials",
+              COOKIE_NAME_CREDENTIALS = "credentials",
 
-	CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
+        CLASS_WHEN_KEYBOARD_IS_VISIBLE = 'evme-keyboard-visible',
 
-	// all the installed apps (installed, clouds, marketplace) should be the same size
-	// however when creating icons in the same size there's still a noticable difference
-	// this is because the OS' native icons have a transparent padding around them
-	// so to make our icons look the same we add this padding artificially
-	INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
+        // all the installed apps (installed, clouds, marketplace) should be the same size
+        // however when creating icons in the same size there's still a noticable difference
+        // this is because the OS' native icons have a transparent padding around them
+        // so to make our icons look the same we add this padding artificially
+        INSTALLED_CLOUDS_APPS_ICONS_PADDING = 2,
 
         OSMessages = this.OSMessages = {
-	  "APP_INSTALL": "add-bookmark",
-	  "OPEN_URL": "open-url",
-	  "SHOW_MENU": "show-menu",
-	  "HIDE_MENU": "hide-menu",
-	  "MENU_HEIGHT": "menu-height",
-	  "EVME_OPEN": "evme-open",
-	  "GET_ICON_SIZE": "get-icon-size"
-        };
+          "APP_INSTALL": "add-bookmark",
+          "OPEN_URL": "open-url",
+          "SHOW_MENU": "show-menu",
+          "HIDE_MENU": "hide-menu",
+          "MENU_HEIGHT": "menu-height",
+          "EVME_OPEN": "evme-open",
+          "GET_ICON_SIZE": "get-icon-size"
+        },
+
+        host = document.location.host,
+        domain = host.replace(/(^[\w\d]+\.)?([\w\d]+\.[a-z]+)/, '$2'),
+        protocol = document.location.protocol,
+        homescreenOrigin = protocol + '//homescreen.' + domain;
 
     this.PIXEL_RATIO_NAMES = {
       NORMAL: 'normal',

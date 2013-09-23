@@ -51,6 +51,7 @@ function bestMatchingIcon(preferred_size, manifest, origin) {
 function iconDescriptor(directory, app_name, entry_point) {
   let origin = utils.gaiaOriginURL(app_name);
   let manifestURL = utils.gaiaManifestURL(app_name);
+  let descriptor = {};
 
   // Locate the directory of a given app.
   // If the directory (Gaia.distributionDir)/(directory)/(app_name) exists,
@@ -87,9 +88,23 @@ function iconDescriptor(directory, app_name, entry_point) {
     manifest = utils.getJSON(manifestFile);
   } else {
     manifestFile = dir.clone();
-    manifestFile.append('update.webapp');
-    dump('Looking for packaged app: ' + manifestFile.path + '\n');
-    manifest = utils.getJSON(manifestFile);
+    manifestFile.append('manifest.collection');
+    if (manifestFile.exists()) {
+      manifest = utils.getJSON(manifestFile);
+    } else {
+      manifestFile = dir.clone();
+      manifestFile.append('update.webapp');
+      dump('Looking for packaged app: ' + manifestFile.path + '\n');
+      manifest = utils.getJSON(manifestFile);
+    }
+  }
+
+  if (manifest.role === 'collection') {
+    origin = utils.gaiaOriginURL('homescreen');
+    manifestURL = utils.gaiaCollectionURL(origin, '/collections/' + app_name);
+    descriptor.provider_id = manifest.provider_id;
+    descriptor.role = manifest.role;
+    descriptor.removable = true; // Collections are removable by default
   }
 
   if (entry_point &&
@@ -100,13 +115,13 @@ function iconDescriptor(directory, app_name, entry_point) {
   let icon = bestMatchingIcon(PREFERRED_ICON_SIZE, manifest, origin);
 
   //TODO set localizedName once we know the default locale
-  return {
-    manifestURL: manifestURL,
-    entry_point: entry_point,
-    updateTime: INSTALL_TIME,
-    name: manifest.name,
-    icon: icon
-  };
+  descriptor.manifestURL = manifestURL;
+  descriptor.entry_point = entry_point;
+  descriptor.updateTime = INSTALL_TIME;
+  descriptor.name = manifest.name;
+  descriptor.icon = icon;
+
+  return descriptor;
 }
 
 function execute() {
@@ -122,14 +137,24 @@ function execute() {
       ['apps', 'gallery'],
       ['apps', 'fm'],
       ['apps', 'settings'],
-      [GAIA_EXTERNAL_APP_SRCDIR, 'marketplace.firefox.com']
+      [GAIA_EXTERNAL_APP_SRCDIR, 'marketplace.firefox.com'],
+      ['apps/homescreen/collections', 'social'],
+      ['apps/homescreen/collections', 'games'],
+      ['apps/homescreen/collections', 'music'],
+      ['apps/homescreen/collections', 'tv']
     ], [
       ['apps', 'calendar'],
       ['apps', 'clock'],
       ['apps', 'costcontrol'],
       ['apps', 'email'],
       ['apps', 'music'],
-      ['apps', 'video']
+      ['apps', 'video'],
+
+      ['apps/homescreen/collections', 'news'],
+      ['apps/homescreen/collections', 'sports'],
+      ['apps/homescreen/collections', 'shopping'],
+      ['apps/homescreen/collections', 'local'],
+      ['apps/homescreen/collections', 'funny']
     ]
   ],
     'search_page': {
