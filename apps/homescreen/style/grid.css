@@ -88,7 +88,7 @@ body[data-transitioning] .apps > div {
   left: .5rem;
   width: calc(100% - .5rem);
   height: 2.6rem;
-  z-index: 2;
+  z-index: 15;
   background: url(../resources/images/delete.png) no-repeat left top / 2.4rem;
 }
 
@@ -113,26 +113,12 @@ body[data-transitioning] .apps > div {
   left: 50%;
   width: 5.4rem;
   height: 5.4rem;
-  margin: 0.2rem 0 0 -2.9rem;
+  margin: 0.3rem 0 0 -2.9rem;
   border: 0.2rem solid rgba(255, 255, 255, .5);
   border-radius: 50%;
   z-index: 10;
-}
-
-.apps ol > li[data-is-collection = 'true'] > div::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  z-index: -1;
-  width: 8rem;
-  height: 8rem;
-  background: white;
-  border-radius: 50%;
-  margin: -0.5rem 0 0 -4rem;
-  opacity: 0.2;
-  transform: scale(0.8);
-  transition: transform .3s;
+  transform: scale(0.95);
+  transition: transform 150ms ease-in-out;
 }
 
 /* Handling the case where the status bar is double size */

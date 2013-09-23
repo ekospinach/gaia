@@ -60,7 +60,7 @@ Evme.Config = Evme.__config = {
         "1": [{
             "x": 10,
             "y": 6,
-            "size": 54,
+            "size": 0.9,
             "shadowOffset": 2,
             "shadowBlur": 1,
             "shadowOpacity": 0.1
@@ -68,7 +68,7 @@ Evme.Config = Evme.__config = {
         "2": [{
             "x": 20,
             "y": 10,
-            "size": 54,
+            "size": 0.9,
             "darken": 0.25,
             "shadowOffset": 2,
             "shadowBlur": 2,
@@ -84,27 +84,27 @@ Evme.Config = Evme.__config = {
             "shadowOpacity": 0.2
         }],
         "3": [{
-            "x": (68 - 68 * 0.45) + 4,
-            "y": (68 - 68 * 0.45)/2,
-            "size": 68 * 0.45,
+            "x": 'right',
+            "y": 'center',
+            "size": 0.45,
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 2,
             "shadowOpacity": 0.4
         },
         {
-            "x": (68 - 68 * 0.5)/2 + 4,
-            "y": (68 - 68 * 0.5)/2,
-            "size": 68 * 0.5,
+            "x": 18,
+            "y": 'center',
+            "size": 0.5,
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 4,
             "shadowOpacity": .7
         },
         {
-            "x": -2,
-            "y": (68 - 68 * 0.6)/2,
-            "size": 68 * 0.6,
+            "x": 'left',
+            "y": 'center',
+            "size": 0.6,
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 6,

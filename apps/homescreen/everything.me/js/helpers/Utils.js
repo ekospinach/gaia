@@ -171,6 +171,10 @@ Evme.Utils = new function Evme_Utils() {
         return elContainer;
     };
 
+    this.getOSIconSize = function getOSIconSize() {
+      return OS_ICON_SIZE;
+    };
+
     this.getScopeElements = function getScopeElements() {
 	return document.querySelectorAll("." + SCOPE_CLASS);
     };
