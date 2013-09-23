@@ -68,6 +68,16 @@ Evme.IconGroup = new function Evme_IconGroup() {
     return el;
   };
 
+  function addUnderlay(context) {
+    var size = SIZE - 4;
+
+    context.fillStyle = 'rgba(0, 0, 0, .1)';
+    context.beginPath();
+    context.arc(SIZE / 2, SIZE / 2, size / 2, 0, Math.PI * 2, true);
+    context.fill();
+    context.closePath();
+  }
+
   /**
    * Draw icon for Collection with no apps.
    */
@@ -81,11 +91,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
     elCanvas.width = SIZE;
     elCanvas.height = SIZE;
 
-    context.fillStyle = 'rgba(0, 0, 0, .1)';
-    context.beginPath();
-    context.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2, true);
-    context.fill();
-    context.closePath();
+    addUnderlay(context);
 
     onReady(elCanvas);
 
@@ -105,11 +111,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
     elCanvas.width = SIZE;
     elCanvas.height = SIZE;
 
-    context.fillStyle = 'rgba(0, 0, 0, .1)';
-    context.beginPath();
-    context.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2, true);
-    context.fill();
-    context.closePath();
+    addUnderlay(context);
 
     context.imagesToLoad = icons.length;
     context.imagesLoaded = [];

@@ -58,30 +58,29 @@ Evme.Config = Evme.__config = {
     "emptyCollectionIcon": "/everything.me/images/empty-collection.png",
     "iconsGroupSettings": {
         "1": [{
-            "x": 10,
-            "y": 6,
-            "size": 0.9,
+            "x": 'center',
+            "y": 'center',
+            "size": 0.65,
             "shadowOffset": 2,
             "shadowBlur": 1,
-            "shadowOpacity": 0.1
+            "shadowOpacity": 0
         }],
         "2": [{
-            "x": 20,
-            "y": 10,
-            "size": 0.9,
-            "darken": 0.25,
+            "x": 24,
+            "y": 'center',
+            "size": 0.5,
             "shadowOffset": 2,
             "shadowBlur": 2,
-            "shadowOpacity": 0.1
+            "shadowOpacity": 0
         },
         {
-            "x": 0,
-            "y": 6,
-            "size": 54,
+            "x": 6,
+            "y": 'center',
+            "size": 0.6,
             "shadowOffset": 4,
             "shadowOffsetX": 2,
             "shadowBlur": 4,
-            "shadowOpacity": 0.2
+            "shadowOpacity": 0
         }],
         "3": [{
             "x": 'right',
@@ -90,7 +89,7 @@ Evme.Config = Evme.__config = {
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 2,
-            "shadowOpacity": 0.4
+            "shadowOpacity": 0
         },
         {
             "x": 18,
@@ -99,7 +98,7 @@ Evme.Config = Evme.__config = {
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 4,
-            "shadowOpacity": .7
+            "shadowOpacity": 0
         },
         {
             "x": 'left',
@@ -108,7 +107,7 @@ Evme.Config = Evme.__config = {
             "shadowOffset": 1,
             "shadowOffsetX": 1,
             "shadowBlur": 6,
-            "shadowOpacity": 0.9
+            "shadowOpacity": 0
         }]
     },
     "design": {
