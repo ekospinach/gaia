@@ -81,13 +81,11 @@ Evme.IconGroup = new function Evme_IconGroup() {
     elCanvas.width = SIZE;
     elCanvas.height = SIZE;
 
-    img.onload = function onload(){
-      // TODO: Ask @evyatron why does passing 60,60 renders too small?
-      context.drawImage(img, 0, 0, 72, 72);
-      onReady(elCanvas);
-    }
-
-    img.src = Evme.Utils.formatImageData(icon);
+    context.fillStyle = 'rgba(0, 0, 0, .1)';
+    context.beginPath();
+    context.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2, true);
+    context.fill();
+    context.closePath();
 
     return elCanvas;
   }
@@ -104,6 +102,13 @@ Evme.IconGroup = new function Evme_IconGroup() {
 
     elCanvas.width = SIZE;
     elCanvas.height = SIZE;
+
+    context.fillStyle = 'rgba(0, 0, 0, .1)';
+    context.beginPath();
+    context.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2, true);
+    context.fill();
+    context.closePath();
+
     context.imagesToLoad = icons.length;
     context.imagesLoaded = [];
 
