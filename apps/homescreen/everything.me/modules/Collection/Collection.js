@@ -116,21 +116,13 @@ void function() {
     this.addCloudApp = function addCloudApp(cloudResult) {
       var cloudAppData = cloudResult.cfg;
 
-      Evme.Utils.getRoundIcon({
-        "src": cloudAppData.icon,
-        "padding": true
-      }, function onIconReady(roundedAppIcon) {
-        // add some properties we will use when rendering a CloudAppResult
-        // see StaticApps.js@render
-        cloudAppData.staticType = Evme.STATIC_APP_TYPE.CLOUD;
-        cloudAppData.collectionQuery = currentSettings.query;
+      // add some properties we will use when rendering a CloudAppResult
+      // see StaticApps.js@render
+      cloudAppData.staticType = Evme.STATIC_APP_TYPE.CLOUD;
+      cloudAppData.collectionQuery = currentSettings.query;
 
-        // save the rounded version as the icon
-        cloudAppData.icon = roundedAppIcon;
-
-        self.update(currentSettings, {
-          "apps": currentSettings.apps.concat(cloudAppData)
-        });
+      self.update(currentSettings, {
+        "apps": currentSettings.apps.concat(cloudAppData)
       });
     };
 
@@ -231,7 +223,7 @@ void function() {
     this.setTitle = function setTitle(newTitle) {
       title = newTitle;
 
-      elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
+      elTitle.innerHTML = title + ' ' +
         '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
     };
 

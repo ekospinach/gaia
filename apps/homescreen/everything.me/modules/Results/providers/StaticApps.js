@@ -50,4 +50,4 @@ Evme.StaticAppsRenderer = function Evme_StaticAppsRenderer() {
 
     containerEl.appendChild(docFrag);
   }
-}
+};
