@@ -154,12 +154,11 @@ void function() {
       });
     };
 
-    // add installed app to open collection via settings menu
-    // or to some other collection by dropping an app into it
+    // add installed app to collection by dropping an app into it
     this.addInstalledApp = function addInstalledApp(installedApp, collectionId) {
       Evme.CollectionStorage.get(collectionId, function onGotSettings(collectionSettings) {
         self.update(collectionSettings, {
-          "apps": collectionSettings.apps.concat(installedApp)
+          "apps": [installedApp].concat(collectionSettings.apps)
         });
       });
     };
@@ -475,7 +474,7 @@ void function() {
     });
 
     if (newApps.length){
-      Evme.Collection.update(settings, {"apps": settings.apps.concat(newApps)});
+      Evme.Collection.update(settings, {"apps": newApps.concat(settings.apps)});
     }
   };
 
