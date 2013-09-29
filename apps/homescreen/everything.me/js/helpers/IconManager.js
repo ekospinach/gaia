@@ -72,18 +72,10 @@ Evme.IconManager = new function Evme_IconManager() {
 };
 
 Evme.IconGroup = new function Evme_IconGroup() {
-  var ICON_HEIGHT,
-      TEXT_HEIGHT,
-      TEXT_MARGIN,
-      WIDTH,
-      HEIGHT;
+  var SIZE;
 
   this.init = function init(options) {
-    ICON_HEIGHT = 42 * Evme.Utils.devicePixelRatio,
-    TEXT_HEIGHT = Evme.Utils.APPS_FONT_SIZE * 3,
-    TEXT_MARGIN = 9 * Evme.Utils.devicePixelRatio,
-    WIDTH = 72 * Evme.Utils.devicePixelRatio,
-    HEIGHT = ICON_HEIGHT + TEXT_MARGIN + TEXT_HEIGHT;
+    SIZE = Evme.Utils.getOSIconSize();
   };
 
   this.get = function get(icons, callback) {
@@ -108,6 +100,16 @@ Evme.IconGroup = new function Evme_IconGroup() {
     return el;
   };
 
+  function addUnderlay(context) {
+    var size = SIZE - 4;
+
+    context.fillStyle = 'rgba(0, 0, 0, .1)';
+    context.beginPath();
+    context.arc(SIZE / 2, SIZE / 2, size / 2, 0, Math.PI * 2, true);
+    context.fill();
+    context.closePath();
+  }
+
   /**
    * Draw icon for Collection with no apps.
    */
@@ -118,16 +120,12 @@ Evme.IconGroup = new function Evme_IconGroup() {
         context = elCanvas.getContext('2d'),
         img = new Image();
 
-    elCanvas.width = WIDTH;
-    elCanvas.height = WIDTH;
+    elCanvas.width = SIZE;
+    elCanvas.height = SIZE;
 
-    img.onload = function onload(){
-      // TODO: Ask @evyatron why does passing 60,60 renders too small?
-      context.drawImage(img, 0, 0, 72, 72);
-      onReady(elCanvas);
-    }
+    addUnderlay(context);
 
-    img.src = Evme.Utils.formatImageData(icon);
+    onReady(elCanvas);
 
     return elCanvas;
   }
@@ -142,8 +140,11 @@ Evme.IconGroup = new function Evme_IconGroup() {
     // can't render more icons than we have settings for
     icons = icons.slice(0, settings.length);
 
-    elCanvas.width = WIDTH;
-    elCanvas.height = WIDTH;
+    elCanvas.width = SIZE;
+    elCanvas.height = SIZE;
+
+    addUnderlay(context);
+
     context.imagesToLoad = icons.length;
     context.imagesLoaded = [];
 
@@ -169,7 +170,7 @@ Evme.IconGroup = new function Evme_IconGroup() {
       var elImageCanvas = document.createElement('canvas'),
           imageContext = elImageCanvas.getContext('2d'),
           fixedImage = new Image(),
-          size = settings.size * Evme.Utils.devicePixelRatio;
+          size = Math.round(settings.size * SIZE);
 
       elImageCanvas.width = elImageCanvas.height = size;
 
@@ -223,25 +224,43 @@ Evme.IconGroup = new function Evme_IconGroup() {
         image = obj.image;
         settings = obj.settings;
 
-        var size = settings.size * Evme.Utils.devicePixelRatio;
+        var size = image.width,
+            shadowBounds = (settings.shadowOffsetX || 0);
 
         if (!image) {
           continue;
         }
 
         // shadow
-        context.shadowOffsetX = settings.shadowOffset;
-        context.shadowOffsetY = settings.shadowOffset;
+        context.shadowOffsetX = settings.shadowOffsetX || 0;
+        context.shadowOffsetY = settings.shadowOffsetY || 0;
         context.shadowBlur = settings.shadowBlur;
         context.shadowColor = 'rgba(0, 0, 0, ' + settings.shadowOpacity + ')';
 
+        var x = settings.x,
+            y = settings.y;
+
+        switch (x) {
+          case 'center': x = (SIZE - size)/2; break;
+          case 'left': x = 0; break;
+          case 'right': x = SIZE - size - shadowBounds; break;
+        }
+        switch (y) {
+          case 'center': y = (SIZE - size)/2; break;
+          case 'top': y = 0; break;
+          case 'bottom': y = SIZE - size - shadowBounds; break;
+        }
+
         // rotation
-        context.save();
-        context.translate(settings.x * Evme.Utils.devicePixelRatio + size / 2, settings.y * Evme.Utils.devicePixelRatio + size / 2);
-        context.rotate((settings.rotate || 0) * Math.PI / 180);
-        // draw the icon already!
-        context.drawImage(image, -size / 2, -size / 2);
-        context.restore();
+        if (settings.rotate) {
+          context.save();
+          context.translate(x + size / 2, y + size / 2);
+          context.rotate((settings.rotate || 0) * Math.PI / 180);
+          context.drawImage(image, -size / 2, -size / 2);
+          context.restore();
+        } else {
+          context.drawImage(image, x, y);
+        }
       }
 
       onAllIconsReady && onAllIconsReady(context.canvas);

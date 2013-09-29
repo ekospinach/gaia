@@ -241,6 +241,12 @@ var EvmeManager = (function EvmeManager() {
     }
   }
 
+  function setWallpaper(image) {
+    navigator.mozSettings && navigator.mozSettings.createLock().set({
+      'wallpaper.image': image
+    });
+  }
+
   return {
     addGridItem: addGridItem,
     removeGridItem: removeGridItem,
@@ -267,7 +273,9 @@ var EvmeManager = (function EvmeManager() {
     menuHide: menuHide,
     getMenuHeight: getMenuHeight,
 
-    getIconSize: getIconSize
+    getIconSize: getIconSize,
+
+    setWallpaper: setWallpaper
   };
 }());
 

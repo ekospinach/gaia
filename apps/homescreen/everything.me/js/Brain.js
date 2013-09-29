@@ -711,29 +711,22 @@ this.InstalledAppsService = new function InstalledAppsService() {
                 }
             }
 
-            // get icon data
-            var appIcon = Evme.Utils.formatImageData(data.app.getIcon());
-            // make it round
-            Evme.Utils.getRoundIcon({
-                "src": appIcon
-            }, function onIconReady(roundedAppIcon) {
-                // bookmark - add to homescreen
-                Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
-                    'originUrl': data.app.getFavLink(),
-                    'title': data.data.name,
-                    'icon': roundedAppIcon,
-                    'useAsyncPanZoom': data.app.isExternal()
-                });
-                // display system banner
-                Evme.Banner.show('app-install-success', {
-                    'name': data.data.name
-                });
+            // bookmark - add to homescreen
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.APP_INSTALL, {
+                'originUrl': data.app.getFavLink(),
+                'title': data.data.name,
+                'icon': Evme.Utils.formatImageData(data.app.getIcon()),
+                'useAsyncPanZoom': data.app.isExternal()
+            });
+            // display system banner
+            Evme.Banner.show('app-install-success', {
+                'name': data.data.name
+            });
 
-                // analytics
-                Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
-                    "id": data.data.id,
-                    "name": data.data.name
-                });
+            // analytics
+            Evme.EventHandler.trigger(NAME, "addToHomeScreen", {
+                "id": data.data.id,
+                "name": data.data.name
             });
         }
 
@@ -882,6 +875,12 @@ this.InstalledAppsService = new function InstalledAppsService() {
 
         this.removed = function removed() {
             Evme.SearchResults.changeFadeOnScroll(false);
+        };
+
+        this.setWallpaper = function setWallpaper(data) {
+          if (confirm(Evme.Utils.l10n('alert', 'save-wallpaper'))) {
+            Evme.Utils.sendToOS(Evme.Utils.OSMessages.SET_WALLPAPER, data.image);
+          }
         };
     };
 

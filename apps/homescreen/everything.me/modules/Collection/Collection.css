@@ -50,7 +50,7 @@ body.evme-loading #collection progress {
       z-index: 50;
       height: 5.4rem;
       line-height: 5.5rem;
-      text-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, .6);
+      text-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, .6);
       border-bottom: 0.1rem solid #fff;
       overflow: hidden;
     }
@@ -86,14 +86,16 @@ body.evme-loading #collection progress {
         height: 100%;
         padding: 0 1rem 0 3.2rem;
         font-size: 1.7rem;
-        font-weight: normal;
+        color: #b4dae7;
+        font-weight: bold;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         -moz-box-sizing: border-box;
     }
   	 .evmeScope #collection .title span {
-          color: #b4dae7;
+          color: #ffffff;
+          font-weight: normal;
           text-transform: capitalize;
       }
 
