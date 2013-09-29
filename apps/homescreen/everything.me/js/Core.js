@@ -185,6 +185,8 @@ window.Evme = new function Evme_Core() {
       "el": Evme.$("#search-overlay")
     });
 
+    Evme.IconManager.init({});
+
     Evme.SearchResults = new Evme.ResultManager();
     Evme.SearchResults.init({
       "NAME": 'SearchResults',
