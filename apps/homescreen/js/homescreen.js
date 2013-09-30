@@ -80,10 +80,13 @@ var Homescreen = (function() {
       }
     } else if (!Homescreen.isInEditMode()) {
       // No long press over an icon neither edit mode
-      LazyLoader.load(['shared/js/omadrm/fl.js', 'js/wallpaper.js'],
-                      function callWallpaper() {
-        Wallpaper.contextmenu();
-      });
+      LazyLoader.load(
+        ['shared/js/omadrm/fl.js', 'js/wallpaper.js', 'js/contextmenu.js',
+       'shared/style/action_menu.css'],
+       function callContextMenu() {
+         evt.preventDefault();
+         ContextMenuDialog.show();
+       });
     }
   }
   // dismiss edit mode by tapping in an area of the view where there is no icon

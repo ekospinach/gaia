@@ -103,8 +103,16 @@ Collection.prototype = {
 
     var xhr = new XMLHttpRequest();
     xhr.overrideMimeType('application/json');
-    xhr.open('GET', this.url, true);
-    xhr.send(null);
+
+    try {
+      xhr.open('GET', this.url, true);
+      xhr.send(null);
+    }
+    catch (e) {
+      console.error('Error fetching the manifest ' + this.url, e.message);
+      cb(this);
+    }
+
 
     var self = this;
     xhr.onload = function _xhrOnLoad(evt) {

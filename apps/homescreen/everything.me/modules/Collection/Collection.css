@@ -15,6 +15,9 @@ body.evme-loading #collection progress {
   margin-top: -1.45rem;
   margin-left: -1.45rem;
 }
+body:not(.evme-ready) #collections-select {
+    display: none;
+}
 
 .evmeScope #collection {
     position: fixed;

@@ -66,11 +66,7 @@
         // init event listeners
         window.addEventListener('collectionlaunch', Evme.Collection.show);
         window.addEventListener('EvmeDropApp', onAppDrop);
-
-        // prevent homescreen contextmenu
-        elContainer.addEventListener('contextmenu', function onTouchStart(e) {
-            e.stopPropagation();
-        });
+        window.addEventListener('suggestcollections', onSuggestCollections);
 
         _config = options;
 
@@ -81,6 +77,10 @@
         PAGEVIEW_SOURCES = _config.pageViewSources;
 
         DISPLAY_INSTALLED_APPS = _config.displayInstalledApps;
+    };
+
+    function onSuggestCollections(e) {
+        Evme.Brain.CollectionsSuggest.showUI();
     };
 
     function onAppDrop(e) {
@@ -1052,7 +1052,6 @@ this.InstalledAppsService = new function InstalledAppsService() {
         };
 
         this.hide = function hide() {
-            Evme.CollectionsSuggest.Loading.hide();
             isOpen = false;
         };
 

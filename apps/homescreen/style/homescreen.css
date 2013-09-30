@@ -48,6 +48,18 @@ section,footer,nav,a,img {
   left: 0;
 }
 
+#contextmenu-dialog {
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 10005; /* rise above the dock */
+}
+
+#contextmenu-dialog.visible {
+  visibility: visible;
+  pointer-events: auto;
+}
+
 button:focus::-moz-focus-inner {
   border-color: transparent !important;
 }

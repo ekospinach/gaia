@@ -36,6 +36,7 @@ var EverythingME = {
     activationIcon.addEventListener('contextmenu', onContextMenu);
     activationIcon.addEventListener('click', triggerActivateFromInput);
     window.addEventListener('collectionlaunch', triggerActivate);
+    window.addEventListener('suggestcollections', triggerActivate);
     window.addEventListener('EvmeDropApp', triggerActivate);
 
     // specifically for pseudo searchbar
@@ -53,6 +54,7 @@ var EverythingME = {
       activationIcon.removeEventListener('click', triggerActivateFromInput);
       activationIcon.removeEventListener('contextmenu', onContextMenu);
       window.removeEventListener('collectionlaunch', triggerActivate);
+      window.removeEventListener('suggestcollections', triggerActivate);
       window.removeEventListener('EvmeDropApp', triggerActivate);
 
       // load styles required for Collection styling
