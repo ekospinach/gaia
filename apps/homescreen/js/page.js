@@ -460,12 +460,9 @@ Icon.prototype = {
    * @param{string} non-translationable name
    */
   setName: function icon_setName(name) {
-    console.log('evyatar update custom name: ' + name);
     this.label.textContent = this.descriptor.customName = name;
-    console.log('evyatar updated custom name: ' + this.descriptor.customName);
     this.applyOverflowTextMask();
     GridManager.markDirtyState();
-    console.log('evyatar update done: ' + this.descriptor.customName);
   },
 
   /*
@@ -473,10 +470,6 @@ Icon.prototype = {
    */
   getName: function icon_getName() {
     var desc = this.descriptor;
-    console.log('evyatar getName: ' +
-                  desc.customName + ',' +
-                  desc.localizedName + ',' +
-                  desc.name);
     return desc.customName || desc.localizedName || desc.name;
   },
 

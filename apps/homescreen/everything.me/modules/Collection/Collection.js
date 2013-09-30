@@ -107,21 +107,24 @@ void function() {
       done: function renameDone(shouldSave) {
         var elInput = elTitle.querySelector('input'),
             elDone =  elTitle.querySelector('.done'),
+            id = currentSettings.id,
             newTitle = elInput.value;
 
-        if (shouldSave && currentSettings.name !== newTitle) {
+        if (shouldSave && newTitle !== EvmeManager.getIconName(id)) {
           self.update(currentSettings, {
             'experienceId': null,
             'query': newTitle,
-            'name': newTitle
+            'customName': newTitle
           }, function onUpdate(updatedSettings) {
             self.setTitle(newTitle);
 
             Evme.EventHandler.trigger(NAME, 'rename', {
-              'id': currentSettings.id,
+              'id': id,
               'newName': newTitle
             });
           });
+        } else {
+          self.setTitle(EvmeManager.getIconName(id) || currentSettings.query);
         }
 
         el.classList.remove(CLASS_WHEN_EDITING_NAME);
@@ -131,8 +134,6 @@ void function() {
         elDone.removeEventListener('touchstart', self.Rename.save);
 
         elInput.blur();
-
-        self.setTitle(currentSettings.name || currentSettings.query);
   
         // since this can happen on the "blur" event,
         // we're setting a timeout to allow other click-events to occur
