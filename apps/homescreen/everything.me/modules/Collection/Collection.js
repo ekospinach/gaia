@@ -22,12 +22,13 @@ void function() {
         isFullScreenVisible = false,
 
         title = '',
-
         CLASS_WHEN_IMAGE_FULLSCREEN = 'full-image',
         CLASS_WHEN_ANIMATING = 'animate',
+        CLASS_WHEN_EDITING_NAME = 'renaming',
         TRANSITION_DURATION = 400;
 
     this.editMode = false;
+    this.isRenaming = false;
 
     this.init = function init(options) {
       !options && (options = {});
@@ -42,7 +43,8 @@ void function() {
       elImage = Evme.$('.image', el)[0];
       elClose = Evme.$('.close', el)[0];
 
-      elClose.addEventListener('click', self.hide);
+      elTitle.addEventListener('click', self.Rename.start);
+      elClose.addEventListener('click', self.onCloseClick);
       elAppsContainer.dataset.scrollOffset = 0;
 
       el.addEventListener('animationend', function onAnimationEnd(e) {
@@ -58,6 +60,93 @@ void function() {
       });
 
       Evme.EventHandler.trigger(NAME, 'init');
+    };
+    
+    this.Rename = {
+      start: function renameStart() {
+        if (self.isRenaming) {
+          return;
+        }
+
+        var currentTitle = elTitle.querySelector('.actual').textContent,
+            elInput, elDone;
+
+        el.classList.add(CLASS_WHEN_EDITING_NAME);
+
+        elTitle.innerHTML = '<input type="text" />' +
+                            '<b class="done"></b>';
+
+        elInput = elTitle.querySelector('input');
+        elDone = elTitle.querySelector('.done');
+
+        elInput.focus();
+        elInput.value = currentTitle;
+
+        elInput.addEventListener('blur', self.Rename.cancel);
+        elInput.addEventListener('keyup', self.Rename.onKeyUp);
+        elDone.addEventListener('touchstart', self.Rename.save);
+  
+        self.isRenaming = true;
+      },
+
+      onKeyUp: function onRenameKeyUp(e) {
+        if (e.keyCode === 13) {
+          self.Rename.save();
+        }
+      },
+
+      save: function renameSave(e) {
+        e && e.preventDefault();
+        self.Rename.done(true);
+      },
+
+      cancel: function renameCancel() {
+        self.Rename.done(false);
+      },
+
+      done: function renameDone(shouldSave) {
+        var elInput = elTitle.querySelector('input'),
+            elDone =  elTitle.querySelector('.done'),
+            newTitle = elInput.value;
+
+        if (shouldSave && currentSettings.name !== newTitle) {
+          self.update(currentSettings, {
+            'experienceId': null,
+            'query': newTitle,
+            'name': newTitle
+          }, function onUpdate(updatedSettings) {
+            self.setTitle(newTitle);
+
+            Evme.EventHandler.trigger(NAME, 'rename', {
+              'id': currentSettings.id,
+              'newName': newTitle
+            });
+          });
+        }
+
+        el.classList.remove(CLASS_WHEN_EDITING_NAME);
+
+        elInput.removeEventListener('blur', self.Rename.cancel);
+        elInput.removeEventListener('keyup', self.Rename.onKeyUp);
+        elDone.removeEventListener('touchstart', self.Rename.save);
+
+        elInput.blur();
+
+        self.setTitle(currentSettings.name || currentSettings.query);
+  
+        // since this can happen on the "blur" event,
+        // we're setting a timeout to allow other click-events to occur
+        // before changing the status (like the "close" button)
+        window.setTimeout(function() {
+          self.isRenaming = false;
+        }, 20);
+      },
+    };
+    
+    this.onCloseClick = function onCloseClick() {
+      if (!self.isRenaming) {
+        self.hide();
+      }
     };
 
     this.create = function create(options) {
@@ -231,8 +320,10 @@ void function() {
     this.setTitle = function setTitle(newTitle) {
       title = newTitle;
 
-      elTitle.innerHTML = '<em></em>' + '<span>' + title + '</span>' + ' ' +
-        '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
+      elTitle.innerHTML =
+              '<em></em>' +
+              '<span class="actual">' + title + '</span>' + ' ' +
+              '<span ' + Evme.Utils.l10nAttr(NAME, 'title-suffix') + '/>';
     };
 
     this.setBackground = function setBackground(newBg) {

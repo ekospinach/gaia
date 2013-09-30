@@ -427,7 +427,13 @@ Icon.prototype = {
     if (descriptor.updateTime != oldDescriptor.updateTime ||
         descriptor.name != oldDescriptor.name ||
         descriptor.localizedName != oldDescriptor.localizedName) {
-      this.translate();
+
+      if (descriptor.type === GridItemsFactory.TYPE.COLLECTION) {
+        this.label.textContent = descriptor.name;
+        this.applyOverflowTextMask();
+      } else {
+        this.translate();
+      }
     }
   },
 
