@@ -903,6 +903,8 @@ this.InstalledAppsService = new function InstalledAppsService() {
 
         // a collection was renamed
         this.rename = function rename(data) {
+            console.log('evyatar change name [' + data.id + ']: ' + data.newName);
+            EvmeManager.setIconName(data.newName, data.id);
             loadAppsIntoCollection();
         };
 
