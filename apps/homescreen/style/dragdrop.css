@@ -21,6 +21,17 @@
   left: 50%;
 }
 
+/* compensate for differences between E.me and homescreen li rendering */
+#collection .draggable > div {
+  margin-top: -0.1rem;
+  margin-left: -0.15rem;
+}
+
+#collection .draggable > div > span {
+  margin-left: 0.2rem;
+  margin-top: -0.2rem;
+}
+
 /* text label */
 .draggable > div > span > span {
   font-size: 1.3rem;

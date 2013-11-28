@@ -211,6 +211,7 @@ function Evme_dndManager() {
   function rearrange() {
     clearTranslate();
     parentNode.insertBefore(originNode, insertBeforeNode);
+    shrink();
     cleanup();
 
     // call callback with new index of originNode
@@ -227,12 +228,18 @@ function Evme_dndManager() {
     dndContainerEl.dataset.transitioning = true;
     draggableEl.style.MozTransition = '-moz-transform .4s';
     draggableEl.style.MozTransform = 'translate(0, 0)';
+    shrink();
 
     draggableEl.addEventListener('transitionend', function tEnd(e) {
       e.target.removeEventListener('transitionend', tEnd);
       delete dndContainerEl.dataset.transitioning;
       cleanup();
     });
+  }
+
+  function shrink() {
+    var divContainer = draggableEl.querySelector('div');
+    divContainer.style.MozTransform = 'scale(1)';
   }
 
   function cleanup() {
@@ -242,6 +249,7 @@ function Evme_dndManager() {
     if (draggableEl) {
       dndContainerEl.removeChild(draggableEl);
     }
+    draggableEl = null;
   }
 
   // create cloned draggable grid-like element from an E.me li element
@@ -254,6 +262,8 @@ function Evme_dndManager() {
     var labelWrapper = document.createElement('span');
     var label = document.createElement('span');
 
+    // E.me renders the name using canvas but here we need text
+    // we get it from originNode's dataset
     labelWrapper.className = 'labelWrapper';
     label.textContent = originNode.dataset.name;
     labelWrapper.appendChild(label);

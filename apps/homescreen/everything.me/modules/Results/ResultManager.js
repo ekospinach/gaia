@@ -353,7 +353,8 @@ Evme.ResultManager = function Evme_ResultsManager() {
   }
 
   function touchEnd(data) {
-    if (shouldFadeBG &&
+    // double check ftr.fadeOnScroll (see touchMove)
+    if (ftr.fadeOnScroll && shouldFadeBG &&
           scroll.distY >= FULLSCREEN_THRESHOLD * MAX_SCROLL_FADE) {
       showingFullScreen = true;
       cbScrolledToTop();
