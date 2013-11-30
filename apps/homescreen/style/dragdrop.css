@@ -72,6 +72,10 @@ body[data-dragging] ol > li > div > img,
   -moz-animation-name: none;
 }
 
+#collection .evme-apps ul.static[data-rearranging] li {
+  transition-duration: 0s !important;
+}
+
 /* for elementFromPoint to return the draggable li and not child nodes */
 body[data-dragging] ol > li span.options,
 #collection[data-mode = 'edit'] .evme-apps ul.static li img,

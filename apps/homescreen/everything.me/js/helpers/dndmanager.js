@@ -209,18 +209,26 @@ function Evme_dndManager() {
 
   // update DOM with new node ordering
   function rearrange() {
-    clearTranslate();
-    parentNode.insertBefore(originNode, insertBeforeNode);
-    shrink();
-    cleanup();
+    parentNode.dataset.rearranging = 1;
 
-    // call callback with new index of originNode
-    var newIndex =
-      Array.prototype.indexOf.call(parentNode.childNodes, originNode);
+    setTimeout(function() {
+      clearTranslate();
+      parentNode.insertBefore(originNode, insertBeforeNode);
+      shrink();
+      cleanup();
 
-    if (newIndex > -1) {
-      rearrangeCb(newIndex);
-    }
+      setTimeout(function() {
+        delete parentNode.dataset.rearranging;
+      });
+
+      // call callback with new index of originNode
+      var newIndex =
+        Array.prototype.indexOf.call(parentNode.childNodes, originNode);
+
+      if (newIndex > -1) {
+        rearrangeCb(newIndex);
+      }
+    });
   }
 
   // move originNode back to original location
