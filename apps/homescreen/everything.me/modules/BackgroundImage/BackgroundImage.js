@@ -59,6 +59,8 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
           window.setTimeout(function onTimeout() {
             el.classList.remove('default');
           }, 300);
+
+          Evme.EventHandler.trigger(NAME, 'show');
         }, 10);
       }
     }
@@ -188,6 +190,7 @@ Evme.BackgroundImage = new function Evme_BackgroundImage() {
 
       window.setTimeout(function onTimeout() {
         Evme.$remove(elFullScreen);
+        Evme.EventHandler.trigger(NAME, 'fullScreenRemoved');
       }, 700);
 
       e && e.preventDefault();

@@ -54,7 +54,7 @@ Evme.Searchbar = new function Evme_Searchbar() {
   };
 
   this.getValue = function getValue() {
-    return trim(value) === '' ? '' : value;
+    return value.trim() === '' ? '' : value;
   };
 
   this.isFocused = function getIsFocused() {
@@ -137,6 +137,7 @@ Evme.Searchbar = new function Evme_Searchbar() {
       // show clear button
       Evme.$('#search-header').classList.add('clear-visible');
     }
+    console.log('Set clear button: ' + Evme.$('#search-header').className);
   };
 
   function clearButtonClick() {
@@ -166,6 +167,7 @@ Evme.Searchbar = new function Evme_Searchbar() {
 
     if (currentValue !== value) {
       value = currentValue;
+    console.log('input change: ' + value);
 
       self.updateClearButtonState();
       if (self.getValue() === '') {
