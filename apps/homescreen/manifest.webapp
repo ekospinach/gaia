@@ -15,7 +15,7 @@
     "settings":{ "access": "readwrite" },
     "open-remote-window":{},
     "storage":{},
-    "geolocation": {},
+    "geolocation": { "description": "To suggest the best apps for you"},
     "alarms": {},
     "power":{}
   },
