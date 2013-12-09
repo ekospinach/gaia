@@ -68,7 +68,7 @@ var Rocketbar = {
     var self = this;
     navigator.mozApps.getSelf().onsuccess = function() {
       var app = this.result;
-      app.connect('search').then(
+      app.connect('search-evme').then(
         function onConnectionAccepted(ports) {
           ports.forEach(function(port) {
             self._port = port;

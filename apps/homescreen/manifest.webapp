@@ -64,6 +64,11 @@
       "rules": {
         "manifestURLs": ["app://system.gaiamobile.org/manifest.webapp"]
       }
+    },
+    "search-evme": {
+      "handler_path": "everything.me/search/index.html",
+      "description": "Everything.me search provider",
+      "rules": {}
     }
   }
 }
