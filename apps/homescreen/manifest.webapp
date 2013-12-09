@@ -59,8 +59,7 @@
   ],
   "connections": {
     "search": {
-      "handler_path": "search/index.html",
-      "description": "Proxies search to copied search app. Should be moved to the search app manifest if we split the app up.",
+      "description": "Search with Everything.me",
       "rules": {
         "manifestURLs": ["app://system.gaiamobile.org/manifest.webapp"]
       }

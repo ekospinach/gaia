@@ -270,7 +270,7 @@ function execute(options) {
    'ril.data.apnSettings': '',
    'ril.data.cp.apns': '',
    'ril.callerId': 'CLIR_DEFAULT',
-   'rocketbar.enabled': false,
+   'rocketbar.enabled': true,
    'screen.automatic-brightness': true,
    'screen.brightness': 1,
    'screen.timeout': 60,

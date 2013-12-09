@@ -4,6 +4,29 @@ var EverythingME = {
   pendingEvent: undefined,
 
   init: function EverythingME_init() {
+    console.log('evme', 'EvmeSearch', 'init');
+
+    function onMessage(msg) {
+      // XXX onMessage does not run
+      var data = msg.data;
+      console.log('evme', 'onMessage', JSON.stringify(data));
+      console.log('evme', 'evme?', Evme);
+    }
+
+    navigator.mozSetMessageHandler('connection',
+      function(connectionRequest) {
+        console.log('evme', 'connectionRequest');
+        var keyword = connectionRequest.keyword;
+        if (keyword != 'search') {
+          return;
+        }
+
+        var port = connectionRequest.port;
+        port.onmessage = onMessage;
+        port.start();
+      });
+
+
     var footer = document.querySelector('#footer');
     if (footer) {
       footer.style.MozTransition = '-moz-transform .3s ease';
