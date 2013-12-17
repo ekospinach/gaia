@@ -49,7 +49,20 @@
     function renderIcon(searchResult, cb) {
       var iconData = searchResult.iconData;
       var src = 'data:' + iconData.MIMEType + ';base64,' + iconData.data;
-      cb(src);
+
+      var img = document.createElement('img');
+
+      img.onload = function onload() {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        context.drawImage(img, 0, 0);
+
+        canvas.toBlob(function(blob) {
+          cb(blob);
+        });
+      };
+
+      img.src = src;
     }
   }
 
