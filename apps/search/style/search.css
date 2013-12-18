@@ -4,12 +4,32 @@ body {
 }
 
 #search-terms {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
-#search-suggestions .result {
-  border: 1px solid #ccc;
+#search-results > section:not(:last-child) {
+ margin-bottom: 1rem; 
+}
+
+/* local apps */
+section#localapps, section#contacts {
   background-color: #c0c0c0;
   line-height: 2rem;
-  margin-right: 0.2rem;
+}
+
+/* web */
+section#web > * {
+  width: calc(100%/4 - 0.4rem);
+  display: inline-block;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 95px;
+  line-height: 16px;
+  padding: 0 0.2rem;
+}
+section#web img {
+  display: block;
+  margin: 0 auto 0.3rem;
+  pointer-events: none;
 }

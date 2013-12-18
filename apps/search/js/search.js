@@ -4,17 +4,19 @@
   // timeout before notifying providers
   var SEARCH_DELAY = 600;
   var timeoutSearchWhileTyping = null;
+  var CONTAINERS = {
+    'EverythingMe': 'web',
+    'Contacts': 'contacts',
+    'LocalApps': 'localapps'
+  };
 
   window.Search = {
     _port: null,
     terms: document.getElementById('search-terms'),
-    suggestions: document.getElementById('search-suggestions'),
 
     providers: {},
 
     init: function() {
-      this.suggestions.addEventListener('click', this.resultClick.bind(this));
-
       // Initialize the parent port connection
       var self = this;
       navigator.mozApps.getSelf().onsuccess = function() {
@@ -51,8 +53,14 @@
       }
 
       function initializeProviders() {
+        var template = 'section#{name}';
         for (var i in self.providers) {
-          self.providers[i].init();
+          var selector = template.replace('{name}',
+                                            CONTAINERS[self.providers[i].name]);
+          console.log(selector);
+          self.providers[i].init({
+            container: document.querySelector(selector)
+          });
         }
       }
     },
@@ -64,35 +72,21 @@
       this.providers[provider.name] = provider;
     },
 
-    resultClick: function(e) {
-      var target = e.target;
-      if (target === this.suggestions)
-        return;
-
-      var targetProvider = target.dataset.provider;
-      if (targetProvider) {
-        this.providers[targetProvider].click(target);
-        return;
-      }
-
-      // Else update with the clicked text content
-      this._port.postMessage({'input': target.textContent});
-    },
-
     onSearchInput: function(msg) {
+      clearTimeout(timeoutSearchWhileTyping);
+
       var input = msg.data.input;
       var type = msg.data.type;
+      var providers = this.providers;
+
+      // update title
       this.terms.innerHTML = input;
 
-      this.suggestions.innerHTML = '';
-
-      var providers = this.providers;
-      clearTimeout(timeoutSearchWhileTyping);
       timeoutSearchWhileTyping = setTimeout(function doSearch() {
         for (var i in providers) {
           providers[i].search(input, type);
         }
-      }, self.SEARCH_DELAY);
+      }, SEARCH_DELAY);
     },
 
     /**

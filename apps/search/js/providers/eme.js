@@ -7,9 +7,14 @@
   }
 
   EverythingMe.prototype = {
-    init: function() {
-      // Broadcast to eme-api channel
+
+    init: function(config) {
       var self = this;
+
+      this.container = config.container;
+      this.container.addEventListener('click', this.click);
+
+      // Broadcast to eme-api channel
       navigator.mozApps.getSelf().onsuccess = function() {
         var app = this.result;
         app.connect('eme-api').then(
@@ -25,16 +30,19 @@
       };
     },
 
-    click: function(target) {
-      Search.close();
-      // This actually doesn't work yet
-      // Will be implemented by E.me in the homescreen
-      window.open(target.dataset.url);
+    click: function(e) {
+      var url = e.target && e.target.dataset.url;
+      if (url) {
+        // This actually doesn't work yet
+        // Will be implemented by E.me in the homescreen
+        window.open(url);
+
+        Search.close();
+      }
     },
 
     search: function(input, type) {
-      this.results = document.createElement('section');
-      Search.suggestions.appendChild(this.results);
+      this.clear();
 
       setTimeout(function nextTick() {
         this.port.postMessage({
@@ -42,6 +50,10 @@
           type: type
         });
       }.bind(this));
+    },
+
+    clear: function() {
+      this.container.innerHTML = '';
     },
 
     onmessage: function(msg) {
@@ -52,18 +64,18 @@
       }
     },
 
-    renderResult: function(searchResult, icon) {
-      var resultEl = document.createElement('div');
-      resultEl.className = 'result';
-      resultEl.dataset.provider = this.name;
-      resultEl.dataset.url = searchResult.url;
-      resultEl.textContent = searchResult.title;
+    renderResult: function(data, icon) {
+      var el = document.createElement('div');
+      el.dataset.url = data.url;
 
       var img = document.createElement('img');
       img.src = icon;
-      resultEl.appendChild(img);
+      el.appendChild(img);
 
-      this.results.appendChild(resultEl);
+      var title = document.createTextNode(data.title);
+      el.appendChild(title);
+
+      this.container.appendChild(el);
     }
 
   };
