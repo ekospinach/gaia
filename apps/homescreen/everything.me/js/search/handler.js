@@ -11,8 +11,17 @@
       var newQuery = msg.data.input;
       if (newQuery && newQuery !== query) {
         query = newQuery;
+
+        Evme.SearchClient.suggestions({
+          'query': query
+        }).then(function resolve(searchSuggestions) {
+          searchPort.postMessage({ 'suggestions': searchSuggestions });
+        });
+
         Evme.SearchClient.search({
           'query': query
+        }).then(function resolve(searchResults) {
+          searchPort.postMessage({ 'results': searchResults });
         });
       }
     };
@@ -39,14 +48,6 @@
         );
       };
     }
-
-    this.sendResults = function sendResults(resultQuery, searchResults) {
-      // only if results still relevant
-      if (resultQuery === query) {
-        searchPort.postMessage({ 'results': searchResults });
-      }
-    };
-
   }
 
   Evme.SearchHandler = new SearchHandler();

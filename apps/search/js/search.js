@@ -54,8 +54,13 @@
             var keyword = connectionRequest.keyword;
             var port = connectionRequest.port;
             if (keyword === 'eme-client') {
-              port.onmessage = self.providers.EverythingMe.onmessage
-                .bind(self.providers.EverythingMe);
+              var SuggestionsProvider = self.providers.Suggestions;
+              var EverythingMeProvider = self.providers.EverythingMe;
+
+              port.onmessage = function onmessage(msg) {
+                SuggestionsProvider.onmessage.call(SuggestionsProvider, msg);
+                EverythingMeProvider.onmessage.call(EverythingMeProvider, msg);
+              };
               port.start();
             } else if (keyword === 'search') {
               port.onmessage = self.onSearchInput.bind(self);
@@ -87,10 +92,29 @@
     },
 
     onSearchInput: function(msg) {
+      this.search({
+        'input': msg.data.input,
+        'type': msg.data.type
+      });
+    },
+
+    onSuggestionSelected: function(query) {
+      this._port.postMessage({
+        'action': 'setInput',
+        'input': query
+      });
+
+      this.search({
+        'input': query,
+        'type': 'suggestion'
+      });
+    },
+
+    search: function(options) {
       clearTimeout(timeoutSearchWhileTyping);
 
-      var input = msg.data.input;
-      var type = msg.data.type;
+      var input = options.input;
+      var type = options.type;
       var providers = this.providers;
 
       timeoutSearchWhileTyping = setTimeout(function doSearch() {

@@ -163,12 +163,16 @@ var Rocketbar = {
 
     var detail = e.detail;
     if (detail.action) {
-      this[detail.action]();
+      this[detail.action](detail);
     } else if (detail.input) {
       var input = this.searchInput;
       input.value = detail.input;
       this._port.postMessage({ 'input': input.value });
     }
+  },
+
+  setInput: function(detail) {
+    this.searchInput.value = detail.input;
   },
 
   hide: function() {
