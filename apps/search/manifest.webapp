@@ -22,7 +22,8 @@
     "webapps-manage":{},
     "open-remote-window":{},
     "systemXHR":{},
-    "contacts":{ "access": "readonly" }
+    "contacts":{ "access": "readonly" },
+    "settings":{ "access": "readonly" }
   },
   "connections": {
     "search": {

@@ -1,6 +1,8 @@
 (function() {
   'use strict';
 
+  var mozSettings = navigator.mozSettings;
+
   function partnersAPI(eme) {
     var OK = 1;
     var API_URL = 'https://api.everything.me/partners/1.0/{resource}/';
@@ -8,14 +10,40 @@
 
     var deviceId = null;
 
+    var lc = null; // locale
+    var kb = null; // keyboard language
+    var tz = null; // timezone
+
     var self = this;
 
     this.init = function init(config) {
       deviceId = config.deviceId;
+      lc = navigator.language;
+      tz = getTz();
+      kb = '';
+
+      if (mozSettings) {
+        mozSettings.addObserver('language.current', function onChange(e) {
+          self.lc = e.settingValue || self.lc;
+        });
+        mozSettings.addObserver('time.timezone', function onChange(e) {
+          self.tz = getTz();
+        });
+        // TODO keyboard.current is deperated in 1.4
+        // see https://bugzilla.mozilla.org/show_bug.cgi?id=930402
+        // ** change homescreen as well
+        mozSettings.addObserver('keyboard.current', function onChange(e) {
+          self.kb = e.settingValue || self.kb;
+        });
+      }
 
       addApiMethod('Apps', 'search');
       addApiMethod('Search', 'suggestions');
       addApiMethod('Search', 'bgimage');
+
+      function getTz() {
+        return (new Date().getTimezoneOffset() / -60).toString();
+      }
     };
 
     function addApiMethod(service, method) {
@@ -39,9 +67,12 @@
 
       options = options ? options : {};
 
-      // always send apiKey and deviceId
+      // always send following params
       options.apiKey = API_KEY;
       options.deviceId = deviceId;
+      options.lc = lc;
+      options.kb = kb;
+      options.tz = tz;
 
       for (var k in options) {
         var v = options[k];
