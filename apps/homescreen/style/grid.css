@@ -52,7 +52,7 @@ body.searchPageEnabled .apps div:first-child ol > li:nth-child(13) {
   left: .5rem;
   width: calc(100% - .5rem);
   height: 2.6rem;
-  z-index: 15; /* So the Delete button will be above the collections' circle */
+  z-index: 2;
   background: url(../resources/images/delete.png) no-repeat left top / 2.4rem;
 }
 

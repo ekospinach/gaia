@@ -199,13 +199,22 @@ void function() {
 
       var pluck = Evme.Utils.pluck;
       var shouldUpdateIcon = false;
+      var shouldUpdateBg = false;
       var numIcons = Evme.Config.numberOfAppInCollectionIcon;
 
       var originalIcons = pluck(collectionSettings.extraIconsData, 'icon'),
-          originalAppIds = pluck(collectionSettings.apps, 'id');
+          originalAppIds = pluck(collectionSettings.apps, 'id'),
+          originalBgChecksum = collectionSettings.bg ?
+            collectionSettings.bg.checksum : undefined;
 
       Evme.CollectionSettings.update(collectionSettings, data,
         function onUpdate(updatedSettings) {
+          if ('bg' in data && (!originalBgChecksum ||
+             (originalBgChecksum && data.bg.checksum !== originalBgChecksum))) {
+            shouldUpdateIcon = true;
+            shouldUpdateBg = true;
+          }
+
           // updating the currently open collection
           if (currentSettings && currentSettings.id === collectionSettings.id) {
             currentSettings = updatedSettings;
@@ -215,6 +224,10 @@ void function() {
             // already handles repaint (like 'moveApp' does)
             if (!extra.noRepaint && 'apps' in data) {
               resultsManager.renderStaticApps(updatedSettings.apps);
+            }
+
+            if (shouldUpdateBg) {
+              self.showBackground();
             }
           }
 
@@ -338,9 +351,10 @@ void function() {
 
           var id = el.dataset.id = collectionSettings.id;
 
-          self.setTitle(EvmeManager.getIconName(id) ||
-                                                   collectionSettings.query);
-          collectionSettings.bg && self.setBackground(collectionSettings.bg);
+          self.setTitle(
+            EvmeManager.getIconName(id) || collectionSettings.query);
+
+          self.showBackground();
 
           self.editMode = false;
 
@@ -425,20 +439,24 @@ void function() {
               '<span>' + title + '</span>';
     };
 
-    this.setBackground = function setBackground(newBg) {
-      if (!currentSettings) { return; }
+    this.showBackground = function showBackground() {
+      var bg = currentSettings ? currentSettings.bg : undefined;
 
-      self.clearBackground();
+      if (bg) {
+        self.clearBackground();
 
-      elImage.style.backgroundImage = 'url(' + newBg.image + ')';
+        elImage.style.backgroundImage = 'url(' + bg.data + ')';
 
-      elImageFullscreen =
-        Evme.BackgroundImage.getFullscreenElement(newBg, self.hideFullscreen);
-      el.appendChild(elImageFullscreen);
+        elImageFullscreen =
+          Evme.BackgroundImage.getFullscreenElement({
+            'image': bg.data,
+            'source': bg.url,
+            'query': currentSettings.getQuery()
+          }, self.hideFullscreen);
+        el.appendChild(elImageFullscreen);
 
-      self.update(currentSettings, {'bg': newBg});
-
-      resultsManager.changeFadeOnScroll(true);
+        resultsManager.changeFadeOnScroll(true);
+      }
     };
 
     this.clearBackground = function clearBackground() {
@@ -506,8 +524,8 @@ void function() {
       return currentSettings ? currentSettings.getQuery() : undefined;
     };
 
-    this.userSetBg = function userSetBg() {
-      return (currentSettings.bg && currentSettings.bg.setByUser);
+    this.getCurrentSettings = function getCurrentSettings() {
+      return currentSettings;
     };
 
     this.toggleEditMode = function toggleEditMode(bool) {
@@ -599,7 +617,13 @@ void function() {
   Evme.CollectionSettings = function Evme_CollectionSettings(args) {
     this.id = args.id;
 
-    // object containing backgound information (image, query, source, setByUser)
+    // object containing backgound information :
+    // {
+    //  data:     String (required)
+    //  checksum: String (optional)
+    //  url:      String (optional)
+    //  revision: Number (optional)
+    // }
     this.bg = args.bg || null;
 
     // collection performs search by query or by experience
@@ -667,39 +691,44 @@ void function() {
    */
   Evme.CollectionSettings.update = function update(settings, data, cb) {
     var cleanData = {};
-
-    // remove app duplicates
-    if ('apps' in data) {
-      cleanData.apps = Evme.Utils.unique(data.apps, 'id');
-
-      // cloudapps: convert ids to strings
-      for (var k = 0, app; app = cleanData.apps[k++]; ) {
-        if (typeof app.id === 'number') {
-          app.id = '' + app.id;
-        }
-      }
-    }
-
-    // check validity of extra icons
-    if ('extraIconsData' in data) {
-      var cleanExtraIconsData =
-        data.extraIconsData.filter(function validData(iconData) {
-          return (iconData.id && iconData.icon);
-        });
-
-      if (cleanExtraIconsData.length ===
-          Evme.Config.numberOfAppInCollectionIcon) {
-        cleanData.extraIconsData = cleanExtraIconsData;
-      }
-    }
-
-    // everything else
     for (var prop in data) {
-      if (prop === 'apps' || prop === 'extraIconsData') {
-        continue;
-      }
+      switch (prop) {
+        // remove app duplicates
+        case 'apps':
+          cleanData.apps = Evme.Utils.unique(data.apps, 'id');
 
-      cleanData[prop] = data[prop];
+          // cloudapps: convert ids to strings
+          for (var k = 0, app; app = cleanData.apps[k++]; ) {
+            if (typeof app.id === 'number') {
+              app.id = '' + app.id;
+            }
+          }
+          break;
+
+        // check bg validity
+        case 'bg':
+          var newBg = data.bg;
+          if (newBg.data) {
+            cleanData.bg = newBg;
+          }
+          break;
+
+        // check validity of extra icons
+        case 'extraIconsData':
+          var cleanExtraIconsData =
+            data.extraIconsData.filter(function validData(iconData) {
+              return (iconData.id && iconData.icon);
+            });
+
+          if (cleanExtraIconsData.length ===
+              Evme.Config.numberOfAppInCollectionIcon) {
+            cleanData.extraIconsData = cleanExtraIconsData;
+          }
+          break;
+
+        default:
+          cleanData[prop] = data[prop];
+      }
     }
 
     // if nothing to update
@@ -838,7 +867,12 @@ void function() {
                                       Evme.Config.numberOfAppInCollectionIcon);
     }
 
-    Evme.IconGroup.get(icons, function onIconCreated(iconCanvas) {
+    var icon = new Evme.CollectionIcon({
+      'iconSrcs': icons,
+      'bgSrc': settings.bg ? settings.bg.data : undefined
+    });
+
+    icon.render().then(function(iconCanvas) {
       callback(iconCanvas);
     });
   }
