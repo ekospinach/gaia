@@ -107,7 +107,7 @@ void function() {
       },
 
       done: function renameDone(shouldSave) {
-        if (!self.isRenaming) {
+        if (!self.isRenaming || !currentSettings) {
           return;
         }
 
