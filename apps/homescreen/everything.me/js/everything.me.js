@@ -3,6 +3,48 @@
 var EverythingME = {
   activated: false,
   pendingEvent: undefined,
+  SearchbarFacade: null,
+  gridPage: null,
+
+  changeSearchbarOpacity: function(opacity, duration) {
+    var style = EverythingME.SearchbarFacade.style;
+    style.transition = duration ? duration + 'ms ease' : '';
+    style.opacity = Math.round(opacity * 40) / 40;
+  },
+
+  onPageShowStart: function(e) {
+    EverythingME.changeSearchbarOpacity(1, e.detail.duration);
+  },
+
+  onPageHideStart: function(e) {
+    EverythingME.changeSearchbarOpacity(0, e.detail.duration);
+  },
+
+  onPagePanning: function(e) {
+    EverythingME.changeSearchbarOpacity(e.detail.progress, null);
+  },
+
+  addPageShowEvents: function() {
+    EverythingME.removePageShowEvents(); // safety
+
+    var page = EverythingME.gridPage;
+
+    page.addEventListener('gridpageshowstart', EverythingME.onPageShowStart);
+    page.addEventListener('gridpagehidestart', EverythingME.onPageHideStart);
+    page.addEventListener('gridpagepanning', EverythingME.onPagePanning);
+
+    console.log('addPageShowEvents');
+  },
+
+  removePageShowEvents: function() {
+    var page = EverythingME.gridPage;
+
+    page.removeEventListener('gridpageshowstart', EverythingME.onPageShowStart);
+    page.removeEventListener('gridpagehidestart', EverythingME.onPageHideStart);
+    page.removeEventListener('gridpagepanning', EverythingME.onPagePanning);
+
+    console.log('removePageShowEvents');
+  },
 
   init: function EverythingME_init(config) {
     this.debug = !!config.debug;
@@ -22,8 +64,8 @@ var EverythingME = {
       footer.style.MozTransition = '-moz-transform .3s ease';
     }
 
-    var gridPage = document.querySelector('#icongrid > div:first-child');
-    gridPage.classList.add('evmePage');
+    self.gridPage = document.querySelector('#icongrid > div:first-child');
+    self.gridPage.classList.add('evmePage');
 
 
     // pre-evme-load pseudo searchbar
@@ -33,8 +75,11 @@ var EverythingME = {
       '<input type="text" x-inputmode="verbatim"' +
       ' data-l10n-id="evme-searchbar-default2" />';
 
+    // set as the searchbar till it's replaced with the real one
+    EverythingME.SearchbarFacade = activationIcon;
+
     // insert into first page
-    gridPage.insertBefore(activationIcon, gridPage.firstChild);
+    self.gridPage.insertBefore(activationIcon, self.gridPage.firstChild);
 
     // Append appropriate placeholder translation to pseudo searchbar
     navigator.mozL10n.ready(function loadSearchbarValue() {
@@ -161,24 +206,12 @@ var EverythingME = {
       e.stopPropagation();
     }
 
-    function changeActivationIconOpacity (opacity, duration) {
-      activationIcon.style.transition = duration ? duration + 'ms ease' : '';
-      activationIcon.style.opacity = Math.round(opacity * 40) / 40;
-    }
+    self.addPageShowEvents();
 
-    gridPage.addEventListener('gridpageshowstart', function onPageShowStart(e) {
-      changeActivationIconOpacity(1, e.detail.duration);
-    });
-    gridPage.addEventListener('gridpagehidestart', function onPageHideStart(e) {
-      changeActivationIconOpacity(0, e.detail.duration);
-    });
-    gridPage.addEventListener('gridpagepanning', function onPagePanning(e) {
-      changeActivationIconOpacity(e.detail.progress, null);
-    });
-    gridPage.addEventListener('gridpageshowend', function onPageShowEnd() {
+    self.gridPage.addEventListener('gridpageshowend', function onPageShowEnd() {
       EvmeFacade.onShow();
     });
-    gridPage.addEventListener('gridpagehideend', function onPageHideEnd() {
+    self.gridPage.addEventListener('gridpagehideend', function onPageHideEnd() {
       EvmeFacade.onHide();
     });
 
@@ -355,7 +388,6 @@ var EverythingME = {
   onEvmeLoaded: function onEvmeLoaded() {
 
     var page = document.getElementById('evmeContainer'),
-        gridPage = document.querySelector('#icongrid > div:first-child'),
         activationIcon = document.getElementById('evme-activation-icon'),
         activationIconInput = activationIcon.querySelector('input'),
         existingQuery = activationIconInput && activationIconInput.value,
@@ -366,7 +398,7 @@ var EverythingME = {
                                             EverythingME.onActivationIconBlur);
 
     // add evme into the first grid page
-    gridPage.appendChild(page.parentNode.removeChild(page));
+    EverythingME.gridPage.appendChild(page.parentNode.removeChild(page));
 
     EvmeFacade.onShow();
 
@@ -387,10 +419,17 @@ var EverythingME = {
 
     window.removeEventListener('hashchange', EverythingME.onCollectionClosed);
 
+    window.addEventListener('searchbarHasValueChange', function(evt) {
+      evt.detail.has ? EverythingME.removePageShowEvents() :
+                       EverythingME.addPageShowEvents();
+    });
+
     document.body.classList.remove('evme-loading');
     document.body.classList.remove('evme-loading-from-input');
 
     activationIcon.parentNode.removeChild(activationIcon);
+
+    EverythingME.SearchbarFacade = document.querySelector('#search');
 
     if (e && e.target) {
       e.target.dispatchEvent(e);

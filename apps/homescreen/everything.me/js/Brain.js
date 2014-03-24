@@ -244,7 +244,9 @@
 
     // toggle classname when searchbar is empty
     this.setEmptyClass = function setEmptyClass() {
-      var query = Evme.Searchbar.getValue();
+      var query = Evme.Searchbar.getValue(),
+          hadQuery = document.body.classList.contains(CLASS_WHEN_HAS_QUERY);
+
       if (!query) {
         elContainer.classList.add('empty-query');
         document.body.classList.remove(CLASS_WHEN_HAS_QUERY);
@@ -252,6 +254,16 @@
         elContainer.classList.remove('empty-query');
         document.body.classList.add(CLASS_WHEN_HAS_QUERY);
       }
+
+      // dispatch event if state changed
+      if ((query && !hadQuery) || (!query && hadQuery)) {
+        window.dispatchEvent(new CustomEvent('searchbarHasValueChange', {
+          'detail': {
+            'has': !!query
+          }
+        }));
+      }
+
     };
 
     // if an event was captured - cancel the blur timeout
