@@ -326,7 +326,7 @@ var EverythingME = {
     }
   },
 
-  // Get or create config shared with search/eme instance via DataStore API.
+  // Get or create devideId shared with search/eme instance via mozSettings.
   getDeviceId: function EverythingME_getDeviceId() {
 
     // see duplicate in search/eme.js
@@ -339,7 +339,7 @@ var EverythingME = {
       return 'fxos-' + id;
     }
 
-    var promise = new Promise(function done(resolve, reject) {
+    var promise = new Promise(function done(resolve) {
       SettingsListener.observe('search.deviceId', false,
         function onSettingChange(value) {
           if (!value) {
@@ -347,6 +347,7 @@ var EverythingME = {
             navigator.mozSettings.createLock().set({
               'search.deviceId': value
             });
+            EverythingME.log('EVME set new deviceId', value);
           }
           resolve(value);
       });
@@ -362,7 +363,7 @@ var EverythingME = {
 
       Evme.init({'deviceId': value}, EverythingME.onEvmeLoaded);
       EvmeFacade = Evme;
-    }, function reject(reason) {
+    }).catch(function _catch(ex) {
       EverythingME.warn('EVME init failed (deviceId not found)', ex);
     });
   },
